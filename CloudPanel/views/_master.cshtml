@@ -1,0 +1,199 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@using CloudPanel
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>@RenderContext.Context.Culture.ToString()</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="shortcut icon" href="~/Content/images/favicon.png" type="image/png">
+
+    <!-- Styles -->
+    <link href="~/Content/css/style.default.css" rel="stylesheet">
+    <link href="~/Content/css/jquery.dataTables.css" rel="stylesheet" />
+    <link href="~/Content/css/jquery.gritter.css" rel="stylesheet" />
+
+    <style type="text/css">
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 300px;
+            padding: 14px 0 2px 0;
+            border: 1px solid #808080;
+            text-align: center;
+            color: #000;
+            font-size: 18px;
+            background-color: #ffffff;
+        }
+    </style>
+
+    @RenderSection("HEAD", required: false)
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="~/Content/js/html5shiv.js"></script>
+        <script src="~/Content/js/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+    <section>
+        <div class="leftpanel">
+
+            <div class="logopanel" style="text-align: center">
+                <h1>CloudPanel</h1>
+            </div>
+
+            <div class="leftpanelinner">
+
+                <!-- This is only visible to small devices -->
+                <div class="visible-xs hidden-sm hidden-md hidden-lg">
+                    <div class="media userlogged">
+                        <div class="media-body">
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="sidebartitle">Navigation</h5>
+                <ul class="nav nav-pills nav-stacked nav-bracket">
+                    <li><a href="~/Dashboard"><i class="fa fa-home"></i><span>@Text.words.Dashboard</span></a></li>
+                    <li><a href="~/Resellers"><i class="fa fa-user"></i><span>@Text.words.Resellers</span></a></li>
+                    @if (RenderContext.Context.CurrentUser != null)
+                    {
+                        var user = this.RenderContext.Context.CurrentUser as AuthenticatedUser;
+                        if (!string.IsNullOrEmpty(user.SelectedResellerCode))
+                        {
+                            <li><a href="~/Resellers/@user.SelectedResellerCode/Companies"><i class="fa fa-building-o"></i><span>@Text.words.Companies</span></a></li>
+                        }
+                    }
+                    <li class="nav-parent">
+                        <a href="#"><i class="fa fa-edit"></i><span>@Text.words.Plans</span></a>
+                        <ul class="children">
+                            <li><a href="~/Plans/Company"><i class="fa fa-caret-right"></i>@Text.words.CompanyPlans</a></li>
+                            <li><a href="~/Plans/Mailbox"><i class="fa fa-caret-right"></i>@Text.words.MailboxPlans</a></li>
+                            <li><a href="#"><i class="fa fa-caret-right"></i>@Text.words.ActivesyncPlans</a></li>
+                            <li><a href="#"><i class="fa fa-caret-right"></i>@Text.words.CitrixPlans</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#"><i class="fa fa-file-o"></i><span>@Text.words.Reports</span></a></li>
+                </ul>
+
+                <hr />
+
+                @if (RenderContext.Context.CurrentUser != null)
+                {
+                    var user = this.RenderContext.Context.CurrentUser as AuthenticatedUser;
+                    if (!string.IsNullOrEmpty(user.SelectedCompanyCode))
+                    {
+                        <h5 class="sidebartitle">@user.SelectedCompanyName</h5>
+                        <ul class="nav nav-pills nav-stacked nav-bracket">
+                            <li><a href="~/Company/@user.SelectedCompanyCode"><i class="fa fa-info"></i><span>@Text.words.Overview</span></a></li>
+                            <li><a href="~/Company/@user.SelectedCompanyCode/Domains"><i class="fa fa-globe"></i><span>@Text.words.Domains</span></a></li>
+                            <li><a href="~/Company/@user.SelectedCompanyCode/Users"><i class="fa fa-users"></i><span>@Text.words.Users</span></a></li>
+                            <li class="nav-parent">
+                                <a href="#"><i class="fa fa-envelope-o"></i><span>@Text.words.Email</span></a>
+                                <ul class="children">
+                                    <li><a href="~/Company/@user.SelectedCompanyCode/Email/Status"><i class="fa fa-caret-right"></i>@Text.words.EnableDisable</a></li>
+                                    <li><a href="~/Company/@user.SelectedCompanyCode/Email/Contacts"><i class="fa fa-caret-right"></i>@Text.words.Contacts</a></li>
+                                    <li><a href="~/Company/@user.SelectedCompanyCode/Email/Groups"><i class="fa fa-caret-right"></i>@Text.words.Groups</a></li>
+                                    <li><a href="~/Company/@user.SelectedCompanyCode/Email/ResourceMailboxes"><i class="fa fa-caret-right"></i>@Text.words.ResourceMailboxes</a></li>
+                                    <li><a href="~/Company/@user.SelectedCompanyCode/Email/PublicFolders"><i class="fa fa-caret-right"></i>@Text.words.PublicFolders</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="~/Company/@user.SelectedCompanyCode/Citrix"><i class="fa fa-cloud"></i><span>@Text.words.Citrix</span></a></li>
+                            <li><a href="~/Company/@user.SelectedCompanyCode/Billing"><i class="fa fa-money"></i><span>@Text.words.Billing</span></a></li>
+                        </ul>
+                    }
+                }
+            </div>
+
+        </div>
+
+        <div class="mainpanel">
+            <div class="headerbar">
+
+                <a class="menutoggle"><i class="fa fa-bars"></i></a>
+
+                <form class="searchform" action="index.html" method="post">
+                    <input type="text" class="form-control" name="keyword" placeholder="Search here..." />
+                </form>
+
+                <div class="header-right">
+                    <ul class="headermenu">
+                        <li>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    <img src="~/Content/images/photos/loggeduser.png" alt="" />
+                                    @if (Html.RenderContext.Context.CurrentUser != null)
+                                    { @(((AuthenticatedUser)Html.RenderContext.Context.CurrentUser).UserName) }
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-usermenu pull-right">
+                                    <li><a href="profile.html"><i class="glyphicon glyphicon-user"></i> My Profile</a></li>
+                                    <li><a href="#"><i class="glyphicon glyphicon-cog"></i> Account Settings</a></li>
+                                    <li><a href="#"><i class="glyphicon glyphicon-question-sign"></i> Help</a></li>
+                                    <li><a href="signin.html"><i class="glyphicon glyphicon-log-out"></i> Log Out</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div><!-- header-right -->
+
+            </div>
+
+            @RenderSection("PAGEHEADER", required: false)
+
+            <div class="contentpanel">
+                @RenderBody()
+            </div>
+        </div>
+    </section>
+
+    <script src="~/Content/js/jquery-1.10.2.min.js"></script>
+    <script src="~/Content/js/jquery-migrate-1.2.1.min.js"></script>
+    <script src="~/Content/js/jquery-ui-1.10.3.min.js"></script>
+    <script src="~/Content/js/bootstrap.min.js"></script>
+    <script src="~/Content/js/modernizr.min.js"></script>
+    <script src="~/Content/js/retina.min.js"></script>
+    <script src="~/Content/js/chosen.jquery.min.js"></script>
+    <script src="~/Content/js/jquery.gritter.min.js"></script>
+    <script src="~/content/js/jquery.blockUI.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function () {
+
+            $(document).ajaxStart(function() {
+                $.blockUI({
+                    message: '<p>Processing</p><img src="@Url.Content("~/Content/images/loaders/loader25.gif")" />'
+                });
+            });
+
+            $(document).ajaxStop($.unblockUI);
+
+            @if (!string.IsNullOrEmpty(ViewBag.Error)) {
+                @Html.Raw(CloudPanel.code.OtherStatics.GetGritterMessage(
+                            "Error", 
+                            ViewBag.Error, 
+                            Url.Content("~/Content/images/error_icon.png"), 
+                            true
+                ));
+            }
+            else if (!string.IsNullOrEmpty(ViewBag.Success)) {
+                @Html.Raw(CloudPanel.code.OtherStatics.GetGritterMessage(
+                            "Success",
+                            ViewBag.Success,
+                            Url.Content("~/Content/images/success.png"),
+                            true
+                ));
+            }
+        });
+    </script>
+    @RenderSection("CUSTOMJAVASCRIPT", required: false)
+
+    <script src="~/Content/js/custom.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<database>
+  <server>DXN-PC</server>
+  <instance>SQLEXPRESS</instance>
+  <username></username>
+  <password></password>
+</database>

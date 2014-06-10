@@ -1,0 +1,64 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{D64FED88-8FF5-46A5-B8E9-31D132A099D6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Website", "Website", "{77C0EB4D-486D-48EC-9EB9-8554E7E79008}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPanel", "CloudPanel\CloudPanel.csproj", "{DB6757B4-B847-4060-902A-A3B995124C0D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPanel.ActiveDirectory", "CloudPanel.ActiveDirectory\CloudPanel.ActiveDirectory.csproj", "{4805B81D-C2A2-44BF-BAD9-FFB8D27A068D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPanel.Rollback", "CloudPanel.Rollback\CloudPanel.Rollback.csproj", "{AF34D7D3-FF49-4C73-ACC0-DE631B4FA390}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPanel.Base", "CloudPanel.Base\CloudPanel.Base.csproj", "{5C2B5FC4-0814-47C0-B371-0BC299E433E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPanel.Database.EntityFramework", "CloudPanel.Database.EntityFramework\CloudPanel.Database.EntityFramework.csproj", "{6144303A-7153-4938-8AB5-02BB0CF8F2A4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{1E86E4D8-B451-42D5-89AC-C7DAF2C8A8A6}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DB6757B4-B847-4060-902A-A3B995124C0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB6757B4-B847-4060-902A-A3B995124C0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB6757B4-B847-4060-902A-A3B995124C0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB6757B4-B847-4060-902A-A3B995124C0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4805B81D-C2A2-44BF-BAD9-FFB8D27A068D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4805B81D-C2A2-44BF-BAD9-FFB8D27A068D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4805B81D-C2A2-44BF-BAD9-FFB8D27A068D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4805B81D-C2A2-44BF-BAD9-FFB8D27A068D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF34D7D3-FF49-4C73-ACC0-DE631B4FA390}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF34D7D3-FF49-4C73-ACC0-DE631B4FA390}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF34D7D3-FF49-4C73-ACC0-DE631B4FA390}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF34D7D3-FF49-4C73-ACC0-DE631B4FA390}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C2B5FC4-0814-47C0-B371-0BC299E433E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C2B5FC4-0814-47C0-B371-0BC299E433E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C2B5FC4-0814-47C0-B371-0BC299E433E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C2B5FC4-0814-47C0-B371-0BC299E433E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6144303A-7153-4938-8AB5-02BB0CF8F2A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6144303A-7153-4938-8AB5-02BB0CF8F2A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6144303A-7153-4938-8AB5-02BB0CF8F2A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6144303A-7153-4938-8AB5-02BB0CF8F2A4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DB6757B4-B847-4060-902A-A3B995124C0D} = {77C0EB4D-486D-48EC-9EB9-8554E7E79008}
+		{4805B81D-C2A2-44BF-BAD9-FFB8D27A068D} = {D64FED88-8FF5-46A5-B8E9-31D132A099D6}
+		{AF34D7D3-FF49-4C73-ACC0-DE631B4FA390} = {D64FED88-8FF5-46A5-B8E9-31D132A099D6}
+		{5C2B5FC4-0814-47C0-B371-0BC299E433E0} = {D64FED88-8FF5-46A5-B8E9-31D132A099D6}
+		{6144303A-7153-4938-8AB5-02BB0CF8F2A4} = {D64FED88-8FF5-46A5-B8E9-31D132A099D6}
+	EndGlobalSection
+EndGlobal
