@@ -166,14 +166,6 @@
     <script type="text/javascript">
         jQuery(document).ready(function () {
 
-            $(document).ajaxStart(function() {
-                $.blockUI({
-                    message: '<p>Processing</p><img src="@Url.Content("~/Content/images/loaders/loader25.gif")" />'
-                });
-            });
-
-            $(document).ajaxStop($.unblockUI);
-
             @if (!string.IsNullOrEmpty(ViewBag.Error)) {
                 @Html.Raw(CloudPanel.code.OtherStatics.GetGritterMessage(
                             "Error", 

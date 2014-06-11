@@ -61,6 +61,15 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Create New Company.
+        /// </summary>
+        internal static string Companies_CreateNew {
+            get {
+                return ResourceManager.GetString("Companies_CreateNew", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select a company to view.
         /// </summary>
         internal static string Companies_Title {

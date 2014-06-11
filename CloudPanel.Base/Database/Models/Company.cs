@@ -30,6 +30,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CloudPanel.Base.Database.Models
 {
@@ -136,7 +137,10 @@ namespace CloudPanel.Base.Database.Models
 
         public Nullable<bool> ExchPermFixed { get; set; }
 
+        //
         // Not database related
+        //
+        [NotMapped]
         public string FullAddressFormatted
         {
             get
@@ -144,5 +148,8 @@ namespace CloudPanel.Base.Database.Models
                 return string.Format("{0}<br/>{1} {2} {3}", Street, City, State, ZipCode);
             }
         }
+
+        [NotMapped]
+        public int TotalCompanies { get; set; }
     }
 }

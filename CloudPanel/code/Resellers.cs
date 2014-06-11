@@ -55,12 +55,16 @@ namespace CloudPanel.code
 
         public List<Company> GetAll()
         {
-            var resellers = from c in db.Companies
+            var resellers = (from c in db.Companies
                             where c.IsReseller
                             orderby c.CompanyName
-                            select c;
+                            select c).ToList();
 
-            return resellers.ToList();
+            // Count the total companies under the reseller
+            foreach (var reseller in resellers)
+                reseller.TotalCompanies = (from c in db.Companies where !c.IsReseller where c.ResellerCode == reseller.CompanyCode select c).Count();
+
+            return resellers;
         }
 
         public Company GetReseller(string resellerCode)
@@ -69,6 +73,9 @@ namespace CloudPanel.code
                              where c.IsReseller
                              where c.CompanyCode == resellerCode
                              select c).First();
+
+            // Count the total companies under the reseller
+            reseller.TotalCompanies = (from c in db.Companies where !c.IsReseller where c.ResellerCode == reseller.CompanyCode select c).Count();
 
             return reseller;
         }

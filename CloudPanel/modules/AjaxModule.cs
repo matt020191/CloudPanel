@@ -37,6 +37,7 @@ using CloudPanel.Database.EntityFramework;
 using CloudPanel.code;
 using CloudPanel.Base.Database.Models;
 using log4net;
+using Nancy.Localization;
 
 namespace CloudPanel.modules
 {
@@ -49,6 +50,31 @@ namespace CloudPanel.modules
         public AjaxModule(CloudPanelContext db) : base("/ajax")
         {
             this.db = db;
+
+            Post["/validation/domain"] = _ =>
+                {
+                    try
+                    {
+                        string domain = Request.Form.DomainName;
+
+                        // Validate the domain
+                        if (domain.Contains(" ") || !domain.Contains("."))
+                            return Response.AsJson("Domain is not in correct format");
+                        else
+                        {
+                            int exist = (from d in db.Domains where d.Domain1 == domain select d).Count();
+                            if (exist == 0)
+                                return Response.AsJson(true);
+                            else
+                                return Response.AsJson("Domain is not available");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Error checking if domain is valid. Exception: {0}", ex.ToString());
+                        return Response.AsJson("Unknown error. Contact support.");
+                    }
+                };
 
             Get["/reseller/{resellercode}/companies"] = _ =>
                 {

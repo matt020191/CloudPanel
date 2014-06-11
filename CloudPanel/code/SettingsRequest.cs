@@ -94,6 +94,14 @@ namespace CloudPanel
 
                     Settings.ExchangeConnection = s.Element("Connection").Value;
                     Settings.ExchangeDatabases = s.Element("Databases").Value.Split(',');
+                    Settings.ExchangeGALName = s.Element("ExchangeGALName").Value;
+                    Settings.ExchangeABPName = s.Element("ExchangeABPName").Value;
+                    Settings.ExchangeOALName = s.Element("ExchangeOALName").Value;
+                    Settings.ExchangeUSERSName = s.Element("ExchangeUSERSName").Value;
+                    Settings.ExchangeCONTACTSName = s.Element("ExchangeCONTACTSName").Value;
+                    Settings.ExchangeROOMSName = s.Element("ExchangeROOMSName").Value;
+                    Settings.ExchangeGROUPSName = s.Element("ExchangeGROUPSName").Value;
+                    Settings.ExchangeOU = s.Element("ExchangeOU").Value;
                 }
 
                 /* Load Module Settings */
@@ -114,10 +122,22 @@ namespace CloudPanel
                     bool.TryParse(s.Element("Lync").Value, out enabled);
                     Settings.LyncModule = enabled;
                 }
+
+                /* Load Advanced Settings */
+                log.Debug("Loading advanced settings from config file");
+                var advanced = from s in xDoc.Element("cloudpanel").Elements("Advanced")
+                               select s;
+
+                foreach (var a in advanced)
+                {
+                    Settings.ApplicationsOU = a.Element("ApplicationsOU").Value;
+                }
             }
             catch (Exception ex)
             {
                 log.Error("Error loading settings", ex);
+
+                // Set error value so people can't login // TODO
             }
         }
 

@@ -84,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="config\db.xml" />
+    <Content Include="config\domains.txt" />
     <Content Include="config\settings.xml" />
     <Content Include="content\ajax\accordion.html" />
     <Content Include="content\ajax\panel.html" />
@@ -619,6 +620,7 @@
     <Content Include="content\js\jquery.autogrow-textarea.js" />
     <Content Include="content\js\jquery.blockUI.js" />
     <Content Include="content\js\jquery.cookies.js" />
+    <Content Include="content\js\jquery.datatables.fnFilterOnReturn.js" />
     <Content Include="content\js\jquery.datatables.min.js" />
     <Content Include="content\js\jquery.gritter.min.js" />
     <Content Include="content\js\jquery.maskedinput.min.js" />
@@ -642,6 +644,7 @@
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="code\AuthenticatedUser.cs" />
+    <Compile Include="code\Companies.cs" />
     <Compile Include="code\OtherStatics.cs" />
     <Compile Include="code\Resellers.cs" />
     <Compile Include="code\SettingsRequest.cs" />
@@ -659,6 +662,7 @@
       <DependentUpon>words.resx</DependentUpon>
     </Compile>
     <Compile Include="modules\AjaxModule.cs" />
+    <Compile Include="modules\CompaniesModule.cs" />
     <Compile Include="modules\CPSecurityHooksModule.cs" />
     <Compile Include="modules\DefaultGetModule.cs" />
     <Compile Include="modules\ResellersModule.cs" />

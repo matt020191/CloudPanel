@@ -37,11 +37,14 @@ using Nancy.ModelBinding;
 using CloudPanel.code;
 using CloudPanel.Base.Database.Models;
 using System.Threading;
+using log4net;
 
 namespace CloudPanel.modules
 {
     public class ResellersModule : NancyModule
     {
+        private static readonly ILog log = log4net.LogManager.GetLogger(typeof(ResellersModule));
+
         public ResellersModule() : base("/Resellers")
         {
             Get["/"] = _ =>
@@ -57,6 +60,8 @@ namespace CloudPanel.modules
                     catch (Exception ex)
                     {
                         ViewBag.Error = ex.Message;
+                        log.ErrorFormat("Failed to retrieve resellers. Exception: {0}", ex.ToString());
+
                         return View["resellers.cshtml"];
                     }
                 };
@@ -76,16 +81,8 @@ namespace CloudPanel.modules
                     catch (Exception ex)
                     {
                         ViewBag.Error = ex.Message;
-                        return View["resellers.cshtml"];
+                        return View["resellers.cshtml", GetResellers()];
                     }
-                };
-
-            Get["/{ResellerCode}/Companies"] = _ =>
-                {
-                    //this.RequiresAuthentication();
-                    //this.RequiresValidatedClaims( new Func<IEnumerable<string>,bool>(isValid) );
-
-                    return View["companies.cshtml", _.ResellerCode];
                 };
 
             Put["/"] = _ =>
@@ -105,14 +102,33 @@ namespace CloudPanel.modules
                 catch (Exception ex)
                 {
                     ViewBag.Error = ex.Message;
-                    return View["resellers.cshtml"];
+                    return View["resellers.cshtml", GetResellers()];
                 }
             };
 
-           // Delete["/"] = _ =>
-               // {
+            Delete["/"] = _ =>
+                {
+                    try
+                    {
+                        string companyName = Request.Form.CompanyNameValidation;
+                        if (string.IsNullOrEmpty(companyName))
+                            throw new MissingFieldException("Resellers", "CompanyName");
 
-               // };
+                        string companyCode = Request.Form.CompanyCode;
+                        if (string.IsNullOrEmpty(companyCode))
+                            throw new MissingFieldException("Resellers", "CompanyCode");
+
+                        Resellers resellers = new Resellers();
+                        resellers.Delete(companyCode);
+
+                        return View["resellers.cshtml", resellers.GetAll()];
+                    }
+                    catch (Exception ex)
+                    {
+                        ViewBag.Error = ex.Message;
+                        return View["resellers.cshtml", GetResellers()];
+                    }
+                };
 
             Post["/"] = _ =>
                 {
@@ -128,9 +144,29 @@ namespace CloudPanel.modules
                     catch (Exception ex)
                     {
                         ViewBag.Error = ex.Message;
-                        return View["resellers.cshtml"];
+                        return View["resellers.cshtml", GetResellers()];
                     }
                 };
+        }
+
+        /// <summary>
+        /// This is used for the catch station to pull the 
+        /// resellers so we don't send back a blank page
+        /// It doesn't throw an exception which is why we can use it 
+        /// </summary>
+        /// <returns></returns>
+        private dynamic GetResellers()
+        {
+            try
+            {
+                Resellers resellers = new Resellers();
+                return resellers.GetAll();
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed to retrieve resellers from the database");
+                return null;
+            }
         }
     }
 }

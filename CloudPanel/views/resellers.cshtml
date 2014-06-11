@@ -24,6 +24,7 @@
                 <th>@Text.words.Name</th>
                 <th>@Text.words.Address</th>
                 <th>@Text.words.Created</th>
+                <th>@Text.words.Companies</th>
                 <th style="width: 10%"></th>
             </tr>
         </thead>
@@ -39,6 +40,7 @@
                             @reseller.City, @reseller.State @reseller.ZipCode
                         </td>
                         <td>@reseller.Created</td>
+                        <td><p class="text-success">@reseller.TotalCompanies</p></td>
                         <td>
                             <div class="btn-group pull-right">
                                 <a href="#" data-toggle="modal" class="btn btn-xs btn-orange" onclick="GetReseller('@reseller.CompanyCode');">@Text.words.Modify</a>
@@ -735,6 +737,15 @@
 <script src="~/content/js/jquery.validate.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
+
+        $(document).ajaxStart(function () {
+            $.blockUI({
+                message: '<p>Processing</p><img src="@Url.Content("~/Content/images/loaders/loader25.gif")" />'
+            });
+        });
+
+        $(document).ajaxStop($.unblockUI);
+
         $(document).on("click", "#deleteResellerLink", function () {
             var companyCode = $(this).data('id');
             var companyName = $(this).data('name');

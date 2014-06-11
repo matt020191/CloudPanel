@@ -106,6 +106,73 @@ namespace CloudPanel.Base.Config
 
         #endregion
 
+        #region Advanced Customization
+
+        private static string _exchangegalname;
+        public static string ExchangeGALName
+        {
+            get { return string.IsNullOrEmpty(_exchangegalname) ? "{0} GAL" : _exchangegalname;  }
+            set { _exchangegalname = value; }
+        }
+
+        private static string _exchangeabpname;
+        public static string ExchangeABPName
+        {
+            get { return string.IsNullOrEmpty(_exchangeabpname) ? "{0} ABP" : _exchangeabpname; }
+            set { _exchangeabpname = value; }
+        }
+
+        private static string _exchangeoalname;
+        public static string ExchangeOALName
+        {
+            get { return string.IsNullOrEmpty(_exchangeoalname) ? "{0} OAL" : _exchangeoalname; }
+            set { _exchangeoalname = value; }
+        }
+
+        private static string _exchangeusersname;
+        public static string ExchangeUSERSName
+        {
+            get { return string.IsNullOrEmpty(_exchangeusersname) ? "{0} - All Users" : _exchangeusersname; }
+            set { _exchangeusersname = value; }
+        }
+
+        private static string _exchangecontactsname;
+        public static string ExchangeCONTACTSName
+        {
+            get { return string.IsNullOrEmpty(_exchangecontactsname) ? "{0} - All Contacts" : _exchangecontactsname; }
+            set { _exchangecontactsname = value; }
+        }
+
+        private static string _exchangeroomsname;
+        public static string ExchangeROOMSName
+        {
+            get { return string.IsNullOrEmpty(_exchangeroomsname) ? "{0} - All Rooms" : _exchangeroomsname; }
+            set { _exchangeroomsname = value; }
+        }
+
+        private static string _exchangegroupsname;
+        public static string ExchangeGROUPSName
+        {
+            get { return string.IsNullOrEmpty(_exchangegroupsname) ? "{0} - All Users" : _exchangegroupsname; }
+            set { _exchangegroupsname = value; }
+        }
+
+        private static string _exchangeou;
+        public static string ExchangeOU
+        {
+            get { return string.IsNullOrEmpty(_exchangeou) ? "Exchange" : _exchangeou; }
+            set { _exchangeou = value; }
+        }
+
+        private static string _applicationsou;
+        public static string ApplicationsOU
+        {
+            get { return string.IsNullOrEmpty(_applicationsou) ? "Applications" : _applicationsou; }
+            set { _applicationsou = value; }
+        }
+
+        #endregion
+
         #region Other Getters & Setters
 
         public static string EncryptPassword

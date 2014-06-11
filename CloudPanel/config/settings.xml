@@ -1,46 +1,98 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <cloudpanel>
+  
   <Settings>
     <!-- The name of the hoster. Do not change this value after implementation if you are not using resellers -->
     <CompanyName>Know More IT</CompanyName>
+    
     <!-- The DISTINGUISHEDNAME from Active Directory of the OU you will be placing all the reseller and company objects in -->
     <HostingOU>OU=Hosting,DC=lab,DC=local</HostingOU>
+    
     <!-- The primary domain controller that CloudPanel should communicate with -->
     <DomainController>DC.lab.local</DomainController>
+    
     <!-- A domain user that has rights to Create/Update/Delete from Active Directory, Exchange and other services -->
     <Username>LAB\Administrator</Username>
+    
     <!-- The password for the domain user listed above -->
     <Password>Gep5xE+DLlRcbsjcg9u/Rw==</Password>
+    
     <!-- A comma seperated list of all security groups that the members will have full access to CloudPanel -->
     <SuperAdmins>Domain Admins</SuperAdmins>
+    
     <!-- A commas seperated list of all security groups that the members will have billing access to CloudPanel -->
     <BillingAdmins>Domain Admins</BillingAdmins>
+    
     <!-- If resellers are enabled or not. This value cannot be changed after implementation (True or False) -->
     <ResellersEnabled>true</ResellersEnabled>
+    
     <!-- Salt key used to encrypt passwords. Changing this will require you to reset your passwords -->
     <SaltKey>rI1aosWPff9S5EsY+hj6Pjq0my6DcYWCscivVBr4vA0=</SaltKey>
+   
   </Settings>
+  
   <!-- Microsoft Exchange -->
   <Exchange>
     <!-- The server or network load balancer for Microsoft Exchange CAS -->
     <Server>exch2013.lab.local</Server>
+    
     <!-- The server for public folder access (normally the mailbox server) -->
     <PFServer>exch2013.lab.local</PFServer>
+    
     <!-- If public folders are going to be offered or not -->
     <PFEnabled>true</PFEnabled>
+    
     <!-- The version of Exchange (2010 or 2013) -->
     <Version>2013</Version>
+    
     <!-- If using SSL to connect to Exchange. Not using SSL required additional configuration on Exchange -->
     <SSL>true</SSL>
+    
     <!-- Type of connection to Exchange. Either Basic or Kerberos -->
     <Connection>Basic</Connection>
+    
     <!-- A comma seperated list of Exhcange databases that Super Admins can choose from when enabling mailboxes (resellers and company admins will not have this option -->
     <Databases></Databases>
+
+    <!-- GALName is the name of the global address list. The placeholder {0} is used for the company code. Default is '{0} GAL' -->
+    <ExchangeGALName>{0} GAL</ExchangeGALName>
+
+    <!-- ABPName is the name of the address book policy. The placeholder {0} is used for the company code. Default is '{0} ABP' -->
+    <ExchangeABPName>{0} ABP</ExchangeABPName>
+
+    <!-- OALName is the name of the offline address book. The placeholder {0} is used for the company code. Default is '{0} OAL' -->
+    <ExchangeOALName>{0} OAL</ExchangeOALName>
+
+    <!-- USERSName is the name of the users address list. The placeholder {0} is used for the company code. Default is '{0} - All Users' -->
+    <ExchangeUSERSName>{0} - All Users</ExchangeUSERSName>
+
+    <!-- CONTACTSName is the name of the contacts address list. The placeholder {0} is used for the company code. Default is '{0} - All Contacts' -->
+    <ExchangeCONTACTSName>{0} - All Contacts</ExchangeCONTACTSName>
+
+    <!-- ROOMSName is the name of the rooms address list. The placeholder {0} is used for the company code. Default is '{0} - All Rooms' -->
+    <ExchangeROOMSName>{0} - All Rooms</ExchangeROOMSName>
+
+    <!-- GROUPSName is the name of the groups address list. The placeholder {0} is used for the company code. Default is '{0} - All Groups' -->
+    <ExchangeGROUPSName>{0} - All Groups</ExchangeGROUPSName>
+
+    <!-- ExchangeOU is the name of the OU that places all groups and contacts in (located within the company OU). Default is 'Exchange'-->
+    <ExchangeOU>Exchange</ExchangeOU>
   </Exchange>
+  
   <Modules>
     <!-- Modules that are enabled or disabled (True or False) -->
     <Exchange>true</Exchange>
+    
     <Citrix>true</Citrix>
+    
     <Lync>False</Lync>
   </Modules>
+
+  <Advanced>
+    
+    <!-- ApplicationsOU is the name of the OU That places all security groups for virtual applications (RDP or Citrix) -->
+    <ApplicationsOU>ApplicationsOU</ApplicationsOU>
+   
+  </Advanced>
+  
 </cloudpanel>

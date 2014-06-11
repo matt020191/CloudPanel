@@ -232,6 +232,15 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Domain Name.
+        /// </summary>
+        internal static string DomainName {
+            get {
+                return ResourceManager.GetString("DomainName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Domains.
         /// </summary>
         internal static string Domains {
