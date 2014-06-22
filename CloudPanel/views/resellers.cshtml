@@ -791,6 +791,9 @@
                 $("#updateResellerForm input[name=AdminName]").val(data.adminName);
                 $("#updateResellerForm input[name=AdminEmail]").val(data.adminEmail);
 
+                $("#updateResellerForm [name=Country]").val(data.country);
+                $("#updateResellerForm [name=Country]").trigger("chosen:updated");
+
                 $("#updateModal").modal();
             },
             error: function (xhr, ajaxOptions, thrownError) {

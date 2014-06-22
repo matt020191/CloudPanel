@@ -135,6 +135,9 @@
   <data name="CitrixPlans" xml:space="preserve">
     <value>Citrix Plans</value>
   </data>
+  <data name="CitrixUsers" xml:space="preserve">
+    <value>Citrix Users</value>
+  </data>
   <data name="City" xml:space="preserve">
     <value>City</value>
   </data>
@@ -143,6 +146,12 @@
   </data>
   <data name="Companies" xml:space="preserve">
     <value>Companies</value>
+  </data>
+  <data name="Company" xml:space="preserve">
+    <value>Company</value>
+  </data>
+  <data name="CompanyName" xml:space="preserve">
+    <value>Company Name</value>
   </data>
   <data name="CompanyPlans" xml:space="preserve">
     <value>Company Plans</value>
@@ -171,8 +180,14 @@
   <data name="Delete" xml:space="preserve">
     <value>Delete</value>
   </data>
+  <data name="Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
   <data name="DisableEmail" xml:space="preserve">
     <value>Disable Email</value>
+  </data>
+  <data name="DistributionGroups" xml:space="preserve">
+    <value>Distribution Groups</value>
   </data>
   <data name="DomainName" xml:space="preserve">
     <value>Domain Name</value>
@@ -191,6 +206,12 @@
   </data>
   <data name="Groups" xml:space="preserve">
     <value>Groups</value>
+  </data>
+  <data name="LyncUsers" xml:space="preserve">
+    <value>Lync Users</value>
+  </data>
+  <data name="Mailboxes" xml:space="preserve">
+    <value>Mailboxes</value>
   </data>
   <data name="MailboxPlans" xml:space="preserve">
     <value>Mailbox Plans</value>

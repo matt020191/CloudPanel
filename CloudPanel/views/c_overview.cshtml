@@ -1,0 +1,180 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+@{
+    Layout = "_master.cshtml";
+}
+
+@section PAGEHEADER{
+    <div class="pageheader">
+        <h2><i class="fa fa-building-o"></i> @Text.words.Company <span>@Text.phrases.Company_OverviewDesc</span></h2>
+    </div>
+}
+
+<div class="row">
+    <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="panel-btns">
+                        <a href="#" class="minimize">&minus;</a>
+                    </div>
+                    <h3 class="panel-title">@Text.words.Details</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">@Text.words.CompanyName</label>
+                                    <div class="col-sm-6">
+                                        <div class="well well-sm">&nbsp;@Model.CompanyName</div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">@Text.words.ContactsName</label>
+                                    <div class="col-sm-6">
+                                        <div class="well well-sm">&nbsp;@Model.AdminName</div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">@Text.words.Telephone</label>
+                                    <div class="col-sm-6">
+                                        <div class="well well-sm">&nbsp;@Model.PhoneNumber</div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">&nbsp;</label>
+                                    <div class="col-sm-6">
+                                        @CloudPanel.code.CPHtmlHelpers.GetCompanyPlans(Model.CompanyCode, Model.OrgPlanID)
+                                    </div>
+                                    @if (Model.OrgPlanID <= 0)
+                                    {
+                                        <div class="col-sm-1">
+                                            <img src="@Url.Content("~/Content/images/error_icon.png")" alt="ERROR" />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div id="columnchart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+</div>
+</div>
+
+@section CUSTOMJAVASCRIPT{
+    <script src="~/Content/js/highcharts/highcharts.js"></script>
+    <script src="~/Content/js/highcharts/highcharts-3d.js"></script>
+    <script src="~/Content/js/highcharts/modules/exporting.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $(document).ajaxStart(function () {
+                $.blockUI({
+                    message: '<p>Processing</p><img src="@Url.Content("~/Content/images/loaders/loader25.gif")" />'
+                });
+            });
+            $(document).ajaxStop($.unblockUI);
+
+            $("#OrgPlanID").change(function () {
+                $.ajax({
+                    type: "post",
+                    dataType: "json",
+                    data: { OrgPlanID: $(this).find(":selected").val() },
+                    success: function (data) {
+                    }
+                });
+            });
+
+            var options = {
+                chart: {
+                    renderTo: 'columnchart',
+                    type: 'column',
+                    margin: 75,
+                    options3d: { enabled: true, alpha: 10, beta: 25, depth: 70 },
+                    backgroundColor: 'transparent'
+                },
+                title: {
+                    text: ''
+                },
+                credits: {
+                    enabled: false
+                },
+                xAxis: {
+                    categories: []
+                },
+                legend: {
+                    enabled: false
+                },
+                yAxis: {
+                    min: 0,
+                    title: { text: '@Text.words.Users' },
+                    opposite: false
+                },
+                tooltip: {
+                    pointFormat: 'Total: <b>{point.y}</b>'
+                },
+                plotOptions: {
+                    column: {
+                        depth: 25
+                    }
+                },
+                series: [{
+                    name: '',
+                    data: []
+                }]
+            };
+
+            $.ajax({
+                type: "get",
+                url: "@Url.Content("~/ajax/charts/" + @Model.CompanyCode + "/overview")",
+                dataType: "json",
+                success: function (data) {
+
+                    options.yAxis.max = data.users;
+
+                    $.each(data, function (key, value) {
+                        var newKey = key.toUpperCase();
+                        if (newKey != "USERS") {
+
+                            var add = false;
+
+                            // We need to localize the text in the graph and determine which columns have to be added
+                            if (newKey == "MAILBOXES") {
+                                newKey = "@Text.words.Mailboxes";
+                                add = true;
+                            }
+                            else if (newKey == "CITRIX USERS" && "@CloudPanel.Base.Config.Settings.CitrixModule" == "True") {
+                                newKey = "@Text.words.CitrixUsers";
+                                add = true;
+                            }
+                            else if (newKey == "LYNC USERS" && "@CloudPanel.Base.Config.Settings.LyncModule" == "True") {
+                                newKey = "@Text.words.LyncUsers";
+                                add = true;
+                            }
+                            else if (newKey == "DISTRIBUTION GROUPS") {
+                                newKey = "@Text.words.DistributionGroups";
+                                add = true;
+                            }
+                            else if (newKey == "CONTACTS") {
+                                newKey = "@Text.words.Contacts";
+                                add = true;
+                            }
+
+                            // Do not add column if feature isn't enabled
+                            if (add == true) {
+                                options.xAxis.categories.push(newKey);
+                                options.series[0].data.push(value);
+                            }
+
+                        }
+                    });
+
+                    var chart = new Highcharts.Chart(options);
+                }
+            });
+        });
+</script>
+}

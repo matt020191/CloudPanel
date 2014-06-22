@@ -167,6 +167,7 @@
     <Content Include="content\fonts\roboto\roboto.css" />
     <Content Include="content\fonts\weathericons-regular-webfont.svg" />
     <Content Include="content\images\calendar-arrow.png" />
+    <Content Include="content\images\check_mark.png" />
     <Content Include="content\images\chosen-sprite%402x.png" />
     <Content Include="content\images\chosen-sprite.png" />
     <Content Include="content\images\close-white.png" />
@@ -198,6 +199,7 @@
     <Content Include="content\images\colorpicker\select2.png" />
     <Content Include="content\images\colorpicker\slider.png" />
     <Content Include="content\images\dropdown-arrow.png" />
+    <Content Include="content\images\error.png" />
     <Content Include="content\images\error_icon.png" />
     <Content Include="content\images\error_icon_sm.png" />
     <Content Include="content\images\favicon.png" />
@@ -608,6 +610,39 @@
     <Content Include="content\js\flot\index.html" />
     <Content Include="content\js\fullcalendar.min.js" />
     <Content Include="content\js\gmaps.js" />
+    <Content Include="content\js\highcharts\adapters\standalone-framework.js" />
+    <Content Include="content\js\highcharts\adapters\standalone-framework.src.js" />
+    <Content Include="content\js\highcharts\highcharts-3d.js" />
+    <Content Include="content\js\highcharts\highcharts-3d.src.js" />
+    <Content Include="content\js\highcharts\highcharts-all.js" />
+    <Content Include="content\js\highcharts\highcharts-more.js" />
+    <Content Include="content\js\highcharts\highcharts-more.src.js" />
+    <Content Include="content\js\highcharts\highcharts.js" />
+    <Content Include="content\js\highcharts\highcharts.src.js" />
+    <Content Include="content\js\highcharts\modules\canvas-tools.js" />
+    <Content Include="content\js\highcharts\modules\canvas-tools.src.js" />
+    <Content Include="content\js\highcharts\modules\data.js" />
+    <Content Include="content\js\highcharts\modules\data.src.js" />
+    <Content Include="content\js\highcharts\modules\drilldown.js" />
+    <Content Include="content\js\highcharts\modules\drilldown.src.js" />
+    <Content Include="content\js\highcharts\modules\exporting.js" />
+    <Content Include="content\js\highcharts\modules\exporting.src.js" />
+    <Content Include="content\js\highcharts\modules\funnel.js" />
+    <Content Include="content\js\highcharts\modules\funnel.src.js" />
+    <Content Include="content\js\highcharts\modules\heatmap.js" />
+    <Content Include="content\js\highcharts\modules\heatmap.src.js" />
+    <Content Include="content\js\highcharts\modules\no-data-to-display.js" />
+    <Content Include="content\js\highcharts\modules\no-data-to-display.src.js" />
+    <Content Include="content\js\highcharts\modules\solid-gauge.js" />
+    <Content Include="content\js\highcharts\modules\solid-gauge.src.js" />
+    <Content Include="content\js\highcharts\themes\dark-blue.js" />
+    <Content Include="content\js\highcharts\themes\dark-green.js" />
+    <Content Include="content\js\highcharts\themes\dark-unica.js" />
+    <Content Include="content\js\highcharts\themes\gray.js" />
+    <Content Include="content\js\highcharts\themes\grid-light.js" />
+    <Content Include="content\js\highcharts\themes\grid.js" />
+    <Content Include="content\js\highcharts\themes\sand-signika.js" />
+    <Content Include="content\js\highcharts\themes\skies.js" />
     <Content Include="content\js\holder.js" />
     <Content Include="content\js\html5shiv.js" />
     <Content Include="content\js\index.html" />
@@ -645,6 +680,7 @@
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="code\AuthenticatedUser.cs" />
     <Compile Include="code\Companies.cs" />
+    <Compile Include="code\CPHtmlHelpers.cs" />
     <Compile Include="code\OtherStatics.cs" />
     <Compile Include="code\Resellers.cs" />
     <Compile Include="code\SettingsRequest.cs" />
@@ -663,6 +699,7 @@
     </Compile>
     <Compile Include="modules\AjaxModule.cs" />
     <Compile Include="modules\CompaniesModule.cs" />
+    <Compile Include="modules\CompanyModule.cs" />
     <Compile Include="modules\CPSecurityHooksModule.cs" />
     <Compile Include="modules\DefaultGetModule.cs" />
     <Compile Include="modules\ResellersModule.cs" />
@@ -793,6 +830,7 @@
     <Content Include="views\resellers.cshtml" />
     <Content Include="views\companies.cshtml" />
     <Content Include="content\js\jquery-1.10.2.min.map" />
+    <Content Include="views\c_overview.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

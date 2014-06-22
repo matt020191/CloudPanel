@@ -179,35 +179,40 @@ namespace CloudPanel.code
                                 where c.CompanyCode == existingReseller.CompanyCode
                                 select c).First();
 
-                // Set the new values
-                reseller.CompanyName = existingReseller.CompanyName;
-                reseller.AdminName = existingReseller.AdminName;
-                reseller.AdminEmail = existingReseller.AdminEmail;
-                reseller.PhoneNumber = existingReseller.PhoneNumber;
-                reseller.Street = existingReseller.Street;
-                reseller.City = existingReseller.City;
-                reseller.State = existingReseller.State;
-                reseller.ZipCode = existingReseller.ZipCode;
-                reseller.Country = existingReseller.Country;
+                if (reseller == null)
+                    throw new ArgumentNullException(existingReseller.CompanyCode);
+                else
+                {
+                    // Set the new values
+                    reseller.CompanyName = existingReseller.CompanyName;
+                    reseller.AdminName = existingReseller.AdminName;
+                    reseller.AdminEmail = existingReseller.AdminEmail;
+                    reseller.PhoneNumber = existingReseller.PhoneNumber;
+                    reseller.Street = existingReseller.Street;
+                    reseller.City = existingReseller.City;
+                    reseller.State = existingReseller.State;
+                    reseller.ZipCode = existingReseller.ZipCode;
+                    reseller.Country = existingReseller.Country;
 
-                // Update the OU
-                log.DebugFormat("Updating organizational unit for reseller {0}", existingReseller.CompanyName);
-                organizationalUnits.Update(new OrganizationalUnit()
-                    {
-                        DistinguishedName = reseller.DistinguishedName,
-                        DisplayName = reseller.CompanyName,
-                        Description = reseller.Description,
-                        Street = reseller.Street,
-                        City = reseller.City,
-                        State = reseller.State,
-                        PostalCode = reseller.ZipCode,
-                        Country = reseller.Country
-                    });
+                    // Update the OU
+                    log.DebugFormat("Updating organizational unit for reseller {0}", existingReseller.CompanyName);
+                    organizationalUnits.Update(new OrganizationalUnit()
+                        {
+                            DistinguishedName = reseller.DistinguishedName,
+                            DisplayName = reseller.CompanyName,
+                            Description = reseller.Description,
+                            Street = reseller.Street,
+                            City = reseller.City,
+                            State = reseller.State,
+                            PostalCode = reseller.ZipCode,
+                            Country = reseller.Country
+                        });
 
-                // Save SQL changes
-                db.SaveChanges();
+                    // Save SQL changes
+                    db.SaveChanges();
 
-                log.InfoFormat("Successfully updated existing reseller {0}. New name if changed: {1}", existingReseller.CompanyName, reseller.CompanyName);
+                    log.InfoFormat("Successfully updated existing reseller {0}. New name if changed: {1}", existingReseller.CompanyName, reseller.CompanyName);
+                }
             }
             catch (Exception ex)
             {
@@ -238,16 +243,21 @@ namespace CloudPanel.code
                                 where c.CompanyCode == resellerCode
                                 select c).First();
 
-                // See if any companies belong to the reseller
-                var companyCount = (from c in db.Companies where c.ResellerCode == resellerCode select c).Count();
-                if (companyCount > 0)
-                    throw new Exception("Unable to delete reseller because it contains companies.");
+                if (reseller == null)
+                    throw new ArgumentNullException(resellerCode);
+                else
+                {
+                    // See if any companies belong to the reseller
+                    var companyCount = (from c in db.Companies where c.ResellerCode == resellerCode select c).Count();
+                    if (companyCount > 0)
+                        throw new Exception("Unable to delete reseller because it contains companies.");
 
-                organizationalUnits.Delete(reseller.DistinguishedName, true);
-                db.Companies.Remove(reseller);
-                db.SaveChanges();
+                    organizationalUnits.Delete(reseller.DistinguishedName, true);
+                    db.Companies.Remove(reseller);
+                    db.SaveChanges();
 
-                log.InfoFormat("Successfully deleted reseller {0}.", reseller.CompanyName);
+                    log.InfoFormat("Successfully deleted reseller {0}.", reseller.CompanyName);
+                }
             }
             catch (Exception ex)
             {

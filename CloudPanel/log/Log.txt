@@ -52,3 +52,77 @@
 2014-06-10 23:36:24,140 [111] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
 2014-06-10 23:36:24,141 [111] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
 2014-06-10 23:36:24,142 [111] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-21 08:09:37,777 [6] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-21 08:09:37,784 [6] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-21 08:09:37,785 [6] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-21 08:09:37,785 [6] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-21 08:17:17,033 [16] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-21 08:17:17,039 [16] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-21 08:17:17,040 [16] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-21 08:17:17,041 [16] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-21 08:17:27,999 [25] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-21 08:17:28,005 [25] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-21 08:17:28,006 [25] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-21 08:17:28,007 [25] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-21 09:02:27,352 [118] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-21 09:02:27,361 [118] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-21 09:02:27,362 [118] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-21 09:02:27,362 [118] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-22 09:02:09,829 [908] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-22 09:02:09,835 [908] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-22 09:02:09,836 [908] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-22 09:02:09,837 [908] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-22 09:02:29,743 [897] ERROR CloudPanel.code.Companies Error updating company: System.InvalidOperationException: Sequence contains no elements
+   at System.Linq.Enumerable.First[TSource](IEnumerable`1 source)
+   at System.Data.Entity.Core.Objects.ELinq.ObjectQueryProvider.<GetElementFunction>b__0[TResult](IEnumerable`1 sequence)
+   at System.Data.Entity.Core.Objects.ELinq.ObjectQueryProvider.ExecuteSingle[TResult](IEnumerable`1 query, Expression queryRoot)
+   at System.Data.Entity.Core.Objects.ELinq.ObjectQueryProvider.System.Linq.IQueryProvider.Execute[TResult](Expression expression)
+   at System.Data.Entity.Internal.Linq.DbQueryProvider.Execute[TResult](Expression expression)
+   at System.Linq.Queryable.First[TSource](IQueryable`1 source)
+   at CloudPanel.code.Companies.Update(Company existingCompany) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Companies.cs:line 172
+2014-06-22 09:03:18,708 [899] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-22 09:03:18,713 [899] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-22 09:03:18,714 [899] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-22 09:03:18,714 [899] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-22 09:05:52,549 [784] DEBUG CloudPanel.code.Companies Updating organizational unit for company Blah Blah Blah
+2014-06-22 09:05:52,554 [784] DEBUG CloudPanel.ActiveDirectory.OrganizationalUnits Updating organizational unit OU=BLA,OU=KNO,OU=Hosting,DC=lab,DC=local
+2014-06-22 09:05:52,555 [784] DEBUG CloudPanel.ActiveDirectory.OrganizationalUnits Retrieving the DirectoryEntry... Path: OU=BLA,OU=KNO,OU=Hosting,DC=lab,DC=local
+2014-06-22 09:05:52,557 [784] DEBUG CloudPanel.ActiveDirectory.OrganizationalUnits Directory entry retrieved path is LDAP://DC.lab.local/OU=BLA,OU=KNO,OU=Hosting,DC=lab,DC=local
+2014-06-22 09:05:55,108 [784] DEBUG CloudPanel.ActiveDirectory.OrganizationalUnits Successfully updated organizational unit OU=BLA,OU=KNO,OU=Hosting,DC=lab,DC=local.
+2014-06-22 09:05:55,228 [784] INFO  CloudPanel.code.Companies Successfully updated existing company Blah Blah Blah. New name if changed: Blah Blah Blah
+2014-06-22 09:45:31,822 [1162] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-22 09:45:31,828 [1162] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-22 09:45:31,829 [1162] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-22 09:45:31,829 [1162] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-22 09:46:55,716 [1162] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-22 09:46:55,722 [1162] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-22 09:46:55,723 [1162] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-22 09:46:55,724 [1162] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-22 09:47:33,676 [1135] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-22 09:47:33,682 [1135] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-22 09:47:33,683 [1135] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-22 09:47:33,683 [1135] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-22 09:54:35,613 [857] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-22 09:54:35,619 [857] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-22 09:54:35,620 [857] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-22 09:54:35,621 [857] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-22 09:55:30,257 [785] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-22 09:55:30,264 [785] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-22 09:55:30,265 [785] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-22 09:55:30,265 [785] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-22 09:56:33,387 [785] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-22 09:56:33,393 [785] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-22 09:56:33,393 [785] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-22 09:56:33,393 [785] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-22 10:02:21,071 [1032] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-22 10:02:21,077 [1032] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-22 10:02:21,078 [1032] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-22 10:02:21,079 [1032] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-22 10:09:14,933 [1049] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-22 10:09:14,939 [1049] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-22 10:09:14,940 [1049] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-22 10:09:14,940 [1049] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-22 10:10:30,553 [1049] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-22 10:10:30,558 [1049] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-22 10:10:30,559 [1049] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-22 10:10:30,559 [1049] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file

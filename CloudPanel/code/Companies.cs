@@ -131,7 +131,7 @@ namespace CloudPanel.code
                 reverse.AddAction(Actions.CreateOrganizationalUnit, createdOrg.DistinguishedName);
                 
                 // Add to SQL
-                log.DebugFormat("Saving new companyr {0} to the database.", newCompany.CompanyName);
+                log.DebugFormat("Saving new company {0} to the database.", newCompany.CompanyName);
                 newCompany.Created = DateTime.Now;
                 newCompany.DistinguishedName = createdCompany.DistinguishedName;
                 newCompany.IsReseller = false;
@@ -155,6 +155,142 @@ namespace CloudPanel.code
                 if (organizationalUnits != null)
                     organizationalUnits.Dispose();
             }
+        }
+
+        public void Update(Company existingCompany)
+        {
+            OrganizationalUnits organizationalUnits = null;
+
+            try
+            {
+                if (string.IsNullOrEmpty(existingCompany.CompanyCode))
+                    throw new MissingFieldException("Company", "CompanyCode");
+
+                organizationalUnits = new OrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+
+                // Find the company from SQL
+                var company = (from c in db.Companies
+                                where !c.IsReseller
+                                where c.CompanyCode == existingCompany.CompanyCode
+                                select c).First();
+
+                if (company == null)
+                    throw new ArgumentNullException(existingCompany.CompanyCode);
+                else
+                {
+                    // Set the new values
+                    company.CompanyName = existingCompany.CompanyName;
+                    company.AdminName = existingCompany.AdminName;
+                    company.AdminEmail = existingCompany.AdminEmail;
+                    company.PhoneNumber = existingCompany.PhoneNumber;
+                    company.Street = existingCompany.Street;
+                    company.City = existingCompany.City;
+                    company.State = existingCompany.State;
+                    company.ZipCode = existingCompany.ZipCode;
+                    company.Country = existingCompany.Country;
+
+                    // Update the OU
+                    log.DebugFormat("Updating organizational unit for company {0}", existingCompany.CompanyName);
+                    organizationalUnits.Update(new OrganizationalUnit()
+                    {
+                        DistinguishedName = company.DistinguishedName,
+                        DisplayName = company.CompanyName,
+                        Description = company.Description,
+                        Street = company.Street,
+                        City = company.City,
+                        State = company.State,
+                        PostalCode = company.ZipCode,
+                        Country = company.Country
+                    });
+
+                    // Save SQL changes
+                    db.SaveChanges();
+
+                    log.InfoFormat("Successfully updated existing company {0}. New name if changed: {1}", existingCompany.CompanyName, company.CompanyName);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error updating company: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (organizationalUnits != null)
+                    organizationalUnits.Dispose();
+            }
+        }
+
+        public void UpdatePlan(string companyCode, int newPlanID)
+        {
+            try
+            {
+                var company = (from c in db.Companies
+                               where !c.IsReseller
+                               where c.CompanyCode == companyCode
+                               select c).First();
+
+                company.OrgPlanID = newPlanID;
+                db.SaveChanges();                
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error updating company plan for {0}. Error: {1}", companyCode, ex.ToString());
+                throw;
+            }
+        }
+
+        public void Delete(string companyCode)
+        {
+            OrganizationalUnits organizationalUnits = null;
+
+            try
+            {
+                if (string.IsNullOrEmpty(companyCode))
+                    throw new MissingFieldException("", "CompanyCode");
+
+                organizationalUnits = new OrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+
+                // Find the resellers from SQL
+                var company = (from c in db.Companies
+                                where c.IsReseller
+                                where c.CompanyCode == companyCode
+                                select c).First();
+
+                if (company == null)
+                    throw new ArgumentNullException(companyCode);
+                else
+                {
+                    // SAFE DELETE OFF! DESTRUCTIVE! WILL DELETE ALL USERS AND OBJECTS IN COMPANY!!
+                    organizationalUnits.Delete(company.DistinguishedName, false);
+
+                    // Remove all companiesby calling stored procedure
+                    db.spDeleteCompany(company.CompanyCode);
+
+                    log.InfoFormat("Successfully deleted company {0}.", company.CompanyName);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error deleting company: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (organizationalUnits != null)
+                    organizationalUnits.Dispose();
+            }
+        }
+
+        public Company GetCompany(string resellerCode, string companyCode)
+        {
+            var company = (from c in db.Companies
+                            where !c.IsReseller
+                            where c.ResellerCode == resellerCode
+                            where c.CompanyCode == companyCode
+                            select c).First();
+
+            return company;
         }
     }
 }

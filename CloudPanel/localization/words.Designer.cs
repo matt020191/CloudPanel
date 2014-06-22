@@ -115,6 +115,15 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Citrix Users.
+        /// </summary>
+        internal static string CitrixUsers {
+            get {
+                return ResourceManager.GetString("CitrixUsers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to City.
         /// </summary>
         internal static string City {
@@ -138,6 +147,24 @@ namespace CloudPanel.localization {
         internal static string Companies {
             get {
                 return ResourceManager.GetString("Companies", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Company.
+        /// </summary>
+        internal static string Company {
+            get {
+                return ResourceManager.GetString("Company", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Company Name.
+        /// </summary>
+        internal static string CompanyName {
+            get {
+                return ResourceManager.GetString("CompanyName", resourceCulture);
             }
         }
         
@@ -223,11 +250,29 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Details.
+        /// </summary>
+        internal static string Details {
+            get {
+                return ResourceManager.GetString("Details", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Disable Email.
         /// </summary>
         internal static string DisableEmail {
             get {
                 return ResourceManager.GetString("DisableEmail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Distribution Groups.
+        /// </summary>
+        internal static string DistributionGroups {
+            get {
+                return ResourceManager.GetString("DistributionGroups", resourceCulture);
             }
         }
         
@@ -282,6 +327,24 @@ namespace CloudPanel.localization {
         internal static string Groups {
             get {
                 return ResourceManager.GetString("Groups", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lync Users.
+        /// </summary>
+        internal static string LyncUsers {
+            get {
+                return ResourceManager.GetString("LyncUsers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mailboxes.
+        /// </summary>
+        internal static string Mailboxes {
+            get {
+                return ResourceManager.GetString("Mailboxes", resourceCulture);
             }
         }
         

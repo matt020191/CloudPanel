@@ -70,11 +70,56 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Are you sure you want to delete.
+        /// </summary>
+        internal static string Companies_DeleteConfirm1 {
+            get {
+                return ResourceManager.GetString("Companies_DeleteConfirm1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To delete please type the name of the company (case sensitive).
+        /// </summary>
+        internal static string Companies_DeleteConfirm2 {
+            get {
+                return ResourceManager.GetString("Companies_DeleteConfirm2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete Company.
+        /// </summary>
+        internal static string Companies_DeleteTitle {
+            get {
+                return ResourceManager.GetString("Companies_DeleteTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select a company to view.
         /// </summary>
         internal static string Companies_Title {
             get {
                 return ResourceManager.GetString("Companies_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update Existing Company.
+        /// </summary>
+        internal static string Companies_UpdateExisting {
+            get {
+                return ResourceManager.GetString("Companies_UpdateExisting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Overview of your company.
+        /// </summary>
+        internal static string Company_OverviewDesc {
+            get {
+                return ResourceManager.GetString("Company_OverviewDesc", resourceCulture);
             }
         }
         

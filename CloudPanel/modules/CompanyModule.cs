@@ -1,4 +1,6 @@
 ﻿using CloudPanel.Base.Database.Models;
+using CloudPanel.code;
+using log4net;
 using Nancy;
 //
 // Copyright (c) 2014, Jacob Dixon
@@ -33,78 +35,47 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Nancy.ModelBinding;
-using Nancy.Security;
-using CloudPanel.code;
 
 namespace CloudPanel.modules
 {
-    public class CompaniesModule : NancyModule
+    public class CompanyModule : NancyModule
     {
-        public CompaniesModule() : base("/Resellers")
+        private static readonly ILog log = log4net.LogManager.GetLogger(typeof(CompanyModule));
+
+        public CompanyModule() : base("/Company")
         {
-            Get["/{ResellerCode}/Companies"] = _ =>
-                {
-                    //this.RequiresAuthentication();
-                    //this.RequiresValidatedClaims( new Func<IEnumerable<string>,bool>(isValid) );
-
-                    return View["companies.cshtml", _.ResellerCode];
-                };
-
             Get["/{ResellerCode}/{CompanyCode}"] = _ =>
                 {
-                    //this.RequiresAuthentication();
-                    //this.RequiresClaims(new[] { "SuperAdmin" });
+                    try
+                    {
+                        Companies companies = new Companies();
+
+                        return View["c_overview.cshtml", companies.GetCompany(_.ResellerCode, _.CompanyCode)];
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Error retrieving company {0}. Error: {1}", _.CompanyCode, ex.ToString());
+                        return View["c_overview.cshtml", null];
+                    }
+                };
+
+            Post["/{ResellerCode}/{CompanyCode}"] = _ =>
+                {
+                    var id = Request.Form.OrgPlanID;
 
                     try
                     {
                         Companies companies = new Companies();
-                        Company foundCompany = companies.GetCompany(_.ResellerCode, _.CompanyCode);
+                        companies.UpdatePlan(_.CompanyCode, id);
 
-                        return Response.AsJson(foundCompany, HttpStatusCode.OK);
+                        ViewBag.Success = "Successfully updated company plan";
+
+                        return View["c_overview.cshtml", companies.GetCompany(_.ResellerCode, _.CompanyCode)];
                     }
                     catch (Exception ex)
                     {
-                        ViewBag.Error = ex.Message;
-                        return View["companies.cshtml", _.ResellerCode];
-                    }
-                };
-
-            Post["/{ResellerCode}/Companies"] = _ =>
-                {
-                    try
-                    {
-                        //this.RequiresAuthentication();
-                        //this.RequiresValidatedClaims( new Func<IEnumerable<string>,bool>(isValid) );
-
-                        var data = this.Bind<Company>();
-                        return View["companies.cshtml", _.ResellerCode];
-                    }
-                    catch (Exception ex)
-                    {
-                        ViewBag.Error = ex.Message;
-                        return View["companies.cshtml", _.ResellerCode];
-                    }
-                };
-
-            Put["/{ResellerCode}/Companies"] = _ =>
-                {
-                    //this.RequiresAuthentication();
-                    //this.RequiresClaims(new[] { "SuperAdmin" });
-
-                    try
-                    {
-                        var company = this.Bind<Company>();
-
-                        Companies companies = new Companies();
-                        companies.Update(company);
-
-                        return View["companies.cshtml", _.ResellerCode];
-                    }
-                    catch (Exception ex)
-                    {
-                        ViewBag.Error = ex.Message;
-                        return View["companies.cshtml", _.ResellerCode];
+                        log.ErrorFormat("Error updating company plan for {0}. Error: {1}", _.CompanyCode, ex.ToString());
+                        return View["c_overview.cshtml", null];
                     }
                 };
         }

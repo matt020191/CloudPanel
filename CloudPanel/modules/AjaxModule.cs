@@ -127,6 +127,42 @@ namespace CloudPanel.modules
                         }, HttpStatusCode.InternalServerError);
                     }
                 };
+
+            Get["/charts/{CompanyCode}/overview"] = _ =>
+                {
+                    // Set default values
+                    Dictionary<string, int> data = new Dictionary<string, int>();
+                    data.Add("Users", 0);
+                    data.Add("Mailboxes", 0);
+                    data.Add("Citrix Users", 0);
+                    data.Add("Lync Users", 0);
+                    data.Add("Distribution Groups", 0);
+                    data.Add("Contacts", 0);
+
+                    // Query database for actual values
+                    try
+                    {
+                        string companyCode = _.CompanyCode;
+                        if (string.IsNullOrEmpty(companyCode))
+                            throw new Exception("Company code was null");
+
+                        var companyUsers = from u in db.Users where u.CompanyCode == companyCode select u;
+                        var userIds = from u in companyUsers select u.ID;
+
+                        data["Users"] = companyUsers.Count();
+                        data["Mailboxes"] = (from u in companyUsers where u.MailboxPlan > 0 select u).Count();
+                        data["Citrix Users"] = (from u in db.UserPlansCitrix where userIds.Contains(u.UserID) select u.UserID).Distinct().Count();
+                        data["Lync Users"] = 0;
+                        data["Distribution Groups"] = (from d in db.DistributionGroups where d.CompanyCode == companyCode select d).Count();
+                        data["Contacts"] = (from c in db.Contacts where c.CompanyCode == companyCode select c).Count();
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Error retrieving company overview column chart. Error: {0}", ex.ToString());
+                    }
+
+                    return Response.AsJson(data, HttpStatusCode.OK);
+                };
         }
     }
 }

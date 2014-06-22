@@ -164,7 +164,7 @@ namespace CloudPanel.modules
             }
             catch (Exception ex)
             {
-                log.Error("Failed to retrieve resellers from the database");
+                log.ErrorFormat("Failed to retrieve resellers from the database. Error: {0}", ex.ToString());
                 return null;
             }
         }
