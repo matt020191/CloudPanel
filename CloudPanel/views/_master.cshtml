@@ -88,25 +88,25 @@
                 @if (RenderContext.Context.CurrentUser != null)
                 {
                     var user = this.RenderContext.Context.CurrentUser as AuthenticatedUser;
-                    if (!string.IsNullOrEmpty(user.SelectedCompanyCode))
+                    if (!string.IsNullOrEmpty(user.SelectedResellerCode) && !string.IsNullOrEmpty(user.SelectedCompanyCode))
                     {
                         <h5 class="sidebartitle">@user.SelectedCompanyName</h5>
                         <ul class="nav nav-pills nav-stacked nav-bracket">
-                            <li><a href="~/Company/@user.SelectedCompanyCode"><i class="fa fa-info"></i><span>@Text.words.Overview</span></a></li>
-                            <li><a href="~/Company/@user.SelectedCompanyCode/Domains"><i class="fa fa-globe"></i><span>@Text.words.Domains</span></a></li>
-                            <li><a href="~/Company/@user.SelectedCompanyCode/Users"><i class="fa fa-users"></i><span>@Text.words.Users</span></a></li>
+                            <li><a href="~/Company/@user.SelectedResellerCode/@user.SelectedCompanyCode"><i class="fa fa-info"></i><span>@Text.words.Overview</span></a></li>
+                            <li><a href="~/Company/@user.SelectedResellerCode/@user.SelectedCompanyCode/Domains"><i class="fa fa-globe"></i><span>@Text.words.Domains</span></a></li>
+                            <li><a href="~/Company/@user.SelectedResellerCode/@user.SelectedCompanyCode/Users"><i class="fa fa-users"></i><span>@Text.words.Users</span></a></li>
                             <li class="nav-parent">
                                 <a href="#"><i class="fa fa-envelope-o"></i><span>@Text.words.Email</span></a>
                                 <ul class="children">
-                                    <li><a href="~/Company/@user.SelectedCompanyCode/Email/Status"><i class="fa fa-caret-right"></i>@Text.words.EnableDisable</a></li>
-                                    <li><a href="~/Company/@user.SelectedCompanyCode/Email/Contacts"><i class="fa fa-caret-right"></i>@Text.words.Contacts</a></li>
-                                    <li><a href="~/Company/@user.SelectedCompanyCode/Email/Groups"><i class="fa fa-caret-right"></i>@Text.words.Groups</a></li>
-                                    <li><a href="~/Company/@user.SelectedCompanyCode/Email/ResourceMailboxes"><i class="fa fa-caret-right"></i>@Text.words.ResourceMailboxes</a></li>
-                                    <li><a href="~/Company/@user.SelectedCompanyCode/Email/PublicFolders"><i class="fa fa-caret-right"></i>@Text.words.PublicFolders</a></li>
+                                    <li><a href="~/Company/@user.SelectedResellerCode/@user.SelectedCompanyCode/Email/Status"><i class="fa fa-caret-right"></i>@Text.words.EnableDisable</a></li>
+                                    <li><a href="~/Company/@user.SelectedResellerCode/@user.SelectedCompanyCode/Email/Contacts"><i class="fa fa-caret-right"></i>@Text.words.Contacts</a></li>
+                                    <li><a href="~/Company/@user.SelectedResellerCode/@user.SelectedCompanyCode/Email/Groups"><i class="fa fa-caret-right"></i>@Text.words.Groups</a></li>
+                                    <li><a href="~/Company/@user.SelectedResellerCode/@user.SelectedCompanyCode/Email/ResourceMailboxes"><i class="fa fa-caret-right"></i>@Text.words.ResourceMailboxes</a></li>
+                                    <li><a href="~/Company/@user.SelectedResellerCode/@user.SelectedCompanyCode/Email/PublicFolders"><i class="fa fa-caret-right"></i>@Text.words.PublicFolders</a></li>
                                 </ul>
                             </li>
-                            <li><a href="~/Company/@user.SelectedCompanyCode/Citrix"><i class="fa fa-cloud"></i><span>@Text.words.Citrix</span></a></li>
-                            <li><a href="~/Company/@user.SelectedCompanyCode/Billing"><i class="fa fa-money"></i><span>@Text.words.Billing</span></a></li>
+                            <li><a href="~/Company/@user.SelectedResellerCode/@user.SelectedCompanyCode/Citrix"><i class="fa fa-cloud"></i><span>@Text.words.Citrix</span></a></li>
+                            <li><a href="~/Company/@user.SelectedResellerCode/@user.SelectedCompanyCode/Billing"><i class="fa fa-money"></i><span>@Text.words.Billing</span></a></li>
                         </ul>
                     }
                 }

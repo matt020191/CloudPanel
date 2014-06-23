@@ -124,6 +124,15 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Enter the domain name you would like to add.
+        /// </summary>
+        internal static string Domains_Add {
+            get {
+                return ResourceManager.GetString("Domains_Add", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Create New Reseller.
         /// </summary>
         internal static string Resellers_CreateNew {

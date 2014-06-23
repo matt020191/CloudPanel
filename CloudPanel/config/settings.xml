@@ -2,6 +2,7 @@
 <cloudpanel>
   
   <Settings>
+    
     <!-- The name of the hoster. Do not change this value after implementation if you are not using resellers -->
     <CompanyName>Know More IT</CompanyName>
     

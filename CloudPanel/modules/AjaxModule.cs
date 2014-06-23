@@ -132,6 +132,7 @@ namespace CloudPanel.modules
                 {
                     // Set default values
                     Dictionary<string, int> data = new Dictionary<string, int>();
+                    data.Add("MaxUsers", 0);
                     data.Add("Users", 0);
                     data.Add("Mailboxes", 0);
                     data.Add("Citrix Users", 0);
@@ -146,9 +147,11 @@ namespace CloudPanel.modules
                         if (string.IsNullOrEmpty(companyCode))
                             throw new Exception("Company code was null");
 
+                        var company = (from c in db.Companies where !c.IsReseller where c.CompanyCode == companyCode select c).First();
                         var companyUsers = from u in db.Users where u.CompanyCode == companyCode select u;
                         var userIds = from u in companyUsers select u.ID;
 
+                        data["MaxUsers"] = (from p in db.Plans_Organization where p.OrgPlanID == company.OrgPlanID select p.MaxUsers).First();
                         data["Users"] = companyUsers.Count();
                         data["Mailboxes"] = (from u in companyUsers where u.MailboxPlan > 0 select u).Count();
                         data["Citrix Users"] = (from u in db.UserPlansCitrix where userIds.Contains(u.UserID) select u.UserID).Distinct().Count();

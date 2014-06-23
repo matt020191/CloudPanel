@@ -38,7 +38,7 @@
 }
 
 .dataTable thead > tr > th {
-	background-color: transparent;
+	/* background-color: transparent; [USE OUR OWN HEADER STYLES] */
 	background-repeat: no-repeat;
 	background-position: 97% center;
 }

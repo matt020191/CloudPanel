@@ -69,25 +69,8 @@
     <script src="~/Content/js/highcharts/highcharts-3d.js"></script>
     <script src="~/Content/js/highcharts/modules/exporting.js"></script>
     <script type="text/javascript">
-        $(document).ready(function () {
 
-            $(document).ajaxStart(function () {
-                $.blockUI({
-                    message: '<p>Processing</p><img src="@Url.Content("~/Content/images/loaders/loader25.gif")" />'
-                });
-            });
-            $(document).ajaxStop($.unblockUI);
-
-            $("#OrgPlanID").change(function () {
-                $.ajax({
-                    type: "post",
-                    dataType: "json",
-                    data: { OrgPlanID: $(this).find(":selected").val() },
-                    success: function (data) {
-                    }
-                });
-            });
-
+        function RenderChart() {
             var options = {
                 chart: {
                     renderTo: 'columnchart',
@@ -110,8 +93,9 @@
                 },
                 yAxis: {
                     min: 0,
-                    title: { text: '@Text.words.Users' },
-                    opposite: false
+                    title: { text: '@Text.words.MaxUsers' },
+                    opposite: false,
+                    allowDecimals: false
                 },
                 tooltip: {
                     pointFormat: 'Total: <b>{point.y}</b>'
@@ -133,16 +117,20 @@
                 dataType: "json",
                 success: function (data) {
 
-                    options.yAxis.max = data.users;
+                    options.yAxis.max = data.maxUsers;
 
                     $.each(data, function (key, value) {
                         var newKey = key.toUpperCase();
-                        if (newKey != "USERS") {
+                        if (newKey != "MAXUSERS") {
 
                             var add = false;
 
                             // We need to localize the text in the graph and determine which columns have to be added
-                            if (newKey == "MAILBOXES") {
+                            if (newKey == "USERS") {
+                                newKey = "@Text.words.Users";
+                                add = true;
+                            }
+                            else if (newKey == "MAILBOXES") {
                                 newKey = "@Text.words.Mailboxes";
                                 add = true;
                             }
@@ -168,13 +156,35 @@
                                 options.xAxis.categories.push(newKey);
                                 options.series[0].data.push(value);
                             }
-
                         }
                     });
 
                     var chart = new Highcharts.Chart(options);
                 }
             });
+        }
+
+        $(document).ready(function () {
+
+            $(document).ajaxStart(function () {
+                $.blockUI({
+                    message: '<p>Processing</p><img src="@Url.Content("~/Content/images/loaders/loader25.gif")" />'
+                });
+            });
+            $(document).ajaxStop($.unblockUI);
+
+            $("#OrgPlanID").change(function () {
+                $.ajax({
+                    type: "post",
+                    dataType: "json",
+                    data: { OrgPlanID: $(this).find(":selected").val() },
+                    success: function (data) {
+                        RenderChart();
+                    }
+                });
+            });
+
+            RenderChart();
         });
 </script>
 }

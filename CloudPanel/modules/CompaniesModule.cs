@@ -48,6 +48,11 @@ namespace CloudPanel.modules
                     //this.RequiresAuthentication();
                     //this.RequiresValidatedClaims( new Func<IEnumerable<string>,bool>(isValid) );
 
+                    // Set user context values
+                    var user = this.Context.CurrentUser as AuthenticatedUser;
+                    user.SelectedResellerCode = _.ResellerCode;
+                    this.Context.CurrentUser = user;
+
                     return View["companies.cshtml", _.ResellerCode];
                 };
 

@@ -138,6 +138,9 @@
   <data name="Company_OverviewDesc" xml:space="preserve">
     <value>Overview of your company</value>
   </data>
+  <data name="Domains_Add" xml:space="preserve">
+    <value>Enter the domain name you would like to add</value>
+  </data>
   <data name="Resellers_CreateNew" xml:space="preserve">
     <value>Create New Reseller</value>
   </data>

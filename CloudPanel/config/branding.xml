@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<branding>
+
+  <!-- Default branding template if URL was not found for reseller / customer-->
+  <default>
+    <DisplayName>CloudPanel</DisplayName>
+    <Copyright>© 2014. All Rights Reserved. Know More IT</Copyright>
+    <LoginTitle>Welcome to CloudPanel</LoginTitle>
+    <LoginMessage></LoginMessage>
+    <SupportNumber>1-501-758-6818</SupportNumber>
+  </default>
+  
+</branding>

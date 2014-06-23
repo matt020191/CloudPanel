@@ -11,7 +11,8 @@ namespace CloudPanel.Rollback
     public enum Actions
     {
         CreateOrganizationalUnit,
-        CreateSecurityGroup
+        CreateSecurityGroup,
+        AddDomains
     }
 
     public class ReverseActionValue
@@ -19,6 +20,8 @@ namespace CloudPanel.Rollback
         public Actions _PerformedAction { get; set; }
 
         public object _ActionAttribute { get; set; }
+
+        public object[] _ActionAttributes { get; set; }
     }
 
     public class ReverseActions
@@ -44,6 +47,15 @@ namespace CloudPanel.Rollback
                 log.DebugFormat("Inserted rollback action {0} with attribute {1} in the event of failure", action.ToString(), attribute.ToString());
         }
 
+        public void AddAction(Actions action, object[] attribute)
+        {
+            _currentActions.Add(new ReverseActionValue()
+            {
+                _PerformedAction = action,
+                _ActionAttribute = attribute
+            });
+        }
+
         public void RollbackNow()
         {
             // Reverse collection to remove in reverse order
@@ -55,7 +67,10 @@ namespace CloudPanel.Rollback
                 {
                     case Actions.CreateOrganizationalUnit:
                     case Actions.CreateSecurityGroup:
-                        RollbackADAction(a._PerformedAction, a._ActionAttribute);
+                        RollbackADAction(a._PerformedAction, new[] { a._ActionAttribute });
+                        break;
+                    case Actions.AddDomains:
+                        RollbackADAction(a._PerformedAction, a._ActionAttributes);
                         break;
                     default:
                         break;
@@ -63,7 +78,7 @@ namespace CloudPanel.Rollback
             }
         }
 
-        private void RollbackADAction(Actions action, object attribute)
+        private void RollbackADAction(Actions action, object[] attribute)
         {
             OrganizationalUnits org = null;
             Groups grp = null;
@@ -77,13 +92,18 @@ namespace CloudPanel.Rollback
                 {
                     case Actions.CreateOrganizationalUnit:
                         org = new OrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-                        org.Delete(attribute.ToString(), true);
+                        org.Delete(attribute[0].ToString(), true);
                         log.DebugFormat("Successfully rolled back action {0} at path {1}", action.ToString(), attribute.ToString());
                         break;
                     case Actions.CreateSecurityGroup:
                         grp = new Groups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-                        grp.Delete(attribute.ToString());
+                        grp.Delete(attribute[0].ToString());
                         log.DebugFormat("Successfully rolled back action {0} for group {1}", action.ToString(), attribute.ToString());
+                        break;
+                    case Actions.AddDomains:
+                        org = new OrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                        org.RemoveDomains(attribute[0].ToString(), (string[])attribute[1]);
+                        log.DebugFormat("Successfully rolled back action {0} for org {1}", action.ToString(), attribute[0]);
                         break;
                     default:
                         log.DebugFormat("Unknown action {0}... Skipping...", action.ToString());

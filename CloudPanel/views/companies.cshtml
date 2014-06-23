@@ -17,7 +17,7 @@
 <div class="mb30"></div>
 
 <div class="row">
-    <table id="companiesDataTable" class="table table-hover mb30">
+    <table id="companiesDataTable" class="table table-dark table-hover mb30">
         <thead>
             <tr>
                 <th>@Text.words.Name</th>
@@ -793,6 +793,7 @@
         });
 
         $("#newCompanyForm").validate({
+            onkeyup: false,
             rules: {
                 CompanyName: {
                     required: true,
@@ -822,8 +823,8 @@
         });
 
         // Chosen HACK to fix 0pc width and inline-block problem
-        $('.chosen-container').css('width', '');
-        $('.chosen-container').css('display', 'block');
+        $('form .chosen-container').css('width', '');
+        $('form .chosen-container').css('display', 'block');
     });
 
     function GetCompany(companyCode) {

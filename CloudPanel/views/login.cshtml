@@ -1,0 +1,70 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+
+    <link href="~/content/css/style.default.css" rel="stylesheet" />
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="~/content/js/html5shiv.js"></script>
+    <script src="~/content/js/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body class="signin">
+    <section>
+        <div class="signinpanel">
+            <div class="row">
+                <div class="col-md-7">
+                    <div class="signin-info">
+                        <div class="logopanel">
+                            <h1><span>[</span> @CloudPanel.BrandingsRequest.RetrieveBranding(Url).DisplayName <span>]</span></h1>
+                        </div>
+
+                        <div class="mb20"></div>
+
+                        <h5><strong>@CloudPanel.BrandingsRequest.RetrieveBranding(Url).LoginTitle</strong></h5>
+                        <div>
+                            @CloudPanel.BrandingsRequest.RetrieveBranding(Url).LoginMessage
+                        </div>
+                        <div class="mb20"></div>
+                    </div>
+                </div>
+
+                <div class="col-md-5">
+                    <form method="post" action="">
+                        <h4 class="nomargin">@Text.words.SignIn</h4>
+                        <p class="mt5 mb20">@Text.words.SignInMsg</p>
+
+                        <input type="text" class="form-control uname" placeholder="@Text.words.Username" />
+                        <input type="password" class="form-control pword" placeholder="@Text.words.Password" />
+                        <a href=""><small>&nbsp;</small></a>
+                        <button class="btn btn-success btn-block">@Text.words.SignIn</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="signup-footer">
+                <div class="pull-left">
+                    @CloudPanel.BrandingsRequest.RetrieveBranding(Url).CopyrightNotice
+                </div>
+                <div class="pull-right">
+                    @CloudPanel.BrandingsRequest.RetrieveBranding(Url).SupportNumber
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="~/content/js/jquery-1.10.2.min.js"></script>
+    <script src="~/content/js/jquery-migrate-1.2.1.min.js"></script>
+    <script src="~/content/js/bootstrap.js"></script>
+    <script src="~/content/js/modernizr.min.js"></script>
+    <script src="~/content/js/retina.min.js"></script>
+
+</body>
+</html>

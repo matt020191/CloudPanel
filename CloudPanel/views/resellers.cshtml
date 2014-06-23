@@ -735,6 +735,7 @@
 
 @section CUSTOMJAVASCRIPT{
 <script src="~/content/js/jquery.validate.min.js"></script>
+<script src="~/Content/js/jquery.datatables.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
 
@@ -743,7 +744,6 @@
                 message: '<p>Processing</p><img src="@Url.Content("~/Content/images/loaders/loader25.gif")" />'
             });
         });
-
         $(document).ajaxStop($.unblockUI);
 
         $(document).on("click", "#deleteResellerLink", function () {
@@ -771,6 +771,19 @@
                 jQuery(element).closest('.form-group').removeClass('has-error');
             }
         });
+
+        $("#resellerDataTable").dataTable();
+
+        // Chosen Select
+        jQuery("select").chosen({
+            'min-width': '200px',
+            'white-space': 'nowrap',
+            disable_search_threshold: 10
+        });
+
+        // Chosen HACK to fix 0pc width and inline-block problem
+        $('form .chosen-container').css('width', '');
+        $('form .chosen-container').css('display', 'block');
     });
 
     function GetReseller(resellerCode)

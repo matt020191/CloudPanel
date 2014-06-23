@@ -32,6 +32,7 @@ using CloudPanel.Base.Other;
 using CloudPanel.code;
 using Nancy;
 using Nancy.Security;
+using Nancy.Authentication.Forms;
 using System;
 using System.Collections.Generic;
 
@@ -41,7 +42,29 @@ namespace CloudPanel.modules
     {
         public DefaultGetModule()
         {
-            
+            Get["/", ctx => ctx.CurrentUser == null] = _ => this.Response.AsRedirect("/login");
+
+            Get["/login"] = _ =>
+                {
+                    return View["login.cshtml"];
+                };
+
+            Post["/login"] = _ =>
+                {
+                    var username = this.Request.Form.username;
+                    var password = this.Request.Form.password;
+
+                    Guid? usersGuid = UserMapper.ValidateUser(username, password);
+                    if (usersGuid == null)
+                    {
+                        ViewBag.LoginError = "Invalid username or password.";
+                        return View["login.cshtml"];
+                    }
+                    else
+                    {
+                        return this.LoginAndRedirect(usersGuid.Value, null, "/dashboard");
+                    }
+                };
         }
     }
 }

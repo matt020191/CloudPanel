@@ -51,6 +51,7 @@
     <Compile Include="AD\OrganizationalUnit.cs" />
     <Compile Include="AD\SecurityGroup.cs" />
     <Compile Include="AD\User.cs" />
+    <Compile Include="Branding\BrandingSettings.cs" />
     <Compile Include="Config\Settings.cs" />
     <Compile Include="Database\Models\ApiAccess.cs" />
     <Compile Include="Database\Models\Audit.cs" />

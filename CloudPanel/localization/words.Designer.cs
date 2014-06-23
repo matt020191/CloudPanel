@@ -61,6 +61,15 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Accepted Domain.
+        /// </summary>
+        internal static string AcceptedDomain {
+            get {
+                return ResourceManager.GetString("AcceptedDomain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Activesync Plans.
         /// </summary>
         internal static string ActivesyncPlans {
@@ -75,6 +84,15 @@ namespace CloudPanel.localization {
         internal static string Add {
             get {
                 return ResourceManager.GetString("Add", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Domain.
+        /// </summary>
+        internal static string AddDomain {
+            get {
+                return ResourceManager.GetString("AddDomain", resourceCulture);
             }
         }
         
@@ -241,6 +259,15 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Default.
+        /// </summary>
+        internal static string Default {
+            get {
+                return ResourceManager.GetString("Default", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Delete.
         /// </summary>
         internal static string Delete {
@@ -358,6 +385,15 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Maximum Users Allowed.
+        /// </summary>
+        internal static string MaxUsers {
+            get {
+                return ResourceManager.GetString("MaxUsers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Modify.
         /// </summary>
         internal static string Modify {
@@ -381,6 +417,15 @@ namespace CloudPanel.localization {
         internal static string Overview {
             get {
                 return ResourceManager.GetString("Overview", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password.
+        /// </summary>
+        internal static string Password {
+            get {
+                return ResourceManager.GetString("Password", resourceCulture);
             }
         }
         
@@ -448,6 +493,24 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sign In.
+        /// </summary>
+        internal static string SignIn {
+            get {
+                return ResourceManager.GetString("SignIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Login to access your company.
+        /// </summary>
+        internal static string SignInMsg {
+            get {
+                return ResourceManager.GetString("SignInMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to State.
         /// </summary>
         internal static string State {
@@ -480,6 +543,15 @@ namespace CloudPanel.localization {
         internal static string Update {
             get {
                 return ResourceManager.GetString("Update", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Username.
+        /// </summary>
+        internal static string Username {
+            get {
+                return ResourceManager.GetString("Username", resourceCulture);
             }
         }
         

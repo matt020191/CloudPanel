@@ -1,5 +1,4 @@
-﻿using Nancy.ViewEngines.Razor;
-//
+﻿//
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
 //
@@ -31,29 +30,26 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Text;
 
-namespace CloudPanel
+namespace CloudPanel.Base.Branding
 {
-    public class RazorConfig : IRazorConfiguration
+    public static class Brandings
     {
-        public IEnumerable<string> GetAssemblyNames()
-        {
-            yield return "CloudPanel.Base";
-        }
+        public static List<BrandingSettings> _staticBrandings = new List<BrandingSettings>();
+    }
 
-        public IEnumerable<string> GetDefaultNamespaces()
-        {
-            yield return "Nancy.Validation";
-            yield return "System.Globalization";
-            yield return "System.Collections.Generic";
-            yield return "System.Linq";
-            yield return "CloudPanel";
-        }
+    public class BrandingSettings
+    {
+        public string DisplayName { get; set; }
+        public string CopyrightNotice { get; set; }
+        public string LoginTitle { get; set; }
+        public string LoginMessage { get; set; }
+        public string SupportNumber { get; set; }
+        public string LogoIconPath { get; set; }
+        public string LogoPath { get; set; }
+        public string BaseURL { get; set; }
 
-        public bool AutoIncludeModelNamespace
-        {
-            get { return true; }
-        }
+        public bool IsDefault { get; set; }
     }
 }

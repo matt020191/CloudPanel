@@ -1,5 +1,4 @@
-﻿using Nancy.ViewEngines.Razor;
-//
+﻿//
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
 //
@@ -32,28 +31,52 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Nancy;
+using log4net;
+using CloudPanel.code;
+using CloudPanel.Base.Database.Models;
 
-namespace CloudPanel
+namespace CloudPanel.modules
 {
-    public class RazorConfig : IRazorConfiguration
+    public class DomainsModule : NancyModule
     {
-        public IEnumerable<string> GetAssemblyNames()
-        {
-            yield return "CloudPanel.Base";
-        }
+        private static readonly ILog log = log4net.LogManager.GetLogger(typeof(DomainsModule));
 
-        public IEnumerable<string> GetDefaultNamespaces()
+        public DomainsModule() : base("/Company")
         {
-            yield return "Nancy.Validation";
-            yield return "System.Globalization";
-            yield return "System.Collections.Generic";
-            yield return "System.Linq";
-            yield return "CloudPanel";
-        }
+            Get["/{ResellerCode}/{CompanyCode}/Domains"] = _ =>
+                {
+                    Companies companies = new Companies();
+                    try
+                    {
+                        List<Domain> domains = companies.GetDomains(_.CompanyCode);
 
-        public bool AutoIncludeModelNamespace
-        {
-            get { return true; }
+                        return View["c_domains.cshtml", domains];
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Error retrieving company domains for {0}. Error: {1}", _.CompanyCode, ex.ToString());
+
+                        ViewBag.Error = ex.Message;
+                        return View["c_domains.cshtml", null];
+                    }
+                };
+
+            Post["/{ResellerCode}/{CompanyCode}/Domains"] = _ =>
+                {
+                    Companies companies = new Companies();
+                    try
+                    {
+                        companies.AddDomain(_.CompanyCode, Request.Form.DomainName);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Error adding domain {0} for company {1}. Error: {2}", Request.Form.DomainName, _.CompanyCode, ex.ToString());
+                        ViewBag.Error = ex.Message;
+                    }
+                    
+                    return View["c_domains.cshtml", companies.GetDomains(_.CompanyCode)];
+                };
         }
     }
 }

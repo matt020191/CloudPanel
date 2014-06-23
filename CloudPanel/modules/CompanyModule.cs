@@ -32,9 +32,6 @@ using Nancy;
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace CloudPanel.modules
 {
@@ -49,6 +46,15 @@ namespace CloudPanel.modules
                     try
                     {
                         Companies companies = new Companies();
+                        Company company = companies.GetCompany(_.ResellerCode, _.CompanyCode);
+
+                        // Set user context values
+                        var user = this.Context.CurrentUser as AuthenticatedUser;
+                        user.SelectedCompanyCode = _.CompanyCode;
+                        user.SelectedResellerCode = _.ResellerCode;
+                        user.SelectedCompanyName = company.CompanyName;
+
+                        this.Context.CurrentUser = user;
 
                         return View["c_overview.cshtml", companies.GetCompany(_.ResellerCode, _.CompanyCode)];
                     }
@@ -68,14 +74,12 @@ namespace CloudPanel.modules
                         Companies companies = new Companies();
                         companies.UpdatePlan(_.CompanyCode, id);
 
-                        ViewBag.Success = "Successfully updated company plan";
-
-                        return View["c_overview.cshtml", companies.GetCompany(_.ResellerCode, _.CompanyCode)];
+                        return HttpStatusCode.OK;
                     }
                     catch (Exception ex)
                     {
                         log.ErrorFormat("Error updating company plan for {0}. Error: {1}", _.CompanyCode, ex.ToString());
-                        return View["c_overview.cshtml", null];
+                        return HttpStatusCode.InternalServerError;
                     }
                 };
         }

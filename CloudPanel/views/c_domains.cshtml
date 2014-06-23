@@ -1,0 +1,124 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+@{
+    Layout = "_master.cshtml";
+}
+
+@section PAGEHEADER{
+    <div class="pageheader">
+        <h2><i class="fa fa-globe"></i> @Text.words.Domains </h2>
+    </div>
+}
+
+<div class="row">
+    <a href="#" class="btn btn-success mr5 pull-right" data-toggle="modal" data-target=".new-domain-modal">@Text.words.Add</a>
+</div>
+
+<div class="mb30"></div>
+
+<!-- Table -->
+<div class="row">
+    <table id="domainsDataTable" class="table table-dark table-hover mb30">
+        <thead>
+            <tr>
+                <th>@Text.words.Name</th>
+                <th>@Text.words.Default</th>
+                <th>@Text.words.AcceptedDomain</th>
+                <th style="width: 10%"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null)
+            {
+                foreach (dynamic domain in Model)
+                {
+                    <tr>
+                        <td>@domain.Domain1</td>
+                        <td>
+                            @if (domain.IsDefault) { 
+                                <span class="glyphicon glyphicon-check"></span>
+                            }
+                        </td>
+                        <td>
+                            @if (domain.IsAcceptedDomain) { 
+                                <span class="glyphicon glyphicon-check"></span>
+                            }
+                        </td>
+                        <td>
+                            <div class="btn-group pull-right">
+                                <a href="#" data-toggle="modal" class="btn btn-xs btn-orange">@Text.words.Modify</a>
+                                <button type='button' class='btn btn-xs btn-orange dropdown-toggle' data-toggle='dropdown'>
+                                    <span class='caret'></span>
+                                    <span class='sr-only'>@Text.words.Dropdown</span>
+                                </button>
+                                <ul class='dropdown-menu' role='menu'>
+                                    <li><a href="#" id="deleteDomainLink" data-toggle="modal" data-target="#deleteModal" data-id="@domain.DomainID" data-name="@domain.Domain1">@Text.words.Delete</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Add Domain -->
+<form id="addDomainForm" method="post" action="">
+    <div class="modal fade new-domain-modal" id="new-domain-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="myModalLabel">@Text.words.AddDomain</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="control-label">@Text.phrases.Domains_Add</label>
+                        <input id="DomainName" name="DomainName" type="text" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">@Text.words.Close</button>
+                    <input id="btnAdd" type="submit" value="@Text.words.Add" class="btn btn-success" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section CUSTOMJAVASCRIPT {
+<script src="~/Content/js/jquery.validate.min.js"></script>
+<script src="~/Content/js/jquery.datatables.min.js"></script>
+<script src="~/content/js/jquery.datatables.fnFilterOnReturn.js"></script>
+<script type="text/javascript">
+    $(document).ajaxStart(function () {
+        $.blockUI({
+            message: '<p>Processing</p><img src="@Url.Content("~/Content/images/loaders/loader25.gif")" />'
+        });
+    });
+
+    $(document).ajaxStop($.unblockUI);
+
+    $(document).ready(function () {
+        $("#addDomainForm").validate({
+            onkeyup: false,
+            rules: {
+                DomainName: {
+                    required: true,
+                    remote: {
+                        type: "POST",
+                        url: "@Url.Content("~/ajax/validation/domain/")"
+                    }
+                }
+            },
+            highlight: function (element) {
+                jQuery(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+            },
+            success: function (element) {
+                jQuery(element).closest('.form-group').removeClass('has-error');
+            }
+        });
+    });
+</script>
+}

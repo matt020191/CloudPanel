@@ -51,6 +51,12 @@ namespace CloudPanel.code
             this.db = new CloudPanelContext(Settings.ConnectionString);
         }
 
+        /// <summary>
+        /// Creates a new company in AD and the database
+        /// </summary>
+        /// <param name="newCompany"></param>
+        /// <param name="domainName"></param>
+        /// <param name="resellerCode"></param>
         public void Create(Company newCompany, string domainName, string resellerCode)
         {
             OrganizationalUnits organizationalUnits = null;
@@ -157,6 +163,10 @@ namespace CloudPanel.code
             }
         }
 
+        /// <summary>
+        /// Updates an existing company in AD and the database
+        /// </summary>
+        /// <param name="existingCompany"></param>
         public void Update(Company existingCompany)
         {
             OrganizationalUnits organizationalUnits = null;
@@ -221,6 +231,11 @@ namespace CloudPanel.code
             }
         }
 
+        /// <summary>
+        /// Updates the plan associated with the company (Organization Plan / Company Plan)
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <param name="newPlanID"></param>
         public void UpdatePlan(string companyCode, int newPlanID)
         {
             try
@@ -240,6 +255,10 @@ namespace CloudPanel.code
             }
         }
 
+        /// <summary>
+        /// Deletes a company. Does not check for existing users. Is destructive
+        /// </summary>
+        /// <param name="companyCode"></param>
         public void Delete(string companyCode)
         {
             OrganizationalUnits organizationalUnits = null;
@@ -282,6 +301,12 @@ namespace CloudPanel.code
             }
         }
 
+        /// <summary>
+        /// Retrieves a company from the database
+        /// </summary>
+        /// <param name="resellerCode"></param>
+        /// <param name="companyCode"></param>
+        /// <returns></returns>
         public Company GetCompany(string resellerCode, string companyCode)
         {
             var company = (from c in db.Companies
@@ -292,5 +317,83 @@ namespace CloudPanel.code
 
             return company;
         }
+
+        #region Domains
+
+        /// <summary>
+        /// Retrieves a list of domains from the database for a specific company
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <returns></returns>
+        public List<Domain> GetDomains(string companyCode)
+        {
+            var domains = (from d in db.Domains
+                           where d.CompanyCode == companyCode
+                           orderby d.Domain1
+                           select d).ToList();
+
+            return domains;
+        }
+
+        /// <summary>
+        /// Adds a new domain
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <param name="domainName"></param>
+        public void AddDomain(string companyCode, string domainName)
+        {
+            if (string.IsNullOrEmpty(companyCode))
+                throw new MissingFieldException("Companies", "companyCode");
+
+            if (string.IsNullOrEmpty(domainName))
+                throw new MissingFieldException("Companies", "domainName");
+
+            // Get company
+            var company = (from c in db.Companies 
+                           where !c.IsReseller 
+                           where c.CompanyCode == companyCode 
+                           select c).First();
+
+            // Check if domain exists
+            var domain = (from d in db.Domains 
+                          where d.Domain1 == domainName 
+                          select d).Count();
+
+            if (domain > 0)
+                throw new Exception("Domain already exists in the system.");
+
+            // Check for company limits
+            // TODO
+
+            OrganizationalUnits organizationalUnits = null;
+            ReverseActions reverse = new ReverseActions();
+            try
+            {
+                organizationalUnits = new OrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                organizationalUnits.AddDomains(company.DistinguishedName, new[] { domainName });
+                reverse.AddAction(Actions.AddDomains, new object[] { company.DistinguishedName, new string[] { domainName } });
+
+                // Add domain to the system
+                Domain newDomain = new Domain();
+                newDomain.Domain1 = domainName;
+                newDomain.CompanyCode = companyCode;
+                newDomain.IsAcceptedDomain = false;
+                newDomain.IsLyncDomain = false;
+                newDomain.IsDefault = false;
+
+                db.Domains.Add(newDomain);
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+
+            }
+        }
+
+        #endregion
     }
 }

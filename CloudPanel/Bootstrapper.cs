@@ -22,6 +22,9 @@ namespace CloudPanel
             // Cache the settings from the config file in memory
             SettingsRequest.RetrieveSettings();
 
+            // Cache the brandings from the config file in memory
+            BrandingsRequest.RetrieveBrandings();
+
             // Enable cookie based sessions
             CookieBasedSessions.Enable(pipelines);
 
