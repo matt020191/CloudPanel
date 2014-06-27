@@ -102,7 +102,7 @@ namespace CloudPanel.Rollback
                         break;
                     case Actions.AddDomains:
                         org = new OrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-                        org.RemoveDomains(attribute[0].ToString(), (string[])attribute[1]);
+                        org.RemoveDomains(attribute[0].ToString(), new string[] { attribute[1].ToString() });
                         log.DebugFormat("Successfully rolled back action {0} for org {1}", action.ToString(), attribute[0]);
                         break;
                     default:

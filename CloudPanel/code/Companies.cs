@@ -1,10 +1,4 @@
-﻿using CloudPanel.ActiveDirectory;
-using CloudPanel.Base.AD;
-using CloudPanel.Base.Config;
-using CloudPanel.Base.Database.Models;
-using CloudPanel.Database.EntityFramework;
-using CloudPanel.Rollback;
-//
+﻿//
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
 //
@@ -37,6 +31,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using CloudPanel.ActiveDirectory;
+using CloudPanel.Base.AD;
+using CloudPanel.Base.Config;
+using CloudPanel.Base.Database.Models;
+using CloudPanel.Database.EntityFramework;
+using CloudPanel.Rollback;
 
 namespace CloudPanel.code
 {
@@ -321,6 +321,23 @@ namespace CloudPanel.code
         #region Domains
 
         /// <summary>
+        /// Retrieves a single domain from the database for a specific company
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <param name="domainID"></param>
+        /// <returns></returns>
+        public Domain GetDomain(string companyCode, int domainID)
+        {
+            var domain = (from d in db.Domains
+                           where d.CompanyCode == companyCode
+                           where d.DomainID == domainID
+                           orderby d.Domain1
+                           select d).FirstOrDefault();
+
+            return domain;
+        }
+
+        /// <summary>
         /// Retrieves a list of domains from the database for a specific company
         /// </summary>
         /// <param name="companyCode"></param>
@@ -371,7 +388,10 @@ namespace CloudPanel.code
             {
                 organizationalUnits = new OrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
                 organizationalUnits.AddDomains(company.DistinguishedName, new[] { domainName });
-                reverse.AddAction(Actions.AddDomains, new object[] { company.DistinguishedName, new string[] { domainName } });
+                reverse.AddAction(Actions.AddDomains, new object[] { 
+                    company.DistinguishedName, 
+                    domainName
+                });
 
                 // Add domain to the system
                 Domain newDomain = new Domain();
@@ -386,11 +406,13 @@ namespace CloudPanel.code
             }
             catch (Exception ex)
             {
+                log.ErrorFormat("Error adding domain {0} to {1}. Error {2}", domainName, companyCode, ex.ToString());
                 throw;
             }
             finally
             {
-
+                if (organizationalUnits != null)
+                    organizationalUnits.Dispose();
             }
         }
 

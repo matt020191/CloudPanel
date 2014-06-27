@@ -20,7 +20,7 @@ body {
     font-family: 'LatoRegular', 'Lucida Grande', 'Lucida Sans Unicode', Helvetica, sans-serif !important;
     line-height: 21px;
     color: #636e7b;
-    overflow: hidden;
+    /*overflow: hidden; -- I'm not using the preloader */
 }
 
 body.notfound,

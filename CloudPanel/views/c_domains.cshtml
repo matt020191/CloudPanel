@@ -46,7 +46,7 @@
                         </td>
                         <td>
                             <div class="btn-group pull-right">
-                                <a href="#" data-toggle="modal" class="btn btn-xs btn-orange">@Text.words.Modify</a>
+                                <a href="Domains/@domain.DomainID" data-toggle="modal" class="btn btn-xs btn-orange">@Text.words.Modify</a>
                                 <button type='button' class='btn btn-xs btn-orange dropdown-toggle' data-toggle='dropdown'>
                                     <span class='caret'></span>
                                     <span class='sr-only'>@Text.words.Dropdown</span>
@@ -94,7 +94,8 @@
 <script type="text/javascript">
     $(document).ajaxStart(function () {
         $.blockUI({
-            message: '<p>Processing</p><img src="@Url.Content("~/Content/images/loaders/loader25.gif")" />'
+            message: '<p>Processing</p><img src="@Url.Content("~/Content/images/loaders/loader25.gif")" />',
+            baseZ: 5000
         });
     });
 

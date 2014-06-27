@@ -117,55 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Companies_CreateNew" xml:space="preserve">
-    <value>Create New Company</value>
+  <data name="Domains_Autoritative" xml:space="preserve">
+    <value>E-mail is delivered to a recipient in this organization</value>
   </data>
-  <data name="Companies_DeleteConfirm1" xml:space="preserve">
-    <value>Are you sure you want to delete</value>
+  <data name="Domains_DefaultDomain" xml:space="preserve">
+    <value>Setting this domain as the default makes sure this domain is the first selected in all fields that contain domains.</value>
   </data>
-  <data name="Companies_DeleteConfirm2" xml:space="preserve">
-    <value>To delete please type the name of the company (case sensitive)</value>
+  <data name="Domains_Exchange" xml:space="preserve">
+    <value>A domain must be enabled for Exchange in order for it to receive e-mail.</value>
   </data>
-  <data name="Companies_DeleteTitle" xml:space="preserve">
-    <value>Delete Company</value>
+  <data name="Domains_ExternalRelay" xml:space="preserve">
+    <value>E-mail is relayed to an e-mail server outside of this organization.</value>
   </data>
-  <data name="Companies_Title" xml:space="preserve">
-    <value>Select a company to view</value>
-  </data>
-  <data name="Companies_UpdateExisting" xml:space="preserve">
-    <value>Update Existing Company</value>
-  </data>
-  <data name="Company_OverviewDesc" xml:space="preserve">
-    <value>Overview of your company</value>
-  </data>
-  <data name="Domains_Add" xml:space="preserve">
-    <value>Enter the domain name you would like to add</value>
-  </data>
-  <data name="Load_FromServer" xml:space="preserve">
-    <value>Loading data from server</value>
-  </data>
-  <data name="Resellers_CreateNew" xml:space="preserve">
-    <value>Create New Reseller</value>
-  </data>
-  <data name="Resellers_DeleteConfirm1" xml:space="preserve">
-    <value>Are you sure you want to delete</value>
-  </data>
-  <data name="Resellers_DeleteConfirm2" xml:space="preserve">
-    <value>To delete please type the name of the company (case sensitive)</value>
-  </data>
-  <data name="Resellers_DeleteContainsCompanies" xml:space="preserve">
-    <value>Unable to delete reseller because this reseller contains companies. Please remove the companies first.</value>
-  </data>
-  <data name="Resellers_DeleteDidNotMatch" xml:space="preserve">
-    <value>Company name did not match. Please try again.</value>
-  </data>
-  <data name="Resellers_DeleteTitle" xml:space="preserve">
-    <value>Delete Reseller</value>
-  </data>
-  <data name="Resellers_Title" xml:space="preserve">
-    <value>Select a reseller to view their companies</value>
-  </data>
-  <data name="Resellers_UpdateExisting" xml:space="preserve">
-    <value>Update Existing Reseller</value>
+  <data name="Domains_InternalRelay" xml:space="preserve">
+    <value>E-mail is delivered to recipients in this organization or relayed to an e-mail server outside of this organization. Use this setting if the domain is shared by this Exchange organization and another messaging system.</value>
   </data>
 </root>

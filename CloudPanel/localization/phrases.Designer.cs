@@ -133,6 +133,15 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Loading data from server.
+        /// </summary>
+        internal static string Load_FromServer {
+            get {
+                return ResourceManager.GetString("Load_FromServer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Create New Reseller.
         /// </summary>
         internal static string Resellers_CreateNew {

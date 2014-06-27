@@ -83,5 +83,35 @@ namespace CloudPanel.code
 
             return new NonEncodedHtmlString(htmlSelectBox);
         }
+
+        public static IHtmlString IsChecked(object objValue)
+        {
+            NonEncodedHtmlString blank = new NonEncodedHtmlString("");
+
+            if (objValue == null)
+                return blank;
+            else
+            {
+                if (objValue is Boolean && (bool)objValue == true)
+                    return new NonEncodedHtmlString("checked");
+                else
+                    return blank;
+            }
+        }
+
+        public static IHtmlString IsChecked(object objValue, int compareValue)
+        {
+            NonEncodedHtmlString blank = new NonEncodedHtmlString("");
+
+            if (objValue == null)
+                return blank;
+            else
+            {
+                if (objValue is int && (int)objValue == compareValue)
+                    return new NonEncodedHtmlString("checked");
+                else
+                    return blank;
+            }
+        }
     }
 }

@@ -62,6 +62,25 @@ namespace CloudPanel.modules
                     }
                 };
 
+            Get["/{ResellerCode}/{CompanyCode}/Domains/{DomainID}"] = _ =>
+                {
+                    Companies companies = new Companies();
+
+                    try
+                    {
+                        Domain domain = companies.GetDomain(_.CompanyCode, _.DomainID);
+
+                        return View["c_domainsedit.cshtml", domain];
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Error retrieving company domain for {0} with id {1}. Error: {2}", _.CompanyCode, _.DomainID, ex.ToString());
+
+                        ViewBag.Error = ex.Message;
+                        return View["c_domains.cshtml", null];
+                    }
+                };
+
             Post["/{ResellerCode}/{CompanyCode}/Domains"] = _ =>
                 {
                     Companies companies = new Companies();

@@ -117,13 +117,16 @@
     <Content Include="content\css\codemirror\theme\ambiance.css" />
     <Content Include="content\css\codemirror\theme\index.html" />
     <Content Include="content\css\colorpicker.css" />
+    <Content Include="content\css\cpadditions.css" />
+    <Content Include="content\css\dataTables.colVis.css" />
+    <Content Include="content\css\dataTables.colvis.jqueryui.css" />
+    <Content Include="content\css\dataTables.colVis.min.css" />
     <Content Include="content\css\dropzone.css" />
     <Content Include="content\css\font-awesome.css" />
     <Content Include="content\css\font-awesome.min.css" />
     <Content Include="content\css\font.helvetica-neue.css" />
     <Content Include="content\css\font.roboto.css" />
     <Content Include="content\css\fullcalendar.css" />
-    <Content Include="content\css\index.html" />
     <Content Include="content\css\isotope.css" />
     <Content Include="content\css\jquery-jvectormap-1.2.2.css" />
     <Content Include="content\css\jquery-ui-1.10.3.css" />
@@ -609,6 +612,8 @@
     <Content Include="content\js\colorpicker.js" />
     <Content Include="content\js\custom.js" />
     <Content Include="content\js\dashboard.js" />
+    <Content Include="content\js\dataTables.colVis.js" />
+    <Content Include="content\js\dataTables.colVis.min.js" />
     <Content Include="content\js\dropzone.min.js" />
     <Content Include="content\js\flot\flot.categories.min.js" />
     <Content Include="content\js\flot\flot.crosshair.min.js" />
@@ -690,12 +695,18 @@
     <Compile Include="code\AuthenticatedUser.cs" />
     <Compile Include="code\BrandingsRequest.cs" />
     <Compile Include="code\Companies.cs" />
+    <Compile Include="code\Users.cs" />
     <Compile Include="code\CPHtmlHelpers.cs" />
     <Compile Include="code\OtherStatics.cs" />
     <Compile Include="code\Resellers.cs" />
     <Compile Include="code\SettingsRequest.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="localization\help.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>help.resx</DependentUpon>
     </Compile>
     <Compile Include="localization\phrases.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -714,6 +725,7 @@
     <Compile Include="modules\DefaultGetModule.cs" />
     <Compile Include="modules\DomainsModule.cs" />
     <Compile Include="modules\ResellersModule.cs" />
+    <Compile Include="modules\UsersModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RazorConfig.cs" />
     <Compile Include="UserMapper.cs" />
@@ -844,6 +856,8 @@
     <Content Include="views\c_overview.cshtml" />
     <Content Include="views\login.cshtml" />
     <Content Include="views\c_domains.cshtml" />
+    <Content Include="views\c_domainsedit.cshtml" />
+    <Content Include="views\c_users.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -856,6 +870,10 @@
     <Folder Include="log\" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="localization\help.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>help.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="localization\phrases.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>phrases.Designer.cs</LastGenOutput>

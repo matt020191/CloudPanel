@@ -106,6 +106,33 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Alternate Login.
+        /// </summary>
+        internal static string AltLogin {
+            get {
+                return ResourceManager.GetString("AltLogin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Authoritative.
+        /// </summary>
+        internal static string Authoritative {
+            get {
+                return ResourceManager.GetString("Authoritative", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Back.
+        /// </summary>
+        internal static string Back {
+            get {
+                return ResourceManager.GetString("Back", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Billing.
         /// </summary>
         internal static string Billing {
@@ -277,6 +304,15 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Department.
+        /// </summary>
+        internal static string Department {
+            get {
+                return ResourceManager.GetString("Department", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Details.
         /// </summary>
         internal static string Details {
@@ -291,6 +327,15 @@ namespace CloudPanel.localization {
         internal static string DisableEmail {
             get {
                 return ResourceManager.GetString("DisableEmail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display Name.
+        /// </summary>
+        internal static string DisplayName {
+            get {
+                return ResourceManager.GetString("DisplayName", resourceCulture);
             }
         }
         
@@ -349,11 +394,74 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Exchange.
+        /// </summary>
+        internal static string Exchange {
+            get {
+                return ResourceManager.GetString("Exchange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to External Relay.
+        /// </summary>
+        internal static string ExternalRelay {
+            get {
+                return ResourceManager.GetString("ExternalRelay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to General.
+        /// </summary>
+        internal static string General {
+            get {
+                return ResourceManager.GetString("General", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Groups.
         /// </summary>
         internal static string Groups {
             get {
                 return ResourceManager.GetString("Groups", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Internal Relay.
+        /// </summary>
+        internal static string InternalRelay {
+            get {
+                return ResourceManager.GetString("InternalRelay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Is Accepted Domain.
+        /// </summary>
+        internal static string IsAcceptedDomain {
+            get {
+                return ResourceManager.GetString("IsAcceptedDomain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Is Default.
+        /// </summary>
+        internal static string IsDefault {
+            get {
+                return ResourceManager.GetString("IsDefault", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Login.
+        /// </summary>
+        internal static string Login {
+            get {
+                return ResourceManager.GetString("Login", resourceCulture);
             }
         }
         
@@ -493,6 +601,15 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Save.
+        /// </summary>
+        internal static string Save {
+            get {
+                return ResourceManager.GetString("Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sign In.
         /// </summary>
         internal static string SignIn {
@@ -534,6 +651,15 @@ namespace CloudPanel.localization {
         internal static string Telephone {
             get {
                 return ResourceManager.GetString("Telephone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type.
+        /// </summary>
+        internal static string Type {
+            get {
+                return ResourceManager.GetString("Type", resourceCulture);
             }
         }
         

@@ -38,6 +38,7 @@ using CloudPanel.code;
 using CloudPanel.Base.Database.Models;
 using log4net;
 using Nancy.Localization;
+using System.Threading;
 
 namespace CloudPanel.modules
 {
@@ -73,6 +74,64 @@ namespace CloudPanel.modules
                     {
                         log.ErrorFormat("Error checking if domain is valid. Exception: {0}", ex.ToString());
                         return Response.AsJson("Unknown error. Contact support.");
+                    }
+                };
+
+            Get["/company/{CompanyCode}/Users"] = _ =>
+                {
+                    try
+                    {
+                        Users users = new Users();
+                        List<User> foundUsers = users.GetUsers(_.CompanyCode);
+
+                        var search = Request.Query.sSearch.HasValue ? (string)Request.Query.sSearch : "";
+
+                        // This is if we are searching..
+                        if (!string.IsNullOrEmpty(search))
+                            foundUsers = foundUsers.Where(c => (
+                                                        c.DisplayName.IndexOf(search, 0, StringComparison.CurrentCultureIgnoreCase) != -1 ||
+                                                        c.Email.IndexOf(search, 0, StringComparison.CurrentCultureIgnoreCase) != -1 ||
+                                                        c.UserPrincipalName.IndexOf(search, 0, StringComparison.CurrentCultureIgnoreCase) != -1 ||
+                                                        c.Department.IndexOf(search, 0, StringComparison.CurrentCultureIgnoreCase) != -1
+                                                    )).ToList();
+
+                        int start = Convert.ToInt32(Request.Query.iDisplayStart.ToString());
+                        int length = Convert.ToInt32(Request.Query.iDisplayLength.ToString());
+                        var totalRecords = foundUsers.Count();
+                        var secho = Request.Query.sEcho;
+                        var sorting = Request.Query.sSortDir_0;
+
+                        if (sorting == "asc")
+                        {
+                            return Response.AsJson(new
+                            {
+                                aaData = foundUsers.OrderBy(x => x.DisplayName).Skip(start).Take(length),
+                                sEcho = secho,
+                                iTotalRecords = totalRecords,
+                                iTotalDisplayRecords = totalRecords
+                            });
+                        }
+                        else
+                        {
+                            return Response.AsJson(new
+                            {
+                                aaData = foundUsers.OrderByDescending(x => x.DisplayName).Skip(start).Take(length),
+                                sEcho = secho.ToString(),
+                                iTotalRecords = totalRecords,
+                                iTotalDisplayRecords = totalRecords
+                            });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Error retrieving users under company {0}. Exception: {1}", _.CompanyCode, ex.ToString());
+                        return Response.AsJson(new
+                        {
+                            aaData = new List<User>(),
+                            sEcho = "0",
+                            iTotalRecords = 0,
+                            iTotalDisplayRecords = 0
+                        }, HttpStatusCode.InternalServerError);
                     }
                 };
 

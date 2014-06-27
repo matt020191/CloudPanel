@@ -285,4 +285,46 @@
   <data name="Users" xml:space="preserve">
     <value>Users</value>
   </data>
+  <data name="AltLogin" xml:space="preserve">
+    <value>Alternate Login</value>
+  </data>
+  <data name="Authoritative" xml:space="preserve">
+    <value>Authoritative</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Department" xml:space="preserve">
+    <value>Department</value>
+  </data>
+  <data name="DisplayName" xml:space="preserve">
+    <value>Display Name</value>
+  </data>
+  <data name="Exchange" xml:space="preserve">
+    <value>Exchange</value>
+  </data>
+  <data name="ExternalRelay" xml:space="preserve">
+    <value>External Relay</value>
+  </data>
+  <data name="General" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="InternalRelay" xml:space="preserve">
+    <value>Internal Relay</value>
+  </data>
+  <data name="IsAcceptedDomain" xml:space="preserve">
+    <value>Is Accepted Domain</value>
+  </data>
+  <data name="IsDefault" xml:space="preserve">
+    <value>Is Default</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
 </root>
