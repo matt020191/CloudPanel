@@ -1,5 +1,6 @@
 ﻿using CloudPanel.ActiveDirectory.Extensions;
 using CloudPanel.Base.AD;
+using CloudPanel.Base.Database.Models;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -107,7 +108,7 @@ namespace CloudPanel.ActiveDirectory
                 foundUser.UserAccountControl = GetPropertyValue(ref tmp, "userAccountControl", "int");
                 foundUser.PwdLastSet = GetPropertyValue(ref tmp, "pwdLastSet", "long");
                 foundUser.SamAccountType = GetPropertyValue(ref tmp, "sAMAccountType", "int");
-                foundUser.ObjectGUID = GetPropertyValue(ref tmp, "objectGuid");
+                foundUser.UserGuid = GetPropertyValue(ref tmp, "objectGuid");
                 foundUser.Street = GetPropertyValue(ref tmp, "streetAddress");
                 foundUser.City = GetPropertyValue(ref tmp, "l");
                 foundUser.State = GetPropertyValue(ref tmp, "st");
@@ -117,8 +118,8 @@ namespace CloudPanel.ActiveDirectory
                 foundUser.Company = GetPropertyValue(ref tmp, "company");
                 foundUser.Department = GetPropertyValue(ref tmp, "department");
                 foundUser.Description = GetPropertyValue(ref tmp, "description");
-                foundUser.FirstName = GetPropertyValue(ref tmp, "givenName");
-                foundUser.LastName = GetPropertyValue(ref tmp, "sn");
+                foundUser.Firstname = GetPropertyValue(ref tmp, "givenName");
+                foundUser.Lastname = GetPropertyValue(ref tmp, "sn");
                 foundUser.DisplayName = GetPropertyValue(ref tmp, "displayName");
                 foundUser.Name = GetPropertyValue(ref tmp, "name");
                 foundUser.UserPrincipalName = GetPropertyValue(ref tmp, "userPrincipalName");
@@ -135,6 +136,9 @@ namespace CloudPanel.ActiveDirectory
                 foundUser.ProfilePath = GetPropertyValue(ref tmp, "profilePath");
                 foundUser.Webpage = GetPropertyValue(ref tmp, "wWWHomePage");
 
+                int flags = (int)tmp.Properties["userAccountControl"].Value;
+                foundUser.IsEnabled = !Convert.ToBoolean(flags & 0x0002);
+
                 // Get groups
                 List<string> groups = new List<string>();
                 foreach (var g in usr.GetAuthorizationGroups())
@@ -142,6 +146,70 @@ namespace CloudPanel.ActiveDirectory
                     groups.Add(g.Name);
                 }
                 foundUser.MemberOf = groups.ToArray();
+
+                return foundUser;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error retrieving user {0}. Exception: {1}", username, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (usr != null)
+                    usr.Dispose();
+            }
+        }
+
+        public User GetUserWithoutGroups(string username)
+        {
+            UserPrincipal usr = null;
+
+            User foundUser = new User();
+            try
+            {
+                pc = GetPrincipalContext();
+
+                log.DebugFormat("Attempting to retrieve user {0}", username);
+                usr = UserPrincipal.FindByIdentity(pc, IdentityType.UserPrincipalName, username);
+
+                DirectoryEntry tmp = (DirectoryEntry)usr.GetUnderlyingObject();
+                //foundUser.AccountExpires = GetPropertyValue(ref tmp, "accountExpires", "long");
+                //foundUser.BadPasswordTime = GetPropertyValue(ref tmp, "badPasswordTime", "long");
+                foundUser.BadPwdCount = GetPropertyValue(ref tmp, "badPwdCount", "int");
+                foundUser.UserAccountControl = GetPropertyValue(ref tmp, "userAccountControl", "int");
+                //foundUser.PwdLastSet = GetPropertyValue(ref tmp, "pwdLastSet", "long");
+                foundUser.SamAccountType = GetPropertyValue(ref tmp, "sAMAccountType", "int");
+                foundUser.UserGuid = tmp.Guid;
+                foundUser.Street = GetPropertyValue(ref tmp, "streetAddress");
+                foundUser.City = GetPropertyValue(ref tmp, "l");
+                foundUser.State = GetPropertyValue(ref tmp, "st");
+                foundUser.PostalCode = GetPropertyValue(ref tmp, "postalCode");
+                foundUser.Country = GetPropertyValue(ref tmp, "co");
+                foundUser.CountryCode = GetPropertyValue(ref tmp, "c");
+                foundUser.Company = GetPropertyValue(ref tmp, "company");
+                foundUser.Department = GetPropertyValue(ref tmp, "department");
+                foundUser.Description = GetPropertyValue(ref tmp, "description");
+                foundUser.Firstname = GetPropertyValue(ref tmp, "givenName");
+                foundUser.Lastname = GetPropertyValue(ref tmp, "sn");
+                foundUser.DisplayName = GetPropertyValue(ref tmp, "displayName");
+                foundUser.Name = GetPropertyValue(ref tmp, "name");
+                foundUser.UserPrincipalName = GetPropertyValue(ref tmp, "userPrincipalName");
+                foundUser.Fax = GetPropertyValue(ref tmp, "facsimileTelephoneNumber");
+                foundUser.TelephoneNumber = GetPropertyValue(ref tmp, "telephoneNumber");
+                foundUser.HomePhone = GetPropertyValue(ref tmp, "homePhone");
+                foundUser.IPPhone = GetPropertyValue(ref tmp, "ipPhone");
+                foundUser.JobTitle = GetPropertyValue(ref tmp, "title");
+                foundUser.MobilePhone = GetPropertyValue(ref tmp, "mobile");
+                foundUser.Office = GetPropertyValue(ref tmp, "physicalDeliveryOfficeName");
+                foundUser.Pager = GetPropertyValue(ref tmp, "pager");
+                foundUser.POBox = GetPropertyValue(ref tmp, "postOfficeBox");
+                foundUser.ScriptPath = GetPropertyValue(ref tmp, "scriptPath");
+                foundUser.ProfilePath = GetPropertyValue(ref tmp, "profilePath");
+                foundUser.Webpage = GetPropertyValue(ref tmp, "wWWHomePage");
+
+                int flags = (int)tmp.Properties["userAccountControl"].Value;
+                foundUser.IsEnabled = !Convert.ToBoolean(flags & 0x0002);
 
                 return foundUser;
             }
@@ -176,7 +244,7 @@ namespace CloudPanel.ActiveDirectory
                 foundUser.UserAccountControl = GetPropertyValue(ref tmp, "userAccountControl", "int");
                 foundUser.PwdLastSet = GetPropertyValue(ref tmp, "pwdLastSet", "long");
                 foundUser.SamAccountType = GetPropertyValue(ref tmp, "sAMAccountType", "int");
-                foundUser.ObjectGUID = GetPropertyValue(ref tmp, "objectGuid");
+                foundUser.UserGuid = GetPropertyValue(ref tmp, "objectGuid");
                 foundUser.Street = GetPropertyValue(ref tmp, "streetAddress");
                 foundUser.City = GetPropertyValue(ref tmp, "l");
                 foundUser.State = GetPropertyValue(ref tmp, "st");
@@ -186,8 +254,8 @@ namespace CloudPanel.ActiveDirectory
                 foundUser.Company = GetPropertyValue(ref tmp, "company");
                 foundUser.Department = GetPropertyValue(ref tmp, "department");
                 foundUser.Description = GetPropertyValue(ref tmp, "description");
-                foundUser.FirstName = GetPropertyValue(ref tmp, "givenName");
-                foundUser.LastName = GetPropertyValue(ref tmp, "sn");
+                foundUser.Firstname = GetPropertyValue(ref tmp, "givenName");
+                foundUser.Lastname = GetPropertyValue(ref tmp, "sn");
                 foundUser.DisplayName = GetPropertyValue(ref tmp, "displayName");
                 foundUser.Name = GetPropertyValue(ref tmp, "name");
                 foundUser.UserPrincipalName = GetPropertyValue(ref tmp, "userPrincipalName");
@@ -247,13 +315,13 @@ namespace CloudPanel.ActiveDirectory
                 if (string.IsNullOrEmpty(clearTextPassword))
                     throw new MissingFieldException("User", "clearTextPassword");
 
-                if (string.IsNullOrEmpty(userObject.SamAccountName))
+                if (string.IsNullOrEmpty(userObject.sAMAccountName))
                     throw new MissingFieldException("User", "SamAccountName");
 
                 if (string.IsNullOrEmpty(userObject.UserPrincipalName))
                     throw new MissingFieldException("User", "UserPrincipalName");
 
-                if (string.IsNullOrEmpty(userObject.FirstName))
+                if (string.IsNullOrEmpty(userObject.Firstname))
                     throw new MissingFieldException("User", "FirstName");
 
                 if (string.IsNullOrEmpty(userObject.DisplayName))
@@ -269,16 +337,16 @@ namespace CloudPanel.ActiveDirectory
                     throw new PrincipalExistsException(userObject.UserPrincipalName);
 
                 // Now we can create the user!
-                userObject.SamAccountName = GetAvailableSamAccountName(userObject.UserPrincipalName);
+                userObject.sAMAccountName = GetAvailableSamAccountName(userObject.UserPrincipalName);
                 ctx = new PrincipalContext(ContextType.Domain, this._domainController, usersOU, this._username, this._password); // Used for creating new user
-                usr = new UserPrincipalExt(ctx, userObject.SamAccountName, clearTextPassword, true);
+                usr = new UserPrincipalExt(ctx, userObject.sAMAccountName, clearTextPassword, true);
                 usr.UserPrincipalName = userObject.UserPrincipalName;
                 usr.DisplayName = userObject.DisplayName;
                 usr.Name = userObject.Name;
-                usr.GivenName = userObject.FirstName;
+                usr.GivenName = userObject.Firstname;
 
-                if (!string.IsNullOrEmpty(userObject.LastName))
-                    usr.LastName = userObject.LastName;
+                if (!string.IsNullOrEmpty(userObject.Lastname))
+                    usr.LastName = userObject.Lastname;
 
                 if (!string.IsNullOrEmpty(userObject.Department))
                     usr.Department = userObject.Department;
@@ -286,7 +354,7 @@ namespace CloudPanel.ActiveDirectory
                 usr.Save();
 
                 // After we save we need to return some data
-                userObject.ObjectGUID = (Guid)usr.Guid;
+                userObject.UserGuid = (Guid)usr.Guid;
                 userObject.DistinguishedName = usr.DistinguishedName;
 
                 return userObject;
@@ -312,7 +380,7 @@ namespace CloudPanel.ActiveDirectory
                 if (string.IsNullOrEmpty(userObject.UserPrincipalName))
                     throw new MissingFieldException("User", "UserPrincipalName");
 
-                if (string.IsNullOrEmpty(userObject.FirstName))
+                if (string.IsNullOrEmpty(userObject.Firstname))
                     throw new MissingFieldException("User", "FirstName");
 
                 if (string.IsNullOrEmpty(userObject.DisplayName))
@@ -326,10 +394,10 @@ namespace CloudPanel.ActiveDirectory
                     throw new NoMatchingPrincipalException(userObject.UserPrincipalName);
 
                 DirectoryEntry deEntry = usr.GetUnderlyingObject() as DirectoryEntry;
-                deEntry.Properties["givenName"].Value = userObject.FirstName;
+                deEntry.Properties["givenName"].Value = userObject.Firstname;
                 deEntry.Properties["DisplayName"].Value = userObject.DisplayName;
                 
-                SetPropertyValue(ref deEntry, "sn", userObject.LastName);
+                SetPropertyValue(ref deEntry, "sn", userObject.Lastname);
                 SetPropertyValue(ref deEntry, "streetAddress", userObject.Street);
                 SetPropertyValue(ref deEntry, "l", userObject.City);
                 SetPropertyValue(ref deEntry, "st", userObject.State);
@@ -730,6 +798,8 @@ namespace CloudPanel.ActiveDirectory
                     case "long":
                     case "int":
                         return 0;
+                    case "guid":
+                        return Guid.Parse(dEntry.Properties[property].Value.ToString());
                     default:
                         return string.Empty;
                 }

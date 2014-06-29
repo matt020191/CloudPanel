@@ -1,4 +1,5 @@
 ﻿using CloudPanel.Base.AD;
+using CloudPanel.Base.Database.Models;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -441,7 +442,7 @@ namespace CloudPanel.ActiveDirectory
                     foundUser.UserAccountControl = GetPropertyValue(ref tmp, "userAccountControl", "int");
                     foundUser.PwdLastSet = GetPropertyValue(ref tmp, "pwdLastSet", "long");
                     foundUser.SamAccountType = GetPropertyValue(ref tmp, "sAMAccountType", "int");
-                    foundUser.ObjectGUID = GetPropertyValue(ref tmp, "objectGuid");
+                    foundUser.UserGuid = GetPropertyValue(ref tmp, "objectGuid");
                     foundUser.Street = GetPropertyValue(ref tmp, "streetAddress");
                     foundUser.City = GetPropertyValue(ref tmp, "l");
                     foundUser.State = GetPropertyValue(ref tmp, "st");
@@ -451,8 +452,8 @@ namespace CloudPanel.ActiveDirectory
                     foundUser.Company = GetPropertyValue(ref tmp, "company");
                     foundUser.Department = GetPropertyValue(ref tmp, "department");
                     foundUser.Description = GetPropertyValue(ref tmp, "description");
-                    foundUser.FirstName = GetPropertyValue(ref tmp, "givenName");
-                    foundUser.LastName = GetPropertyValue(ref tmp, "sn");
+                    foundUser.Firstname = GetPropertyValue(ref tmp, "givenName");
+                    foundUser.Lastname = GetPropertyValue(ref tmp, "sn");
                     foundUser.DisplayName = GetPropertyValue(ref tmp, "displayName");
                     foundUser.Name = GetPropertyValue(ref tmp, "name");
                     foundUser.UserPrincipalName = GetPropertyValue(ref tmp, "userPrincipalName");

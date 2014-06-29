@@ -1,4 +1,5 @@
 ﻿using CloudPanel.Base.AD;
+using CloudPanel.Base.Database.Models;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -144,7 +145,7 @@ namespace CloudPanel.ActiveDirectory
                             DirectoryEntry userDE = obj.GetUnderlyingObject() as DirectoryEntry;
                             users.Add(new User()
                                 {
-                                    ObjectGUID = (Guid)userDE.Properties["objectGUID"].Value,
+                                    UserGuid = (Guid)userDE.Properties["objectGUID"].Value,
                                     UserPrincipalName = userDE.Properties["UserPrincipalName"].Value.ToString(),
                                     Name = userDE.Properties["Name"].Value.ToString(),
                                     DisplayName = userDE.Properties["DisplayName"].Value.ToString()

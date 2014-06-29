@@ -58,5 +58,51 @@ namespace CloudPanel.code
 
             return users;
         }
+
+        public User GetUserFromSql(string companyCode, Guid userGuid)
+        {
+            var user = (from u in db.Users
+                        where u.CompanyCode == companyCode
+                        where u.UserGuid == userGuid
+                        select u).First();
+
+            return user;
+        }
+
+        public User GetUserFromAD(string companyCode, Guid userGuid)
+        {
+            ActiveDirectory.Users users = null;
+
+            try
+            {
+                users = new ActiveDirectory.Users(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+
+                var sqlUser = GetUserFromSql(companyCode, userGuid);
+                var adUser = users.GetUserWithoutGroups(sqlUser.UserPrincipalName);
+
+                // Merge sqlUser into adUser
+                adUser.CompanyCode = sqlUser.CompanyCode;
+                adUser.IsResellerAdmin = sqlUser.IsResellerAdmin;
+                adUser.IsCompanyAdmin = sqlUser.IsCompanyAdmin;
+                adUser.MailboxPlan = sqlUser.MailboxPlan;
+                adUser.TSPlan = sqlUser.TSPlan;
+                adUser.LyncPlan = sqlUser.LyncPlan;
+                adUser.AdditionalMB = sqlUser.AdditionalMB;
+                adUser.ActiveSyncPlan = sqlUser.ActiveSyncPlan;
+                adUser.ExchArchivePlan = sqlUser.ExchArchivePlan;
+
+                return adUser;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error retrieving user {0}. Error: {1}", userGuid.ToString(), ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (users != null)
+                    users.Dispose();
+            }
+        }
     }
 }

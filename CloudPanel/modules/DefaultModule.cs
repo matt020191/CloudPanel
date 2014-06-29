@@ -38,9 +38,9 @@ using System.Collections.Generic;
 
 namespace CloudPanel.modules
 {
-    public class DefaultGetModule : NancyModule
+    public class DefaultModule : NancyModule
     {
-        public DefaultGetModule()
+        public DefaultModule()
         {
             Get["/", ctx => ctx.CurrentUser == null] = _ => this.Response.AsRedirect("/login");
 

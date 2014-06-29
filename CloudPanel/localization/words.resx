@@ -327,4 +327,19 @@
   <data name="Type" xml:space="preserve">
     <value>Type</value>
   </data>
+  <data name="Archiving" xml:space="preserve">
+    <value>Archiving</value>
+  </data>
+  <data name="LitigationHold" xml:space="preserve">
+    <value>Litigation Hold</value>
+  </data>
+  <data name="Mailbox" xml:space="preserve">
+    <value>Mailbox</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>User</value>
+  </data>
 </root>

@@ -1,7 +1,7 @@
 
 jQuery(window).load(function() {
    // Page Preloader
-   //jQuery('#status').fadeOut();
+   jQuery('#status').fadeOut();
    //jQuery('#preloader').delay(350).fadeOut(function(){
       //jQuery('body').delay(350).css({'overflow':'visible'});
    //});
@@ -161,7 +161,7 @@ jQuery(document).ready(function() {
 
    });
    
-   // Chat View
+   /* Chat View
    jQuery('#chatview').click(function(){
       
       var body = jQuery('body');
@@ -198,7 +198,8 @@ jQuery(document).ready(function() {
       }
       
    });
-   
+   */
+ 
    reposition_topnav();
    reposition_searchform();
    

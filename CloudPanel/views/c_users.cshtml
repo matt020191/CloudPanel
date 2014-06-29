@@ -159,7 +159,7 @@
                     "sWidth": "150px",
                     "mRender": function (data, type, full) {
                         return "<div class='btn-group pull-right'>" +
-                                    "<a href='#' class='btn btn-xs btn-orange' onclick='GetCompany(\"" + data + "\");'>@Text.words.Modify</a>" +
+                                    "<a href='Users/"+full["userGuid"]+"' class='btn btn-xs btn-orange'>@Text.words.Modify</a>" +
                                     "<button type='button' class='btn btn-xs btn-orange dropdown-toggle' data-toggle='dropdown'>" +
                                         "<span class='caret'></span>" +
                                         "<span class='sr-only'>@Text.words.Dropdown</span>" +

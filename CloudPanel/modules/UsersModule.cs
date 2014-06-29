@@ -35,6 +35,8 @@ using Nancy;
 using log4net;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Base.Config;
+using CloudPanel.code;
+using CloudPanel.Base.Database.Models;
 
 namespace CloudPanel.modules
 {
@@ -47,6 +49,25 @@ namespace CloudPanel.modules
             Get["/{ResellerCode}/{CompanyCode}/Users"] = _ =>
                 {
                     return View["c_users.cshtml", _.CompanyCode];
+                };
+
+            Get["/{ResellerCode}/{CompanyCode}/Users/{UserGuid}"] = _ =>
+                {
+                    try
+                    {
+                        Users users = new Users();
+                        User sqlUser = users.GetUserFromSql(_.CompanyCode, Guid.Parse(_.UserGuid));
+
+                        // Now get AD User
+                        User adUser = users.GetUserFromAD(_.CompanyCode, sqlUser.UserGuid);
+
+                        return View["c_usersedit.cshtml", adUser];
+                    }
+                    catch (Exception ex)
+                    {
+                        ViewBag.Error = ex.Message;
+                        return View["c_users.cshtml", _.CompanyCode];
+                    }
                 };
         }
     }

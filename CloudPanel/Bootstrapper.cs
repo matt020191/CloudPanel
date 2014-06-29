@@ -29,15 +29,14 @@ namespace CloudPanel
             CookieBasedSessions.Enable(pipelines);
 
             base.ApplicationStartup(container, pipelines);
-
-            /*var authenticationConfiguration =
+            var authenticationConfiguration =
                 new FormsAuthenticationConfiguration
                 {
                     RedirectUrl = "~/login",
                     UserMapper = container.Resolve<IUserMapper>(),
                 };
 
-            FormsAuthentication.Enable(pipelines, authenticationConfiguration);*/
+            FormsAuthentication.Enable(pipelines, authenticationConfiguration);
         }
 
         protected override void ConfigureRequestContainer(TinyIoCContainer container, NancyContext context)

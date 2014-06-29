@@ -84,6 +84,96 @@ namespace CloudPanel.code
             return new NonEncodedHtmlString(htmlSelectBox);
         }
 
+        public static IHtmlString GetMailboxPlans(string companyCode, int selectedID)
+        {
+            var sb = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var plans = from p in db.Plans_ExchangeMailbox
+                            where p.CompanyCode == companyCode || string.IsNullOrEmpty(p.CompanyCode)
+                            orderby p.MailboxPlanName
+                            select p;
+                                
+                foreach (var p in plans)
+                {
+                    sb.AppendFormat("<option value='{0}' {1}>{2}</option>",
+                        p.MailboxPlanID,
+                        p.MailboxPlanID == selectedID ? "selected" : "",
+                        p.MailboxPlanName);
+                }
+            }
+            catch (Exception ex)
+            {
+                sb.AppendFormat("<option value='0' selected>{1}: {2}</option>",
+                    "ERROR",
+                    ex.Message);
+
+                log.ErrorFormat("Error getting mailbox plans for {0}. Error: {1}", companyCode, ex.ToString());
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+
+            var htmlSelectBox = string.Format("<select id='{0}' name='{1}' class='form-control'>{2}{3}</select>",
+                "MailboxPlan",
+                "MailboxPlan",
+                "<option value='0'> --- Select Plan --- </option>",
+                sb.ToString());
+
+            return new NonEncodedHtmlString(htmlSelectBox);
+        }
+
+        public static IHtmlString GetActiveSyncPlans(string companyCode, int selectedID)
+        {
+            var sb = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var plans = from p in db.Plans_ExchangeActiveSync
+                            where p.CompanyCode == companyCode || string.IsNullOrEmpty(p.CompanyCode)
+                            orderby p.DisplayName
+                            select p;
+
+                foreach (var p in plans)
+                {
+                    sb.AppendFormat("<option value='{0}' {1}>{2}</option>",
+                        p.ASID,
+                        p.ASID == selectedID ? "selected" : "",
+                        p.DisplayName);
+                }
+            }
+            catch (Exception ex)
+            {
+                sb.AppendFormat("<option value='0' selected>{1}: {2}</option>",
+                    "ERROR",
+                    ex.Message);
+
+                log.ErrorFormat("Error getting activesync plans for {0}. Error: {1}", companyCode, ex.ToString());
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+
+            var htmlSelectBox = string.Format("<select id='{0}' name='{1}' class='form-control'>{2}{3}</select>",
+                "ActiveSyncPlan",
+                "ActiveSyncPlan",
+                "<option value='0'> --- None --- </option>",
+                sb.ToString());
+
+            return new NonEncodedHtmlString(htmlSelectBox);
+        }
+
         public static IHtmlString IsChecked(object objValue)
         {
             NonEncodedHtmlString blank = new NonEncodedHtmlString("");
