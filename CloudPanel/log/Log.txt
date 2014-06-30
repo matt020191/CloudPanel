@@ -1,223 +1,100 @@
-2014-06-27 23:21:42,074 [111] DEBUG CloudPanel.SettingsRequest Populating settings from config file
-2014-06-27 23:21:42,080 [111] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
-2014-06-27 23:21:42,081 [111] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
-2014-06-27 23:21:42,081 [111] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
-2014-06-27 23:21:42,083 [111] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
-2014-06-27 23:21:42,083 [111] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
-2014-06-27 23:21:46,541 [123] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-27 23:21:46,544 [123] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-27 23:21:46,588 [123] ERROR CloudPanel.ActiveDirectory.Users Error retrieving user adixon@largecompany.com. Exception: Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: Cannot implicitly convert type 'System.__ComObject' to 'long'
-   at CallSite.Target(Closure , CallSite , Object )
-   at System.Dynamic.UpdateDelegates.UpdateAndExecute1[T0,TRet](CallSite site, T0 arg0)
-   at CloudPanel.ActiveDirectory.Users.GetUserWithoutGroups(String username)
-2014-06-27 23:21:46,592 [123] ERROR CloudPanel.code.Users Error retrieving user adixon@largecompany.com. Error: Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: Cannot implicitly convert type 'System.__ComObject' to 'long'
-   at CallSite.Target(Closure , CallSite , Object )
-   at System.Dynamic.UpdateDelegates.UpdateAndExecute1[T0,TRet](CallSite site, T0 arg0)
-   at CloudPanel.ActiveDirectory.Users.GetUserWithoutGroups(String username)
-   at CloudPanel.code.Users.GetUserFromAD(String userPrincipalName) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Users.cs:line 79
-2014-06-27 23:21:57,671 [96] DEBUG CloudPanel.SettingsRequest Populating settings from config file
-2014-06-27 23:21:57,677 [96] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
-2014-06-27 23:21:57,678 [96] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
-2014-06-27 23:21:57,678 [96] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
-2014-06-27 23:21:57,680 [96] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
-2014-06-27 23:21:57,680 [96] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
-2014-06-27 23:22:01,188 [92] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-27 23:22:01,191 [92] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-27 23:22:01,246 [92] ERROR CloudPanel.ActiveDirectory.Users Error retrieving user adixon@largecompany.com. Exception: Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: Cannot implicitly convert type 'System.__ComObject' to 'long'
-   at CallSite.Target(Closure , CallSite , Object )
-   at System.Dynamic.UpdateDelegates.UpdateAndExecute1[T0,TRet](CallSite site, T0 arg0)
-   at CloudPanel.ActiveDirectory.Users.GetUserWithoutGroups(String username)
-2014-06-27 23:22:01,248 [92] ERROR CloudPanel.code.Users Error retrieving user adixon@largecompany.com. Error: Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: Cannot implicitly convert type 'System.__ComObject' to 'long'
-   at CallSite.Target(Closure , CallSite , Object )
-   at System.Dynamic.UpdateDelegates.UpdateAndExecute1[T0,TRet](CallSite site, T0 arg0)
-   at CloudPanel.ActiveDirectory.Users.GetUserWithoutGroups(String username)
-   at CloudPanel.code.Users.GetUserFromAD(String userPrincipalName) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Users.cs:line 79
-2014-06-27 23:22:15,654 [111] DEBUG CloudPanel.SettingsRequest Populating settings from config file
-2014-06-27 23:22:15,660 [111] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
-2014-06-27 23:22:15,661 [111] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
-2014-06-27 23:22:15,662 [111] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
-2014-06-27 23:22:15,663 [111] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
-2014-06-27 23:22:15,664 [111] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
-2014-06-27 23:22:18,844 [116] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-27 23:22:18,847 [116] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-27 23:22:18,897 [116] ERROR CloudPanel.ActiveDirectory.Users Error retrieving user adixon@largecompany.com. Exception: Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: Cannot implicitly convert type 'byte[]' to 'System.Guid'
-   at CallSite.Target(Closure , CallSite , Object )
-   at System.Dynamic.UpdateDelegates.UpdateAndExecute1[T0,TRet](CallSite site, T0 arg0)
-   at CloudPanel.ActiveDirectory.Users.GetUserWithoutGroups(String username)
-2014-06-27 23:22:18,899 [116] ERROR CloudPanel.code.Users Error retrieving user adixon@largecompany.com. Error: Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: Cannot implicitly convert type 'byte[]' to 'System.Guid'
-   at CallSite.Target(Closure , CallSite , Object )
-   at System.Dynamic.UpdateDelegates.UpdateAndExecute1[T0,TRet](CallSite site, T0 arg0)
-   at CloudPanel.ActiveDirectory.Users.GetUserWithoutGroups(String username)
-   at CloudPanel.code.Users.GetUserFromAD(String userPrincipalName) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Users.cs:line 79
-2014-06-27 23:24:37,986 [95] DEBUG CloudPanel.SettingsRequest Populating settings from config file
-2014-06-27 23:24:37,991 [95] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
-2014-06-27 23:24:37,991 [95] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
-2014-06-27 23:24:37,992 [95] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
-2014-06-27 23:24:37,993 [95] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
-2014-06-27 23:24:37,994 [95] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
-2014-06-27 23:24:41,409 [103] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-27 23:24:41,412 [103] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-27 23:24:41,457 [103] DEBUG CloudPanel.ActiveDirectory.Users 1
-2014-06-27 23:24:41,459 [103] DEBUG CloudPanel.ActiveDirectory.Users 1
-2014-06-27 23:24:41,460 [103] DEBUG CloudPanel.ActiveDirectory.Users 1
-2014-06-27 23:24:41,462 [103] ERROR CloudPanel.ActiveDirectory.Users Error retrieving user adixon@largecompany.com. Exception: Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: Cannot implicitly convert type 'byte[]' to 'System.Guid'
-   at CallSite.Target(Closure , CallSite , Object )
-   at System.Dynamic.UpdateDelegates.UpdateAndExecute1[T0,TRet](CallSite site, T0 arg0)
-   at CloudPanel.ActiveDirectory.Users.GetUserWithoutGroups(String username)
-2014-06-27 23:24:41,463 [103] ERROR CloudPanel.code.Users Error retrieving user adixon@largecompany.com. Error: Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: Cannot implicitly convert type 'byte[]' to 'System.Guid'
-   at CallSite.Target(Closure , CallSite , Object )
-   at System.Dynamic.UpdateDelegates.UpdateAndExecute1[T0,TRet](CallSite site, T0 arg0)
-   at CloudPanel.ActiveDirectory.Users.GetUserWithoutGroups(String username)
-   at CloudPanel.code.Users.GetUserFromAD(String userPrincipalName) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Users.cs:line 79
-2014-06-27 23:26:10,653 [95] DEBUG CloudPanel.SettingsRequest Populating settings from config file
-2014-06-27 23:26:10,660 [95] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
-2014-06-27 23:26:10,661 [95] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
-2014-06-27 23:26:10,661 [95] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
-2014-06-27 23:26:10,663 [95] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
-2014-06-27 23:26:10,664 [95] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
-2014-06-27 23:26:13,898 [111] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-27 23:26:13,902 [111] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-27 23:26:13,943 [111] DEBUG CloudPanel.ActiveDirectory.Users 1
-2014-06-27 23:26:13,943 [111] DEBUG CloudPanel.ActiveDirectory.Users 1
-2014-06-27 23:26:13,944 [111] DEBUG CloudPanel.ActiveDirectory.Users 1
-2014-06-27 23:26:13,948 [111] ERROR CloudPanel.ActiveDirectory.Users Error retrieving user adixon@largecompany.com. Exception: Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: Cannot implicitly convert type 'byte[]' to 'System.Guid'
-   at CallSite.Target(Closure , CallSite , Object )
-   at System.Dynamic.UpdateDelegates.UpdateAndExecute1[T0,TRet](CallSite site, T0 arg0)
-   at CloudPanel.ActiveDirectory.Users.GetUserWithoutGroups(String username)
-2014-06-27 23:26:13,950 [111] ERROR CloudPanel.code.Users Error retrieving user adixon@largecompany.com. Error: Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: Cannot implicitly convert type 'byte[]' to 'System.Guid'
-   at CallSite.Target(Closure , CallSite , Object )
-   at System.Dynamic.UpdateDelegates.UpdateAndExecute1[T0,TRet](CallSite site, T0 arg0)
-   at CloudPanel.ActiveDirectory.Users.GetUserWithoutGroups(String username)
-   at CloudPanel.code.Users.GetUserFromAD(String userPrincipalName) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Users.cs:line 79
-2014-06-27 23:28:10,346 [120] DEBUG CloudPanel.SettingsRequest Populating settings from config file
-2014-06-27 23:28:10,352 [120] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
-2014-06-27 23:28:10,353 [120] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
-2014-06-27 23:28:10,354 [120] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
-2014-06-27 23:28:10,355 [120] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
-2014-06-27 23:28:10,356 [120] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
-2014-06-27 23:28:13,470 [120] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-27 23:28:13,473 [120] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-27 23:28:13,521 [120] DEBUG CloudPanel.ActiveDirectory.Users 1
-2014-06-27 23:28:13,522 [120] DEBUG CloudPanel.ActiveDirectory.Users 1
-2014-06-27 23:28:13,522 [120] DEBUG CloudPanel.ActiveDirectory.Users 1
-2014-06-27 23:28:13,528 [120] DEBUG CloudPanel.ActiveDirectory.Users 1
-2014-06-27 23:28:13,529 [120] DEBUG CloudPanel.ActiveDirectory.Users 1
-2014-06-27 23:28:13,530 [120] DEBUG CloudPanel.ActiveDirectory.Users 1
-2014-06-27 23:28:13,532 [120] DEBUG CloudPanel.ActiveDirectory.Users 1
-2014-06-27 23:28:13,535 [120] DEBUG CloudPanel.ActiveDirectory.Users 1
-2014-06-27 23:28:13,535 [120] DEBUG CloudPanel.ActiveDirectory.Users 1
-2014-06-27 23:28:13,536 [120] DEBUG CloudPanel.ActiveDirectory.Users 1
-2014-06-27 23:28:13,536 [120] DEBUG CloudPanel.ActiveDirectory.Users 1
-2014-06-27 23:28:13,537 [120] DEBUG CloudPanel.ActiveDirectory.Users 1
-2014-06-27 23:29:28,267 [125] DEBUG CloudPanel.SettingsRequest Populating settings from config file
-2014-06-27 23:29:28,273 [125] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
-2014-06-27 23:29:28,274 [125] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
-2014-06-27 23:29:28,275 [125] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
-2014-06-27 23:29:28,276 [125] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
-2014-06-27 23:29:28,276 [125] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
-2014-06-27 23:29:31,367 [125] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-27 23:29:31,371 [125] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-27 23:30:08,082 [125] DEBUG CloudPanel.SettingsRequest Populating settings from config file
-2014-06-27 23:30:08,089 [125] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
-2014-06-27 23:30:08,090 [125] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
-2014-06-27 23:30:08,090 [125] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
-2014-06-27 23:30:08,092 [125] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
-2014-06-27 23:30:08,092 [125] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
-2014-06-27 23:30:11,301 [111] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-27 23:30:11,304 [111] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-28 10:55:52,867 [11] DEBUG CloudPanel.SettingsRequest Populating settings from config file
-2014-06-28 10:55:52,873 [11] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
-2014-06-28 10:55:52,874 [11] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
-2014-06-28 10:55:52,875 [11] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
-2014-06-28 10:55:52,876 [11] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
-2014-06-28 10:55:52,877 [11] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
-2014-06-28 10:55:54,362 [11] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-28 10:55:54,364 [11] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-28 10:58:12,164 [61] DEBUG CloudPanel.SettingsRequest Populating settings from config file
-2014-06-28 10:58:12,169 [61] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
-2014-06-28 10:58:12,170 [61] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
-2014-06-28 10:58:12,170 [61] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
-2014-06-28 10:58:12,172 [61] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
-2014-06-28 10:58:12,173 [61] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
-2014-06-28 10:58:13,631 [61] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-28 10:58:13,634 [61] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-28 11:18:08,825 [37] DEBUG CloudPanel.SettingsRequest Populating settings from config file
-2014-06-28 11:18:08,831 [37] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
-2014-06-28 11:18:08,831 [37] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
-2014-06-28 11:18:08,832 [37] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
-2014-06-28 11:18:08,833 [37] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
-2014-06-28 11:18:08,834 [37] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
-2014-06-28 11:18:10,290 [37] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-28 11:18:10,294 [37] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-28 11:18:24,281 [87] DEBUG CloudPanel.SettingsRequest Populating settings from config file
-2014-06-28 11:18:24,287 [87] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
-2014-06-28 11:18:24,288 [87] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
-2014-06-28 11:18:24,288 [87] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
-2014-06-28 11:18:24,289 [87] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
-2014-06-28 11:18:24,290 [87] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
-2014-06-28 11:18:25,781 [87] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-28 11:18:25,783 [87] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-28 11:18:47,790 [78] DEBUG CloudPanel.SettingsRequest Populating settings from config file
-2014-06-28 11:18:47,796 [78] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
-2014-06-28 11:18:47,797 [78] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
-2014-06-28 11:18:47,797 [78] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
-2014-06-28 11:18:47,797 [78] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
-2014-06-28 11:18:47,798 [78] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
-2014-06-28 11:18:48,677 [78] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-28 11:18:48,679 [78] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-28 11:19:03,213 [78] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-28 11:19:03,215 [78] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-28 11:19:07,044 [37] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-28 11:19:07,047 [37] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-28 11:19:14,860 [85] DEBUG CloudPanel.SettingsRequest Populating settings from config file
-2014-06-28 11:19:14,866 [85] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
-2014-06-28 11:19:14,866 [85] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
-2014-06-28 11:19:14,867 [85] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
-2014-06-28 11:19:14,867 [85] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
-2014-06-28 11:19:14,867 [85] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
-2014-06-28 11:19:15,690 [85] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-28 11:19:15,692 [85] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-28 11:21:34,415 [87] DEBUG CloudPanel.SettingsRequest Populating settings from config file
-2014-06-28 11:21:34,421 [87] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
-2014-06-28 11:21:34,422 [87] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
-2014-06-28 11:21:34,423 [87] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
-2014-06-28 11:21:34,425 [87] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
-2014-06-28 11:21:34,425 [87] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
-2014-06-28 11:21:35,930 [87] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-28 11:21:35,932 [87] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-28 11:21:57,346 [87] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-28 11:21:57,358 [87] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-28 11:22:01,879 [78] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-28 11:22:01,881 [78] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-28 11:22:05,399 [46] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-28 11:22:05,401 [46] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-28 11:22:10,100 [46] DEBUG CloudPanel.SettingsRequest Populating settings from config file
-2014-06-28 11:22:10,107 [46] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
-2014-06-28 11:22:10,107 [46] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
-2014-06-28 11:22:10,107 [46] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
-2014-06-28 11:22:10,109 [46] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
-2014-06-28 11:22:10,109 [46] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
-2014-06-28 11:22:11,593 [46] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-28 11:22:11,596 [46] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-28 19:24:07,699 [92] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-28 19:24:07,703 [92] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-28 19:25:01,490 [63] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-28 19:25:01,492 [63] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-28 19:26:17,698 [86] DEBUG CloudPanel.SettingsRequest Populating settings from config file
-2014-06-28 19:26:17,704 [86] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
-2014-06-28 19:26:17,705 [86] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
-2014-06-28 19:26:17,705 [86] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
-2014-06-28 19:26:17,707 [86] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
-2014-06-28 19:26:17,707 [86] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
-2014-06-28 19:26:20,125 [86] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-28 19:26:20,128 [86] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-28 19:26:51,977 [43] DEBUG CloudPanel.SettingsRequest Populating settings from config file
-2014-06-28 19:26:51,983 [43] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
-2014-06-28 19:26:51,983 [43] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
-2014-06-28 19:26:51,983 [43] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
-2014-06-28 19:26:51,983 [43] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
-2014-06-28 19:26:51,984 [43] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
-2014-06-28 19:26:52,856 [43] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-28 19:26:52,859 [43] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
-2014-06-28 19:27:53,645 [75] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
-2014-06-28 19:27:53,648 [75] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
+2014-06-29 14:04:46,044 [185] ERROR CloudPanel.modules.AjaxModule Error retrieving Top X Customers. Error: System.FormatException: Input string was not in a correct format.
+   at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Int32.Parse(String s)
+   at CloudPanel.modules.AjaxModule.<>c__DisplayClass4e.<.ctor>b__46(Object _) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\modules\AjaxModule.cs:line 279
+2014-06-29 14:08:45,629 [84] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-29 14:08:45,635 [84] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-29 14:08:45,636 [84] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-29 14:08:45,636 [84] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-29 14:08:45,637 [84] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-06-29 14:08:45,638 [84] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-06-29 14:10:08,752 [75] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-29 14:10:08,757 [75] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-29 14:10:08,758 [75] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-29 14:10:08,758 [75] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-29 14:10:08,760 [75] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-06-29 14:10:08,760 [75] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-06-29 14:10:58,802 [82] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-29 14:10:58,808 [82] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-29 14:10:58,808 [82] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-29 14:10:58,809 [82] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-29 14:10:58,810 [82] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-06-29 14:10:58,810 [82] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-06-29 14:12:04,548 [82] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-29 14:12:04,554 [82] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-29 14:12:04,554 [82] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-29 14:12:04,555 [82] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-29 14:12:04,556 [82] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-06-29 14:12:04,557 [82] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-06-29 18:51:18,397 [190] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-29 18:51:18,403 [190] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-29 18:51:18,404 [190] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-29 18:51:18,404 [190] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-29 18:51:18,405 [190] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-06-29 18:51:18,406 [190] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-06-29 18:51:24,066 [72] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-06-29 18:51:24,067 [72] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-06-29 18:51:24,068 [48] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-06-29 18:51:24,068 [48] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-06-29 18:51:24,069 [48] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-06-29 18:51:24,068 [72] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-06-29 18:51:24,082 [72] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-06-29 18:51:24,082 [48] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-06-29 18:51:24,083 [48] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-06-29 18:51:24,082 [72] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-06-29 18:51:39,976 [183] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
+2014-06-29 18:51:39,985 [183] DEBUG CloudPanel.ActiveDirectory.Users Attempting to retrieve user adixon@largecompany.com
+2014-06-29 18:52:53,049 [188] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-29 18:52:53,055 [188] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-29 18:52:53,056 [188] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-29 18:52:53,056 [188] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-29 18:52:53,058 [188] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-06-29 18:52:53,058 [188] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-06-29 18:52:53,459 [137] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-06-29 18:52:53,461 [137] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-06-29 18:52:53,461 [137] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-06-29 18:52:53,475 [137] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-06-29 18:52:53,475 [137] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-06-29 19:01:38,957 [141] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-29 19:01:38,963 [141] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-29 19:01:38,964 [141] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-29 19:01:38,964 [141] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-29 19:01:38,965 [141] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-06-29 19:01:38,966 [141] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-06-29 19:04:21,434 [141] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-29 19:04:21,441 [141] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-29 19:04:21,442 [141] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-29 19:04:21,442 [141] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-29 19:04:21,444 [141] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-06-29 19:04:21,445 [141] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-06-29 19:09:54,042 [63] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-29 19:09:54,048 [63] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-29 19:09:54,049 [63] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-29 19:09:54,050 [63] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-29 19:09:54,051 [63] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-06-29 19:09:54,052 [63] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-06-29 19:10:39,411 [75] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-29 19:10:39,418 [75] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-29 19:10:39,418 [75] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-29 19:10:39,419 [75] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-29 19:10:39,420 [75] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-06-29 19:10:39,421 [75] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-06-29 19:12:53,927 [188] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-29 19:12:53,931 [188] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-29 19:12:53,932 [188] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-29 19:12:53,932 [188] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-29 19:12:53,933 [188] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-06-29 19:12:53,933 [188] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-06-29 19:13:39,899 [188] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-29 19:13:39,905 [188] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-29 19:13:39,906 [188] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-29 19:13:39,906 [188] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-29 19:13:39,907 [188] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-06-29 19:13:39,908 [188] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-06-29 19:15:11,282 [48] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-06-29 19:15:11,288 [48] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-06-29 19:15:11,289 [48] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-06-29 19:15:11,289 [48] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-06-29 19:15:11,291 [48] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-06-29 19:15:11,291 [48] DEBUG CloudPanel.BrandingsRequest Found host default in brandings

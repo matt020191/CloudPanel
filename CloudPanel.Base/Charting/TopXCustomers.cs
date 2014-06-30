@@ -27,54 +27,46 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-using CloudPanel.Base.Database.Models;
-using CloudPanel.Base.Other;
-using CloudPanel.code;
-using Nancy;
-using Nancy.Security;
-using Nancy.Authentication.Forms;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
-namespace CloudPanel.modules
+namespace CloudPanel.Base.Charting
 {
-    public class DefaultModule : NancyModule
+    public class TopXCustomers
     {
-        public DefaultModule()
+        public string CompanyCode { get; set; }
+        public string CompanyName { get; set; }
+
+        public string ResellerCode { get; set; }
+
+        public int TotalUsers { get; set; }
+        public int TotalMailboxes { get; set; }
+
+        public decimal TotalExchInMBUsed { get; set; }
+        public decimal TotalExchInMBAllocated { get; set; }
+
+        public decimal TotalExchInGBUsed
         {
-            Get["/", ctx => ctx.CurrentUser == null] = _ => this.Response.AsRedirect("/login");
-
-            Get["/login"] = _ =>
-                {
-                    return View["login.cshtml"];
-                };
-
-            Post["/login"] = _ =>
-                {
-                    var username = this.Request.Form.username;
-                    var password = this.Request.Form.password;
-
-                    Guid? usersGuid = UserMapper.ValidateUser(username, password);
-                    if (usersGuid == null)
-                    {
-                        ViewBag.LoginError = "Invalid username or password.";
-                        return View["login.cshtml"];
-                    }
-                    else
-                    {
-                        return this.LoginAndRedirect(usersGuid.Value, null, "/dashboard");
-                    }
-                };
-
-            Get["/dashboard"] = _ =>
-                {
-                    return View["dashboard.cshtml"];
-                };
-
-            Get["/plans/company"] = _ =>
-                {
-                    return View["p_organization.cshtml"];
-                };
+            get
+            {
+                if (TotalExchInMBUsed < 1)
+                    return 0;
+                else
+                    return decimal.Round(decimal.Parse(TotalExchInMBUsed.ToString()) / 1024, 2);
+            }
         }
+        public decimal TotalExchInGBAllocated
+        {
+            get
+            {
+                if (TotalExchInMBAllocated < 1)
+                    return 0;
+                else
+                    return decimal.Round(decimal.Parse(TotalExchInMBAllocated.ToString()) / 1024, 2);
+            }
+        }
+
     }
 }

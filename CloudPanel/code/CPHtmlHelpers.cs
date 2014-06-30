@@ -36,12 +36,96 @@ using System.Text;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Base.Config;
 using log4net;
+using CloudPanel.Base.Database.Models;
 
 namespace CloudPanel.code
 {
     public class CPHtmlHelpers
     {
         private static readonly ILog log = log4net.LogManager.GetLogger(typeof(CPHtmlHelpers));
+
+        public static IHtmlString GetEmailDomains(string companyCode)
+        {
+            var sb = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var domains = from d in db.Domains
+                              where d.CompanyCode == companyCode
+                              orderby d.Domain1
+                              select d;
+
+                foreach (var d in domains)
+                {
+                    sb.AppendFormat("<option value='{0}' {1}>{2}</option>",
+                        d.DomainID,
+                        d.IsDefault ? "selected" : "",
+                        d.Domain1);
+                }
+            }
+            catch (Exception ex)
+            {
+                sb.AppendFormat("<option value='0' selected>{1}: {2}</option>",
+                    "ERROR",
+                    ex.Message);
+
+                log.ErrorFormat("Error getting domains for {0}. Error: {1}", companyCode, ex.ToString());
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+
+            var htmlSelectBox = string.Format("<select id='{0}' name='{1}' class='form-control'>{2}</select>",
+                "DomainName",
+                "DomainName",
+                sb.ToString());
+
+            return new NonEncodedHtmlString(htmlSelectBox);
+        }
+
+        public static IHtmlString GetEmailDomains(string companyCode, List<Domain> domains, string emailDomain)
+        {
+            var sb = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                foreach (var d in domains)
+                {
+                    sb.AppendFormat("<option value='{0}' {1}>{2}</option>",
+                        d.DomainID,
+                        d.Domain1.Equals(emailDomain, StringComparison.CurrentCultureIgnoreCase) ? "selected" : "",
+                        d.Domain1);
+                }
+            }
+            catch (Exception ex)
+            {
+                sb.AppendFormat("<option value='0' selected>{1}: {2}</option>",
+                    "ERROR",
+                    ex.Message);
+
+                log.ErrorFormat("Error getting domains for {0}. Error: {1}", companyCode, ex.ToString());
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+
+            var htmlSelectBox = string.Format("<select id='{0}' name='{1}' class='form-control'>{2}</select>",
+                "DomainName",
+                "DomainName",
+                sb.ToString());
+
+            return new NonEncodedHtmlString(htmlSelectBox);
+        }
 
         public static IHtmlString GetCompanyPlans(string companyCode, int orgID)
         {
@@ -84,7 +168,7 @@ namespace CloudPanel.code
             return new NonEncodedHtmlString(htmlSelectBox);
         }
 
-        public static IHtmlString GetMailboxPlans(string companyCode, int selectedID)
+        public static IHtmlString GetCompanyPlans()
         {
             var sb = new StringBuilder();
 
@@ -93,10 +177,48 @@ namespace CloudPanel.code
             {
                 db = new CloudPanelContext(Settings.ConnectionString);
 
-                var plans = from p in db.Plans_ExchangeMailbox
-                            where p.CompanyCode == companyCode || string.IsNullOrEmpty(p.CompanyCode)
-                            orderby p.MailboxPlanName
-                            select p;
+                var plans = (from p in db.Plans_Organization
+                             orderby p.OrgPlanName
+                             select p).ToList();
+
+                foreach (var p in plans)
+                {
+                    sb.AppendFormat("<option value='{0}'>{1}</option>",
+                        p.OrgPlanID,
+                        p.OrgPlanName);
+                }
+            }
+            catch (Exception ex)
+            {
+                sb.AppendFormat("<option value='0' selected>{1}: {2}</option>",
+                    "ERROR",
+                    ex.Message);
+
+                log.ErrorFormat("Error getting company plans. Error: {0}", ex.ToString());
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+
+            var htmlSelectBox = string.Format("<select id='{0}' name='{1}' class='form-control'>{2}{3}</select>",
+                "OrgPlanID",
+                "OrgPlanID",
+                "<option value='0'> --- Create New --- </option>",
+                sb.ToString());
+
+            return new NonEncodedHtmlString(htmlSelectBox);
+        }
+
+        public static IHtmlString GetMailboxPlans(string companyCode, List<Plans_ExchangeMailbox> plans, int selectedID)
+        {
+            var sb = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
                                 
                 foreach (var p in plans)
                 {
@@ -129,7 +251,7 @@ namespace CloudPanel.code
             return new NonEncodedHtmlString(htmlSelectBox);
         }
 
-        public static IHtmlString GetActiveSyncPlans(string companyCode, int selectedID)
+        public static IHtmlString GetActiveSyncPlans(string companyCode, List<Plans_ExchangeActiveSync> plans, int selectedID)
         {
             var sb = new StringBuilder();
 
@@ -137,11 +259,6 @@ namespace CloudPanel.code
             try
             {
                 db = new CloudPanelContext(Settings.ConnectionString);
-
-                var plans = from p in db.Plans_ExchangeActiveSync
-                            where p.CompanyCode == companyCode || string.IsNullOrEmpty(p.CompanyCode)
-                            orderby p.DisplayName
-                            select p;
 
                 foreach (var p in plans)
                 {
@@ -169,6 +286,32 @@ namespace CloudPanel.code
                 "ActiveSyncPlan",
                 "ActiveSyncPlan",
                 "<option value='0'> --- None --- </option>",
+                sb.ToString());
+
+            return new NonEncodedHtmlString(htmlSelectBox);
+        }
+
+        public static IHtmlString GetMultiSelectBox(string selectName, Dictionary<string, string> keyValuePair, List<string> selectedKeys)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var a in keyValuePair)
+            {
+                if (selectedKeys == null)
+                    sb.AppendFormat("<option value='{0}' {1}>{2}</option>", a.Key, "", a.Value);
+                else
+                {
+                    var match = selectedKeys.FirstOrDefault(s => s.Equals(a.Key, StringComparison.CurrentCultureIgnoreCase));
+                    if (match == null)
+                        sb.AppendFormat("<option value='{0}' {1}>{2}</option>", a.Key, "", a.Value);
+                    else
+                        sb.AppendFormat("<option value='{0}' {1}>{2}</option>", a.Key, "selected", a.Value);
+                }
+            }
+
+            var htmlSelectBox = string.Format("<select id='{0}' name='{1}' class='chosen-select' multiple>{2}</select>",
+                selectName,
+                selectName,
                 sb.ToString());
 
             return new NonEncodedHtmlString(htmlSelectBox);

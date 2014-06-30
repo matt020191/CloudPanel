@@ -106,6 +106,15 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Aliases.
+        /// </summary>
+        internal static string Aliases {
+            get {
+                return ResourceManager.GetString("Aliases", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Alternate Login.
         /// </summary>
         internal static string AltLogin {
@@ -394,6 +403,15 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Email Aliases.
+        /// </summary>
+        internal static string EmailAliases {
+            get {
+                return ResourceManager.GetString("EmailAliases", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enable/Disable.
         /// </summary>
         internal static string EnableDisable {
@@ -417,6 +435,15 @@ namespace CloudPanel.localization {
         internal static string ExternalRelay {
             get {
                 return ResourceManager.GetString("ExternalRelay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Full Access.
+        /// </summary>
+        internal static string FullAccess {
+            get {
+                return ResourceManager.GetString("FullAccess", resourceCulture);
             }
         }
         
@@ -520,6 +547,15 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Mailbox Settings.
+        /// </summary>
+        internal static string MailboxSettings {
+            get {
+                return ResourceManager.GetString("MailboxSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Maximum Users Allowed.
         /// </summary>
         internal static string MaxUsers {
@@ -561,6 +597,15 @@ namespace CloudPanel.localization {
         internal static string Password {
             get {
                 return ResourceManager.GetString("Password", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Permissions.
+        /// </summary>
+        internal static string Permissions {
+            get {
+                return ResourceManager.GetString("Permissions", resourceCulture);
             }
         }
         
@@ -633,6 +678,24 @@ namespace CloudPanel.localization {
         internal static string Save {
             get {
                 return ResourceManager.GetString("Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Send As.
+        /// </summary>
+        internal static string SendAs {
+            get {
+                return ResourceManager.GetString("SendAs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Send on Behalf.
+        /// </summary>
+        internal static string SendOnBehalf {
+            get {
+                return ResourceManager.GetString("SendOnBehalf", resourceCulture);
             }
         }
         

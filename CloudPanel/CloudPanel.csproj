@@ -861,6 +861,8 @@
     <Content Include="views\c_domainsedit.cshtml" />
     <Content Include="views\c_users.cshtml" />
     <Content Include="views\c_usersedit.cshtml" />
+    <Content Include="views\dashboard.cshtml" />
+    <Content Include="views\p_organization.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

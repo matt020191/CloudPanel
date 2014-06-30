@@ -416,6 +416,62 @@ namespace CloudPanel.code
             }
         }
 
+        /// <summary>
+        /// Gets a list of mailbox plans for the company
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <returns></returns>
+        public List<Plans_ExchangeMailbox> GetMailboxPlans(string companyCode)
+        {
+            var plans = (from p in db.Plans_ExchangeMailbox
+                         where p.CompanyCode == companyCode || string.IsNullOrEmpty(p.CompanyCode)
+                         orderby p.MailboxPlanName
+                         select p).ToList();
+
+            return plans;
+        }
+
+        /// <summary>
+        /// Gets a list of activesync plans
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <returns></returns>
+        public List<Plans_ExchangeActiveSync> GetActiveSyncPlans(string companyCode)
+        {
+            var plans = (from a in db.Plans_ExchangeActiveSync
+                         where a.CompanyCode == companyCode || string.IsNullOrEmpty(a.CompanyCode)
+                         orderby a.DisplayName
+                         select a).ToList();
+
+            return plans;
+        }
+
+        /// <summary>
+        /// Compiles a list of users with their SamAccountName
+        /// This is mostly used for FullACcess, SendAs, SendOnBehalf permissions
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <returns></returns>
+        public Dictionary<string, string> GetUsersListAndSamAccountName(string companyCode)
+        {
+            var users = (from u in db.Users
+                         where u.CompanyCode == companyCode
+                         where !string.IsNullOrEmpty(u.sAMAccountName)
+                         orderby u.DisplayName
+                         select u).ToList();
+
+            Dictionary<string, string> values = new Dictionary<string, string>();
+            foreach (var u in users)
+            {
+                if (!values.ContainsKey(u.sAMAccountName))
+                {
+                    values.Add(u.sAMAccountName, u.DisplayName);
+                }
+            }
+
+            return values;
+        }
+
         #endregion
     }
 }

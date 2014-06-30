@@ -37,6 +37,7 @@ using CloudPanel.Database.EntityFramework;
 using CloudPanel.Base.Config;
 using CloudPanel.code;
 using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Other;
 
 namespace CloudPanel.modules
 {
@@ -55,13 +56,28 @@ namespace CloudPanel.modules
                 {
                     try
                     {
+                        UsersEditPage uep = new UsersEditPage();
+
+                        Companies companies = new Companies();
                         Users users = new Users();
-                        User sqlUser = users.GetUserFromSql(_.CompanyCode, Guid.Parse(_.UserGuid));
+                        
+                        // Get the user from Active Directory
+                        User adUser = users.GetUserFromAD(_.CompanyCode, _.UserGuid);
+                        uep.User = adUser;
 
-                        // Now get AD User
-                        User adUser = users.GetUserFromAD(_.CompanyCode, sqlUser.UserGuid);
+                        // Get a list of domains
+                        uep.Domains = companies.GetDomains(_.CompanyCode);
 
-                        return View["c_usersedit.cshtml", adUser];
+                        // Get list of mailbox plans
+                        uep.MailboxPlans = companies.GetMailboxPlans(_.CompanyCode);
+
+                        // Get a list of activesync plans
+                        uep.ActiveSyncPlans = companies.GetActiveSyncPlans(_.CompanyCode);
+
+                        // Get list of users and their sAMAccountName
+                        uep.UsersPermissionList = companies.GetUsersListAndSamAccountName(_.CompanyCode);
+                            
+                        return View["c_usersedit.cshtml", uep];
                     }
                     catch (Exception ex)
                     {

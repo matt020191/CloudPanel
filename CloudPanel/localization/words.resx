@@ -342,4 +342,25 @@
   <data name="User" xml:space="preserve">
     <value>User</value>
   </data>
+  <data name="Aliases" xml:space="preserve">
+    <value>Aliases</value>
+  </data>
+  <data name="EmailAliases" xml:space="preserve">
+    <value>Email Aliases</value>
+  </data>
+  <data name="FullAccess" xml:space="preserve">
+    <value>Full Access</value>
+  </data>
+  <data name="MailboxSettings" xml:space="preserve">
+    <value>Mailbox Settings</value>
+  </data>
+  <data name="Permissions" xml:space="preserve">
+    <value>Permissions</value>
+  </data>
+  <data name="SendAs" xml:space="preserve">
+    <value>Send As</value>
+  </data>
+  <data name="SendOnBehalf" xml:space="preserve">
+    <value>Send on Behalf</value>
+  </data>
 </root>

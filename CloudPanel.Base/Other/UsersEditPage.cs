@@ -1,4 +1,5 @@
-﻿//
+﻿using CloudPanel.Base.Database.Models;
+//
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
 //
@@ -27,54 +28,31 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-using CloudPanel.Base.Database.Models;
-using CloudPanel.Base.Other;
-using CloudPanel.code;
-using Nancy;
-using Nancy.Security;
-using Nancy.Authentication.Forms;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
-namespace CloudPanel.modules
+namespace CloudPanel.Base.Other
 {
-    public class DefaultModule : NancyModule
+    public class UsersEditPage
     {
-        public DefaultModule()
+        public User User { get; set; }
+
+        public List<Domain> Domains { get; set; }
+
+        public List<Plans_ExchangeMailbox> MailboxPlans { get; set; }
+
+        public List<Plans_ExchangeActiveSync> ActiveSyncPlans { get; set; }
+
+        public Dictionary<string, string> UsersPermissionList { get; set; }
+
+        public List<Domain> EmailDomains
         {
-            Get["/", ctx => ctx.CurrentUser == null] = _ => this.Response.AsRedirect("/login");
-
-            Get["/login"] = _ =>
-                {
-                    return View["login.cshtml"];
-                };
-
-            Post["/login"] = _ =>
-                {
-                    var username = this.Request.Form.username;
-                    var password = this.Request.Form.password;
-
-                    Guid? usersGuid = UserMapper.ValidateUser(username, password);
-                    if (usersGuid == null)
-                    {
-                        ViewBag.LoginError = "Invalid username or password.";
-                        return View["login.cshtml"];
-                    }
-                    else
-                    {
-                        return this.LoginAndRedirect(usersGuid.Value, null, "/dashboard");
-                    }
-                };
-
-            Get["/dashboard"] = _ =>
-                {
-                    return View["dashboard.cshtml"];
-                };
-
-            Get["/plans/company"] = _ =>
-                {
-                    return View["p_organization.cshtml"];
-                };
+            get
+            {
+                return (from d in Domains where d.IsAcceptedDomain select d).ToList();
+            }
         }
     }
 }

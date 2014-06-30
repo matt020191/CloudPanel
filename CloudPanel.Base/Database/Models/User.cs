@@ -262,6 +262,30 @@ namespace CloudPanel.Base.Database.Models
             get { return (MailboxPlan != null && MailboxPlan > 0) ? true : false; }
         }
 
+        [NotMapped]
+        public string EmailDomain
+        {
+            get 
+            {
+                if (string.IsNullOrEmpty(Email))
+                    return string.Empty;
+                else
+                    return Email.Split('@')[1];
+            }
+        }
+
+        [NotMapped]
+        public string EmailFirst
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(Email))
+                    return string.Empty;
+                else
+                    return Email.Split('@')[0];
+            }
+        }
+
         #endregion
     }
 }
