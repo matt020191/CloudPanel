@@ -9,7 +9,7 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = false;
+            AutomaticMigrationsEnabled = true;
             MigrationsDirectory = @"Migrations";
         }
 

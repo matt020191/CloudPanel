@@ -1,5 +1,4 @@
 using CloudPanel.Base.Database.Models;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.ModelConfiguration;
 
 namespace CloudPanel.Database.EntityFramework.Models.Mapping

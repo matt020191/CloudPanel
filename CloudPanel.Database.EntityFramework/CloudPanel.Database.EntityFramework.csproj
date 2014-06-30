@@ -58,6 +58,10 @@
     <Compile Include="Migrations\201405092029381_Original.Designer.cs">
       <DependentUpon>201405092029381_Original.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201406301611559_AddScalarFunctions.cs" />
+    <Compile Include="Migrations\201406301611559_AddScalarFunctions.Designer.cs">
+      <DependentUpon>201406301611559_AddScalarFunctions.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Mapping\ApiAccessMap.cs" />
     <Compile Include="Models\Mapping\AuditLoginMap.cs" />
@@ -95,6 +99,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201405092029381_Original.resx">
       <DependentUpon>201405092029381_Original.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201406301611559_AddScalarFunctions.resx">
+      <DependentUpon>201406301611559_AddScalarFunctions.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

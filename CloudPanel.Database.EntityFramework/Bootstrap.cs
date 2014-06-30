@@ -24,8 +24,8 @@ namespace CloudPanel.Database.EntityFramework
 
         public void InitializeDatabase(CloudPanelContext context)
         {
-            if (!context.Database.Exists())
-            {
+            //if (!context.Database.Exists())
+            //{
                 var configuration = new Configuration
                 {
                     TargetDatabase = new DbConnectionInfo(context.Database.Connection.ConnectionString, @"System.Data.SqlClient"),
@@ -33,7 +33,7 @@ namespace CloudPanel.Database.EntityFramework
 
                 var migrator = new DbMigrator(configuration);
                 migrator.Update();
-            }
+            //}
         }
 
         #endregion
@@ -47,7 +47,7 @@ namespace CloudPanel.Database.EntityFramework
 
         public CloudPanelContext(string connectionString) : base(connectionString)
         {
-            //Database.SetInitializer(new CloudPanelContextInitializer());
+            System.Data.Entity.Database.SetInitializer(new CloudPanelContextInitializer());
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -83,13 +83,13 @@ namespace CloudPanel.Database.EntityFramework
             modelBuilder.Configurations.Add(new UserMap());
 
             
-            modelBuilder.Entity<DeleteCompany>().MapToStoredProcedures(s =>
+            /*modelBuilder.Entity<DeleteCompany>().MapToStoredProcedures(s =>
                 {
                     s.Delete(d => d.HasName("DeleteCompany").Parameter(
                         p => p.CompanyCode, "CompanyCode")
                     );
                 });
-            /*
+            
             modelBuilder.Entity<DeleteUser>().MapToStoredProcedures(s =>
                 {
                     s.Delete(d => d.HasName("DeleteUser"));
@@ -181,9 +181,9 @@ namespace CloudPanel.Database.EntityFramework
 
         #region Stored Procedures
         
+        /*
         public DbSet<DeleteCompany> DeleteCompany { get; set; }
 
-        /*
         public DbSet<DeleteUser> DeleteUser { get; set; }
 
         public DbSet<DisableExchange> DisableExchange { get; set; }

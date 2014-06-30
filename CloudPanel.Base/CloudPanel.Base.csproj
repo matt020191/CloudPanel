@@ -59,7 +59,6 @@
     <Compile Include="Database\Models\Company.cs" />
     <Compile Include="Database\Models\CompanyStat.cs" />
     <Compile Include="Database\Models\Contact.cs" />
-    <Compile Include="Database\Models\DeleteCompany.cs" />
     <Compile Include="Database\Models\DistributionGroup.cs" />
     <Compile Include="Database\Models\Domain.cs" />
     <Compile Include="Database\Models\LogTable.cs" />
