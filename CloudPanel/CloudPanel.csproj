@@ -314,6 +314,7 @@
     <Content Include="content\images\uploadfile%402x.png" />
     <Content Include="content\images\uploadfile.png" />
     <Content Include="content\images\user.png" />
+    <Content Include="content\images\warning.png" />
     <Content Include="content\js\bootstrap-fileupload.min.js" />
     <Content Include="content\js\bootstrap-timepicker.min.js" />
     <Content Include="content\js\bootstrap-wizard.min.js" />
@@ -697,6 +698,7 @@
     <Compile Include="code\AuthenticatedUser.cs" />
     <Compile Include="code\BrandingsRequest.cs" />
     <Compile Include="code\Companies.cs" />
+    <Compile Include="code\Plans.cs" />
     <Compile Include="code\Users.cs" />
     <Compile Include="code\CPHtmlHelpers.cs" />
     <Compile Include="code\OtherStatics.cs" />
@@ -726,6 +728,7 @@
     <Compile Include="modules\CPSecurityHooksModule.cs" />
     <Compile Include="modules\DefaultModule.cs" />
     <Compile Include="modules\DomainsModule.cs" />
+    <Compile Include="modules\PlansModule.cs" />
     <Compile Include="modules\ResellersModule.cs" />
     <Compile Include="modules\UsersModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

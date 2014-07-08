@@ -176,6 +176,15 @@
                             true
                 ));
             }
+            else if (!string.IsNullOrEmpty(ViewBag.Warning))
+            {
+                @Html.Raw(CloudPanel.code.OtherStatics.GetGritterMessage(
+                            "Warning",
+                            ViewBag.Warning,
+                            Url.Content("~/Content/images/warning.png"),
+                            true
+                ));
+            }
             else if (!string.IsNullOrEmpty(ViewBag.Success)) {
                 @Html.Raw(CloudPanel.code.OtherStatics.GetGritterMessage(
                             "Success",

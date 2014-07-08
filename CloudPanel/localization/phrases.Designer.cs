@@ -142,6 +142,24 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Are you sure you want to delete.
+        /// </summary>
+        internal static string Plans_DeleteConfirm1 {
+            get {
+                return ResourceManager.GetString("Plans_DeleteConfirm1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete Plan.
+        /// </summary>
+        internal static string Plans_DeleteTitle {
+            get {
+                return ResourceManager.GetString("Plans_DeleteTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Create New Reseller.
         /// </summary>
         internal static string Resellers_CreateNew {

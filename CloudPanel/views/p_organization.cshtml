@@ -10,12 +10,6 @@
     </div>
 }
 
-<div class="row">
-    <a href="#" class="btn btn-success mr5 pull-right" data-toggle="modal" data-target=".new-domain-modal">@Text.words.Add</a>
-</div>
-
-<div class="mb30"></div>
-
 <form id="editDomainForm" method="post" action="">
     <div class="panel panel-dark">
         <div class="panel-heading">
@@ -105,11 +99,41 @@
             </div>
         </div>
     </div>
+
+    <div class="panel-footer">
+        <div class="pull-right">
+            <button type="button" class="btn btn-danger" onclick="javascript: DeletePlan();">@Text.words.Delete</button>
+            <button class="btn btn-success">@Text.words.Save</button>
+        </div>
+    </div>
 </form>
 
-    @section CUSTOMJAVASCRIPT {
-        <script src="~/Content/js/jquery.validate.min.js"></script>
-        <script type="text/javascript">
+<!-- Delete Plan -->
+<form id="deletePlan" method="post" action="">
+    <input type="hidden" name="_method" value="DELETE" />
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="myModalLabel">@Text.phrases.Plans_DeleteTitle</h4>
+                </div>
+                <div class="modal-body">
+                    @Text.phrases.Plans_DeleteConfirm1 <b><span id="spanPlanName"></span></b>?
+                    <input id="OrgPlanId" name="OrgPlanId" type="text" hidden="hidden" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">@Text.words.Close</button>
+                    <input id="btnDelete" type="submit" value="@Text.words.Delete" class="btn btn-danger" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section CUSTOMJAVASCRIPT {
+    <script src="~/Content/js/jquery.validate.min.js"></script>
+    <script type="text/javascript">
             $(document).ajaxStart(function () {
                 $.blockUI({
                     message: '<p>Processing</p><img src="@Url.Content("~/Content/images/loaders/loader25.gif")" />'
@@ -121,28 +145,44 @@
 
                 $(".spinner").spinner({ min: 0 });
                 $("#OrgPlanID").change(function () {
-                    $.ajax({
-                        type: "GET",
-                        url: "@Url.Content("~/ajax/plans/company/")" + $(this).val(),
-                        async: false,
-                        success: function (data) {
-                            $("#OrgPlanName").val(data.orgPlanName);
-                            $("#MaxUsers").val(data.maxUsers);
-                            $("#MaxDomains").val(data.maxDomains);
-                            $("#MaxExchangeMailboxes").val(data.maxExchangeMailboxes);
-                            $("#MaxExchangeContacts").val(data.maxExchangeContacts);
-                            $("#MaxExchangeDistLists").val(data.maxExchangeDistLists);
-                            $("#MaxExchangeMailPublicFolders").val(data.maxExchangeMailPublicFolders);
-                            $("#MaxExchangeResourceMailboxes").val(data.maxExchangeResourceMailboxes);
-                            $("#MaxTerminalServerUsers").val(data.maxTerminalServerUsers);
-                        },
-                        error: function (xhr, ajaxOptions, thrownError) {
-                            alert(thrownError);
-                            
-                        }
-                    });
-                });
 
+                    if ($(this).val() > 0) {
+                        $.ajax({
+                            type: "GET",
+                            url: "@Url.Content("~/ajax/plans/company/")" + $(this).val(),
+                            async: false,
+                            success: function (data) {
+                                $("#OrgPlanName").val(data.orgPlanName);
+                                $("#MaxUsers").val(data.maxUsers);
+                                $("#MaxDomains").val(data.maxDomains);
+                                $("#MaxExchangeMailboxes").val(data.maxExchangeMailboxes);
+                                $("#MaxExchangeContacts").val(data.maxExchangeContacts);
+                                $("#MaxExchangeDistLists").val(data.maxExchangeDistLists);
+                                $("#MaxExchangeMailPublicFolders").val(data.maxExchangeMailPublicFolders);
+                                $("#MaxExchangeResourceMailboxes").val(data.maxExchangeResourceMailboxes);
+                                $("#MaxTerminalServerUsers").val(data.maxTerminalServerUsers);
+                            },
+                            error: function (xhr, ajaxOptions, thrownError) {
+                                alert(thrownError);
+
+                            }
+                        });
+                    } else {
+                        $("input[type=text]").val("");
+                    }
+                });
             });
-        </script>
-    }
+
+        function DeletePlan()
+        {
+            var id = $("#editDomainForm #OrgPlanID option:selected").val();
+            var name = $("#editDomainForm #OrgPlanID option:selected").text();
+
+            if (id > 0) {
+                $("#spanPlanName").text(name);
+                $("#deletePlan input[name=OrgPlanID").text(id);
+                $("#deleteModal").modal("show");
+            }
+        }
+    </script>
+}

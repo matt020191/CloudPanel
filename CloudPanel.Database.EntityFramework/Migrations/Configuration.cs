@@ -1,4 +1,4 @@
-namespace CloudPanel.Database.EntityFramework.Migrations
+﻿namespace CloudPanel.Database.EntityFramework.Migrations
 {
     using System;
     using System.Data.Entity;

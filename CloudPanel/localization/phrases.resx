@@ -144,6 +144,12 @@
   <data name="Load_FromServer" xml:space="preserve">
     <value>Loading data from server</value>
   </data>
+  <data name="Plans_DeleteConfirm1" xml:space="preserve">
+    <value>Are you sure you want to delete</value>
+  </data>
+  <data name="Plans_DeleteTitle" xml:space="preserve">
+    <value>Delete Plan</value>
+  </data>
   <data name="Resellers_CreateNew" xml:space="preserve">
     <value>Create New Reseller</value>
   </data>

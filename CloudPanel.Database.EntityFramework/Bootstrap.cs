@@ -28,7 +28,7 @@ namespace CloudPanel.Database.EntityFramework
             //{
                 var configuration = new Configuration
                 {
-                    TargetDatabase = new DbConnectionInfo(context.Database.Connection.ConnectionString, @"System.Data.SqlClient"),
+                   TargetDatabase = new DbConnectionInfo(context.Database.Connection.ConnectionString, @"System.Data.SqlClient"),
                 };
 
                 var migrator = new DbMigrator(configuration);

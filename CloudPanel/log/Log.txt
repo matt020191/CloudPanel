@@ -258,3 +258,649 @@ Login failed for user 'sa'.
 2014-06-30 11:41:03,312 [20] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
 2014-06-30 11:41:03,317 [20] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
 2014-06-30 11:41:03,319 [20] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 20:05:16,480 [7] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 20:05:16,487 [7] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 20:05:16,487 [7] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 20:05:16,488 [7] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 20:05:16,489 [7] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 20:05:16,489 [7] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 20:05:21,168 [14] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-07 20:05:21,170 [14] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-07 20:05:21,170 [14] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-07 20:05:21,210 [10] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-07 20:05:21,210 [10] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-07 20:05:21,211 [10] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-07 20:05:21,230 [10] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-07 20:05:21,230 [14] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-07 20:05:21,231 [14] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-07 20:05:21,230 [10] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-07 20:05:40,409 [12] ERROR CloudPanel.modules.AjaxModule Error retrieving Top X Customers. Error: System.Data.SqlClient.SqlException (0x80131904): A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: SQL Network Interfaces, error: 26 - Error Locating Server/Instance Specified)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.Connect(ServerInfo serverInfo, SqlInternalConnectionTds connHandler, Boolean ignoreSniOpenTimeout, Int64 timerExpire, Boolean encrypt, Boolean trustServerCert, Boolean integratedSecurity, Boolean withFailover)
+   at System.Data.SqlClient.SqlInternalConnectionTds.AttemptOneLogin(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean ignoreSniOpenTimeout, TimeoutTimer timeout, Boolean withFailover)
+   at System.Data.SqlClient.SqlInternalConnectionTds.LoginNoFailover(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString connectionOptions, SqlCredential credential, TimeoutTimer timeout)
+   at System.Data.SqlClient.SqlInternalConnectionTds.OpenLoginEnlist(TimeoutTimer timeout, SqlConnectionString connectionOptions, SqlCredential credential, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance)
+   at System.Data.SqlClient.SqlInternalConnectionTds..ctor(DbConnectionPoolIdentity identity, SqlConnectionString connectionOptions, SqlCredential credential, Object providerInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString userConnectionOptions, SessionData reconnectSessionData)
+   at System.Data.SqlClient.SqlConnectionFactory.CreateConnection(DbConnectionOptions options, DbConnectionPoolKey poolKey, Object poolGroupProviderInfo, DbConnectionPool pool, DbConnection owningConnection, DbConnectionOptions userOptions)
+   at System.Data.ProviderBase.DbConnectionFactory.CreatePooledConnection(DbConnectionPool pool, DbConnection owningObject, DbConnectionOptions options, DbConnectionPoolKey poolKey, DbConnectionOptions userOptions)
+   at System.Data.ProviderBase.DbConnectionPool.CreateObject(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at System.Data.ProviderBase.DbConnectionPool.UserCreateRequest(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at System.Data.ProviderBase.DbConnectionPool.TryGetConnection(DbConnection owningObject, UInt32 waitForMultipleObjectsTimeout, Boolean allowCreate, Boolean onlyOneCheckConnection, DbConnectionOptions userOptions, DbConnectionInternal& connection)
+   at System.Data.ProviderBase.DbConnectionPool.TryGetConnection(DbConnection owningObject, TaskCompletionSource`1 retry, DbConnectionOptions userOptions, DbConnectionInternal& connection)
+   at System.Data.ProviderBase.DbConnectionFactory.TryGetConnection(DbConnection owningConnection, TaskCompletionSource`1 retry, DbConnectionOptions userOptions, DbConnectionInternal oldConnection, DbConnectionInternal& connection)
+   at System.Data.ProviderBase.DbConnectionInternal.TryOpenConnectionInternal(DbConnection outerConnection, DbConnectionFactory connectionFactory, TaskCompletionSource`1 retry, DbConnectionOptions userOptions)
+   at System.Data.ProviderBase.DbConnectionClosed.TryOpenConnection(DbConnection outerConnection, DbConnectionFactory connectionFactory, TaskCompletionSource`1 retry, DbConnectionOptions userOptions)
+   at System.Data.SqlClient.SqlConnection.TryOpenInner(TaskCompletionSource`1 retry)
+   at System.Data.SqlClient.SqlConnection.TryOpen(TaskCompletionSource`1 retry)
+   at System.Data.SqlClient.SqlConnection.Open()
+   at CloudPanel.modules.AjaxModule.<>c__DisplayClass52.<.ctor>b__48(Object _) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\modules\AjaxModule.cs:line 242
+ClientConnectionId:00000000-0000-0000-0000-000000000000
+2014-07-07 20:05:56,441 [11] ERROR CloudPanel.modules.ResellersModule Failed to retrieve resellers. Exception: System.Data.Entity.Core.ProviderIncompatibleException: An error occurred accessing the database. This usually means that the connection to the database failed. Check that the connection string is correct and that the appropriate DbContext constructor is being used to specify it or find it in the application's config file. See http://go.microsoft.com/fwlink/?LinkId=386386 for information on DbContext and connections. See the inner exception for details of the failure. ---> System.Data.Entity.Core.ProviderIncompatibleException: The provider did not return a ProviderManifestToken string. ---> System.Data.SqlClient.SqlException: A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: SQL Network Interfaces, error: 26 - Error Locating Server/Instance Specified)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.Connect(ServerInfo serverInfo, SqlInternalConnectionTds connHandler, Boolean ignoreSniOpenTimeout, Int64 timerExpire, Boolean encrypt, Boolean trustServerCert, Boolean integratedSecurity, Boolean withFailover)
+   at System.Data.SqlClient.SqlInternalConnectionTds.AttemptOneLogin(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean ignoreSniOpenTimeout, TimeoutTimer timeout, Boolean withFailover)
+   at System.Data.SqlClient.SqlInternalConnectionTds.LoginNoFailover(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString connectionOptions, SqlCredential credential, TimeoutTimer timeout)
+   at System.Data.SqlClient.SqlInternalConnectionTds.OpenLoginEnlist(TimeoutTimer timeout, SqlConnectionString connectionOptions, SqlCredential credential, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance)
+   at System.Data.SqlClient.SqlInternalConnectionTds..ctor(DbConnectionPoolIdentity identity, SqlConnectionString connectionOptions, SqlCredential credential, Object providerInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString userConnectionOptions, SessionData reconnectSessionData)
+   at System.Data.SqlClient.SqlConnectionFactory.CreateConnection(DbConnectionOptions options, DbConnectionPoolKey poolKey, Object poolGroupProviderInfo, DbConnectionPool pool, DbConnection owningConnection, DbConnectionOptions userOptions)
+   at System.Data.ProviderBase.DbConnectionFactory.CreatePooledConnection(DbConnectionPool pool, DbConnection owningObject, DbConnectionOptions options, DbConnectionPoolKey poolKey, DbConnectionOptions userOptions)
+   at System.Data.ProviderBase.DbConnectionPool.CreateObject(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at System.Data.ProviderBase.DbConnectionPool.UserCreateRequest(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at System.Data.ProviderBase.DbConnectionPool.TryGetConnection(DbConnection owningObject, UInt32 waitForMultipleObjectsTimeout, Boolean allowCreate, Boolean onlyOneCheckConnection, DbConnectionOptions userOptions, DbConnectionInternal& connection)
+   at System.Data.ProviderBase.DbConnectionPool.TryGetConnection(DbConnection owningObject, TaskCompletionSource`1 retry, DbConnectionOptions userOptions, DbConnectionInternal& connection)
+   at System.Data.ProviderBase.DbConnectionFactory.TryGetConnection(DbConnection owningConnection, TaskCompletionSource`1 retry, DbConnectionOptions userOptions, DbConnectionInternal oldConnection, DbConnectionInternal& connection)
+   at System.Data.ProviderBase.DbConnectionInternal.TryOpenConnectionInternal(DbConnection outerConnection, DbConnectionFactory connectionFactory, TaskCompletionSource`1 retry, DbConnectionOptions userOptions)
+   at System.Data.ProviderBase.DbConnectionClosed.TryOpenConnection(DbConnection outerConnection, DbConnectionFactory connectionFactory, TaskCompletionSource`1 retry, DbConnectionOptions userOptions)
+   at System.Data.SqlClient.SqlConnection.TryOpenInner(TaskCompletionSource`1 retry)
+   at System.Data.SqlClient.SqlConnection.TryOpen(TaskCompletionSource`1 retry)
+   at System.Data.SqlClient.SqlConnection.Open()
+   at System.Data.Entity.Infrastructure.Interception.DbConnectionDispatcher.<Open>b__38(DbConnection t, DbConnectionInterceptionContext c)
+   at System.Data.Entity.Infrastructure.Interception.InternalDispatcher`1.Dispatch[TTarget,TInterceptionContext](TTarget target, Action`2 operation, TInterceptionContext interceptionContext, Action`3 executing, Action`3 executed)
+   at System.Data.Entity.Infrastructure.Interception.DbConnectionDispatcher.Open(DbConnection connection, DbInterceptionContext interceptionContext)
+   at System.Data.Entity.SqlServer.SqlProviderServices.<>c__DisplayClass31.<UsingConnection>b__2f()
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.<>c__DisplayClass1.<Execute>b__0()
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute[TResult](Func`1 operation)
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute(Action operation)
+   at System.Data.Entity.SqlServer.SqlProviderServices.UsingConnection(DbConnection sqlConnection, Action`1 act)
+   at System.Data.Entity.SqlServer.SqlProviderServices.UsingMasterConnection(DbConnection sqlConnection, Action`1 act)
+   at System.Data.Entity.SqlServer.SqlProviderServices.GetDbProviderManifestToken(DbConnection connection)
+   at System.Data.Entity.Core.Common.DbProviderServices.GetProviderManifestToken(DbConnection connection)
+   --- End of inner exception stack trace ---
+   at System.Data.Entity.Core.Common.DbProviderServices.GetProviderManifestToken(DbConnection connection)
+   at System.Data.Entity.Utilities.DbProviderServicesExtensions.GetProviderManifestTokenChecked(DbProviderServices providerServices, DbConnection connection)
+   --- End of inner exception stack trace ---
+   at System.Data.Entity.Utilities.DbProviderServicesExtensions.GetProviderManifestTokenChecked(DbProviderServices providerServices, DbConnection connection)
+   at System.Data.Entity.Infrastructure.DefaultManifestTokenResolver.<>c__DisplayClass1.<ResolveManifestToken>b__0(Tuple`3 k)
+   at System.Collections.Concurrent.ConcurrentDictionary`2.GetOrAdd(TKey key, Func`2 valueFactory)
+   at System.Data.Entity.Infrastructure.DefaultManifestTokenResolver.ResolveManifestToken(DbConnection connection)
+   at System.Data.Entity.Utilities.DbConnectionExtensions.GetProviderInfo(DbConnection connection, DbProviderManifest& providerManifest)
+   at System.Data.Entity.DbModelBuilder.Build(DbConnection providerConnection)
+   at System.Data.Entity.Internal.LazyInternalContext.CreateModel(LazyInternalContext internalContext)
+   at System.Data.Entity.Internal.RetryLazy`2.GetValue(TInput input)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeContext()
+   at System.Data.Entity.Internal.InternalContext.GetEntitySetAndBaseTypeForType(Type entityType)
+   at System.Data.Entity.Internal.Linq.InternalSet`1.Initialize()
+   at System.Data.Entity.Internal.Linq.InternalSet`1.get_InternalContext()
+   at System.Data.Entity.Infrastructure.DbQuery`1.System.Linq.IQueryable.get_Provider()
+   at System.Linq.Queryable.Where[TSource](IQueryable`1 source, Expression`1 predicate)
+   at CloudPanel.code.Resellers.GetAll() in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Resellers.cs:line 58
+   at CloudPanel.modules.ResellersModule.<.ctor>b__11(Object _) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\modules\ResellersModule.cs:line 58
+2014-07-07 20:06:36,951 [14] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 20:06:36,957 [14] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 20:06:36,958 [14] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 20:06:36,958 [14] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 20:06:36,959 [14] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 20:06:36,959 [14] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 20:06:38,846 [14] ERROR CloudPanel.modules.ResellersModule Failed to retrieve resellers. Exception: System.Data.SqlClient.SqlException (0x80131904): There is already an object named 'ApiAccess' in the database.
+   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlCommand.RunExecuteNonQueryTds(String methodName, Boolean async, Int32 timeout, Boolean asyncWrite)
+   at System.Data.SqlClient.SqlCommand.InternalExecuteNonQuery(TaskCompletionSource`1 completion, String methodName, Boolean sendToPipe, Int32 timeout, Boolean asyncWrite)
+   at System.Data.SqlClient.SqlCommand.ExecuteNonQuery()
+   at System.Data.Entity.Infrastructure.Interception.DbCommandDispatcher.<NonQuery>b__0(DbCommand t, DbCommandInterceptionContext`1 c)
+   at System.Data.Entity.Infrastructure.Interception.InternalDispatcher`1.Dispatch[TTarget,TInterceptionContext,TResult](TTarget target, Func`3 operation, TInterceptionContext interceptionContext, Action`3 executing, Action`3 executed)
+   at System.Data.Entity.Infrastructure.Interception.DbCommandDispatcher.NonQuery(DbCommand command, DbCommandInterceptionContext interceptionContext)
+   at System.Data.Entity.Internal.InterceptableDbCommand.ExecuteNonQuery()
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteSql(DbTransaction transaction, MigrationStatement migrationStatement, DbInterceptionContext interceptionContext)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatementsInternal(IEnumerable`1 migrationStatements, DbTransaction transaction, DbInterceptionContext interceptionContext)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatementsInternal(IEnumerable`1 migrationStatements, DbConnection connection)
+   at System.Data.Entity.Migrations.DbMigrator.<>c__DisplayClass30.<ExecuteStatements>b__2e()
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.<>c__DisplayClass1.<Execute>b__0()
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute[TResult](Func`1 operation)
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute(Action operation)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatements(IEnumerable`1 migrationStatements, DbTransaction existingTransaction)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatements(IEnumerable`1 migrationStatements)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteOperations(String migrationId, XDocument targetModel, IEnumerable`1 operations, IEnumerable`1 systemOperations, Boolean downgrading, Boolean auto)
+   at System.Data.Entity.Migrations.DbMigrator.ApplyMigration(DbMigration migration, DbMigration lastMigration)
+   at System.Data.Entity.Migrations.DbMigrator.Upgrade(IEnumerable`1 pendingMigrations, String targetMigrationId, String lastMigrationId)
+   at System.Data.Entity.Migrations.DbMigrator.UpdateInternal(String targetMigration)
+   at System.Data.Entity.Migrations.DbMigrator.<>c__DisplayClassc.<Update>b__b()
+   at System.Data.Entity.Migrations.DbMigrator.EnsureDatabaseExists(Action mustSucceedToKeepDatabase)
+   at System.Data.Entity.Migrations.DbMigrator.Update(String targetMigration)
+   at System.Data.Entity.Migrations.Infrastructure.MigratorBase.Update()
+   at CloudPanel.Database.EntityFramework.CloudPanelContextInitializer.InitializeDatabase(CloudPanelContext context) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel.Database.EntityFramework\Bootstrap.cs:line 35
+   at System.Data.Entity.Internal.InternalContext.<>c__DisplayClassa`1.<CreateInitializationAction>b__9()
+   at System.Data.Entity.Internal.InternalContext.PerformInitializationAction(Action action)
+   at System.Data.Entity.Internal.InternalContext.PerformDatabaseInitialization()
+   at System.Data.Entity.Internal.LazyInternalContext.<InitializeDatabase>b__4(InternalContext c)
+   at System.Data.Entity.Internal.RetryAction`1.PerformAction(TInput input)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabaseAction(Action`1 action)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabase()
+   at System.Data.Entity.Internal.InternalContext.GetEntitySetAndBaseTypeForType(Type entityType)
+   at System.Data.Entity.Internal.Linq.InternalSet`1.Initialize()
+   at System.Data.Entity.Internal.Linq.InternalSet`1.get_InternalContext()
+   at System.Data.Entity.Infrastructure.DbQuery`1.System.Linq.IQueryable.get_Provider()
+   at System.Linq.Queryable.Where[TSource](IQueryable`1 source, Expression`1 predicate)
+   at CloudPanel.code.Resellers.GetAll() in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Resellers.cs:line 58
+   at CloudPanel.modules.ResellersModule.<.ctor>b__11(Object _) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\modules\ResellersModule.cs:line 58
+ClientConnectionId:4796fa59-4aad-46ab-9ccf-8c136afe04cf
+2014-07-07 20:06:45,648 [13] ERROR CloudPanel.modules.ResellersModule Failed to retrieve resellers. Exception: System.Data.SqlClient.SqlException (0x80131904): There is already an object named 'ApiAccess' in the database.
+   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlCommand.RunExecuteNonQueryTds(String methodName, Boolean async, Int32 timeout, Boolean asyncWrite)
+   at System.Data.SqlClient.SqlCommand.InternalExecuteNonQuery(TaskCompletionSource`1 completion, String methodName, Boolean sendToPipe, Int32 timeout, Boolean asyncWrite)
+   at System.Data.SqlClient.SqlCommand.ExecuteNonQuery()
+   at System.Data.Entity.Infrastructure.Interception.DbCommandDispatcher.<NonQuery>b__0(DbCommand t, DbCommandInterceptionContext`1 c)
+   at System.Data.Entity.Infrastructure.Interception.InternalDispatcher`1.Dispatch[TTarget,TInterceptionContext,TResult](TTarget target, Func`3 operation, TInterceptionContext interceptionContext, Action`3 executing, Action`3 executed)
+   at System.Data.Entity.Infrastructure.Interception.DbCommandDispatcher.NonQuery(DbCommand command, DbCommandInterceptionContext interceptionContext)
+   at System.Data.Entity.Internal.InterceptableDbCommand.ExecuteNonQuery()
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteSql(DbTransaction transaction, MigrationStatement migrationStatement, DbInterceptionContext interceptionContext)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatementsInternal(IEnumerable`1 migrationStatements, DbTransaction transaction, DbInterceptionContext interceptionContext)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatementsInternal(IEnumerable`1 migrationStatements, DbConnection connection)
+   at System.Data.Entity.Migrations.DbMigrator.<>c__DisplayClass30.<ExecuteStatements>b__2e()
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.<>c__DisplayClass1.<Execute>b__0()
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute[TResult](Func`1 operation)
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute(Action operation)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatements(IEnumerable`1 migrationStatements, DbTransaction existingTransaction)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatements(IEnumerable`1 migrationStatements)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteOperations(String migrationId, XDocument targetModel, IEnumerable`1 operations, IEnumerable`1 systemOperations, Boolean downgrading, Boolean auto)
+   at System.Data.Entity.Migrations.DbMigrator.ApplyMigration(DbMigration migration, DbMigration lastMigration)
+   at System.Data.Entity.Migrations.DbMigrator.Upgrade(IEnumerable`1 pendingMigrations, String targetMigrationId, String lastMigrationId)
+   at System.Data.Entity.Migrations.DbMigrator.UpdateInternal(String targetMigration)
+   at System.Data.Entity.Migrations.DbMigrator.<>c__DisplayClassc.<Update>b__b()
+   at System.Data.Entity.Migrations.DbMigrator.EnsureDatabaseExists(Action mustSucceedToKeepDatabase)
+   at System.Data.Entity.Migrations.DbMigrator.Update(String targetMigration)
+   at System.Data.Entity.Migrations.Infrastructure.MigratorBase.Update()
+   at CloudPanel.Database.EntityFramework.CloudPanelContextInitializer.InitializeDatabase(CloudPanelContext context) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel.Database.EntityFramework\Bootstrap.cs:line 35
+   at System.Data.Entity.Internal.InternalContext.<>c__DisplayClassa`1.<CreateInitializationAction>b__9()
+   at System.Data.Entity.Internal.InternalContext.PerformInitializationAction(Action action)
+   at System.Data.Entity.Internal.InternalContext.PerformDatabaseInitialization()
+   at System.Data.Entity.Internal.LazyInternalContext.<InitializeDatabase>b__4(InternalContext c)
+   at System.Data.Entity.Internal.RetryAction`1.PerformAction(TInput input)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabaseAction(Action`1 action)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabase()
+   at System.Data.Entity.Internal.InternalContext.GetEntitySetAndBaseTypeForType(Type entityType)
+   at System.Data.Entity.Internal.Linq.InternalSet`1.Initialize()
+   at System.Data.Entity.Internal.Linq.InternalSet`1.get_InternalContext()
+   at System.Data.Entity.Infrastructure.DbQuery`1.System.Linq.IQueryable.get_Provider()
+   at System.Linq.Queryable.Where[TSource](IQueryable`1 source, Expression`1 predicate)
+   at CloudPanel.code.Resellers.GetAll() in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Resellers.cs:line 58
+   at CloudPanel.modules.ResellersModule.<.ctor>b__11(Object _) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\modules\ResellersModule.cs:line 58
+ClientConnectionId:4796fa59-4aad-46ab-9ccf-8c136afe04cf
+2014-07-07 20:07:17,024 [10] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 20:07:17,031 [10] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 20:07:17,032 [10] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 20:07:17,032 [10] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 20:07:17,034 [10] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 20:07:17,034 [10] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 20:07:17,857 [10] ERROR CloudPanel.modules.ResellersModule Failed to retrieve resellers. Exception: System.Data.SqlClient.SqlException (0x80131904): CREATE DATABASE permission denied in database 'master'.
+   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlCommand.RunExecuteNonQueryTds(String methodName, Boolean async, Int32 timeout, Boolean asyncWrite)
+   at System.Data.SqlClient.SqlCommand.InternalExecuteNonQuery(TaskCompletionSource`1 completion, String methodName, Boolean sendToPipe, Int32 timeout, Boolean asyncWrite)
+   at System.Data.SqlClient.SqlCommand.ExecuteNonQuery()
+   at System.Data.Entity.Infrastructure.Interception.DbCommandDispatcher.<NonQuery>b__0(DbCommand t, DbCommandInterceptionContext`1 c)
+   at System.Data.Entity.Infrastructure.Interception.InternalDispatcher`1.Dispatch[TTarget,TInterceptionContext,TResult](TTarget target, Func`3 operation, TInterceptionContext interceptionContext, Action`3 executing, Action`3 executed)
+   at System.Data.Entity.Infrastructure.Interception.DbCommandDispatcher.NonQuery(DbCommand command, DbCommandInterceptionContext interceptionContext)
+   at System.Data.Entity.SqlServer.SqlProviderServices.<>c__DisplayClass1a.<CreateDatabaseFromScript>b__19(DbConnection conn)
+   at System.Data.Entity.SqlServer.SqlProviderServices.UsingConnection(DbConnection sqlConnection, Action`1 act)
+   at System.Data.Entity.SqlServer.SqlProviderServices.UsingMasterConnection(DbConnection sqlConnection, Action`1 act)
+   at System.Data.Entity.SqlServer.SqlProviderServices.CreateDatabaseFromScript(Nullable`1 commandTimeout, DbConnection sqlConnection, String createDatabaseScript)
+   at System.Data.Entity.SqlServer.SqlProviderServices.DbCreateDatabase(DbConnection connection, Nullable`1 commandTimeout, StoreItemCollection storeItemCollection)
+   at System.Data.Entity.Core.Common.DbProviderServices.CreateDatabase(DbConnection connection, Nullable`1 commandTimeout, StoreItemCollection storeItemCollection)
+   at System.Data.Entity.Core.Objects.ObjectContext.CreateDatabase()
+   at System.Data.Entity.Migrations.Utilities.DatabaseCreator.Create(DbConnection connection)
+   at System.Data.Entity.Migrations.DbMigrator.EnsureDatabaseExists(Action mustSucceedToKeepDatabase)
+   at System.Data.Entity.Migrations.DbMigrator.Update(String targetMigration)
+   at System.Data.Entity.Migrations.Infrastructure.MigratorBase.Update()
+   at CloudPanel.Database.EntityFramework.CloudPanelContextInitializer.InitializeDatabase(CloudPanelContext context) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel.Database.EntityFramework\Bootstrap.cs:line 35
+   at System.Data.Entity.Internal.InternalContext.<>c__DisplayClassa`1.<CreateInitializationAction>b__9()
+   at System.Data.Entity.Internal.InternalContext.PerformInitializationAction(Action action)
+   at System.Data.Entity.Internal.InternalContext.PerformDatabaseInitialization()
+   at System.Data.Entity.Internal.LazyInternalContext.<InitializeDatabase>b__4(InternalContext c)
+   at System.Data.Entity.Internal.RetryAction`1.PerformAction(TInput input)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabaseAction(Action`1 action)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabase()
+   at System.Data.Entity.Internal.InternalContext.GetEntitySetAndBaseTypeForType(Type entityType)
+   at System.Data.Entity.Internal.Linq.InternalSet`1.Initialize()
+   at System.Data.Entity.Internal.Linq.InternalSet`1.get_InternalContext()
+   at System.Data.Entity.Infrastructure.DbQuery`1.System.Linq.IQueryable.get_Provider()
+   at System.Linq.Queryable.Where[TSource](IQueryable`1 source, Expression`1 predicate)
+   at CloudPanel.code.Resellers.GetAll() in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Resellers.cs:line 58
+   at CloudPanel.modules.ResellersModule.<.ctor>b__11(Object _) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\modules\ResellersModule.cs:line 58
+ClientConnectionId:1a9694f4-1c0b-4d03-8cb6-cfac624b4155
+2014-07-07 20:09:14,972 [7] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 20:09:14,977 [7] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 20:09:14,978 [7] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 20:09:14,978 [7] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 20:09:14,980 [7] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 20:09:14,980 [7] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 20:09:16,621 [7] ERROR CloudPanel.modules.ResellersModule Failed to retrieve resellers. Exception: System.Data.SqlClient.SqlException (0x80131904): There is already an object named 'ApiAccess' in the database.
+   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlCommand.RunExecuteNonQueryTds(String methodName, Boolean async, Int32 timeout, Boolean asyncWrite)
+   at System.Data.SqlClient.SqlCommand.InternalExecuteNonQuery(TaskCompletionSource`1 completion, String methodName, Boolean sendToPipe, Int32 timeout, Boolean asyncWrite)
+   at System.Data.SqlClient.SqlCommand.ExecuteNonQuery()
+   at System.Data.Entity.Infrastructure.Interception.DbCommandDispatcher.<NonQuery>b__0(DbCommand t, DbCommandInterceptionContext`1 c)
+   at System.Data.Entity.Infrastructure.Interception.InternalDispatcher`1.Dispatch[TTarget,TInterceptionContext,TResult](TTarget target, Func`3 operation, TInterceptionContext interceptionContext, Action`3 executing, Action`3 executed)
+   at System.Data.Entity.Infrastructure.Interception.DbCommandDispatcher.NonQuery(DbCommand command, DbCommandInterceptionContext interceptionContext)
+   at System.Data.Entity.Internal.InterceptableDbCommand.ExecuteNonQuery()
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteSql(DbTransaction transaction, MigrationStatement migrationStatement, DbInterceptionContext interceptionContext)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatementsInternal(IEnumerable`1 migrationStatements, DbTransaction transaction, DbInterceptionContext interceptionContext)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatementsInternal(IEnumerable`1 migrationStatements, DbConnection connection)
+   at System.Data.Entity.Migrations.DbMigrator.<>c__DisplayClass30.<ExecuteStatements>b__2e()
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.<>c__DisplayClass1.<Execute>b__0()
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute[TResult](Func`1 operation)
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute(Action operation)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatements(IEnumerable`1 migrationStatements, DbTransaction existingTransaction)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatements(IEnumerable`1 migrationStatements)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteOperations(String migrationId, XDocument targetModel, IEnumerable`1 operations, IEnumerable`1 systemOperations, Boolean downgrading, Boolean auto)
+   at System.Data.Entity.Migrations.DbMigrator.ApplyMigration(DbMigration migration, DbMigration lastMigration)
+   at System.Data.Entity.Migrations.DbMigrator.Upgrade(IEnumerable`1 pendingMigrations, String targetMigrationId, String lastMigrationId)
+   at System.Data.Entity.Migrations.DbMigrator.UpdateInternal(String targetMigration)
+   at System.Data.Entity.Migrations.DbMigrator.<>c__DisplayClassc.<Update>b__b()
+   at System.Data.Entity.Migrations.DbMigrator.EnsureDatabaseExists(Action mustSucceedToKeepDatabase)
+   at System.Data.Entity.Migrations.DbMigrator.Update(String targetMigration)
+   at System.Data.Entity.Migrations.Infrastructure.MigratorBase.Update()
+   at CloudPanel.Database.EntityFramework.CloudPanelContextInitializer.InitializeDatabase(CloudPanelContext context) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel.Database.EntityFramework\Bootstrap.cs:line 35
+   at System.Data.Entity.Internal.InternalContext.<>c__DisplayClassa`1.<CreateInitializationAction>b__9()
+   at System.Data.Entity.Internal.InternalContext.PerformInitializationAction(Action action)
+   at System.Data.Entity.Internal.InternalContext.PerformDatabaseInitialization()
+   at System.Data.Entity.Internal.LazyInternalContext.<InitializeDatabase>b__4(InternalContext c)
+   at System.Data.Entity.Internal.RetryAction`1.PerformAction(TInput input)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabaseAction(Action`1 action)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabase()
+   at System.Data.Entity.Internal.InternalContext.GetEntitySetAndBaseTypeForType(Type entityType)
+   at System.Data.Entity.Internal.Linq.InternalSet`1.Initialize()
+   at System.Data.Entity.Internal.Linq.InternalSet`1.get_InternalContext()
+   at System.Data.Entity.Infrastructure.DbQuery`1.System.Linq.IQueryable.get_Provider()
+   at System.Linq.Queryable.Where[TSource](IQueryable`1 source, Expression`1 predicate)
+   at CloudPanel.code.Resellers.GetAll() in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Resellers.cs:line 58
+   at CloudPanel.modules.ResellersModule.<.ctor>b__11(Object _) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\modules\ResellersModule.cs:line 58
+ClientConnectionId:c21d4daa-5b05-4922-a83f-85a604d55a6d
+2014-07-07 20:09:59,555 [14] ERROR CloudPanel.modules.ResellersModule Failed to retrieve resellers. Exception: System.ArgumentNullException: Buffer cannot be null.
+Parameter name: buffer
+   at System.IO.MemoryStream..ctor(Byte[] buffer, Boolean writable)
+   at System.IO.MemoryStream..ctor(Byte[] buffer)
+   at System.Data.Entity.Migrations.Edm.ModelCompressor.Decompress(Byte[] bytes)
+   at System.Data.Entity.Migrations.History.HistoryRepository.GetLastModel(String& migrationId, String& productVersion, String contextKey)
+   at System.Data.Entity.Migrations.DbMigrator.GetLastModel(DbMigration lastMigration, String currentMigrationId)
+   at System.Data.Entity.Migrations.DbMigrator.ApplyMigration(DbMigration migration, DbMigration lastMigration)
+   at System.Data.Entity.Migrations.DbMigrator.Upgrade(IEnumerable`1 pendingMigrations, String targetMigrationId, String lastMigrationId)
+   at System.Data.Entity.Migrations.DbMigrator.UpdateInternal(String targetMigration)
+   at System.Data.Entity.Migrations.DbMigrator.<>c__DisplayClassc.<Update>b__b()
+   at System.Data.Entity.Migrations.DbMigrator.EnsureDatabaseExists(Action mustSucceedToKeepDatabase)
+   at System.Data.Entity.Migrations.DbMigrator.Update(String targetMigration)
+   at System.Data.Entity.Migrations.Infrastructure.MigratorBase.Update()
+   at CloudPanel.Database.EntityFramework.CloudPanelContextInitializer.InitializeDatabase(CloudPanelContext context) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel.Database.EntityFramework\Bootstrap.cs:line 35
+   at System.Data.Entity.Internal.InternalContext.<>c__DisplayClassa`1.<CreateInitializationAction>b__9()
+   at System.Data.Entity.Internal.InternalContext.PerformInitializationAction(Action action)
+   at System.Data.Entity.Internal.InternalContext.PerformDatabaseInitialization()
+   at System.Data.Entity.Internal.LazyInternalContext.<InitializeDatabase>b__4(InternalContext c)
+   at System.Data.Entity.Internal.RetryAction`1.PerformAction(TInput input)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabaseAction(Action`1 action)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabase()
+   at System.Data.Entity.Internal.InternalContext.GetEntitySetAndBaseTypeForType(Type entityType)
+   at System.Data.Entity.Internal.Linq.InternalSet`1.Initialize()
+   at System.Data.Entity.Internal.Linq.InternalSet`1.get_InternalContext()
+   at System.Data.Entity.Infrastructure.DbQuery`1.System.Linq.IQueryable.get_Provider()
+   at System.Linq.Queryable.Where[TSource](IQueryable`1 source, Expression`1 predicate)
+   at CloudPanel.code.Resellers.GetAll() in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Resellers.cs:line 58
+   at CloudPanel.modules.ResellersModule.<.ctor>b__11(Object _) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\modules\ResellersModule.cs:line 58
+2014-07-07 20:10:52,538 [23] ERROR CloudPanel.modules.ResellersModule Failed to retrieve resellers. Exception: System.Data.SqlClient.SqlException (0x80131904): There is already an object named 'ApiAccess' in the database.
+   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlCommand.RunExecuteNonQueryTds(String methodName, Boolean async, Int32 timeout, Boolean asyncWrite)
+   at System.Data.SqlClient.SqlCommand.InternalExecuteNonQuery(TaskCompletionSource`1 completion, String methodName, Boolean sendToPipe, Int32 timeout, Boolean asyncWrite)
+   at System.Data.SqlClient.SqlCommand.ExecuteNonQuery()
+   at System.Data.Entity.Infrastructure.Interception.DbCommandDispatcher.<NonQuery>b__0(DbCommand t, DbCommandInterceptionContext`1 c)
+   at System.Data.Entity.Infrastructure.Interception.InternalDispatcher`1.Dispatch[TTarget,TInterceptionContext,TResult](TTarget target, Func`3 operation, TInterceptionContext interceptionContext, Action`3 executing, Action`3 executed)
+   at System.Data.Entity.Infrastructure.Interception.DbCommandDispatcher.NonQuery(DbCommand command, DbCommandInterceptionContext interceptionContext)
+   at System.Data.Entity.Internal.InterceptableDbCommand.ExecuteNonQuery()
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteSql(DbTransaction transaction, MigrationStatement migrationStatement, DbInterceptionContext interceptionContext)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatementsInternal(IEnumerable`1 migrationStatements, DbTransaction transaction, DbInterceptionContext interceptionContext)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatementsInternal(IEnumerable`1 migrationStatements, DbConnection connection)
+   at System.Data.Entity.Migrations.DbMigrator.<>c__DisplayClass30.<ExecuteStatements>b__2e()
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.<>c__DisplayClass1.<Execute>b__0()
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute[TResult](Func`1 operation)
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute(Action operation)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatements(IEnumerable`1 migrationStatements, DbTransaction existingTransaction)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatements(IEnumerable`1 migrationStatements)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteOperations(String migrationId, XDocument targetModel, IEnumerable`1 operations, IEnumerable`1 systemOperations, Boolean downgrading, Boolean auto)
+   at System.Data.Entity.Migrations.DbMigrator.ApplyMigration(DbMigration migration, DbMigration lastMigration)
+   at System.Data.Entity.Migrations.DbMigrator.Upgrade(IEnumerable`1 pendingMigrations, String targetMigrationId, String lastMigrationId)
+   at System.Data.Entity.Migrations.DbMigrator.UpdateInternal(String targetMigration)
+   at System.Data.Entity.Migrations.DbMigrator.<>c__DisplayClassc.<Update>b__b()
+   at System.Data.Entity.Migrations.DbMigrator.EnsureDatabaseExists(Action mustSucceedToKeepDatabase)
+   at System.Data.Entity.Migrations.DbMigrator.Update(String targetMigration)
+   at System.Data.Entity.Migrations.Infrastructure.MigratorBase.Update()
+   at CloudPanel.Database.EntityFramework.CloudPanelContextInitializer.InitializeDatabase(CloudPanelContext context) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel.Database.EntityFramework\Bootstrap.cs:line 35
+   at System.Data.Entity.Internal.InternalContext.<>c__DisplayClassa`1.<CreateInitializationAction>b__9()
+   at System.Data.Entity.Internal.InternalContext.PerformInitializationAction(Action action)
+   at System.Data.Entity.Internal.InternalContext.PerformDatabaseInitialization()
+   at System.Data.Entity.Internal.LazyInternalContext.<InitializeDatabase>b__4(InternalContext c)
+   at System.Data.Entity.Internal.RetryAction`1.PerformAction(TInput input)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabaseAction(Action`1 action)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabase()
+   at System.Data.Entity.Internal.InternalContext.GetEntitySetAndBaseTypeForType(Type entityType)
+   at System.Data.Entity.Internal.Linq.InternalSet`1.Initialize()
+   at System.Data.Entity.Internal.Linq.InternalSet`1.get_InternalContext()
+   at System.Data.Entity.Infrastructure.DbQuery`1.System.Linq.IQueryable.get_Provider()
+   at System.Linq.Queryable.Where[TSource](IQueryable`1 source, Expression`1 predicate)
+   at CloudPanel.code.Resellers.GetAll() in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Resellers.cs:line 58
+   at CloudPanel.modules.ResellersModule.<.ctor>b__11(Object _) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\modules\ResellersModule.cs:line 58
+ClientConnectionId:c21d4daa-5b05-4922-a83f-85a604d55a6d
+2014-07-07 20:11:03,509 [5] ERROR CloudPanel.modules.ResellersModule Failed to retrieve resellers. Exception: System.Data.SqlClient.SqlException (0x80131904): There is already an object named 'AuditLogin' in the database.
+   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlCommand.RunExecuteNonQueryTds(String methodName, Boolean async, Int32 timeout, Boolean asyncWrite)
+   at System.Data.SqlClient.SqlCommand.InternalExecuteNonQuery(TaskCompletionSource`1 completion, String methodName, Boolean sendToPipe, Int32 timeout, Boolean asyncWrite)
+   at System.Data.SqlClient.SqlCommand.ExecuteNonQuery()
+   at System.Data.Entity.Infrastructure.Interception.DbCommandDispatcher.<NonQuery>b__0(DbCommand t, DbCommandInterceptionContext`1 c)
+   at System.Data.Entity.Infrastructure.Interception.InternalDispatcher`1.Dispatch[TTarget,TInterceptionContext,TResult](TTarget target, Func`3 operation, TInterceptionContext interceptionContext, Action`3 executing, Action`3 executed)
+   at System.Data.Entity.Infrastructure.Interception.DbCommandDispatcher.NonQuery(DbCommand command, DbCommandInterceptionContext interceptionContext)
+   at System.Data.Entity.Internal.InterceptableDbCommand.ExecuteNonQuery()
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteSql(DbTransaction transaction, MigrationStatement migrationStatement, DbInterceptionContext interceptionContext)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatementsInternal(IEnumerable`1 migrationStatements, DbTransaction transaction, DbInterceptionContext interceptionContext)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatementsInternal(IEnumerable`1 migrationStatements, DbConnection connection)
+   at System.Data.Entity.Migrations.DbMigrator.<>c__DisplayClass30.<ExecuteStatements>b__2e()
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.<>c__DisplayClass1.<Execute>b__0()
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute[TResult](Func`1 operation)
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute(Action operation)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatements(IEnumerable`1 migrationStatements, DbTransaction existingTransaction)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatements(IEnumerable`1 migrationStatements)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteOperations(String migrationId, XDocument targetModel, IEnumerable`1 operations, IEnumerable`1 systemOperations, Boolean downgrading, Boolean auto)
+   at System.Data.Entity.Migrations.DbMigrator.ApplyMigration(DbMigration migration, DbMigration lastMigration)
+   at System.Data.Entity.Migrations.DbMigrator.Upgrade(IEnumerable`1 pendingMigrations, String targetMigrationId, String lastMigrationId)
+   at System.Data.Entity.Migrations.DbMigrator.UpdateInternal(String targetMigration)
+   at System.Data.Entity.Migrations.DbMigrator.<>c__DisplayClassc.<Update>b__b()
+   at System.Data.Entity.Migrations.DbMigrator.EnsureDatabaseExists(Action mustSucceedToKeepDatabase)
+   at System.Data.Entity.Migrations.DbMigrator.Update(String targetMigration)
+   at System.Data.Entity.Migrations.Infrastructure.MigratorBase.Update()
+   at CloudPanel.Database.EntityFramework.CloudPanelContextInitializer.InitializeDatabase(CloudPanelContext context) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel.Database.EntityFramework\Bootstrap.cs:line 35
+   at System.Data.Entity.Internal.InternalContext.<>c__DisplayClassa`1.<CreateInitializationAction>b__9()
+   at System.Data.Entity.Internal.InternalContext.PerformInitializationAction(Action action)
+   at System.Data.Entity.Internal.InternalContext.PerformDatabaseInitialization()
+   at System.Data.Entity.Internal.LazyInternalContext.<InitializeDatabase>b__4(InternalContext c)
+   at System.Data.Entity.Internal.RetryAction`1.PerformAction(TInput input)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabaseAction(Action`1 action)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabase()
+   at System.Data.Entity.Internal.InternalContext.GetEntitySetAndBaseTypeForType(Type entityType)
+   at System.Data.Entity.Internal.Linq.InternalSet`1.Initialize()
+   at System.Data.Entity.Internal.Linq.InternalSet`1.get_InternalContext()
+   at System.Data.Entity.Infrastructure.DbQuery`1.System.Linq.IQueryable.get_Provider()
+   at System.Linq.Queryable.Where[TSource](IQueryable`1 source, Expression`1 predicate)
+   at CloudPanel.code.Resellers.GetAll() in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Resellers.cs:line 58
+   at CloudPanel.modules.ResellersModule.<.ctor>b__11(Object _) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\modules\ResellersModule.cs:line 58
+ClientConnectionId:c21d4daa-5b05-4922-a83f-85a604d55a6d
+2014-07-07 20:15:33,430 [13] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 20:15:33,436 [13] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 20:15:33,436 [13] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 20:15:33,436 [13] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 20:15:33,437 [13] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 20:15:33,438 [13] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 20:16:22,210 [8] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 20:16:22,216 [8] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 20:16:22,217 [8] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 20:16:22,217 [8] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 20:16:22,218 [8] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 20:16:22,219 [8] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 20:16:23,858 [8] ERROR CloudPanel.modules.ResellersModule Failed to retrieve resellers. Exception: System.Data.SqlClient.SqlException (0x80131904): There is already an object named 'AuditLogin' in the database.
+   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlCommand.RunExecuteNonQueryTds(String methodName, Boolean async, Int32 timeout, Boolean asyncWrite)
+   at System.Data.SqlClient.SqlCommand.InternalExecuteNonQuery(TaskCompletionSource`1 completion, String methodName, Boolean sendToPipe, Int32 timeout, Boolean asyncWrite)
+   at System.Data.SqlClient.SqlCommand.ExecuteNonQuery()
+   at System.Data.Entity.Infrastructure.Interception.DbCommandDispatcher.<NonQuery>b__0(DbCommand t, DbCommandInterceptionContext`1 c)
+   at System.Data.Entity.Infrastructure.Interception.InternalDispatcher`1.Dispatch[TTarget,TInterceptionContext,TResult](TTarget target, Func`3 operation, TInterceptionContext interceptionContext, Action`3 executing, Action`3 executed)
+   at System.Data.Entity.Infrastructure.Interception.DbCommandDispatcher.NonQuery(DbCommand command, DbCommandInterceptionContext interceptionContext)
+   at System.Data.Entity.Internal.InterceptableDbCommand.ExecuteNonQuery()
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteSql(DbTransaction transaction, MigrationStatement migrationStatement, DbInterceptionContext interceptionContext)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatementsInternal(IEnumerable`1 migrationStatements, DbTransaction transaction, DbInterceptionContext interceptionContext)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatementsInternal(IEnumerable`1 migrationStatements, DbConnection connection)
+   at System.Data.Entity.Migrations.DbMigrator.<>c__DisplayClass30.<ExecuteStatements>b__2e()
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.<>c__DisplayClass1.<Execute>b__0()
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute[TResult](Func`1 operation)
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute(Action operation)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatements(IEnumerable`1 migrationStatements, DbTransaction existingTransaction)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatements(IEnumerable`1 migrationStatements)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteOperations(String migrationId, XDocument targetModel, IEnumerable`1 operations, IEnumerable`1 systemOperations, Boolean downgrading, Boolean auto)
+   at System.Data.Entity.Migrations.DbMigrator.ApplyMigration(DbMigration migration, DbMigration lastMigration)
+   at System.Data.Entity.Migrations.DbMigrator.Upgrade(IEnumerable`1 pendingMigrations, String targetMigrationId, String lastMigrationId)
+   at System.Data.Entity.Migrations.DbMigrator.UpdateInternal(String targetMigration)
+   at System.Data.Entity.Migrations.DbMigrator.<>c__DisplayClassc.<Update>b__b()
+   at System.Data.Entity.Migrations.DbMigrator.EnsureDatabaseExists(Action mustSucceedToKeepDatabase)
+   at System.Data.Entity.Migrations.DbMigrator.Update(String targetMigration)
+   at CloudPanel.Database.EntityFramework.CloudPanelContextInitializer.InitializeDatabase(CloudPanelContext context)
+   at System.Data.Entity.Internal.InternalContext.<>c__DisplayClassa`1.<CreateInitializationAction>b__9()
+   at System.Data.Entity.Internal.InternalContext.PerformInitializationAction(Action action)
+   at System.Data.Entity.Internal.InternalContext.PerformDatabaseInitialization()
+   at System.Data.Entity.Internal.LazyInternalContext.<InitializeDatabase>b__4(InternalContext c)
+   at System.Data.Entity.Internal.RetryAction`1.PerformAction(TInput input)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabaseAction(Action`1 action)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabase()
+   at System.Data.Entity.Internal.InternalContext.GetEntitySetAndBaseTypeForType(Type entityType)
+   at System.Data.Entity.Internal.Linq.InternalSet`1.Initialize()
+   at System.Data.Entity.Internal.Linq.InternalSet`1.get_InternalContext()
+   at System.Data.Entity.Infrastructure.DbQuery`1.System.Linq.IQueryable.get_Provider()
+   at System.Linq.Queryable.Where[TSource](IQueryable`1 source, Expression`1 predicate)
+   at CloudPanel.code.Resellers.GetAll() in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Resellers.cs:line 58
+   at CloudPanel.modules.ResellersModule.<.ctor>b__11(Object _) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\modules\ResellersModule.cs:line 58
+ClientConnectionId:cf2f5780-65fa-4da5-a03a-8df9dafec7fc
+2014-07-07 20:17:22,274 [13] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 20:17:22,279 [13] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 20:17:22,279 [13] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 20:17:22,280 [13] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 20:17:22,281 [13] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 20:17:22,281 [13] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 20:17:23,912 [13] ERROR CloudPanel.modules.ResellersModule Failed to retrieve resellers. Exception: System.Data.SqlClient.SqlException (0x80131904): There is already an object named 'AuditLogin' in the database.
+   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlCommand.RunExecuteNonQueryTds(String methodName, Boolean async, Int32 timeout, Boolean asyncWrite)
+   at System.Data.SqlClient.SqlCommand.InternalExecuteNonQuery(TaskCompletionSource`1 completion, String methodName, Boolean sendToPipe, Int32 timeout, Boolean asyncWrite)
+   at System.Data.SqlClient.SqlCommand.ExecuteNonQuery()
+   at System.Data.Entity.Infrastructure.Interception.DbCommandDispatcher.<NonQuery>b__0(DbCommand t, DbCommandInterceptionContext`1 c)
+   at System.Data.Entity.Infrastructure.Interception.InternalDispatcher`1.Dispatch[TTarget,TInterceptionContext,TResult](TTarget target, Func`3 operation, TInterceptionContext interceptionContext, Action`3 executing, Action`3 executed)
+   at System.Data.Entity.Infrastructure.Interception.DbCommandDispatcher.NonQuery(DbCommand command, DbCommandInterceptionContext interceptionContext)
+   at System.Data.Entity.Internal.InterceptableDbCommand.ExecuteNonQuery()
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteSql(DbTransaction transaction, MigrationStatement migrationStatement, DbInterceptionContext interceptionContext)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatementsInternal(IEnumerable`1 migrationStatements, DbTransaction transaction, DbInterceptionContext interceptionContext)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatementsInternal(IEnumerable`1 migrationStatements, DbConnection connection)
+   at System.Data.Entity.Migrations.DbMigrator.<>c__DisplayClass30.<ExecuteStatements>b__2e()
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.<>c__DisplayClass1.<Execute>b__0()
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute[TResult](Func`1 operation)
+   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute(Action operation)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatements(IEnumerable`1 migrationStatements, DbTransaction existingTransaction)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteStatements(IEnumerable`1 migrationStatements)
+   at System.Data.Entity.Migrations.DbMigrator.ExecuteOperations(String migrationId, XDocument targetModel, IEnumerable`1 operations, IEnumerable`1 systemOperations, Boolean downgrading, Boolean auto)
+   at System.Data.Entity.Migrations.DbMigrator.ApplyMigration(DbMigration migration, DbMigration lastMigration)
+   at System.Data.Entity.Migrations.DbMigrator.Upgrade(IEnumerable`1 pendingMigrations, String targetMigrationId, String lastMigrationId)
+   at System.Data.Entity.Migrations.DbMigrator.UpdateInternal(String targetMigration)
+   at System.Data.Entity.Migrations.DbMigrator.<>c__DisplayClassc.<Update>b__b()
+   at System.Data.Entity.Migrations.DbMigrator.EnsureDatabaseExists(Action mustSucceedToKeepDatabase)
+   at System.Data.Entity.Migrations.DbMigrator.Update(String targetMigration)
+   at CloudPanel.Database.EntityFramework.CloudPanelContextInitializer.InitializeDatabase(CloudPanelContext context) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel.Database.EntityFramework\Bootstrap.cs:line 35
+   at System.Data.Entity.Internal.InternalContext.<>c__DisplayClassa`1.<CreateInitializationAction>b__9()
+   at System.Data.Entity.Internal.InternalContext.PerformInitializationAction(Action action)
+   at System.Data.Entity.Internal.InternalContext.PerformDatabaseInitialization()
+   at System.Data.Entity.Internal.LazyInternalContext.<InitializeDatabase>b__4(InternalContext c)
+   at System.Data.Entity.Internal.RetryAction`1.PerformAction(TInput input)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabaseAction(Action`1 action)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabase()
+   at System.Data.Entity.Internal.InternalContext.GetEntitySetAndBaseTypeForType(Type entityType)
+   at System.Data.Entity.Internal.Linq.InternalSet`1.Initialize()
+   at System.Data.Entity.Internal.Linq.InternalSet`1.get_InternalContext()
+   at System.Data.Entity.Infrastructure.DbQuery`1.System.Linq.IQueryable.get_Provider()
+   at System.Linq.Queryable.Where[TSource](IQueryable`1 source, Expression`1 predicate)
+   at CloudPanel.code.Resellers.GetAll() in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Resellers.cs:line 58
+   at CloudPanel.modules.ResellersModule.<.ctor>b__11(Object _) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\modules\ResellersModule.cs:line 58
+ClientConnectionId:0c124610-ad0d-4555-8a79-c6417c0a1224
+2014-07-07 20:31:27,860 [25] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 20:31:27,866 [25] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 20:31:27,867 [25] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 20:31:27,867 [25] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 20:31:27,868 [25] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 20:31:27,868 [25] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 20:31:29,295 [25] ERROR CloudPanel.modules.ResellersModule Failed to retrieve resellers. Exception: System.Data.Entity.Migrations.Infrastructure.MigrationsException: The specified target migration 'AddScalarFunctions' does not exist. Ensure that target migration refers to an existing migration id.
+   at System.Data.Entity.Migrations.DbMigrator.GetMigrationId(String migration)
+   at System.Data.Entity.Migrations.DbMigrator.UpdateInternal(String targetMigration)
+   at System.Data.Entity.Migrations.DbMigrator.<>c__DisplayClassc.<Update>b__b()
+   at System.Data.Entity.Migrations.DbMigrator.EnsureDatabaseExists(Action mustSucceedToKeepDatabase)
+   at System.Data.Entity.Migrations.DbMigrator.Update(String targetMigration)
+   at CloudPanel.Database.EntityFramework.CloudPanelContextInitializer.InitializeDatabase(CloudPanelContext context)
+   at System.Data.Entity.Internal.InternalContext.<>c__DisplayClassa`1.<CreateInitializationAction>b__9()
+   at System.Data.Entity.Internal.InternalContext.PerformInitializationAction(Action action)
+   at System.Data.Entity.Internal.InternalContext.PerformDatabaseInitialization()
+   at System.Data.Entity.Internal.LazyInternalContext.<InitializeDatabase>b__4(InternalContext c)
+   at System.Data.Entity.Internal.RetryAction`1.PerformAction(TInput input)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabaseAction(Action`1 action)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabase()
+   at System.Data.Entity.Internal.InternalContext.GetEntitySetAndBaseTypeForType(Type entityType)
+   at System.Data.Entity.Internal.Linq.InternalSet`1.Initialize()
+   at System.Data.Entity.Internal.Linq.InternalSet`1.get_InternalContext()
+   at System.Data.Entity.Infrastructure.DbQuery`1.System.Linq.IQueryable.get_Provider()
+   at System.Linq.Queryable.Where[TSource](IQueryable`1 source, Expression`1 predicate)
+   at CloudPanel.code.Resellers.GetAll() in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Resellers.cs:line 58
+   at CloudPanel.modules.ResellersModule.<.ctor>b__11(Object _) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\modules\ResellersModule.cs:line 58
+2014-07-07 20:31:39,924 [30] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 20:31:39,930 [30] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 20:31:39,931 [30] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 20:31:39,931 [30] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 20:31:39,933 [30] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 20:31:39,933 [30] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 20:31:41,320 [30] ERROR CloudPanel.modules.ResellersModule Failed to retrieve resellers. Exception: System.Data.Entity.Migrations.Infrastructure.MigrationsException: The specified target migration 'AddScalarFunctions' does not exist. Ensure that target migration refers to an existing migration id.
+   at System.Data.Entity.Migrations.DbMigrator.GetMigrationId(String migration)
+   at System.Data.Entity.Migrations.DbMigrator.UpdateInternal(String targetMigration)
+   at System.Data.Entity.Migrations.DbMigrator.<>c__DisplayClassc.<Update>b__b()
+   at System.Data.Entity.Migrations.DbMigrator.EnsureDatabaseExists(Action mustSucceedToKeepDatabase)
+   at System.Data.Entity.Migrations.DbMigrator.Update(String targetMigration)
+   at CloudPanel.Database.EntityFramework.CloudPanelContextInitializer.InitializeDatabase(CloudPanelContext context) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel.Database.EntityFramework\Bootstrap.cs:line 35
+   at System.Data.Entity.Internal.InternalContext.<>c__DisplayClassa`1.<CreateInitializationAction>b__9()
+   at System.Data.Entity.Internal.InternalContext.PerformInitializationAction(Action action)
+   at System.Data.Entity.Internal.InternalContext.PerformDatabaseInitialization()
+   at System.Data.Entity.Internal.LazyInternalContext.<InitializeDatabase>b__4(InternalContext c)
+   at System.Data.Entity.Internal.RetryAction`1.PerformAction(TInput input)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabaseAction(Action`1 action)
+   at System.Data.Entity.Internal.LazyInternalContext.InitializeDatabase()
+   at System.Data.Entity.Internal.InternalContext.GetEntitySetAndBaseTypeForType(Type entityType)
+   at System.Data.Entity.Internal.Linq.InternalSet`1.Initialize()
+   at System.Data.Entity.Internal.Linq.InternalSet`1.get_InternalContext()
+   at System.Data.Entity.Infrastructure.DbQuery`1.System.Linq.IQueryable.get_Provider()
+   at System.Linq.Queryable.Where[TSource](IQueryable`1 source, Expression`1 predicate)
+   at CloudPanel.code.Resellers.GetAll() in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Resellers.cs:line 58
+   at CloudPanel.modules.ResellersModule.<.ctor>b__11(Object _) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\modules\ResellersModule.cs:line 58
+2014-07-07 20:31:52,940 [13] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 20:31:52,946 [13] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 20:31:52,946 [13] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 20:31:52,946 [13] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 20:31:52,947 [13] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 20:31:52,948 [13] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 20:43:05,587 [24] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 20:43:05,593 [24] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 20:43:05,594 [24] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 20:43:05,594 [24] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 20:43:05,596 [24] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 20:43:05,597 [24] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 20:44:58,048 [41] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 20:44:58,054 [41] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 20:44:58,054 [41] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 20:44:58,055 [41] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 20:44:58,056 [41] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 20:44:58,057 [41] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 20:46:20,717 [5] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 20:46:20,724 [5] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 20:46:20,725 [5] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 20:46:20,725 [5] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 20:46:20,727 [5] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 20:46:20,728 [5] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 20:54:36,458 [31] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 20:54:36,464 [31] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 20:54:36,465 [31] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 20:54:36,465 [31] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 20:54:36,465 [31] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 20:54:36,466 [31] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 21:19:26,129 [83] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 21:19:26,135 [83] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 21:19:26,136 [83] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 21:19:26,136 [83] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 21:19:26,137 [83] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 21:19:26,138 [83] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 21:19:40,377 [83] DEBUG CloudPanel.modules.PlansModule Updating existing organization plan 3
+2014-07-07 21:19:48,652 [83] DEBUG CloudPanel.modules.PlansModule Updating existing organization plan 1
+2014-07-07 21:35:49,164 [77] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 21:35:49,171 [77] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 21:35:49,172 [77] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 21:35:49,173 [77] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 21:35:49,174 [77] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 21:35:49,175 [77] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 21:38:11,748 [90] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 21:38:11,754 [90] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 21:38:11,755 [90] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 21:38:11,755 [90] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 21:38:11,757 [90] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 21:38:11,757 [90] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 21:38:23,707 [77] ERROR CloudPanel.modules.PlansModule Error posting new organization plan. Error CloudPanel.Base.Exceptions.MatchFoundException: Exception of type 'CloudPanel.Base.Exceptions.MatchFoundException' was thrown.
+   at CloudPanel.code.Plans.Delete_Organization(Int32 planId) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Plans.cs:line 84
+   at CloudPanel.modules.PlansModule.<.ctor>b__5(Object _) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\modules\PlansModule.cs:line 87
+2014-07-07 21:43:36,338 [73] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 21:43:36,344 [73] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 21:43:36,344 [73] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 21:43:36,344 [73] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 21:43:36,345 [73] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 21:43:36,345 [73] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 21:43:41,816 [36] ERROR CloudPanel.modules.PlansModule Error posting new organization plan. Error CloudPanel.Base.Exceptions.MatchFoundException: Exception of type 'CloudPanel.Base.Exceptions.MatchFoundException' was thrown.
+   at CloudPanel.code.Plans.Delete_Organization(Int32 planId) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Plans.cs:line 84
+   at CloudPanel.modules.PlansModule.<.ctor>b__5(Object _) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\modules\PlansModule.cs:line 87
+2014-07-07 21:43:58,189 [87] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 21:43:58,195 [87] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 21:43:58,196 [87] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 21:43:58,196 [87] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 21:43:58,198 [87] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 21:43:58,198 [87] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 21:44:40,960 [86] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 21:44:40,965 [86] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 21:44:40,966 [86] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 21:44:40,966 [86] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 21:44:40,968 [86] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 21:44:40,968 [86] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 21:45:47,848 [87] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 21:45:47,854 [87] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 21:45:47,854 [87] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 21:45:47,854 [87] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 21:45:47,855 [87] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 21:45:47,856 [87] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-07 21:47:06,014 [93] DEBUG CloudPanel.modules.PlansModule Creating new organization plan Medium Business
+2014-07-07 21:50:16,256 [83] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-07 21:50:16,262 [83] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-07 21:50:16,262 [83] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-07 21:50:16,263 [83] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-07 21:50:16,264 [83] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-07 21:50:16,265 [83] DEBUG CloudPanel.BrandingsRequest Found host default in brandings

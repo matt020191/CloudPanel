@@ -7,13 +7,13 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.0-30225")]
-    public sealed partial class AddScalarFunctions : IMigrationMetadata
+    public sealed partial class UpgradeTo31 : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddScalarFunctions));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(UpgradeTo31));
         
         string IMigrationMetadata.Id
         {
-            get { return "201406301611559_AddScalarFunctions"; }
+            get { return "201407080136532_UpgradeTo3.1"; }
         }
         
         string IMigrationMetadata.Source

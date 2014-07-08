@@ -27,49 +27,33 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-using CloudPanel.Base.Database.Models;
-using CloudPanel.Base.Other;
-using CloudPanel.code;
-using Nancy;
-using Nancy.Security;
-using Nancy.Authentication.Forms;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
-namespace CloudPanel.modules
+namespace CloudPanel.Base.Exceptions
 {
-    public class DefaultModule : NancyModule
+    public class MatchFoundException : Exception
     {
-        public DefaultModule()
+        public MatchFoundException()
         {
-            Get["/", ctx => ctx.CurrentUser == null] = _ => this.Response.AsRedirect("/login");
 
-            Get["/login"] = _ =>
-                {
-                    return View["login.cshtml"];
-                };
+        }
 
-            Post["/login"] = _ =>
-                {
-                    var username = this.Request.Form.username;
-                    var password = this.Request.Form.password;
+        public MatchFoundException(int total)
+        {
 
-                    Guid? usersGuid = UserMapper.ValidateUser(username, password);
-                    if (usersGuid == null)
-                    {
-                        ViewBag.LoginError = "Invalid username or password.";
-                        return View["login.cshtml"];
-                    }
-                    else
-                    {
-                        return this.LoginAndRedirect(usersGuid.Value, null, "/dashboard");
-                    }
-                };
+        }
 
-            Get["/dashboard"] = _ =>
-                {
-                    return View["dashboard.cshtml"];
-                };
+        public MatchFoundException(string message) : base(message)
+        {
+
+        }
+
+        public MatchFoundException(string message, Exception inner) : base (message, inner)
+        {
+
         }
     }
 }

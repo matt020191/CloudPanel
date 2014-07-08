@@ -41,8 +41,8 @@ namespace CloudPanel.Base.Config
         {
             get 
             { 
-                //return "server=DXN-PC\\SQLEXPRESS;database=CloudPanel;uid=CloudPanel;password=password;";
-                return "server=JDIXON-PC\\SQLEXPRESS;database=CloudPanel;uid=sa;password=Password1";
+                return "server=DXN-PC\\SQLEXPRESS;database=CloudPanel;uid=CloudPanel;password=password;";
+                //return "server=JDIXON-PC\\SQLEXPRESS;database=CloudPanel;uid=sa;password=Password1";
             }
         }
 
