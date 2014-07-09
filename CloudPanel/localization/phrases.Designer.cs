@@ -133,6 +133,60 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Incorrect code. Please enter the code exactly as you see it..
+        /// </summary>
+        internal static string Email_CodeIncorrect {
+            get {
+                return ResourceManager.GetString("Email_CodeIncorrect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To disable email please type the following characters in the textbox below:.
+        /// </summary>
+        internal static string Email_DisableVerification {
+            get {
+                return ResourceManager.GetString("Email_DisableVerification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Disabling email will delete all mailboxes, distribution groups, contacts, address lists, and everything else that relates to your company. This action is not reversable..
+        /// </summary>
+        internal static string Email_DisableWarning {
+            get {
+                return ResourceManager.GetString("Email_DisableWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This company has not been enabled for Exchange server yet. Before this company can create mailboxes, distribution groups, contacts, and other Exchange objects, it must first be enabled..
+        /// </summary>
+        internal static string Email_EnableInfo {
+            get {
+                return ResourceManager.GetString("Email_EnableInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown Error.
+        /// </summary>
+        internal static string Error_ErrorUnknown {
+            get {
+                return ResourceManager.GetString("Error_ErrorUnknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Well that wasn&apos;t supposed to happen! See below for the full error message:.
+        /// </summary>
+        internal static string Error_Title {
+            get {
+                return ResourceManager.GetString("Error_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Loading data from server.
         /// </summary>
         internal static string Load_FromServer {

@@ -340,6 +340,15 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Disable.
+        /// </summary>
+        internal static string Disable {
+            get {
+                return ResourceManager.GetString("Disable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Disable Email.
         /// </summary>
         internal static string DisableEmail {
@@ -412,11 +421,38 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to E-mail Status.
+        /// </summary>
+        internal static string EmailStatus {
+            get {
+                return ResourceManager.GetString("EmailStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enable.
+        /// </summary>
+        internal static string Enable {
+            get {
+                return ResourceManager.GetString("Enable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enable/Disable.
         /// </summary>
         internal static string EnableDisable {
             get {
                 return ResourceManager.GetString("EnableDisable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        internal static string Error {
+            get {
+                return ResourceManager.GetString("Error", resourceCulture);
             }
         }
         
@@ -556,6 +592,60 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Max Contacts.
+        /// </summary>
+        internal static string MaxContacts {
+            get {
+                return ResourceManager.GetString("MaxContacts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Max Domains.
+        /// </summary>
+        internal static string MaxDomains {
+            get {
+                return ResourceManager.GetString("MaxDomains", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Max Groups.
+        /// </summary>
+        internal static string MaxGroups {
+            get {
+                return ResourceManager.GetString("MaxGroups", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Max Mailboxes.
+        /// </summary>
+        internal static string MaxMailboxes {
+            get {
+                return ResourceManager.GetString("MaxMailboxes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Max Mail Public Folders.
+        /// </summary>
+        internal static string MaxMailPublicFolders {
+            get {
+                return ResourceManager.GetString("MaxMailPublicFolders", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Max Resource Mailboxes.
+        /// </summary>
+        internal static string MaxResourceMailboxes {
+            get {
+                return ResourceManager.GetString("MaxResourceMailboxes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Maximum Users Allowed.
         /// </summary>
         internal static string MaxUsers {
@@ -606,6 +696,15 @@ namespace CloudPanel.localization {
         internal static string Permissions {
             get {
                 return ResourceManager.GetString("Permissions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Plan.
+        /// </summary>
+        internal static string Plan {
+            get {
+                return ResourceManager.GetString("Plan", resourceCulture);
             }
         }
         

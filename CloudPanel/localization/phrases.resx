@@ -141,6 +141,24 @@
   <data name="Domains_Add" xml:space="preserve">
     <value>Enter the domain name you would like to add</value>
   </data>
+  <data name="Email_CodeIncorrect" xml:space="preserve">
+    <value>Incorrect code. Please enter the code exactly as you see it.</value>
+  </data>
+  <data name="Email_DisableVerification" xml:space="preserve">
+    <value>To disable email please type the following characters in the textbox below:</value>
+  </data>
+  <data name="Email_DisableWarning" xml:space="preserve">
+    <value>Disabling email will delete all mailboxes, distribution groups, contacts, address lists, and everything else that relates to your company. This action is not reversable.</value>
+  </data>
+  <data name="Email_EnableInfo" xml:space="preserve">
+    <value>This company has not been enabled for Exchange server yet. Before this company can create mailboxes, distribution groups, contacts, and other Exchange objects, it must first be enabled.</value>
+  </data>
+  <data name="Error_ErrorUnknown" xml:space="preserve">
+    <value>Unknown Error</value>
+  </data>
+  <data name="Error_Title" xml:space="preserve">
+    <value>Well that wasn't supposed to happen! See below for the full error message:</value>
+  </data>
   <data name="Load_FromServer" xml:space="preserve">
     <value>Loading data from server</value>
   </data>

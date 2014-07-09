@@ -363,4 +363,37 @@
   <data name="SendOnBehalf" xml:space="preserve">
     <value>Send on Behalf</value>
   </data>
+  <data name="EmailStatus" xml:space="preserve">
+    <value>E-mail Status</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="MaxContacts" xml:space="preserve">
+    <value>Max Contacts</value>
+  </data>
+  <data name="MaxDomains" xml:space="preserve">
+    <value>Max Domains</value>
+  </data>
+  <data name="MaxGroups" xml:space="preserve">
+    <value>Max Groups</value>
+  </data>
+  <data name="MaxMailboxes" xml:space="preserve">
+    <value>Max Mailboxes</value>
+  </data>
+  <data name="MaxMailPublicFolders" xml:space="preserve">
+    <value>Max Mail Public Folders</value>
+  </data>
+  <data name="MaxResourceMailboxes" xml:space="preserve">
+    <value>Max Resource Mailboxes</value>
+  </data>
+  <data name="Plan" xml:space="preserve">
+    <value>Plan</value>
+  </data>
+  <data name="Disable" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="Enable" xml:space="preserve">
+    <value>Enable</value>
+  </data>
 </root>
