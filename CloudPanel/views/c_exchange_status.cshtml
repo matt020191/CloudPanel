@@ -1,0 +1,94 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+@{
+    Layout = "_master.cshtml";
+}
+
+@section PAGEHEADER{
+    <div class="pageheader">
+        <h2><i class="fa fa-envelope-square"></i> @Text.words.EmailStatus </h2>
+    </div>
+}
+
+@if (Model)
+{
+    <form method="post" action="" name="disableExchangeForm" id="disableExchangeForm" class="form-horizontal">
+        <input type="hidden" name="_method" value="DELETE" />
+        <div class="col-sm-12">
+            <div class="panel panel-dark">
+                <div class="panel-heading">
+                    <h3 class="panel-title">@Text.words.Disable</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row" style="text-align: center">
+                        @Text.phrases.Email_DisableWarning
+                        <div class="mb20"></div>
+                        @Text.phrases.Email_DisableVerification &nbsp;&nbsp; <input id="txtValidationCode" name="txtValidationCode" type="text" disabled="disabled" value="@CloudPanel.code.CPHtmlHelpers.RandomCharacters()" style="text-align: center" class="nocopy" />
+                    </div>
+
+                    <div class="mb20"></div>
+                    <div class="row" style="text-align: center">
+                        <input id="txtFormValidation" name="txtFormValidation" type="text" style="width: 200px" required /><br />
+                        <div id="errorDiv">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-footer">
+                    <div class="pull-right">
+                        <button class="btn btn-danger">@Text.words.Disable</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+}
+else
+{
+    <form action="" method="post" name="enableExchangeForm">
+            <div class="col-sm-12">
+                <div class="panel panel-dark">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">@Text.words.Enable</h3>
+                    </div>
+                    <div class="panel-body">
+                        <p style="text-align: center">
+                            @Text.phrases.Email_EnableInfo
+                        </p>
+                    </div>
+                    <div class="panel-footer">
+                        <div class="pull-right">
+                            <button class="btn btn-success">@Text.words.Enable</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </form>
+}
+
+@section CUSTOMJAVASCRIPT {
+    <script src="~/Content/js/jquery.validate.min.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function () {
+
+            $("#disableExchangeForm").validate({
+                rules: {
+                    txtFormValidation: {
+                        required: true,
+                        equalTo: "#txtValidationCode"
+                    }
+                },
+                messages: {
+                    txtFormValidation: {
+                        equalTo: "@Text.phrases.Email_CodeIncorrect"
+                    }
+                },
+                errorLabelContainer: jQuery("#errorDiv")
+            });
+
+            $('.nocopy').bind("cut copy paste", function (e) {
+                e.preventDefault();
+            });
+        });
+    </script>
+}
