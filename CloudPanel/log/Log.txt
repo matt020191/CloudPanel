@@ -904,3 +904,127 @@ ClientConnectionId:0c124610-ad0d-4555-8a79-c6417c0a1224
 2014-07-07 21:50:16,263 [83] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
 2014-07-07 21:50:16,264 [83] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
 2014-07-07 21:50:16,265 [83] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-08 20:23:06,116 [7] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-08 20:23:06,126 [7] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-08 20:23:06,127 [7] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-08 20:23:06,127 [7] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-08 20:23:06,128 [7] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-08 20:23:06,129 [7] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-08 20:23:08,907 [7] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:23:08,909 [7] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:23:08,909 [7] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:23:08,957 [8] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:23:08,957 [8] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:23:08,957 [8] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:23:08,967 [7] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:23:08,967 [8] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:23:08,968 [8] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:23:08,967 [7] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:26:48,189 [5] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-08 20:26:48,195 [5] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-08 20:26:48,196 [5] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-08 20:26:48,196 [5] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-08 20:26:48,197 [5] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-08 20:26:48,198 [5] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-08 20:27:24,739 [21] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:27:24,740 [21] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:27:24,740 [21] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:27:24,752 [21] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:27:24,752 [21] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:27:24,757 [10] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:27:24,758 [10] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:27:24,758 [10] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:27:24,758 [10] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:27:24,758 [10] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 20:27:51,255 [16] DEBUG CloudPanel.ActiveDirectory.Users Retrieving the PrincipalContext...
+2014-07-08 20:28:12,385 [16] ERROR CloudPanel.ActiveDirectory.Users Error retrieving user adixon@largecompany.com. Exception: System.DirectoryServices.AccountManagement.PrincipalServerDownException: The server could not be contacted. ---> System.DirectoryServices.Protocols.LdapException: The LDAP server is unavailable.
+   at System.DirectoryServices.Protocols.LdapConnection.Connect()
+   at System.DirectoryServices.Protocols.LdapConnection.SendRequestHelper(DirectoryRequest request, Int32& messageID)
+   at System.DirectoryServices.Protocols.LdapConnection.SendRequest(DirectoryRequest request, TimeSpan requestTimeout)
+   at System.DirectoryServices.Protocols.LdapConnection.SendRequest(DirectoryRequest request)
+   at System.DirectoryServices.AccountManagement.PrincipalContext.ReadServerConfig(String serverName, ServerProperties& properties)
+   --- End of inner exception stack trace ---
+   at System.DirectoryServices.AccountManagement.PrincipalContext.ReadServerConfig(String serverName, ServerProperties& properties)
+   at System.DirectoryServices.AccountManagement.PrincipalContext.DoServerVerifyAndPropRetrieval()
+   at System.DirectoryServices.AccountManagement.PrincipalContext..ctor(ContextType contextType, String name, String container, ContextOptions options, String userName, String password)
+   at System.DirectoryServices.AccountManagement.PrincipalContext..ctor(ContextType contextType, String name, String userName, String password)
+   at CloudPanel.ActiveDirectory.Users.GetPrincipalContext() in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel.ActiveDirectory\Users.cs:line 60
+   at CloudPanel.ActiveDirectory.Users.GetUserWithoutGroups(String username) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel.ActiveDirectory\Users.cs:line 171
+2014-07-08 20:28:12,386 [16] ERROR CloudPanel.code.Users Error retrieving user 5ac613ba-b5db-4c3d-9d49-67f4a86c9e88. Error: System.DirectoryServices.AccountManagement.PrincipalServerDownException: The server could not be contacted. ---> System.DirectoryServices.Protocols.LdapException: The LDAP server is unavailable.
+   at System.DirectoryServices.Protocols.LdapConnection.Connect()
+   at System.DirectoryServices.Protocols.LdapConnection.SendRequestHelper(DirectoryRequest request, Int32& messageID)
+   at System.DirectoryServices.Protocols.LdapConnection.SendRequest(DirectoryRequest request, TimeSpan requestTimeout)
+   at System.DirectoryServices.Protocols.LdapConnection.SendRequest(DirectoryRequest request)
+   at System.DirectoryServices.AccountManagement.PrincipalContext.ReadServerConfig(String serverName, ServerProperties& properties)
+   --- End of inner exception stack trace ---
+   at System.DirectoryServices.AccountManagement.PrincipalContext.ReadServerConfig(String serverName, ServerProperties& properties)
+   at System.DirectoryServices.AccountManagement.PrincipalContext.DoServerVerifyAndPropRetrieval()
+   at System.DirectoryServices.AccountManagement.PrincipalContext..ctor(ContextType contextType, String name, String container, ContextOptions options, String userName, String password)
+   at System.DirectoryServices.AccountManagement.PrincipalContext..ctor(ContextType contextType, String name, String userName, String password)
+   at CloudPanel.ActiveDirectory.Users.GetPrincipalContext() in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel.ActiveDirectory\Users.cs:line 60
+   at CloudPanel.ActiveDirectory.Users.GetUserWithoutGroups(String username) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel.ActiveDirectory\Users.cs:line 219
+   at CloudPanel.code.Users.GetUserFromAD(String companyCode, Guid userGuid) in c:\Users\Jacob\Source\KMI\CloudPanel\CloudPanel\code\Users.cs:line 81
+2014-07-08 20:44:51,836 [63] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-08 20:44:51,842 [63] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-08 20:44:51,843 [63] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-08 20:44:51,843 [63] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-08 20:44:51,844 [63] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-08 20:44:51,844 [63] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-08 20:45:51,554 [74] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-08 20:45:51,560 [74] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-08 20:45:51,561 [74] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-08 20:45:51,561 [74] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-08 20:45:51,562 [74] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-08 20:45:51,563 [74] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-08 20:48:03,344 [73] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-08 20:48:03,350 [73] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-08 20:48:03,350 [73] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-08 20:48:03,351 [73] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-08 20:48:03,352 [73] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-08 20:48:03,352 [73] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-08 20:48:27,428 [71] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-08 20:48:27,434 [71] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-08 20:48:27,434 [71] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-08 20:48:27,435 [71] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-08 20:48:27,436 [71] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-08 20:48:27,436 [71] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-08 20:51:17,541 [74] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-08 20:51:17,547 [74] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-08 20:51:17,547 [74] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-08 20:51:17,548 [74] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-08 20:51:17,549 [74] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-08 20:51:17,549 [74] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-08 20:58:59,839 [49] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-08 20:58:59,845 [49] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-08 20:58:59,845 [49] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-08 20:58:59,846 [49] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-08 20:58:59,847 [49] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-08 20:58:59,847 [49] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-08 20:59:37,745 [7] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-08 20:59:37,750 [7] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-08 20:59:37,751 [7] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-08 20:59:37,752 [7] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-08 20:59:37,753 [7] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-08 20:59:37,753 [7] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-08 21:03:49,476 [7] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-08 21:03:49,482 [7] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-08 21:03:49,483 [7] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-08 21:03:49,483 [7] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-08 21:03:49,484 [7] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-08 21:03:49,484 [7] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-08 21:03:55,235 [7] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 21:03:55,236 [7] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 21:03:55,237 [7] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 21:03:55,273 [8] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 21:03:55,273 [8] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 21:03:55,273 [8] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 21:03:55,291 [7] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 21:03:55,292 [8] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 21:03:55,292 [8] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 21:03:55,292 [7] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-08 21:06:19,834 [11] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-08 21:06:19,840 [11] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-08 21:06:19,841 [11] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-08 21:06:19,841 [11] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-08 21:06:19,843 [11] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-08 21:06:19,844 [11] DEBUG CloudPanel.BrandingsRequest Found host default in brandings

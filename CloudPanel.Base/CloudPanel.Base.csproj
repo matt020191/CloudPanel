@@ -82,6 +82,7 @@
     <Compile Include="Database\Models\UserPermission.cs" />
     <Compile Include="Database\Models\UserPlansCitrix.cs" />
     <Compile Include="Exceptions\MatchFoundException.cs" />
+    <Compile Include="Exceptions\MissingDataException.cs" />
     <Compile Include="Other\Error.cs" />
     <Compile Include="Other\UsersEditPage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

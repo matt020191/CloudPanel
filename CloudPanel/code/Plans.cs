@@ -70,6 +70,9 @@ namespace CloudPanel.code
 
         public void Create_Organization(Plans_Organization newPlan)
         {
+            if (string.IsNullOrEmpty(newPlan.OrgPlanName))
+                throw new MissingDataException("OrgPlanName");
+
             db.Plans_Organization.Add(newPlan);
             db.SaveChanges();
         }
@@ -82,7 +85,7 @@ namespace CloudPanel.code
                          select u.CompanyId).Count();
 
             if (count > 0)
-                throw new MatchFoundException(count);
+                throw new MatchFoundException(count.ToString());
             else
             {
                 var plan = (from p in db.Plans_Organization

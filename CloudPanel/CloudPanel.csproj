@@ -728,6 +728,7 @@
     <Compile Include="modules\CPSecurityHooksModule.cs" />
     <Compile Include="modules\DefaultModule.cs" />
     <Compile Include="modules\DomainsModule.cs" />
+    <Compile Include="modules\EmailModule.cs" />
     <Compile Include="modules\PlansModule.cs" />
     <Compile Include="modules\ResellersModule.cs" />
     <Compile Include="modules\UsersModule.cs" />
@@ -866,6 +867,8 @@
     <Content Include="views\c_usersedit.cshtml" />
     <Content Include="views\dashboard.cshtml" />
     <Content Include="views\p_organization.cshtml" />
+    <Content Include="views\c_exchange_status.cshtml" />
+    <Content Include="views\error.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

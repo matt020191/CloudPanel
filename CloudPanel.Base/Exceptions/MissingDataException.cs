@@ -34,19 +34,19 @@ using System.Text;
 
 namespace CloudPanel.Base.Exceptions
 {
-    public class MatchFoundException : Exception
+    public class MissingDataException :Exception
     {
-        public MatchFoundException()
+        public MissingDataException()
         {
 
         }
 
-        public MatchFoundException(string message) : base(message)
+        public MissingDataException(string message) : base(message)
         {
 
         }
 
-        public MatchFoundException(string message, Exception inner) : base (message, inner)
+        public MissingDataException(string message, Exception inner) : base(message, inner)
         {
 
         }

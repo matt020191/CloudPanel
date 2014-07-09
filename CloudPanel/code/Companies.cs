@@ -473,5 +473,23 @@ namespace CloudPanel.code
         }
 
         #endregion
+
+        #region Exchange
+
+        /// <summary>
+        /// Checks if a company is enabled for Exchange or not
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <returns></returns>
+        public bool IsExchangeEnabled(string companyCode)
+        {
+            var isEnabled = (from c in db.Companies
+                             where c.CompanyCode == companyCode
+                             select c.ExchEnabled).First();
+
+            return isEnabled;
+        }
+
+        #endregion
     }
 }

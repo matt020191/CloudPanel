@@ -1,0 +1,48 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="shortcut icon" href="images/favicon.png" type="image/png">
+
+    <title>@Text.words.Error</title>
+
+    <link href="~/content/css/style.default.css" rel="stylesheet" />
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="~/content/js/html5shiv.js"></script>
+    <script src="~/content/js/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body class="notfound">
+    <section>
+        <div class="notfoundpanel">
+            <h1>@Text.words.Error</h1>
+            <h3>@Text.phrases.Error_Title</h3>
+            <h4>
+                @if (Model != null)
+                {
+                    <span>@Model</span>
+                }
+                else
+                {
+                    <span>@Text.phrases.Error_ErrorUnknown</span>
+                }
+            </h4>
+        </div>
+    </section>
+
+    <script src="~/content/js/jquery-1.10.2.min.js"></script>
+    <script src="~/content/js/jquery-migrate-1.2.1.min.js"></script>
+    <script src="~/content/js/bootstrap.min.js"></script>
+    <script src="~/content/js/modernizr.min.js"></script>
+    <script src="~/content/js/retina.min.js"></script>
+    <script src="~/content/js/custom.js"></script>
+</body>
+</html>

@@ -1,5 +1,4 @@
-﻿using CloudPanel.Base.Database.Models;
-using CloudPanel.code;
+﻿using CloudPanel.code;
 using log4net;
 using Nancy;
 //
@@ -32,54 +31,31 @@ using Nancy;
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
 
 namespace CloudPanel.modules
 {
-    public class CompanyModule : NancyModule
+    public class EmailModule : NancyModule
     {
         private static readonly ILog log = log4net.LogManager.GetLogger(typeof(CompanyModule));
 
-        public CompanyModule() : base("/Company")
+        public EmailModule() : base("/Company")
         {
-            Get["/{ResellerCode}/{CompanyCode}"] = _ =>
+            Get["/{ResellerCode}/{CompanyCode}/Email/Status"] = _ =>
                 {
                     try
                     {
                         Companies companies = new Companies();
-                        Company company = companies.GetCompany(_.ResellerCode, _.CompanyCode);
+                        bool isEnabled = companies.IsExchangeEnabled(_.CompanyCode);
 
-                        // Set user context values
-                        var user = this.Context.CurrentUser as AuthenticatedUser;
-                        user.SelectedCompanyCode = _.CompanyCode;
-                        user.SelectedResellerCode = _.ResellerCode;
-                        user.SelectedCompanyName = company.CompanyName;
 
-                        this.Context.CurrentUser = user;
-
-                        return View["c_overview.cshtml", companies.GetCompany(_.ResellerCode, _.CompanyCode)];
+                        return View["c_exchange_status.cshtml", isEnabled];
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("Error retrieving company {0}. Error: {1}", _.CompanyCode, ex.ToString());
                         return View["error.cshtml", ex.ToString()];
-                    }
-                };
-
-            Post["/{ResellerCode}/{CompanyCode}"] = _ =>
-                {
-                    var id = Request.Form.OrgPlanID;
-
-                    try
-                    {
-                        Companies companies = new Companies();
-                        companies.UpdatePlan(_.CompanyCode, id);
-
-                        return HttpStatusCode.OK;
-                    }
-                    catch (Exception ex)
-                    {
-                        log.ErrorFormat("Error updating company plan for {0}. Error: {1}", _.CompanyCode, ex.ToString());
-                        return HttpStatusCode.InternalServerError;
                     }
                 };
         }
