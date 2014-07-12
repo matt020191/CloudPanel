@@ -10,9 +10,13 @@ namespace CloudPanel.Database.EntityFramework.Models.Mapping
         public ContactMap()
         {
             // Primary Key
-            this.HasKey(t => t.Id);
+            this.HasKey(t => t.ID);
 
             // Properties
+            this.Property(t => t.ID)
+                .IsRequired()
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+
             this.Property(t => t.DistinguishedName)
                 .IsRequired()
                 .HasMaxLength(255);
@@ -30,13 +34,12 @@ namespace CloudPanel.Database.EntityFramework.Models.Mapping
 
             // Table & Column Mappings
             this.ToTable("Contacts");
-            this.Property(t => t.DistinguishedName)
-                .HasColumnName("DistinguishedName")
-                .HasColumnAnnotation("Index", new IndexAnnotation(new IndexAttribute { IsUnique = true }));
+            this.Property(t => t.DistinguishedName).HasColumnName("DistinguishedName");
             this.Property(t => t.CompanyCode).HasColumnName("CompanyCode");
             this.Property(t => t.DisplayName).HasColumnName("DisplayName");
             this.Property(t => t.Email).HasColumnName("Email");
             this.Property(t => t.Hidden).HasColumnName("Hidden");
+            this.Property(t => t.ID).HasColumnName("ID");
         }
     }
 }
