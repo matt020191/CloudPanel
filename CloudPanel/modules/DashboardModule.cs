@@ -1,4 +1,5 @@
-﻿//
+﻿using Nancy;
+//
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
 //
@@ -31,14 +32,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Nancy.Authentication;
+using Nancy.Security;
 
 namespace CloudPanel.modules
 {
-    public class CPSecurityHooksModule
+    public class DashboardModule : NancyModule
     {
-        public static Func<IEnumerable<string>, bool> BelongsToReseller(Func<IEnumerable<string>, bool> data)
+        public DashboardModule() : base("/dashboard")
         {
-            return data;
+            this.RequiresAuthentication();
+
+            Get["/"] = _ =>
+            {
+                return View["dashboard.cshtml"];
+            };
         }
     }
 }

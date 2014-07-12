@@ -1,4 +1,8 @@
-﻿//
+﻿using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Other;
+using CloudPanel.code;
+using Nancy;
+//
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
 //
@@ -27,47 +31,57 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-using CloudPanel.Base.Database.Models;
-using CloudPanel.Base.Other;
-using CloudPanel.code;
-using Nancy;
-using Nancy.Security;
-using Nancy.Authentication.Forms;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using Nancy.Security;
 
 namespace CloudPanel.modules
 {
-    public class DefaultModule : NancyModule
+    public class CompanyUsersModule : NancyModule
     {
-        public DefaultModule()
+        public CompanyUsersModule() : base("/Company/Users")
         {
-            Get["/login"] = _ =>
-                {
-                    return View["login.cshtml"];
-                };
+            this.RequiresAuthentication();
+            
+            Get["/{CompanyCode}"] = _ =>
+            {
+                return View["c_users.cshtml", _.CompanyCode];
+            };
 
-            Post["/login"] = _ =>
+            Get["/{CompanyCode}/{UserGuid}"] = _ =>
+            {
+                try
                 {
-                    var username = this.Request.Form.username;
-                    var password = this.Request.Form.password;
+                    UsersEditPage uep = new UsersEditPage();
 
-                    Guid? usersGuid = UserMapper.ValidateUser(username, password);
-                    if (usersGuid == null)
-                    {
-                        ViewBag.LoginError = "Invalid username or password.";
-                        return View["login.cshtml"];
-                    }
-                    else
-                    {
-                        return this.LoginAndRedirect(usersGuid.Value, null, "dashboard");
-                    }
-                };
+                    Companies companies = new Companies();
+                    Users users = new Users();
 
-            Get["/logout"] = _ =>
+                    // Get the user from Active Directory
+                    User adUser = users.GetUserFromAD(_.CompanyCode, _.UserGuid);
+                    uep.User = adUser;
+
+                    // Get a list of domains
+                    uep.Domains = companies.GetDomains(_.CompanyCode);
+
+                    // Get list of mailbox plans
+                    uep.MailboxPlans = companies.GetMailboxPlans(_.CompanyCode);
+
+                    // Get a list of activesync plans
+                    uep.ActiveSyncPlans = companies.GetActiveSyncPlans(_.CompanyCode);
+
+                    // Get list of users and their sAMAccountName
+                    uep.UsersPermissionList = companies.GetUsersListAndSamAccountName(_.CompanyCode);
+
+                    return View["c_usersedit.cshtml", uep];
+                }
+                catch (Exception ex)
                 {
-                    return this.Logout("~/login");
-                };
+                    return View["error.cshtml", ex.ToString()];
+                }
+            };
         }
     }
 }

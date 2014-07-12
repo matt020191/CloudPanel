@@ -13,6 +13,8 @@
     <title>@Text.words.Error</title>
 
     <link href="~/content/css/style.default.css" rel="stylesheet" />
+    <link href="~/content/css/codemirror/codemirror.css" rel="stylesheet" />
+    <link href="~/content/css/codemirror/theme/ambiance.css" rel="stylesheet" />
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -25,16 +27,17 @@
         <div class="notfoundpanel">
             <h1>@Text.words.Error</h1>
             <h3>@Text.phrases.Error_Title</h3>
-            <h4>
+            <h4 style="text-align: left;">
                 @if (Model != null)
                 {
-                    <span>@Model</span>
+                    <textarea id="codeError" name="codeError">@Model</textarea>
                 }
                 else
                 {
                     <span>@Text.phrases.Error_ErrorUnknown</span>
                 }
             </h4>
+
         </div>
     </section>
 
@@ -44,5 +47,17 @@
     <script src="~/content/js/modernizr.min.js"></script>
     <script src="~/content/js/retina.min.js"></script>
     <script src="~/content/js/custom.js"></script>
+    <script src="~/content/js/codemirror/codemirror.js"></script>
+    <script src="~/content/js/codemirror/formatting.js"></script>
+    <script src="~/content/js/codemirror/mode/xml.js"></script>
+    <script src="~/content/js/codemirror/mode/javascript.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function () {
+            CodeMirror.fromTextArea(document.getElementById("codeError"), {
+                mode: { name: "javascript" },
+                lineNumbers: false
+            });
+        });
+    </script>
 </body>
 </html>

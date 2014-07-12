@@ -307,11 +307,10 @@ namespace CloudPanel.code
         /// <param name="resellerCode"></param>
         /// <param name="companyCode"></param>
         /// <returns></returns>
-        public Company GetCompany(string resellerCode, string companyCode)
+        public Company GetCompany(string companyCode)
         {
             var company = (from c in db.Companies
                             where !c.IsReseller
-                            where c.ResellerCode == resellerCode
                             where c.CompanyCode == companyCode
                             select c).First();
 
@@ -488,6 +487,20 @@ namespace CloudPanel.code
                              select c.ExchEnabled).First();
 
             return isEnabled;
+        }
+
+        /// <summary>
+        /// Gets a list of Exchange contacts
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <returns></returns>
+        public List<Contact> GetContacts(string companyCode)
+        {
+            var contacts = (from c in db.Contacts
+                            where c.CompanyCode == companyCode
+                            select c).ToList();
+
+            return contacts;
         }
 
         #endregion

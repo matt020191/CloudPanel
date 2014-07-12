@@ -47,6 +47,10 @@ namespace CloudPanel.modules
 
         public ResellersModule() : base("/Resellers")
         {
+            this.RequiresAuthentication();
+
+            #region Resellers
+
             Get["/"] = _ =>
                 {
                     //this.RequiresAuthentication();
@@ -147,6 +151,10 @@ namespace CloudPanel.modules
                         return View["resellers.cshtml", GetResellers()];
                     }
                 };
+
+            #endregion
+
+            
         }
 
         /// <summary>

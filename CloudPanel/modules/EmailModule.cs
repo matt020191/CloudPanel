@@ -1,4 +1,5 @@
-﻿using CloudPanel.code;
+﻿using CloudPanel.Base.Database.Models;
+using CloudPanel.code;
 using log4net;
 using Nancy;
 //
@@ -34,24 +35,41 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Nancy.Security;
 
 namespace CloudPanel.modules
 {
     public class EmailModule : NancyModule
     {
-        private static readonly ILog log = log4net.LogManager.GetLogger(typeof(CompanyModule));
+        private static readonly ILog log = log4net.LogManager.GetLogger(typeof(EmailModule));
 
-        public EmailModule() : base("/Company")
+        public EmailModule() : base("/Company/Email")
         {
-            Get["/{ResellerCode}/{CompanyCode}/Email/Status"] = _ =>
+            this.RequiresAuthentication();
+
+            Get["/{CompanyCode}/Status"] = _ =>
                 {
                     try
                     {
                         Companies companies = new Companies();
                         bool isEnabled = companies.IsExchangeEnabled(_.CompanyCode);
 
-
                         return View["c_exchange_status.cshtml", isEnabled];
+                    }
+                    catch (Exception ex)
+                    {
+                        return View["error.cshtml", ex.ToString()];
+                    }
+                };
+
+            Get["/{CompanyCode}/Contacts"] = _ =>
+                {
+                    try
+                    {
+                        Companies companies = new Companies();
+                        List<Contact> contacts = companies.GetContacts(_.CompanyCode);
+
+                        return View["c_exchange_contacts.cshtml", contacts];
                     }
                     catch (Exception ex)
                     {

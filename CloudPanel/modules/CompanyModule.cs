@@ -1,4 +1,5 @@
 ﻿using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Other;
 using CloudPanel.code;
 using log4net;
 using Nancy;
@@ -32,6 +33,7 @@ using Nancy;
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 using System;
+using Nancy.Security;
 
 namespace CloudPanel.modules
 {
@@ -41,22 +43,26 @@ namespace CloudPanel.modules
 
         public CompanyModule() : base("/Company")
         {
-            Get["/{ResellerCode}/{CompanyCode}"] = _ =>
+            this.RequiresAuthentication();
+
+            #region Company Overview 
+
+            Get["/{CompanyCode}"] = _ =>
                 {
                     try
                     {
                         Companies companies = new Companies();
-                        Company company = companies.GetCompany(_.ResellerCode, _.CompanyCode);
+                        Company company = companies.GetCompany(_.CompanyCode);
 
                         // Set user context values
                         var user = this.Context.CurrentUser as AuthenticatedUser;
                         user.SelectedCompanyCode = _.CompanyCode;
-                        user.SelectedResellerCode = _.ResellerCode;
+                        user.SelectedResellerCode = company.ResellerCode;
                         user.SelectedCompanyName = company.CompanyName;
 
                         this.Context.CurrentUser = user;
 
-                        return View["c_overview.cshtml", companies.GetCompany(_.ResellerCode, _.CompanyCode)];
+                        return View["c_overview.cshtml", company];
                     }
                     catch (Exception ex)
                     {
@@ -82,6 +88,8 @@ namespace CloudPanel.modules
                         return HttpStatusCode.InternalServerError;
                     }
                 };
+
+            #endregion
         }
     }
 }

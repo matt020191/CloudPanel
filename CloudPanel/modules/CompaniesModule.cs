@@ -1,5 +1,4 @@
-﻿using CloudPanel.Base.Database.Models;
-using Nancy;
+﻿using Nancy;
 //
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
@@ -33,38 +32,71 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Nancy.ModelBinding;
 using Nancy.Security;
+using Nancy.ModelBinding;
+using CloudPanel.Base.Database.Models;
 using CloudPanel.code;
 
 namespace CloudPanel.modules
 {
     public class CompaniesModule : NancyModule
     {
-        public CompaniesModule() : base("/Resellers")
+        public CompaniesModule() : base("/Companies")
         {
-            Get["/{ResellerCode}/Companies"] = _ =>
-                {
-                    //this.RequiresAuthentication();
-                    //this.RequiresValidatedClaims( new Func<IEnumerable<string>,bool>(isValid) );
+            this.RequiresAuthentication();
+            this.RequiresAnyClaim(new[] { "SuperAdmin" });
 
-                    // Set user context values
-                    var user = this.Context.CurrentUser as AuthenticatedUser;
-                    user.SelectedResellerCode = _.ResellerCode;
-                    this.Context.CurrentUser = user;
+            #region Companies
+
+            Get["/{ResellerCode}"] = _ =>
+            {
+                // Set the selected reseller code in the user context
+                var user = this.Context.CurrentUser as AuthenticatedUser;
+                user.SelectedResellerCode = _.ResellerCode;
+
+                this.Context.CurrentUser = user;
+
+                return View["companies.cshtml", _.ResellerCode];
+            };
+
+            Post["/{ResellerCode}"] = _ =>
+            {
+                try
+                {
+                    var data = this.Bind<Company>();
+                    return View["companies.cshtml", _.ResellerCode];
+                }
+                catch (Exception ex)
+                {
+                    ViewBag.Error = ex.Message;
+                    return View["companies.cshtml", _.ResellerCode];
+                }
+            };
+
+            Put["/{ResellerCode}"] = _ =>
+            {
+                try
+                {
+                    var company = this.Bind<Company>();
+
+                    Companies companies = new Companies();
+                    companies.Update(company);
 
                     return View["companies.cshtml", _.ResellerCode];
-                };
+                }
+                catch (Exception ex)
+                {
+                    ViewBag.Error = ex.Message;
+                    return View["companies.cshtml", _.ResellerCode];
+                }
+            };
 
             Get["/{ResellerCode}/{CompanyCode}"] = _ =>
                 {
-                    //this.RequiresAuthentication();
-                    //this.RequiresClaims(new[] { "SuperAdmin" });
-
                     try
                     {
                         Companies companies = new Companies();
-                        Company foundCompany = companies.GetCompany(_.ResellerCode, _.CompanyCode);
+                        Company foundCompany = companies.GetCompany( _.CompanyCode);
 
                         return Response.AsJson(foundCompany, HttpStatusCode.OK);
                     }
@@ -75,43 +107,7 @@ namespace CloudPanel.modules
                     }
                 };
 
-            Post["/{ResellerCode}/Companies"] = _ =>
-                {
-                    try
-                    {
-                        //this.RequiresAuthentication();
-                        //this.RequiresValidatedClaims( new Func<IEnumerable<string>,bool>(isValid) );
-
-                        var data = this.Bind<Company>();
-                        return View["companies.cshtml", _.ResellerCode];
-                    }
-                    catch (Exception ex)
-                    {
-                        ViewBag.Error = ex.Message;
-                        return View["companies.cshtml", _.ResellerCode];
-                    }
-                };
-
-            Put["/{ResellerCode}/Companies"] = _ =>
-                {
-                    //this.RequiresAuthentication();
-                    //this.RequiresClaims(new[] { "SuperAdmin" });
-
-                    try
-                    {
-                        var company = this.Bind<Company>();
-
-                        Companies companies = new Companies();
-                        companies.Update(company);
-
-                        return View["companies.cshtml", _.ResellerCode];
-                    }
-                    catch (Exception ex)
-                    {
-                        ViewBag.Error = ex.Message;
-                        return View["companies.cshtml", _.ResellerCode];
-                    }
-                };
+            #endregion
         }
     }
 }

@@ -396,4 +396,7 @@
   <data name="Enable" xml:space="preserve">
     <value>Enable</value>
   </data>
+  <data name="Hidden" xml:space="preserve">
+    <value>Hidden</value>
+  </data>
 </root>

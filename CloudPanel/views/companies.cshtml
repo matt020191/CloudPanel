@@ -38,7 +38,7 @@
 </div>
 
 <!-- New Company -->
-<form id="newCompanyForm" method="post" action="@Url.Content("~/Resellers/" + Model + "/Companies")">
+<form id="newCompanyForm" method="post" action="@Url.Content("~/Companies/" + Model)">
     <div class="modal fade new-company-modal" id="newModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" data-backdrop="static" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -363,7 +363,7 @@
 </form>
 
 <!-- Update Company -->
-<form id="updateCompanyForm" method="post" action="@Url.Content("~/Resellers/" + Model + "/Companies")">
+<form id="updateCompanyForm" method="post" action="@Url.Content("~/Companies/" + Model)">
     <input type="hidden" name="_method" value="PUT" />
     <div class="modal fade update-company-modal" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" data-backdrop="static" aria-hidden="true">
         <div class="modal-dialog">
@@ -746,7 +746,7 @@
             "aoColumns": [
                 {
                     "mData": "companyName", "sTitle": "@Text.words.Name", "bSortable": true, "mRender": function (data, type, full) {
-                        return "<a href=\"" + @Url.Content("~/Company/") +full["resellerCode"]+ "/" +full["companyCode"] + "\">" + data + "</a>";
+                        return "<a href=\"" + @Url.Content("~/Company/") +full["companyCode"]+ "\">" + data + "</a>";
                     }
                 },
                 { "mData": "fullAddressFormatted", "sTitle": "@Text.words.Address", "bSortable": false },
@@ -829,7 +829,7 @@
 
     function GetCompany(companyCode) {
         $.ajax({
-            url: "@Url.Content("~/Resellers/" + Model + "/")" + companyCode,
+            url: "@Url.Content("~/Companies/" + Model + "/")" + companyCode,
             dataType: "JSON",
             type: "GET",
             cache: false,

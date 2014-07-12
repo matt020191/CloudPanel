@@ -34,7 +34,7 @@
                 foreach (dynamic reseller in Model)
                 {
                     <tr>
-                        <td><a href="Resellers/@reseller.CompanyCode/Companies">@reseller.CompanyName</a></td>
+                        <td><a href="~/Companies/@reseller.CompanyCode">@reseller.CompanyName</a></td>
                         <td>
                             @reseller.Street <br />
                             @reseller.City, @reseller.State @reseller.ZipCode

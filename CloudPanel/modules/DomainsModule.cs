@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Nancy;
+using Nancy.Security;
 using log4net;
 using CloudPanel.code;
 using CloudPanel.Base.Database.Models;
@@ -42,9 +43,12 @@ namespace CloudPanel.modules
     {
         private static readonly ILog log = log4net.LogManager.GetLogger(typeof(DomainsModule));
 
-        public DomainsModule() : base("/Company")
+        public DomainsModule() : base("/Company/Domains")
         {
-            Get["/{ResellerCode}/{CompanyCode}/Domains"] = _ =>
+            this.RequiresAuthentication();
+
+            // Get list of domains
+            Get["/{CompanyCode}"] = _ =>
                 {
                     Companies companies = new Companies();
                     try
@@ -62,26 +66,8 @@ namespace CloudPanel.modules
                     }
                 };
 
-            Get["/{ResellerCode}/{CompanyCode}/Domains/{DomainID}"] = _ =>
-                {
-                    Companies companies = new Companies();
-
-                    try
-                    {
-                        Domain domain = companies.GetDomain(_.CompanyCode, _.DomainID);
-
-                        return View["c_domainsedit.cshtml", domain];
-                    }
-                    catch (Exception ex)
-                    {
-                        log.ErrorFormat("Error retrieving company domain for {0} with id {1}. Error: {2}", _.CompanyCode, _.DomainID, ex.ToString());
-
-                        ViewBag.Error = ex.Message;
-                        return View["c_domains.cshtml", null];
-                    }
-                };
-
-            Post["/{ResellerCode}/{CompanyCode}/Domains"] = _ =>
+            // Add a new domain
+            Post["/{CompanyCode}"] = _ =>
                 {
                     Companies companies = new Companies();
                     try
@@ -96,6 +82,26 @@ namespace CloudPanel.modules
                     
                     return View["c_domains.cshtml", companies.GetDomains(_.CompanyCode)];
                 };
+
+            // Get a specific domain
+            Get["/{CompanyCode}/{DomainID}"] = _ =>
+            {
+                Companies companies = new Companies();
+
+                try
+                {
+                    Domain domain = companies.GetDomain(_.CompanyCode, _.DomainID);
+
+                    return View["c_domainsedit.cshtml", domain];
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error retrieving company domain for {0} with id {1}. Error: {2}", _.CompanyCode, _.DomainID, ex.ToString());
+
+                    ViewBag.Error = ex.Message;
+                    return View["c_domains.cshtml", null];
+                }
+            };
         }
     }
 }

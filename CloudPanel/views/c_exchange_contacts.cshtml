@@ -1,0 +1,75 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+@{
+    Layout = "_master.cshtml";
+}
+
+@section PAGEHEADER{
+    <div class="pageheader">
+        <h2><i class="fa fa-male"></i> @Text.words.Contacts </h2>
+    </div>
+}
+
+<div class="row">
+    <a href="#" class="btn btn-success mr5 pull-right" data-toggle="modal" data-target=".new-domain-modal">@Text.words.Add</a>
+</div>
+
+<div class="mb30"></div>
+
+<!-- Table -->
+<div class="row">
+    <table id="domainsDataTable" class="table table-dark table-hover mb30">
+        <thead>
+            <tr>
+                <th>@Text.words.Name</th>
+                <th>@Text.words.Email</th>
+                <th>@Text.words.Hidden</th>
+                <th style="width: 10%"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null)
+            {
+                foreach (dynamic contact in Model)
+                {
+                    <tr>
+                        <td>@contact.DisplayName</td>
+                        <td>@contact.Email</td>
+                        <td>
+                            @if (contact.Hidden)
+                            {
+                                <span class="glyphicon glyphicon-check"></span>
+                            }
+                        </td>
+                        <td>
+                            <div class="btn-group pull-right">
+                                <a href="@Url.Content("~/Company/Email/" + @contact.CompanyCode + "/" + contact.ID)" data-toggle="modal" class="btn btn-xs btn-orange">@Text.words.Modify</a>
+                                <button type='button' class='btn btn-xs btn-orange dropdown-toggle' data-toggle='dropdown'>
+                                    <span class='caret'></span>
+                                    <span class='sr-only'>@Text.words.Dropdown</span>
+                                </button>
+                                <ul class='dropdown-menu' role='menu'>
+                                    <li><a href="#" id="deleteDomainLink" data-toggle="modal" data-target="#deleteModal" data-id="@contact.ID" data-name="@contact.DisplayName">@Text.words.Delete</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@section CUSTOMJAVASCRIPT {
+    <script src="~/Content/js/jquery.validate.min.js"></script>
+    <script src="~/Content/js/jquery.datatables.min.js"></script>
+    <script type="text/javascript">
+    $(document).ajaxStart(function () {
+        $.blockUI({
+            message: '<p>Processing</p><img src="@Url.Content("~/Content/images/loaders/loader25.gif")" />',
+            baseZ: 5000
+        });
+    });
+    $(document).ajaxStop($.unblockUI);
+    </script>
+}

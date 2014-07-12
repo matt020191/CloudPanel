@@ -725,13 +725,13 @@
     <Compile Include="modules\AjaxModule.cs" />
     <Compile Include="modules\CompaniesModule.cs" />
     <Compile Include="modules\CompanyModule.cs" />
-    <Compile Include="modules\CPSecurityHooksModule.cs" />
+    <Compile Include="modules\CompanyUsersModule.cs" />
+    <Compile Include="modules\DashboardModule.cs" />
     <Compile Include="modules\DefaultModule.cs" />
     <Compile Include="modules\DomainsModule.cs" />
     <Compile Include="modules\EmailModule.cs" />
     <Compile Include="modules\PlansModule.cs" />
     <Compile Include="modules\ResellersModule.cs" />
-    <Compile Include="modules\UsersModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RazorConfig.cs" />
     <Compile Include="UserMapper.cs" />
@@ -869,6 +869,7 @@
     <Content Include="views\p_organization.cshtml" />
     <Content Include="views\c_exchange_status.cshtml" />
     <Content Include="views\error.cshtml" />
+    <Content Include="views\c_exchange_contacts.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

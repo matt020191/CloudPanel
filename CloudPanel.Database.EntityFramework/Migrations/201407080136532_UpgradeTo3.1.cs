@@ -7,10 +7,12 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     {
         public override void Up()
         {
+            AddColumn("Contacts", "ID", c => c.Int(identity: true));
         }
         
         public override void Down()
         {
+            DropColumn("Contacts", "ID");
         }
     }
 }
