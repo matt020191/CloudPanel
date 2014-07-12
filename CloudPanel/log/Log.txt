@@ -126,3 +126,67 @@
 2014-07-11 22:56:33,273 [62] DEBUG CloudPanel.UserMapper Attempting to log in user sdfgs...
 2014-07-11 22:56:33,274 [62] DEBUG CloudPanel.UserMapper User sdfgs is not already logged in. Logging in the new user
 2014-07-11 22:56:33,274 [62] DEBUG CloudPanel.UserMapper User sdfgs successfully logged in. User guid value is 3b6b1ffe-7082-4dcb-8c1f-1ccbb5cc6402
+2014-07-11 23:00:07,005 [67] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-11 23:00:07,011 [67] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-11 23:00:07,012 [67] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-11 23:00:07,013 [67] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-11 23:00:07,014 [67] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-11 23:00:07,015 [67] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-11 23:00:07,431 [103] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:00:07,432 [103] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:00:07,433 [103] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:00:07,446 [103] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:00:07,446 [103] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:00:09,852 [91] DEBUG CloudPanel.UserMapper Attempting to log in user asdf...
+2014-07-11 23:00:09,852 [91] DEBUG CloudPanel.UserMapper User asdf is not already logged in. Logging in the new user
+2014-07-11 23:00:09,853 [91] DEBUG CloudPanel.UserMapper User asdf successfully logged in. User guid value is 0d4b1500-a84f-46dd-ad6f-69b3f5abcd18
+2014-07-11 23:01:36,441 [63] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-11 23:01:36,447 [63] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-11 23:01:36,448 [63] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-11 23:01:36,449 [63] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-11 23:01:36,450 [63] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-11 23:01:36,451 [63] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-11 23:01:36,878 [69] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:01:36,879 [69] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:01:36,879 [69] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:01:36,893 [69] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:01:36,894 [69] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:01:39,000 [88] DEBUG CloudPanel.UserMapper Attempting to log in user adsf...
+2014-07-11 23:01:39,000 [88] DEBUG CloudPanel.UserMapper User adsf is not already logged in. Logging in the new user
+2014-07-11 23:01:39,000 [88] DEBUG CloudPanel.UserMapper User adsf successfully logged in. User guid value is 1a8b01d9-25ca-468a-be5b-a98e21bf57fe
+2014-07-11 23:01:39,257 [66] DEBUG CloudPanel.UserMapper Attempting to log in user adsf...
+2014-07-11 23:01:39,258 [66] DEBUG CloudPanel.UserMapper User adsf is not already logged in. Logging in the new user
+2014-07-11 23:01:39,258 [66] DEBUG CloudPanel.UserMapper User adsf successfully logged in. User guid value is ba64965b-9b08-4206-bd05-f007144cf844
+2014-07-11 23:10:30,112 [62] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-11 23:10:30,118 [62] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-11 23:10:30,118 [62] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-11 23:10:30,118 [62] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-11 23:10:30,119 [62] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-11 23:10:30,119 [62] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-11 23:10:30,423 [95] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:10:30,425 [95] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:10:30,426 [95] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:10:30,441 [95] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:10:30,442 [95] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:10:32,986 [82] DEBUG CloudPanel.UserMapper Attempting to log in user asdf...
+2014-07-11 23:10:32,987 [82] DEBUG CloudPanel.UserMapper User asdf is not already logged in. Logging in the new user
+2014-07-11 23:10:32,988 [82] DEBUG CloudPanel.UserMapper User asdf successfully logged in. User guid value is a85923c7-a65c-4cae-9225-5c762d7de2cf
+2014-07-11 23:11:07,271 [99] DEBUG CloudPanel.SettingsRequest Populating settings from config file
+2014-07-11 23:11:07,277 [99] DEBUG CloudPanel.SettingsRequest Loading Exchange settings from config file
+2014-07-11 23:11:07,278 [99] DEBUG CloudPanel.SettingsRequest Loading module settings from config file
+2014-07-11 23:11:07,278 [99] DEBUG CloudPanel.SettingsRequest Loading advanced settings from config file
+2014-07-11 23:11:07,280 [99] DEBUG CloudPanel.BrandingsRequest Retrieving brandings from the config file
+2014-07-11 23:11:07,280 [99] DEBUG CloudPanel.BrandingsRequest Found host default in brandings
+2014-07-11 23:11:07,733 [82] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:11:07,734 [82] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:11:07,735 [82] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:11:07,749 [82] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:11:07,749 [82] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:11:09,735 [90] DEBUG CloudPanel.UserMapper Attempting to log in user asdf...
+2014-07-11 23:11:09,736 [90] DEBUG CloudPanel.UserMapper User asdf is not already logged in. Logging in the new user
+2014-07-11 23:11:09,736 [90] DEBUG CloudPanel.UserMapper User asdf successfully logged in. User guid value is 51329112-6858-4236-95ed-5acfbce283ff
+2014-07-11 23:11:15,202 [90] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:11:15,203 [90] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:11:15,203 [90] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:11:15,203 [90] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost
+2014-07-11 23:11:15,204 [90] DEBUG CloudPanel.BrandingsRequest Base URL for retrieving branding is localhost

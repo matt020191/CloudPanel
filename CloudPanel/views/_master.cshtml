@@ -129,7 +129,7 @@
                         <li>
                             <div class="btn-group">
                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                    <img src="~/Content/images/photos/loggeduser.png" alt="" />
+                                    <img src="~/Content/images/user.png" id="userPhoto" alt="" />
                                     @if (Html.RenderContext.Context.CurrentUser != null)
                                     { @(((AuthenticatedUser)Html.RenderContext.Context.CurrentUser).UserName) }
                                     <span class="caret"></span>
@@ -138,7 +138,7 @@
                                     <li><a href="profile.html"><i class="glyphicon glyphicon-user"></i> My Profile</a></li>
                                     <li><a href="#"><i class="glyphicon glyphicon-cog"></i> Account Settings</a></li>
                                     <li><a href="#"><i class="glyphicon glyphicon-question-sign"></i> Help</a></li>
-                                    <li><a href="signin.html"><i class="glyphicon glyphicon-log-out"></i> Log Out</a></li>
+                                    <li><a href="@Url.Content("~/logout")"><i class="glyphicon glyphicon-log-out"></i> Log Out</a></li>
                                 </ul>
                             </div>
                         </li>
@@ -193,6 +193,7 @@
                             true
                 ));
             }
+           
         });
     </script>
     @RenderSection("CUSTOMJAVASCRIPT", required: false)

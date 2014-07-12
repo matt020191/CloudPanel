@@ -18,7 +18,7 @@
 
 <!-- Table -->
 <div class="row">
-    <table id="domainsDataTable" class="table table-dark table-hover mb30">
+    <table id="contactsDataTable" class="table table-dark table-hover mb30">
         <thead>
             <tr>
                 <th>@Text.words.Name</th>
@@ -64,12 +64,23 @@
     <script src="~/Content/js/jquery.validate.min.js"></script>
     <script src="~/Content/js/jquery.datatables.min.js"></script>
     <script type="text/javascript">
-    $(document).ajaxStart(function () {
-        $.blockUI({
-            message: '<p>Processing</p><img src="@Url.Content("~/Content/images/loaders/loader25.gif")" />',
-            baseZ: 5000
+        $(document).ajaxStart(function () {
+            $.blockUI({
+                message: '<p>Processing</p><img src="@Url.Content("~/Content/images/loaders/loader25.gif")" />',
+                baseZ: 5000
+            });
         });
-    });
-    $(document).ajaxStop($.unblockUI);
-    </script>
+        $(document).ajaxStop($.unblockUI);
+
+        jQuery(document).ready(function () {
+            $("#contactsDataTable").dataTable();
+
+            // Chosen Select
+            jQuery("select").chosen({
+                'min-width': '200px',
+                'white-space': 'nowrap',
+                disable_search_threshold: 10
+            });
+        });
+</script>
 }
