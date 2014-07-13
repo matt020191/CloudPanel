@@ -1,4 +1,8 @@
-﻿using Nancy;
+﻿using CloudPanel.Base.Database.Models;
+using CloudPanel.code;
+using CloudPanel.Database.EntityFramework;
+using log4net;
+using Nancy;
 //
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
@@ -31,17 +35,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using Nancy.Security;
-using CloudPanel.Database.EntityFramework;
-using CloudPanel.code;
-using CloudPanel.Base.Database.Models;
-using log4net;
-using Nancy.Localization;
-using System.Threading;
-using CloudPanel.Base.Charting;
-using System.Data.SqlClient;
-using CloudPanel.Base.Config;
 
 namespace CloudPanel.modules
 {

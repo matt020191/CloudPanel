@@ -96,5 +96,14 @@ namespace CloudPanel.code
                 db.SaveChanges();
             }
         }
+
+        public Plans_ExchangeMailbox Get_MailboxPlan(int planId)
+        {
+            var plan = (from p in db.Plans_ExchangeMailbox
+                        where p.MailboxPlanID == planId
+                        select p).First();
+
+            return plan;
+        }
     }
 }

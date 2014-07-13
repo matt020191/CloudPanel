@@ -152,15 +152,15 @@
                             url: "@Url.Content("~/ajax/plans/company/")" + $(this).val(),
                             async: false,
                             success: function (data) {
-                                $("#OrgPlanName").val(data.orgPlanName);
-                                $("#MaxUsers").val(data.maxUsers);
-                                $("#MaxDomains").val(data.maxDomains);
-                                $("#MaxExchangeMailboxes").val(data.maxExchangeMailboxes);
-                                $("#MaxExchangeContacts").val(data.maxExchangeContacts);
-                                $("#MaxExchangeDistLists").val(data.maxExchangeDistLists);
-                                $("#MaxExchangeMailPublicFolders").val(data.maxExchangeMailPublicFolders);
-                                $("#MaxExchangeResourceMailboxes").val(data.maxExchangeResourceMailboxes);
-                                $("#MaxTerminalServerUsers").val(data.maxTerminalServerUsers);
+                                $.each(data, function (k, v) {
+                                    var field = $("#" + k);
+
+                                    if (field.length) {
+                                        if (field.is("input:text")) {
+                                            field.val(v);
+                                        }
+                                    }
+                                });
                             },
                             error: function (xhr, ajaxOptions, thrownError) {
                                 alert(thrownError);

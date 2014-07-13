@@ -393,50 +393,50 @@
                     <div class="col-sm-12">
                         <div class="form-group">
                             <label class="control-label">@Text.words.Name <span class="asterisk">*</span></label>
-                            <input type="text" name="CompanyName" class="form-control" required>
-                            <input type="hidden" name="CompanyCode" value="" />
+                            <input type="text" id="CompanyName" name="CompanyName" class="form-control" required>
+                            <input type="hidden" id="CompanyCode" name="CompanyCode" value="" />
                         </div>
                     </div>
                     <div class="col-sm-12">
                         <div class="form-group">
                             <label class="control-label">@Text.words.ContactsName</label>
-                            <input type="text" name="AdminName" class="form-control">
+                            <input type="text" id="AdminName" name="AdminName" class="form-control">
                         </div>
                     </div>
                     <div class="col-sm-12">
                         <div class="form-group">
                             <label class="control-label">@Text.words.ContactsEmail</label>
-                            <input type="text" name="AdminEmail" class="form-control">
+                            <input type="text" id="AdminEmail" name="AdminEmail" class="form-control">
                         </div>
                     </div>
                     <div class="col-sm-12">
                         <div class="form-group">
                             <label class="control-label">@Text.words.Telephone</label>
-                            <input type="text" name="PhoneNumber" class="form-control">
+                            <input type="text" id="PhoneNumber" name="PhoneNumber" class="form-control">
                         </div>
                     </div>
                     <div class="col-sm-12">
                         <div class="form-group">
                             <label class="control-label">@Text.words.Street</label>
-                            <input type="text" name="Street" class="form-control">
+                            <input type="text" id="Street" name="Street" class="form-control">
                         </div>
                     </div>
                     <div class="col-sm-4">
                         <div class="form-group">
                             <label class="control-label">@Text.words.City</label>
-                            <input type="text" name="City" class="form-control">
+                            <input type="text" id="City" name="City" class="form-control">
                         </div>
                     </div>
                     <div class="col-sm-4">
                         <div class="form-group">
                             <label class="control-label">@Text.words.State</label>
-                            <input type="text" name="State" class="form-control">
+                            <input type="text" id="State" name="State" class="form-control">
                         </div>
                     </div>
                     <div class="col-sm-4">
                         <div class="form-group">
                             <label class="control-label">@Text.words.PostalCode</label>
-                            <input type="text" name="ZipCode" class="form-control">
+                            <input type="text" id="ZipCode" name="ZipCode" class="form-control">
                         </div>
                     </div>
                     <div class="col-sm-12">
@@ -794,18 +794,18 @@
             type: "GET",
             cache: false,
             success: function (data) {
-                $("#updateResellerForm input[name=CompanyCode]").val(data.companyCode);
-                $("#updateResellerForm input[name=CompanyName]").val(data.companyName);
-                $("#updateResellerForm input[name=Street]").val(data.street);
-                $("#updateResellerForm input[name=City]").val(data.city);
-                $("#updateResellerForm input[name=State]").val(data.state);
-                $("#updateResellerForm input[name=ZipCode]").val(data.zipCode);
-                $("#updateResellerForm input[name=PhoneNumber]").val(data.phoneNumber);
-                $("#updateResellerForm input[name=AdminName]").val(data.adminName);
-                $("#updateResellerForm input[name=AdminEmail]").val(data.adminEmail);
+                $.each(data, function (k, v) {
+                    var field = $("#updateResellerForm #" + k);
 
-                $("#updateResellerForm [name=Country]").val(data.country);
-                $("#updateResellerForm [name=Country]").trigger("chosen:updated");
+                    if (field.length) {
+                        if (field.is("input:text")) {
+                            field.val(v);
+                        } else if (field.is("select")) {
+                            field.val(v);
+                            field.trigger("chosen:updated");
+                        }
+                    }
+                });
 
                 $("#updateModal").modal();
             },

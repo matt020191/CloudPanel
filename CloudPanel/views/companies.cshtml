@@ -376,50 +376,50 @@
                     <div class="col-sm-12">
                         <div class="form-group">
                             <label class="control-label">@Text.words.Name <span class="asterisk">*</span></label>
-                            <input type="text" name="CompanyName" class="form-control" required>
-                            <input type="hidden" name="CompanyCode" value="" />
+                            <input type="text" id="CompanyName" name="CompanyName" class="form-control" required>
+                            <input type="hidden" id="CompanyCode" name="CompanyCode" value="" />
                         </div>
                     </div>
                     <div class="col-sm-12">
                         <div class="form-group">
                             <label class="control-label">@Text.words.ContactsName</label>
-                            <input type="text" name="AdminName" class="form-control">
+                            <input type="text" id="AdminName" name="AdminName" class="form-control">
                         </div>
                     </div>
                     <div class="col-sm-12">
                         <div class="form-group">
                             <label class="control-label">@Text.words.ContactsEmail</label>
-                            <input type="text" name="AdminEmail" class="form-control">
+                            <input type="text" id="AdminEmail" name="AdminEmail" class="form-control">
                         </div>
                     </div>
                     <div class="col-sm-12">
                         <div class="form-group">
                             <label class="control-label">@Text.words.Telephone</label>
-                            <input type="text" name="PhoneNumber" class="form-control">
+                            <input type="text" id="PhoneNumber" name="PhoneNumber" class="form-control">
                         </div>
                     </div>
                     <div class="col-sm-12">
                         <div class="form-group">
                             <label class="control-label">@Text.words.Street</label>
-                            <input type="text" name="Street" class="form-control">
+                            <input type="text" id="Street" name="Street" class="form-control">
                         </div>
                     </div>
                     <div class="col-sm-4">
                         <div class="form-group">
                             <label class="control-label">@Text.words.City</label>
-                            <input type="text" name="City" class="form-control">
+                            <input type="text" id="City" name="City" class="form-control">
                         </div>
                     </div>
                     <div class="col-sm-4">
                         <div class="form-group">
                             <label class="control-label">@Text.words.State</label>
-                            <input type="text" name="State" class="form-control">
+                            <input type="text" id="State" name="State" class="form-control">
                         </div>
                     </div>
                     <div class="col-sm-4">
                         <div class="form-group">
                             <label class="control-label">@Text.words.PostalCode</label>
-                            <input type="text" name="ZipCode" class="form-control">
+                            <input type="text" id="ZipCode" name="ZipCode" class="form-control">
                         </div>
                     </div>
                     <div class="col-sm-12">
@@ -745,14 +745,14 @@
             "sAjaxSource": "@Url.Content("~/ajax/reseller/" + Model + "/companies")",
             "aoColumns": [
                 {
-                    "mData": "companyName", "sTitle": "@Text.words.Name", "bSortable": true, "mRender": function (data, type, full) {
-                        return "<a href=\"" + @Url.Content("~/Company/") +full["companyCode"]+ "\">" + data + "</a>";
+                    "mData": "CompanyName", "sTitle": "@Text.words.Name", "bSortable": true, "mRender": function (data, type, full) {
+                        return "<a href=\"" + @Url.Content("~/Company/") +full["CompanyCode"]+ "\">" + data + "</a>";
                     }
                 },
-                { "mData": "fullAddressFormatted", "sTitle": "@Text.words.Address", "bSortable": false },
-                { "mData": "created", "sTitle": "@Text.words.Created", "bSortable": false },
+                { "mData": "FullAddressFormatted", "sTitle": "@Text.words.Address", "bSortable": false },
+                { "mData": "Created", "sTitle": "@Text.words.Created", "bSortable": false },
                 { 
-                    "mData": "companyCode", "bSortable": false, "bSearchable": false, "mRender": function (data, type, full) {
+                    "mData": "CompanyCode", "bSortable": false, "bSearchable": false, "mRender": function (data, type, full) {
                         return "<div class='btn-group pull-right'>" +
                                     "<a href='#' class='btn btn-xs btn-orange' onclick='GetCompany(\"" + data + "\");'>@Text.words.Modify</a>" +
                                     "<button type='button' class='btn btn-xs btn-orange dropdown-toggle' data-toggle='dropdown'>" +
@@ -761,7 +761,7 @@
                                     "</button>" +
                                     "<ul class='dropdown-menu' role='menu'>" +
                                     "<li>" +
-                                        "<a href='#' id='deleteCompanyLink' data-toggle='modal' data-target='#deleteModal' data-id='" + data + "' data-name='" + full["companyName"] + "'>@Text.words.Delete</a>" +
+                                        "<a href='#' id='deleteCompanyLink' data-toggle='modal' data-target='#deleteModal' data-id='" + data + "' data-name='" + full["CompanyName"] + "'>@Text.words.Delete</a>" +
                                     "</li>" +
                                     "</ul>" +
                                     "</div>";
@@ -834,18 +834,18 @@
             type: "GET",
             cache: false,
             success: function (data) {
-                $("#updateCompanyForm input[name=CompanyCode]").val(data.companyCode);
-                $("#updateCompanyForm input[name=CompanyName]").val(data.companyName);
-                $("#updateCompanyForm input[name=Street]").val(data.street);
-                $("#updateCompanyForm input[name=City]").val(data.city);
-                $("#updateCompanyForm input[name=State]").val(data.state);
-                $("#updateCompanyForm input[name=ZipCode]").val(data.zipCode);
-                $("#updateCompanyForm input[name=PhoneNumber]").val(data.phoneNumber);
-                $("#updateCompanyForm input[name=AdminName]").val(data.adminName);
-                $("#updateCompanyForm input[name=AdminEmail]").val(data.adminEmail);
+                $.each(data, function (k, v) {
+                    var field = $("#updateCompanyForm #" + k);
 
-                $("#updateCompanyForm [name=Country]").val(data.country);
-                $("#updateCompanyForm [name=Country]").trigger("chosen:updated");
+                    if (field.length) {
+                        if (field.is("input:text")) {
+                            field.val(v);
+                        } else if (field.is("select")) {
+                            field.val(v);
+                            field.trigger("chosen:updated");
+                        }
+                    }
+                });
 
                 $("#updateModal").modal();
             },

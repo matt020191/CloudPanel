@@ -46,6 +46,8 @@ namespace CloudPanel.modules
 
         public PlansModule() : base("/plans")
         {
+            #region Organization / Company Plans
+
             Get["/company"] = _ =>
                 {
                     return View["p_organization.cshtml"];
@@ -99,6 +101,33 @@ namespace CloudPanel.modules
 
                     return View["p_organization.cshtml"];
                 };
+
+            #endregion
+
+            #region Mailbox Plans
+
+            Get["/mailbox"] = _ =>
+                {
+                    return View["p_mailbox.cshtml"];
+                };
+
+            Get["/mailbox/{MailboxPlanID}/json"] = _ =>
+                {
+                    try
+                    {
+                        Plans plans = new Plans();
+                        Plans_ExchangeMailbox p = plans.Get_MailboxPlan(_.MailboxPlanID);
+
+                        return Response.AsJson(p, HttpStatusCode.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Error retrieving mailbox plan {0}. Error: {1}", _.MailboxPlanID, ex.ToString());
+                        return HttpStatusCode.InternalServerError;
+                    }
+                };
+
+            #endregion
         }    
     }
 }

@@ -61,30 +61,30 @@
             "sPaginationType": "full_numbers",
             "sAjaxSource": "@Url.Content("~/Company/Email/Groups/" + Model + "/json")",
             "aoColumns": [
-                { "mData": "displayName", "sTitle": "@Text.words.DisplayName", "bSortable": true },
-                { "mData": "email", "sTitle": "@Text.words.Email", "bSortable": false },
+                { "mData": "DisplayName", "sTitle": "@Text.words.DisplayName", "bSortable": true },
+                { "mData": "Email", "sTitle": "@Text.words.Email", "bSortable": false },
                 {
-                    "mData": "hidden", "sTitle": "@Text.words.Hidden", "bSortable": false,
+                    "mData": "Hidden", "sTitle": "@Text.words.Hidden", "bSortable": false,
                     "mRender": function (data, type, full) {
                         if (data) return "<span class='glyphicon glyphicon-check'></span>";
                         else return "";
                     }
                 },
                 {
-                    "mData": "iD",
+                    "mData": "ID",
                     "bSortable": false,
                     "bSearchable": false,
                     "sWidth": "150px",
                     "mRender": function (data, type, full) {
                         return "<div class='btn-group pull-right'>" +
-                                    "<a href='@Url.Content("~/Company/Email/Groups/")" + full["companyCode"] + "/" + full["iD"] + "' class='btn btn-xs btn-orange'>@Text.words.Modify</a>" +
+                                    "<a href='@Url.Content("~/Company/Email/Groups/")" + full["CompanyCode"] + "/" + full["ID"] + "' class='btn btn-xs btn-orange'>@Text.words.Modify</a>" +
                                     "<button type='button' class='btn btn-xs btn-orange dropdown-toggle' data-toggle='dropdown'>" +
                                         "<span class='caret'></span>" +
                                         "<span class='sr-only'>@Text.words.Dropdown</span>" +
                                     "</button>" +
                                     "<ul class='dropdown-menu' role='menu'>" +
                                     "<li>" +
-                                        "<a href='#' id='deleteGroupLink' data-toggle='modal' data-target='#deleteModal' data-id='" + data + "' data-name='" + full["displayName"] + "'>@Text.words.Delete</a>" +
+                                        "<a href='#' id='deleteGroupLink' data-toggle='modal' data-target='#deleteModal' data-id='" + data + "' data-name='" + full["DisplayName"] + "'>@Text.words.Delete</a>" +
                                     "</li>" +
                                     "</ul>" +
                                     "</div>";

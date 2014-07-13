@@ -211,6 +211,54 @@ namespace CloudPanel.code
             return new NonEncodedHtmlString(htmlSelectBox);
         }
 
+        /// <summary>
+        /// Gets the mailbox plans used for when super admin is editing / creating mailbox plans
+        /// </summary>
+        /// <returns></returns>
+        public static IHtmlString GetMailboxPlans()
+        {
+            var sb = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var plans = (from p in db.Plans_ExchangeMailbox
+                             orderby p.MailboxPlanName
+                             select p).ToList();
+
+                foreach (var p in plans)
+                {
+                    sb.AppendFormat("<option value='{0}' {1}>{2}</option>",
+                        p.MailboxPlanID,
+                        "",
+                        p.MailboxPlanName);
+                }
+            }
+            catch (Exception ex)
+            {
+                sb.AppendFormat("<option value='0' selected>{1}: {2}</option>",
+                    "ERROR",
+                    ex.Message);
+
+                log.ErrorFormat("Error getting mailbox plans. Error: {0}",  ex.ToString());
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+
+            var htmlSelectBox = string.Format("<select id='{0}' name='{1}' class='form-control'>{2}{3}</select>",
+                "MailboxPlanID",
+                "MailboxPlanID",
+                "<option value='0'> --- Create New --- </option>",
+                sb.ToString());
+
+            return new NonEncodedHtmlString(htmlSelectBox);
+        }
+
         public static IHtmlString GetMailboxPlans(string companyCode, List<Plans_ExchangeMailbox> plans, int selectedID)
         {
             var sb = new StringBuilder();

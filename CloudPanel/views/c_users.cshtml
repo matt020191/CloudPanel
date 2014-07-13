@@ -87,12 +87,12 @@
             "sAjaxSource": "@Url.Content("~/ajax/company/" + Model + "/users")",
             "aoColumns": [
                 {
-                    "mData": "displayName",
+                    "mData": "DisplayName",
                     "sTitle": "@Text.words.DisplayName",
                     "bSortable": true
                 },
                 {
-                    "mData": "userPrincipalName",
+                    "mData": "UserPrincipalName",
                     "sTitle": "@Text.words.Login",
                     "bSortable": false
                 },
@@ -102,7 +102,7 @@
                     "bSortable": false
                 },
                 {
-                    "mData": "department",
+                    "mData": "Department",
                     "sTitle": "@Text.words.Department",
                     "bSortable": true
                 },
@@ -120,27 +120,27 @@
 
                         var row = "<ul class='userFeatures'>";
 
-                        if (full["isEnabled"] == false)
+                        if (full["IsEnabled"] == false)
                             row = row + htmlUserDisabled;
                         else
                             row = row + "<li>&nbsp;</li>";
 
-                        if (full["isLyncEnabled"] == true)
+                        if (full["IsLyncEnabled"] == true)
                             row = row + htmlLyncEnabled;
                         else
                             row = row + "<li>&nbsp;</li>";
 
-                        if (full["mailboxPlan"] > 0)
+                        if (full["MailboxPlan"] > 0)
                             row = row + htmlEmailEnabled;
                         else
                             row = row + "<li>&nbsp;</li>";
 
-                        if (full["isResellerAdmin"] == true)
+                        if (full["IsResellerAdmin"] == true)
                             row = row + htmlResellerAdmin;
                         else
                             row = row + "<li>&nbsp;</li>";
 
-                        if (full["isCompanyAdmin"] == true)
+                        if (full["IsCompanyAdmin"] == true)
                             row = row + htmlCompanyAdmin;
                         else
                             row = row + "<li>&nbsp;</li>";
@@ -153,20 +153,20 @@
                     }
                 },
                 {
-                    "mData": "userPrincipalName",
+                    "mData": "UserPrincipalName",
                     "bSortable": false,
                     "bSearchable": false,
                     "sWidth": "150px",
                     "mRender": function (data, type, full) {
                         return "<div class='btn-group pull-right'>" +
-                                    "<a href='@Url.Content("~/Company/Users/")" +full["companyCode"]+ "/" +full["userGuid"]+ "' class='btn btn-xs btn-orange'>@Text.words.Modify</a>" +
+                                    "<a href='@Url.Content("~/Company/Users/")" +full["CompanyCode"]+ "/" +full["UserGuid"]+ "' class='btn btn-xs btn-orange'>@Text.words.Modify</a>" +
                                     "<button type='button' class='btn btn-xs btn-orange dropdown-toggle' data-toggle='dropdown'>" +
                                         "<span class='caret'></span>" +
                                         "<span class='sr-only'>@Text.words.Dropdown</span>" +
                                     "</button>" +
                                     "<ul class='dropdown-menu' role='menu'>" +
                                     "<li>" +
-                                        "<a href='#' id='deleteCompanyLink' data-toggle='modal' data-target='#deleteModal' data-id='" + data + "' data-name='" + full["companyName"] + "'>@Text.words.Delete</a>" +
+                                        "<a href='#' id='deleteCompanyLink' data-toggle='modal' data-target='#deleteModal' data-id='" + data + "' data-name='" + full["CompanyName"] + "'>@Text.words.Delete</a>" +
                                     "</li>" +
                                     "</ul>" +
                                     "</div>";
