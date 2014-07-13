@@ -1,7 +1,6 @@
-﻿using CloudPanel.Base.Database.Models;
-using CloudPanel.code;
-using log4net;
-using Nancy;
+﻿using CloudPanel.Base.Config;
+using CloudPanel.Base.Database.Models;
+using CloudPanel.Database.EntityFramework;
 //
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
@@ -35,32 +34,29 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Nancy.Security;
 
-namespace CloudPanel.modules
+namespace CloudPanel.code
 {
-    public class EmailModule : NancyModule
+    public class CitrixClass
     {
-        private static readonly ILog log = log4net.LogManager.GetLogger(typeof(EmailModule));
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(CitrixClass));
 
-        public EmailModule() : base("/Company/Email")
+        private CloudPanelContext db = null;
+
+        public CitrixClass()
         {
-            this.RequiresAuthentication();
+            this.db = new CloudPanelContext(Settings.ConnectionString);
+        }
 
-            Get["/Status/{CompanyCode}"] = _ =>
-                {
-                    try
-                    {
-                        Companies companies = new Companies();
-                        bool isEnabled = companies.IsExchangeEnabled(_.CompanyCode);
+        public List<Plans_Citrix> GetCitrixApps(string companyCode)
+        {
+            var serversAndApps = (from a in db.Plans_Citrix
+                                  where a.CompanyCode == companyCode || string.IsNullOrEmpty(a.CompanyCode)
+                                  orderby a.IsServer
+                                  orderby a.Name
+                                  select a).ToList();
 
-                        return View["c_exchange_status.cshtml", isEnabled];
-                    }
-                    catch (Exception ex)
-                    {
-                        return View["error.cshtml", ex.ToString()];
-                    }
-                };
+            return serversAndApps;
         }
     }
 }

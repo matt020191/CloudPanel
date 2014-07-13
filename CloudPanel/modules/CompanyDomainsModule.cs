@@ -1,9 +1,4 @@
-﻿using CloudPanel.Base.Database.Models;
-using CloudPanel.Base.Other;
-using CloudPanel.code;
-using log4net;
-using Nancy;
-//
+﻿//
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
 //
@@ -33,63 +28,80 @@ using Nancy;
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using Nancy;
 using Nancy.Security;
+using log4net;
+using CloudPanel.code;
+using CloudPanel.Base.Database.Models;
 
 namespace CloudPanel.modules
 {
-    public class CompanyModule : NancyModule
+    public class CompanyDomainsModule : NancyModule
     {
-        private static readonly ILog log = log4net.LogManager.GetLogger(typeof(CompanyModule));
+        private static readonly ILog log = log4net.LogManager.GetLogger(typeof(CompanyDomainsModule));
 
-        public CompanyModule() : base("/Company")
+        public CompanyDomainsModule() : base("/Company/Domains")
         {
             this.RequiresAuthentication();
 
-            #region Company Overview 
-
+            // Get list of domains
             Get["/{CompanyCode}"] = _ =>
                 {
+                    Companies companies = new Companies();
                     try
                     {
-                        Companies companies = new Companies();
-                        Company company = companies.GetCompany(_.CompanyCode);
+                        List<Domain> domains = companies.GetDomains(_.CompanyCode);
 
-                        // Set user context values
-                        var user = this.Context.CurrentUser as AuthenticatedUser;
-                        user.SelectedCompanyCode = _.CompanyCode;
-                        user.SelectedResellerCode = company.ResellerCode;
-                        user.SelectedCompanyName = company.CompanyName;
-
-                        this.Context.CurrentUser = user;
-
-                        return View["c_overview.cshtml", company];
+                        return View["c_domains.cshtml", domains];
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("Error retrieving company {0}. Error: {1}", _.CompanyCode, ex.ToString());
-                        return View["error.cshtml", ex.ToString()];
+                        log.ErrorFormat("Error retrieving company domains for {0}. Error: {1}", _.CompanyCode, ex.ToString());
+
+                        ViewBag.Error = ex.Message;
+                        return View["c_domains.cshtml", null];
                     }
                 };
 
-            Put["/{CompanyCode}"] = _ =>
+            // Add a new domain
+            Post["/{CompanyCode}"] = _ =>
                 {
-                    var id = Request.Form.OrgPlanID;
-
+                    Companies companies = new Companies();
                     try
                     {
-                        Companies companies = new Companies();
-                        companies.UpdatePlan(_.CompanyCode, id);
-
-                        return HttpStatusCode.OK;
+                        companies.AddDomain(_.CompanyCode, Request.Form.DomainName);
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("Error updating company plan for {0}. Error: {1}", _.CompanyCode, ex.ToString());
-                        return HttpStatusCode.InternalServerError;
+                        log.ErrorFormat("Error adding domain {0} for company {1}. Error: {2}", Request.Form.DomainName, _.CompanyCode, ex.ToString());
+                        ViewBag.Error = ex.Message;
                     }
+                    
+                    return View["c_domains.cshtml", companies.GetDomains(_.CompanyCode)];
                 };
 
-            #endregion
+            // Get a specific domain
+            Get["/{CompanyCode}/{DomainID}"] = _ =>
+            {
+                Companies companies = new Companies();
+
+                try
+                {
+                    Domain domain = companies.GetDomain(_.CompanyCode, _.DomainID);
+
+                    return View["c_domainsedit.cshtml", domain];
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error retrieving company domain for {0} with id {1}. Error: {2}", _.CompanyCode, _.DomainID, ex.ToString());
+
+                    ViewBag.Error = ex.Message;
+                    return View["c_domains.cshtml", null];
+                }
+            };
         }
     }
 }

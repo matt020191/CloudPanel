@@ -269,6 +269,8 @@
     <Content Include="content\images\prettyphoto\sprite_prev.png" />
     <Content Include="content\images\prettyphoto\sprite_x.png" />
     <Content Include="content\images\prettyphoto\sprite_y.png" />
+    <Content Include="content\images\cloud-servers.png" />
+    <Content Include="content\images\software-icon.png" />
     <Content Include="content\images\screen.png" />
     <Content Include="content\images\sort_asc.png" />
     <Content Include="content\images\sort_asc_disabled.png" />
@@ -664,7 +666,9 @@
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="code\AuthenticatedUser.cs" />
     <Compile Include="code\BrandingsRequest.cs" />
+    <Compile Include="code\CitrixClass.cs" />
     <Compile Include="code\Companies.cs" />
+    <Compile Include="code\EmailClass.cs" />
     <Compile Include="code\Plans.cs" />
     <Compile Include="code\Users.cs" />
     <Compile Include="code\CPHtmlHelpers.cs" />
@@ -690,12 +694,16 @@
       <DependentUpon>words.resx</DependentUpon>
     </Compile>
     <Compile Include="modules\AjaxModule.cs" />
+    <Compile Include="modules\ChartsModule.cs" />
+    <Compile Include="modules\CitrixModule.cs" />
     <Compile Include="modules\CompaniesModule.cs" />
+    <Compile Include="modules\EmailContactsModule.cs" />
     <Compile Include="modules\CompanyModule.cs" />
     <Compile Include="modules\CompanyUsersModule.cs" />
     <Compile Include="modules\DashboardModule.cs" />
     <Compile Include="modules\DefaultModule.cs" />
-    <Compile Include="modules\DomainsModule.cs" />
+    <Compile Include="modules\EmailGroupsModule.cs" />
+    <Compile Include="modules\CompanyDomainsModule.cs" />
     <Compile Include="modules\EmailModule.cs" />
     <Compile Include="modules\PlansModule.cs" />
     <Compile Include="modules\ResellersModule.cs" />
@@ -837,6 +845,8 @@
     <Content Include="views\c_exchange_status.cshtml" />
     <Content Include="views\error.cshtml" />
     <Content Include="views\c_exchange_contacts.cshtml" />
+    <Content Include="views\c_exchange_groups.cshtml" />
+    <Content Include="views\c_citrix.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

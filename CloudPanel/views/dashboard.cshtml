@@ -167,7 +167,7 @@
 
             $.ajax({
                 type: "get",
-                url: "@Url.Content("~/ajax/charts/customers/top/5")",
+                url: "@Url.Content("~/charts/column/dashboard/top/5/json")",
                 dataType: "json",
                 success: function (data) {
                     $.each(data, function (index, value) {

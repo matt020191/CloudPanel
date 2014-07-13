@@ -113,7 +113,7 @@
 
             $.ajax({
                 type: "get",
-                url: "@Url.Content("~/ajax/charts/" + @Model.CompanyCode + "/overview")",
+                url: "@Url.Content("~/charts/column/overview/" + @Model.CompanyCode + "/json")",
                 dataType: "json",
                 success: function (data) {
 
@@ -175,11 +175,14 @@
 
             $("#OrgPlanID").change(function () {
                 $.ajax({
-                    type: "post",
+                    type: "put",
                     dataType: "json",
                     data: { OrgPlanID: $(this).find(":selected").val() },
                     success: function (data) {
                         RenderChart();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert("ERROR: " + thrownError);
                     }
                 });
             });

@@ -1,7 +1,4 @@
-﻿using CloudPanel.Base.Database.Models;
-using CloudPanel.code;
-using log4net;
-using Nancy;
+﻿using Nancy;
 //
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
@@ -36,25 +33,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Nancy.Security;
+using log4net;
+using CloudPanel.code;
 
 namespace CloudPanel.modules
 {
-    public class EmailModule : NancyModule
+    public class CitrixModule : NancyModule
     {
-        private static readonly ILog log = log4net.LogManager.GetLogger(typeof(EmailModule));
+        private static readonly ILog log = log4net.LogManager.GetLogger(typeof(CitrixModule));
 
-        public EmailModule() : base("/Company/Email")
+        public CitrixModule() : base("/Company/Citrix")
         {
             this.RequiresAuthentication();
 
-            Get["/Status/{CompanyCode}"] = _ =>
+            Get["/{CompanyCode}"] = _ =>
                 {
                     try
                     {
-                        Companies companies = new Companies();
-                        bool isEnabled = companies.IsExchangeEnabled(_.CompanyCode);
+                        CitrixClass citrix = new CitrixClass();
+                        var serversAndApps = citrix.GetCitrixApps(_.CompanyCode);
 
-                        return View["c_exchange_status.cshtml", isEnabled];
+                        return View["c_citrix.cshtml", serversAndApps];
                     }
                     catch (Exception ex)
                     {

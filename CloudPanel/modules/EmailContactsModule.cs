@@ -1,4 +1,6 @@
-﻿//
+﻿using log4net;
+using Nancy;
+//
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
 //
@@ -31,77 +33,34 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Nancy;
 using Nancy.Security;
-using log4net;
 using CloudPanel.code;
 using CloudPanel.Base.Database.Models;
 
 namespace CloudPanel.modules
 {
-    public class DomainsModule : NancyModule
+    public class EmailContactsModule : NancyModule
     {
-        private static readonly ILog log = log4net.LogManager.GetLogger(typeof(DomainsModule));
+        private static readonly ILog log = log4net.LogManager.GetLogger(typeof(EmailContactsModule));
 
-        public DomainsModule() : base("/Company/Domains")
+        public EmailContactsModule() : base("/Company/Email/Contacts")
         {
             this.RequiresAuthentication();
 
-            // Get list of domains
             Get["/{CompanyCode}"] = _ =>
                 {
-                    Companies companies = new Companies();
                     try
                     {
-                        List<Domain> domains = companies.GetDomains(_.CompanyCode);
+                        Companies companies = new Companies();
+                        List<Contact> contacts = companies.GetContacts(_.CompanyCode);
 
-                        return View["c_domains.cshtml", domains];
+                        return View["c_exchange_contacts.cshtml", contacts];
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("Error retrieving company domains for {0}. Error: {1}", _.CompanyCode, ex.ToString());
-
-                        ViewBag.Error = ex.Message;
-                        return View["c_domains.cshtml", null];
+                        return View["error.cshtml", ex.ToString()];
                     }
                 };
-
-            // Add a new domain
-            Post["/{CompanyCode}"] = _ =>
-                {
-                    Companies companies = new Companies();
-                    try
-                    {
-                        companies.AddDomain(_.CompanyCode, Request.Form.DomainName);
-                    }
-                    catch (Exception ex)
-                    {
-                        log.ErrorFormat("Error adding domain {0} for company {1}. Error: {2}", Request.Form.DomainName, _.CompanyCode, ex.ToString());
-                        ViewBag.Error = ex.Message;
-                    }
-                    
-                    return View["c_domains.cshtml", companies.GetDomains(_.CompanyCode)];
-                };
-
-            // Get a specific domain
-            Get["/{CompanyCode}/{DomainID}"] = _ =>
-            {
-                Companies companies = new Companies();
-
-                try
-                {
-                    Domain domain = companies.GetDomain(_.CompanyCode, _.DomainID);
-
-                    return View["c_domainsedit.cshtml", domain];
-                }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("Error retrieving company domain for {0} with id {1}. Error: {2}", _.CompanyCode, _.DomainID, ex.ToString());
-
-                    ViewBag.Error = ex.Message;
-                    return View["c_domains.cshtml", null];
-                }
-            };
         }
     }
 }
