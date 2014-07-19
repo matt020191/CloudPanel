@@ -1,6 +1,4 @@
-﻿using log4net;
-using Nancy;
-//
+﻿//
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
 //
@@ -32,61 +30,8 @@ using Nancy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using Nancy.Security;
-using Nancy.ModelBinding;
-using CloudPanel.code;
-using CloudPanel.Base.Database.Models;
-using Nancy.Responses.Negotiation;
+using System.Text;
 
-namespace CloudPanel.modules
+namespace CloudPanel.Exchange
 {
-    public class EmailContactsModule : NancyModule
-    {
-        private static readonly ILog log = log4net.LogManager.GetLogger(typeof(EmailContactsModule));
-
-        public EmailContactsModule() : base("/Company/Email/Contacts")
-        {
-            this.RequiresAuthentication();
-
-            Get["/{CompanyCode}"] = _ =>
-                {
-                    return GetContacts(_.CompanyCode);
-                };
-
-            Post["/{CompanyCode}"] = _ =>
-                {
-                    try
-                    {
-                        var contact = this.Bind<Contact>();
-                        contact.CompanyCode = _.CompanyCode;
-
-                        EmailClass email = new EmailClass();
-                        email.New_MailContact(contact);                        
-
-                        return GetContacts(_.CompanyCode);
-                    }
-                    catch (Exception ex)
-                    {
-                        ViewBag.Error = ex.Message;
-                        return GetContacts(_.CompanyCode);
-                    }
-                };
-        }
-
-        private Negotiator GetContacts(string companyCode)
-        {
-            try
-            {
-                Companies companies = new Companies();
-                List<Contact> contacts = companies.GetContacts(companyCode);
-
-                return View["c_exchange_contacts.cshtml", contacts];
-            }
-            catch (Exception ex)
-            {
-                return View["error.cshtml", ex.ToString()];
-            }
-        }
-    }
 }

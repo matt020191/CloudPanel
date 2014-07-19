@@ -284,5 +284,50 @@ namespace CloudPanel.localization {
                 return ResourceManager.GetString("Resellers_UpdateExisting", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Company Name is required.
+        /// </summary>
+        internal static string Settings_ReqCompanyName {
+            get {
+                return ResourceManager.GetString("Settings_ReqCompanyName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hosting OU is required.
+        /// </summary>
+        internal static string Settings_ReqHostingOU {
+            get {
+                return ResourceManager.GetString("Settings_ReqHostingOU", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password is required.
+        /// </summary>
+        internal static string Settings_ReqPassword {
+            get {
+                return ResourceManager.GetString("Settings_ReqPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Domain Controller is required.
+        /// </summary>
+        internal static string Settings_ReqPrimaryDC {
+            get {
+                return ResourceManager.GetString("Settings_ReqPrimaryDC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Username is required.
+        /// </summary>
+        internal static string Settings_ReqUsername {
+            get {
+                return ResourceManager.GetString("Settings_ReqUsername", resourceCulture);
+            }
+        }
     }
 }

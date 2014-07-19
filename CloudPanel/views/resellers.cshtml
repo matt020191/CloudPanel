@@ -798,7 +798,7 @@
                     var field = $("#updateResellerForm #" + k);
 
                     if (field.length) {
-                        if (field.is("input:text")) {
+                        if (field.is("input:text") || field.is(":hidden")) {
                             field.val(v);
                         } else if (field.is("select")) {
                             field.val(v);

@@ -1,6 +1,7 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
 using CloudPanel.Database.EntityFramework;
+using CloudPanel.Exchange;
 //
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
@@ -56,6 +57,44 @@ namespace CloudPanel.code
                           select g).ToList();
 
             return groups;
+        }
+
+        public void New_MailContact(Contact newContact)
+        {
+            Exch2010 exchange = null;
+            
+            try
+            {
+                var dn = (from c in db.Companies
+                          where c.CompanyCode == newContact.CompanyCode
+                          where !c.IsReseller
+                          select c.DistinguishedName).First();
+
+                string exchangeOU = string.Format("OU={0},{1}", Settings.ExchangeOU, dn);
+
+                exchange = GetExchangeClass();
+                
+                var contact = exchange.New_MailContact(newContact, exchangeOU);
+                db.Contacts.Add(contact);
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+                exchange.Dispose();
+            }
+        }
+
+        private Exch2010 GetExchangeClass()
+        {
+            return new Exch2010(string.Format("https://{0}/powershell", Settings.ExchangeServer),
+                                Settings.Username,
+                                Settings.DecryptedPassword,
+                                Settings.ExchangeConnection.Equals("Kerberos", StringComparison.CurrentCultureIgnoreCase) ? true : false,
+                                Settings.PrimaryDC);
         }
     }
 }

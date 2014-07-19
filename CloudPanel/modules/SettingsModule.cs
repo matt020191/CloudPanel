@@ -35,58 +35,49 @@ using System.Linq;
 using System.Web;
 using Nancy.Security;
 using Nancy.ModelBinding;
-using CloudPanel.code;
-using CloudPanel.Base.Database.Models;
-using Nancy.Responses.Negotiation;
+using Nancy.Extensions;
+using CloudPanel.Base.Config;
 
 namespace CloudPanel.modules
 {
-    public class EmailContactsModule : NancyModule
+    public class SettingsModule : NancyModule
     {
-        private static readonly ILog log = log4net.LogManager.GetLogger(typeof(EmailContactsModule));
+        private static readonly ILog log = log4net.LogManager.GetLogger(typeof(SettingsModule));
 
-        public EmailContactsModule() : base("/Company/Email/Contacts")
+        public SettingsModule()
         {
-            this.RequiresAuthentication();
-
-            Get["/{CompanyCode}"] = _ =>
+            Get["/settings"] = _ =>
                 {
-                    return GetContacts(_.CompanyCode);
+                    return View["settings.cshtml"];
                 };
 
-            Post["/{CompanyCode}"] = _ =>
+            Put["/settings"] = _ =>
                 {
                     try
                     {
-                        var contact = this.Bind<Contact>();
-                        contact.CompanyCode = _.CompanyCode;
+                        foreach (string key in Request.Form)
+                        {
+                            if (!key.Equals("DecryptedPassword"))
+                                SettingsRequest.SaveSetting(key, Request.Form[key].Value);
+                            else
+                            {
+                                Settings.EncryptPassword = Request.Form[key].Value;
+                                SettingsRequest.SaveSetting("Password", Settings.EncryptedPassword);
+                            }
+                        }
 
-                        EmailClass email = new EmailClass();
-                        email.New_MailContact(contact);                        
-
-                        return GetContacts(_.CompanyCode);
+                        return View["settings.cshtml"];
                     }
                     catch (Exception ex)
                     {
-                        ViewBag.Error = ex.Message;
-                        return GetContacts(_.CompanyCode);
+                        return View["error.cshtml", ex.ToString()];
+                    }
+                    finally
+                    {
+                        // Retrieve new settings
+                        SettingsRequest.RetrieveSettings();
                     }
                 };
-        }
-
-        private Negotiator GetContacts(string companyCode)
-        {
-            try
-            {
-                Companies companies = new Companies();
-                List<Contact> contacts = companies.GetContacts(companyCode);
-
-                return View["c_exchange_contacts.cshtml", contacts];
-            }
-            catch (Exception ex)
-            {
-                return View["error.cshtml", ex.ToString()];
-            }
         }
     }
 }

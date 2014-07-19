@@ -58,7 +58,8 @@ namespace CloudPanel
                 {
                     Settings.CompanyName = s.Element("CompanyName").Value;
                     Settings.HostingOU = s.Element("HostingOU").Value;
-                    Settings.PrimaryDC = s.Element("DomainController").Value;
+                    Settings.UsersOU = s.Element("UsersOU").Value;
+                    Settings.PrimaryDC = s.Element("PrimaryDC").Value;
                     Settings.Username = s.Element("Username").Value;
                     Settings.EncryptedPassword = s.Element("Password").Value;
                     Settings.SuperAdmins = s.Element("SuperAdmins").Value.Split(',');
@@ -78,22 +79,22 @@ namespace CloudPanel
 
                 foreach (var s in exchange)
                 {
-                    Settings.ExchangeServer = s.Element("Server").Value;
-                    Settings.ExchangePFServer = s.Element("PFServer").Value;
+                    Settings.ExchangeServer = s.Element("ExchangeServer").Value;
+                    Settings.ExchangePFServer = s.Element("ExchangePFServer").Value;
 
                     int defaultVersion = 2013;
-                    int.TryParse(s.Element("Version").Value, out defaultVersion);
+                    int.TryParse(s.Element("ExchangeVersion").Value, out defaultVersion);
                     Settings.ExchangeVersion = defaultVersion;
 
                     bool defaultBool = true;
-                    bool.TryParse(s.Element("SSL").Value, out defaultBool);
+                    bool.TryParse(s.Element("ExchangeSSL").Value, out defaultBool);
                     Settings.ExchangeSSL = defaultBool;
 
-                    bool.TryParse(s.Element("PFEnabled").Value, out defaultBool);
+                    bool.TryParse(s.Element("ExchangePFEnabled").Value, out defaultBool);
                     Settings.ExchangePFEnabled = defaultBool;
 
-                    Settings.ExchangeConnection = s.Element("Connection").Value;
-                    Settings.ExchangeDatabases = s.Element("Databases").Value.Split(',');
+                    Settings.ExchangeConnection = s.Element("ExchangeConnection").Value;
+                    Settings.ExchangeDatabases = s.Element("ExchangeDatabases").Value.Split(',');
                     Settings.ExchangeGALName = s.Element("ExchangeGALName").Value;
                     Settings.ExchangeABPName = s.Element("ExchangeABPName").Value;
                     Settings.ExchangeOALName = s.Element("ExchangeOALName").Value;
@@ -113,13 +114,13 @@ namespace CloudPanel
                 {
                     bool enabled = false;
 
-                    bool.TryParse(s.Element("Exchange").Value, out enabled);
+                    bool.TryParse(s.Element("ExchangeModule").Value, out enabled);
                     Settings.ExchangeModule = enabled;
 
-                    bool.TryParse(s.Element("Citrix").Value, out enabled);
+                    bool.TryParse(s.Element("CitrixModule").Value, out enabled);
                     Settings.CitrixModule = enabled;
 
-                    bool.TryParse(s.Element("Lync").Value, out enabled);
+                    bool.TryParse(s.Element("LyncModule").Value, out enabled);
                     Settings.LyncModule = enabled;
                 }
 
@@ -141,13 +142,13 @@ namespace CloudPanel
             }
         }
 
-        public static void SaveSetting(string root, string element, string value)
+        public static void SaveSetting(string element, string value)
         {
             try
             {
                 XDocument xDoc = XDocument.Load(path);
 
-                var settings = from s in xDoc.Elements("cloudpanel").Elements(root)
+                /*var settings = from s in xDoc.Elements("cloudpanel").Elements(root)
                                select s;
 
                 foreach (var e in settings.Elements())
@@ -155,6 +156,18 @@ namespace CloudPanel
                     if (e.Name == element)
                     {
                         e.Value = value;
+                    }
+                }*/
+
+                var all = from s in xDoc.Elements("cloudpanel").Elements()
+                          select s;
+
+                foreach (var e in all.Elements())
+                {
+                    if (e.Name.LocalName.Equals(element))
+                    {
+                        e.Value = value;
+                        log.DebugFormat("Updating setting {0} from value {1} to value {2}", e.Name.LocalName, e.Value, value);
                     }
                 }
 

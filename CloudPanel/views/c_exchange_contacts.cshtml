@@ -60,6 +60,40 @@
     </table>
 </div>
 
+<!-- Add Contact -->
+<form id="addContactForm" method="post" action="">
+    <div class="modal fade new-domain-modal" id="new-domain-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="myModalLabel">@Text.words.AddContact</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="control-label">@Text.words.DisplayName</label>
+                        <input id="DisplayName" name="DisplayName" type="text" class="form-control" maxlength="64" />
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">@Text.words.Email</label>
+                        <input id="Email" name="Email" type="text" class="form-control" maxlength="255" />
+                    </div>
+                    <div class="form-group">
+                        <div class="ckbox ckbox-success">
+                            <input id="Hidden" name="Hidden" type="checkbox" />
+                            <label for="Hidden">@Text.words.Hidden</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">@Text.words.Close</button>
+                    <input id="btnAdd" type="submit" value="@Text.words.Add" class="btn btn-success" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
 @section CUSTOMJAVASCRIPT {
     <script src="~/Content/js/jquery.validate.min.js"></script>
     <script src="~/Content/js/jquery.datatables.min.js"></script>

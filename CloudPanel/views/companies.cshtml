@@ -829,7 +829,7 @@
 
     function GetCompany(companyCode) {
         $.ajax({
-            url: "@Url.Content("~/Companies/" + Model + "/")" + companyCode,
+            url: "@Url.Content("~/Companies/" + Model + "/")" + companyCode + "/json",
             dataType: "JSON",
             type: "GET",
             cache: false,
@@ -838,7 +838,7 @@
                     var field = $("#updateCompanyForm #" + k);
 
                     if (field.length) {
-                        if (field.is("input:text")) {
+                        if (field.is("input:text") || field.is(":hidden")) {
                             field.val(v);
                         } else if (field.is("select")) {
                             field.val(v);

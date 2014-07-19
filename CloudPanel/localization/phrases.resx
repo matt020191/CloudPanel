@@ -192,4 +192,19 @@
   <data name="Resellers_UpdateExisting" xml:space="preserve">
     <value>Update Existing Reseller</value>
   </data>
+  <data name="Settings_ReqCompanyName" xml:space="preserve">
+    <value>Company Name is required</value>
+  </data>
+  <data name="Settings_ReqHostingOU" xml:space="preserve">
+    <value>Hosting OU is required</value>
+  </data>
+  <data name="Settings_ReqPassword" xml:space="preserve">
+    <value>Password is required</value>
+  </data>
+  <data name="Settings_ReqPrimaryDC" xml:space="preserve">
+    <value>Domain Controller is required</value>
+  </data>
+  <data name="Settings_ReqUsername" xml:space="preserve">
+    <value>Username is required</value>
+  </data>
 </root>

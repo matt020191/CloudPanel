@@ -91,7 +91,7 @@ namespace CloudPanel.modules
                 }
             };
 
-            Get["/{ResellerCode}/{CompanyCode}"] = _ =>
+            Get["/{ResellerCode}/{CompanyCode}/json"] = _ =>
                 {
                     try
                     {

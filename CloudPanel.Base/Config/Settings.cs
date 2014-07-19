@@ -35,7 +35,7 @@ using System.Text;
 
 namespace CloudPanel.Base.Config
 {
-    public class Settings
+    public static class Settings
     {
         public static string ConnectionString
         {
@@ -191,6 +191,10 @@ namespace CloudPanel.Base.Config
             get
             {
                 return DataProtection.Decrypt(EncryptedPassword, SaltKey);
+            }
+            set
+            {
+                EncryptPassword = value;
             }
         }
 

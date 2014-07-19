@@ -399,4 +399,64 @@
   <data name="Hidden" xml:space="preserve">
     <value>Hidden</value>
   </data>
+  <data name="ActiveDirectory" xml:space="preserve">
+    <value>Active Directory</value>
+  </data>
+  <data name="BasicAuthentication" xml:space="preserve">
+    <value>Basic Authentication</value>
+  </data>
+  <data name="BillingAdmins" xml:space="preserve">
+    <value>Billing Admins</value>
+  </data>
+  <data name="CitrixModule" xml:space="preserve">
+    <value>Citrix Module</value>
+  </data>
+  <data name="ConnectionType" xml:space="preserve">
+    <value>Connection Type</value>
+  </data>
+  <data name="Databases" xml:space="preserve">
+    <value>Databases</value>
+  </data>
+  <data name="DomainController" xml:space="preserve">
+    <value>Domain Controller</value>
+  </data>
+  <data name="EnableExchangeSSL" xml:space="preserve">
+    <value>Enable Exchange SSL</value>
+  </data>
+  <data name="EnablePublicFolders" xml:space="preserve">
+    <value>Enable Public Folders</value>
+  </data>
+  <data name="ExchangeModule" xml:space="preserve">
+    <value>Exchange Module</value>
+  </data>
+  <data name="HostingOU" xml:space="preserve">
+    <value>Hosting OU</value>
+  </data>
+  <data name="KerberosAuthentication" xml:space="preserve">
+    <value>Kerberos Authentication</value>
+  </data>
+  <data name="LyncModule" xml:space="preserve">
+    <value>Lync Module</value>
+  </data>
+  <data name="PublicFolderServer" xml:space="preserve">
+    <value>Public Folder Server</value>
+  </data>
+  <data name="ResellerModule" xml:space="preserve">
+    <value>Reseller Module</value>
+  </data>
+  <data name="ServerFqdn" xml:space="preserve">
+    <value>Server FQDN</value>
+  </data>
+  <data name="SuperAdmins" xml:space="preserve">
+    <value>Super Admins</value>
+  </data>
+  <data name="UsersOU" xml:space="preserve">
+    <value>Users OU</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="AddContact" xml:space="preserve">
+    <value>Add Contact</value>
+  </data>
 </root>
