@@ -66,6 +66,13 @@ ipch/
 _ReSharper*/
 *.[Rr]e[Ss]harper
 
+#######################
+# CloudPanel specific #
+#######################
+
+Log.txt
+
+
 # TeamCity is a build add-in
 _TeamCity*
 
