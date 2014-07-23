@@ -686,6 +686,7 @@
     <Compile Include="code\BrandingsRequest.cs" />
     <Compile Include="code\CitrixClass.cs" />
     <Compile Include="code\Companies.cs" />
+    <Compile Include="code\DomainClass.cs" />
     <Compile Include="code\EmailClass.cs" />
     <Compile Include="code\Plans.cs" />
     <Compile Include="code\Users.cs" />
@@ -868,6 +869,7 @@
     <Content Include="views\p_mailbox.cshtml" />
     <Content Include="packages.config" />
     <Content Include="views\settings.cshtml" />
+    <Content Include="views\c_exchange_contactsedit.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

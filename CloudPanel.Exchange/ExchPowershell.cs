@@ -48,7 +48,7 @@ namespace CloudPanel.Exchange
 
         internal string _domainController;
 
-        private readonly ILog logger = LogManager.GetLogger(typeof(Exch2010));
+        private readonly ILog logger = LogManager.GetLogger(typeof(ExchPowershell));
 
         public ExchPowershell(string uri, string username, string password, bool kerberos, string domainController)
         {
@@ -60,6 +60,46 @@ namespace CloudPanel.Exchange
 
             _powershell = PowerShell.Create();
             _powershell.Runspace = _runspace;
+        }
+
+        internal void HandleErrors(bool ignoredNotFound = false)
+        {
+            if (_powershell != null && _powershell.HadErrors)
+            {
+                // Log the debug messages
+                if (_powershell.Streams.Debug.Count > 0)
+                {
+                    foreach (var debug in _powershell.Streams.Debug)
+                        logger.DebugFormat("PSDEBUG: {0}", debug.Message);
+
+                    _powershell.Streams.Debug.Clear();
+                }
+
+                // Log the warnings
+                if (_powershell.Streams.Warning.Count > 0)
+                {
+                    foreach (var warn in _powershell.Streams.Warning)
+                        logger.WarnFormat("PSWARN: {0}", warn.Message);
+
+                    _powershell.Streams.Warning.Clear();
+                }
+
+                // Log the errors
+                if (_powershell.Streams.Error.Count > 0)
+                {
+                    foreach (var err in _powershell.Streams.Error)
+                        logger.ErrorFormat("PSERROR: {0}", err.Exception.ToString());
+
+                    // Get first reason
+                    var reason = _powershell.Streams.Error[0].CategoryInfo.Reason;
+                    if (reason.Equals("ManagementObjectNotFoundException") && ignoredNotFound)
+                        logger.InfoFormat("PSHANDLE: Error was found in exception but was ignored due to setting. Continuing...");
+                    else
+                        throw _powershell.Streams.Error[0].Exception;
+                }
+
+               
+            }
         }
 
         private WSManConnectionInfo GetConnection(string uri, string username, string password, bool kerberos)

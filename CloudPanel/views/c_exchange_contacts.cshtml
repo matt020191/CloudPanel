@@ -49,7 +49,7 @@
                                     <span class='sr-only'>@Text.words.Dropdown</span>
                                 </button>
                                 <ul class='dropdown-menu' role='menu'>
-                                    <li><a href="#" id="deleteDomainLink" data-toggle="modal" data-target="#deleteModal" data-id="@contact.ID" data-name="@contact.DisplayName">@Text.words.Delete</a></li>
+                                    <li><a href="#" id="deleteContactLink" data-toggle="modal" data-target="#deleteModal" data-id="@contact.ID" data-name="@contact.DisplayName">@Text.words.Delete</a></li>
                                 </ul>
                             </div>
                         </td>
@@ -72,11 +72,11 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label class="control-label">@Text.words.DisplayName</label>
-                        <input id="DisplayName" name="DisplayName" type="text" class="form-control" maxlength="64" />
+                        <input id="DisplayName" name="DisplayName" type="text" class="form-control" maxlength="64" required />
                     </div>
                     <div class="form-group">
                         <label class="control-label">@Text.words.Email</label>
-                        <input id="Email" name="Email" type="text" class="form-control" maxlength="255" />
+                        <input id="Email" name="Email" type="text" class="form-control" maxlength="255" required />
                     </div>
                     <div class="form-group">
                         <div class="ckbox ckbox-success">
@@ -88,6 +88,30 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">@Text.words.Close</button>
                     <input id="btnAdd" type="submit" value="@Text.words.Add" class="btn btn-success" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Delete Contact -->
+<form id="deleteContactForm" method="post" action="">
+    <input type="hidden" name="_method" value="DELETE" />
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="myModalLabel">@Text.words.Delete</h4>
+                </div>
+                <div class="modal-body">
+                    @Text.phrases.Delete_Confirm1 <b><span id="spanContactName"></span></b>?
+
+                    <input id="ID" name="ID" type="text" hidden="hidden" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">@Text.words.Close</button>
+                    <input id="btnDelete" type="submit" value="@Text.words.Delete" class="btn btn-danger" />
                 </div>
             </div>
         </div>
@@ -109,11 +133,30 @@
         jQuery(document).ready(function () {
             $("#contactsDataTable").dataTable();
 
-            // Chosen Select
             jQuery("select").chosen({
                 'min-width': '200px',
                 'white-space': 'nowrap',
                 disable_search_threshold: 10
+            });
+
+            $(document).on("click", "#deleteContactLink", function () {
+                var id = $(this).data('id');
+                var name = $(this).data('name');
+                $("#deleteContactForm #spanContactName").text(name);
+                $("#deleteContactForm input[name=ID]").val(id);
+            });
+
+            $("#addContactForm").validate({
+                rules: {
+                    required: { required: true },
+                    Email: { email: true }
+                },
+                highlight: function (element) {
+                    jQuery(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+                },
+                success: function (element) {
+                    jQuery(element).closest('.form-group').removeClass('has-error');
+                }
             });
         });
 </script>

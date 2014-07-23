@@ -59,9 +59,11 @@ namespace CloudPanel.code
             return groups;
         }
 
+        #region Contacts
+
         public void New_MailContact(Contact newContact)
         {
-            Exch2010 exchange = null;
+            dynamic exchange = null;
             
             try
             {
@@ -80,6 +82,7 @@ namespace CloudPanel.code
             }
             catch (Exception ex)
             {
+                log.ErrorFormat("Error creating mail contact for {0} with email {1}. Error: {2}", newContact.CompanyCode, newContact.Email, ex.ToString());
                 throw;
             }
             finally
@@ -88,7 +91,76 @@ namespace CloudPanel.code
             }
         }
 
-        private Exch2010 GetExchangeClass()
+        public void Update_MailContact(Contact updateContact)
+        {
+            Exch2010 exchange = null;
+
+            try
+            {
+                var contact = (from c in db.Contacts
+                               where c.ID == updateContact.ID
+                               where c.CompanyCode == updateContact.CompanyCode
+                               select c).First();
+
+                // Set parameters for exchange class
+                updateContact.DistinguishedName = contact.DistinguishedName;
+
+                // Update Exchange
+                exchange = GetExchangeClass();
+                Contact updatedContact = exchange.Update_MailContact(updateContact);
+
+                // Update database
+                contact.DistinguishedName = updatedContact.DistinguishedName;
+                contact.DisplayName = updateContact.DisplayName;
+                contact.Hidden = updateContact.Hidden;
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error updating mail contact for {0} with email {1}. Error: {2}", updateContact.CompanyCode, updateContact.Email, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                exchange.Dispose();
+            }
+        }
+
+        public void Remove_MailContact(string companyCode, int contactID)
+        {
+            Exch2010 exchange = null;
+
+            try
+            {
+                var contact = (from c in db.Contacts
+                               where c.ID == contactID
+                               where c.CompanyCode == companyCode
+                               select c).First();
+
+                if (contact != null)
+                {
+                    exchange = GetExchangeClass();
+                    exchange.Remove_MailContact(contact.DistinguishedName);
+
+                    db.Contacts.Remove(contact);
+                    db.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error removing mail contact {0}. Error: {1}", contactID, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (exchange != null)
+                    exchange.Dispose();
+            }
+        }
+
+        #endregion
+
+        private dynamic GetExchangeClass()
         {
             return new Exch2010(string.Format("https://{0}/powershell", Settings.ExchangeServer),
                                 Settings.Username,

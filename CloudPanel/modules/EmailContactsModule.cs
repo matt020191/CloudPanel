@@ -1,5 +1,10 @@
-﻿using log4net;
+﻿using CloudPanel.Base.Database.Models;
+using CloudPanel.code;
+using log4net;
 using Nancy;
+using Nancy.ModelBinding;
+using Nancy.Responses.Negotiation;
+using Nancy.Security;
 //
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
@@ -31,13 +36,6 @@ using Nancy;
 //
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using Nancy.Security;
-using Nancy.ModelBinding;
-using CloudPanel.code;
-using CloudPanel.Base.Database.Models;
-using Nancy.Responses.Negotiation;
 
 namespace CloudPanel.modules
 {
@@ -52,6 +50,11 @@ namespace CloudPanel.modules
             Get["/{CompanyCode}"] = _ =>
                 {
                     return GetContacts(_.CompanyCode);
+                };
+
+            Get["/{CompanyCode}/{ContactID}"] = _ =>
+                {
+                    return GetContact(_.ContactID);
                 };
 
             Post["/{CompanyCode}"] = _ =>
@@ -72,8 +75,54 @@ namespace CloudPanel.modules
                         return GetContacts(_.CompanyCode);
                     }
                 };
+
+            Put["/{CompanyCode}/{ContactID}"] = _ =>
+                {
+                    try
+                    {
+                        var contact = this.Bind<Contact>();
+                        contact.CompanyCode = _.CompanyCode;
+                        contact.ID = _.ContactID;
+
+                        EmailClass email = new EmailClass();
+                        email.Update_MailContact(contact);
+
+                        string redirect = string.Format("~/Company/Email/Contacts/{0}", _.CompanyCode);
+                        return this.Response.AsRedirect(redirect);
+                    }
+                    catch (Exception ex)
+                    {
+                        ViewBag.Error = ex.Message;
+                        return View["error.cshtml", ex.ToString()];
+                    }
+                };
+
+            Delete["/{CompanyCode}"] = _ =>
+                {
+                    try
+                    {
+                        var contact = this.Bind<Contact>();
+                        contact.CompanyCode = _.CompanyCode;
+
+                        EmailClass email = new EmailClass();
+                        email.Remove_MailContact(contact.CompanyCode, contact.ID);
+
+                        return GetContacts(_.CompanyCode);
+                    }
+                    catch (Exception ex)
+                    {
+                        ViewBag.Error = ex.Message;
+                        return GetContacts(_.CompanyCode);
+                    }
+                };
         }
 
+        /// <summary>
+        /// Gets all contacts and returns the contacts page
+        /// or the error page if there was an error
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <returns></returns>
         private Negotiator GetContacts(string companyCode)
         {
             try
@@ -82,6 +131,27 @@ namespace CloudPanel.modules
                 List<Contact> contacts = companies.GetContacts(companyCode);
 
                 return View["c_exchange_contacts.cshtml", contacts];
+            }
+            catch (Exception ex)
+            {
+                return View["error.cshtml", ex.ToString()];
+            }
+        }
+
+        /// <summary>
+        /// Gets a specific contact and returns the contacts edit page
+        /// or the error page if there was an error
+        /// </summary>
+        /// <param name="contactID"></param>
+        /// <returns></returns>
+        private Negotiator GetContact(int contactID)
+        {
+            try
+            {
+                Companies companies = new Companies();
+                Contact contact = companies.GetContact(contactID);
+
+                return View["c_exchange_contactsedit.cshtml", contact];
             }
             catch (Exception ex)
             {

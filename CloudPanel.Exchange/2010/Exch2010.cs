@@ -1,4 +1,5 @@
-﻿using CloudPanel.Base.Database.Models;
+﻿using CloudPanel.Base.Config;
+using CloudPanel.Base.Database.Models;
 using log4net;
 //
 // Copyright (c) 2014, Jacob Dixon
@@ -41,10 +42,218 @@ namespace CloudPanel.Exchange
 {
     public class Exch2010 : ExchPowershell
     {
+        private readonly ILog logger = LogManager.GetLogger(typeof(Exch2010));
+
         public Exch2010(string uri, string username, string password, bool kerberos, string domainController) :
             base(uri, username, password, kerberos, domainController)
         {
         }
+
+        #region Address Lists
+
+        public void New_AddressListForUsers(string companyCode, string organizationalUnit)
+        {
+            string name = string.Format(Settings.ExchangeUSERSName, companyCode);
+            string filter = string.Format(Settings.ExchangeUSERSFilter, companyCode);
+
+            logger.DebugFormat("Creating new address list '{0}' with filter '{1}' for {2}", name, filter, companyCode);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("New-AddressList");
+            cmd.AddParameter("Name", name);
+            cmd.AddParameter("RecipientFilter", filter);
+            cmd.AddParameter("RecipientContainer", organizationalUnit);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        public void New_AddressListForContacts(string companyCode, string organizationalUnit)
+        {
+            string name = string.Format(Settings.ExchangeCONTACTSName, companyCode);
+            string filter = string.Format(Settings.ExchangeCONTACTSFilter, companyCode);
+
+            logger.DebugFormat("Creating new address list '{0}' with filter '{1}' for {2}", name, filter, companyCode);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("New-AddressList");
+            cmd.AddParameter("Name", name);
+            cmd.AddParameter("RecipientFilter", filter);
+            cmd.AddParameter("RecipientContainer", organizationalUnit);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        public void New_AddressListForGroups(string companyCode, string organizationalUnit)
+        {
+            string name = string.Format(Settings.ExchangeGROUPSName, companyCode);
+            string filter = string.Format(Settings.ExchangeGROUPSFilter, companyCode);
+
+            logger.DebugFormat("Creating new address list '{0}' with filter '{1}' for {2}", name, filter, companyCode);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("New-AddressList");
+            cmd.AddParameter("Name", name);
+            cmd.AddParameter("RecipientFilter", filter);
+            cmd.AddParameter("RecipientContainer", organizationalUnit);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        public void New_AddressListForRooms(string companyCode, string organizationalUnit)
+        {
+            string name = string.Format(Settings.ExchangeROOMSName, companyCode);
+            string filter = string.Format(Settings.ExchangeROOMSFilter, companyCode);
+
+            logger.DebugFormat("Creating new address list '{0}' with filter '{1}' for {2}", name, filter, companyCode);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("New-AddressList");
+            cmd.AddParameter("Name", name);
+            cmd.AddParameter("RecipientFilter", filter);
+            cmd.AddParameter("RecipientContainer", organizationalUnit);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        public void Remove_AddressList(string name)
+        {
+            logger.DebugFormat("Attempting to remove address list {0}", name);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Remove-AddressList");
+            cmd.AddParameter("Name", name);
+            cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors(true);
+        }
+
+        #endregion
+
+        #region GAL / OAL / Address Book Policies
+
+        public void New_GlobalAddressList(string companyCode, string organizationalUnit)
+        {
+            string name = string.Format(Settings.ExchangeGALName, companyCode);
+            string filter = string.Format(Settings.ExchangeGALFilter, companyCode);
+
+            logger.DebugFormat("Creating new address list '{0}' with filter '{1}' for {2}", name, filter, companyCode);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("New-GlobalAddressList");
+            cmd.AddParameter("Name", name);
+            cmd.AddParameter("RecipientFilter", filter);
+            cmd.AddParameter("RecipientContainer", organizationalUnit);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        public void Remove_GlobalAddressList(string name)
+        {
+            logger.DebugFormat("Attempting to remove global address list {0}", name);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Remove-GlobalAddressList");
+            cmd.AddParameter("Name", name);
+            cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors(true);
+        }
+
+        public virtual void New_OfflineAddressBook(string companyCode)
+        {
+            string name = string.Format(Settings.ExchangeOALName, companyCode);
+            string gal = string.Format(Settings.ExchangeGALName, companyCode);
+
+            logger.DebugFormat("Creating new offline address list '{0}' for {1}", name, companyCode);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("New-OfflineAddressBook");
+            cmd.AddParameter("Name", name);
+            cmd.AddParameter("AddressLists", gal);
+            cmd.AddParameter("GlobalWebDistributionEnabled", true);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        public void Remove_OfflineAddressBook(string name)
+        {
+            logger.DebugFormat("Attempting to remove offline address list {0}", name);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Remove-OfflineAddressBook");
+            cmd.AddParameter("Name", name);
+            cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors(true);
+        }
+
+        public void New_AddressBookPolicy(string companyCode)
+        {
+            string name = string.Format(Settings.ExchangeABPName, companyCode);
+
+            logger.DebugFormat("Creating new address book policy '{0}' for {1}", name, companyCode);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("New-AddressBookPolicy");
+            cmd.AddParameter("Name", name);
+            cmd.AddParameter("GlobalAddressList", string.Format(Settings.ExchangeGALName, companyCode));
+            cmd.AddParameter("OfflineAddressBook", string.Format(Settings.ExchangeOALName, companyCode));
+            cmd.AddParameter("RoomList", string.Format(Settings.ExchangeROOMSName, companyCode));
+            cmd.AddParameter("AddressLists", new string[] {
+                                                string.Format(Settings.ExchangeCONTACTSName, companyCode),
+                                                string.Format(Settings.ExchangeGROUPSName, companyCode),
+                                                string.Format(Settings.ExchangeUSERSName, companyCode)
+                                             });
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        public void Remove_AddressBookPolicy(string name)
+        {
+            logger.DebugFormat("Attempting to remove address book policy {0}", name);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Remove-AddressBookPolicy");
+            cmd.AddParameter("Name", name);
+            cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors(true);
+        }
+
+        #endregion
 
         #region Contacts
 
@@ -55,7 +264,7 @@ namespace CloudPanel.Exchange
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("New-MailContact");
             cmd.AddParameter("Name", mailContact.DisplayName);
-            cmd.AddParameter("PrimarySmtpAddress", string.Format("{0}_{1}@{2}", emailSplit[0], mailContact.CompanyCode, emailSplit[1]));
+            cmd.AddParameter("PrimarySmtpAddress", string.Format("{0}@{1}", Guid.NewGuid(), emailSplit[1]));
             cmd.AddParameter("ExternalEmailAddress", mailContact.Email);
             cmd.AddParameter("OrganizationalUnit", organizationalUnit);
             cmd.AddParameter("DomainController", this._domainController);
@@ -82,9 +291,50 @@ namespace CloudPanel.Exchange
                 cmd.AddParameter("DomainController", this._domainController);
                 _powershell.Commands = cmd;
                 _powershell.Invoke();
+
+                HandleErrors();
             }
 
             return mailContact;
+        }
+
+        public Contact Update_MailContact(Contact mailContact)
+        {
+            logger.DebugFormat("Updating mail contact {0} with values: {1}, {2}, {3}", mailContact.DistinguishedName, mailContact.DisplayName, mailContact.CompanyCode, mailContact.Hidden);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Set-MailContact");
+            cmd.AddParameter("Identity", mailContact.DistinguishedName);
+            cmd.AddParameter("Name", mailContact.DisplayName);
+            cmd.AddParameter("DisplayName", mailContact.DisplayName);
+            cmd.AddParameter("HiddenFromAddressListsEnabled", mailContact.Hidden);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            var psObjects = _powershell.Invoke();
+
+            // Handle any errors first
+            HandleErrors();
+
+            foreach (var o in psObjects)
+            {
+                if (o.Properties["DistinguishedName"] != null)
+                    mailContact.DistinguishedName = o.Properties["DistinguishedName"].Value.ToString();
+            }
+            return mailContact;
+        }
+
+        public void Remove_MailContact(string distinguishedName)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Remove-MailContact");
+            cmd.AddParameter("Identity", distinguishedName);
+            cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors(true);
         }
 
         #endregion

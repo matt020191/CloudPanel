@@ -503,6 +503,20 @@ namespace CloudPanel.code
             return contacts;
         }
 
+        /// <summary>
+        /// Gets a specific contact
+        /// </summary>
+        /// <param name="contactID"></param>
+        /// <returns></returns>
+        public Contact GetContact(int contactID)
+        {
+            var contact = (from c in db.Contacts
+                           where c.ID == contactID
+                           select c).First();
+
+            return contact;
+        }
+
         #endregion
     }
 }

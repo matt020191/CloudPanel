@@ -1,0 +1,46 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+@{
+    Layout = "_master.cshtml";
+}
+
+@section PAGEHEADER{
+    <div class="pageheader">
+        <h2><i class="fa fa-male"></i> @Text.words.Contacts </h2>
+    </div>
+}
+
+<form id="contactForm" method="post" action="">
+    <input type="hidden" name="_method" value="PUT" />
+    <div class="panel panel-dark">
+        <div class="panel-heading">
+            <h3 class="panel-title">Features</h3>
+        </div>
+        <div class="panel-body">
+            <div class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">@Text.words.DisplayName</label>
+                    <div class="col-sm-4">
+                        <input id="DisplayName" name="DisplayName" type="text" class="form-control" maxlength="64" value="@Model.DisplayName" required />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">&nbsp;</label>
+                    <div class="col-sm-4">
+                        <div class="ckbox ckbox-success">
+                            <input id="Hidden" name="Hidden" type="checkbox" @(Model.Hidden ? "checked" : "") />
+                            <label for="Hidden">@Text.words.Hidden</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-footer">
+        <div class="pull-right">
+            <a href="@Url.Content("~/Company/Email/Contacts/" + Model.CompanyCode)"><button type="button" class="btn btn-danger">@Text.words.Cancel</button></a>
+            <button class="btn btn-success">@Text.words.Save</button>
+        </div>
+    </div>
+</form>

@@ -124,6 +124,15 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Are you sure you want to delete.
+        /// </summary>
+        internal static string Delete_Confirm1 {
+            get {
+                return ResourceManager.GetString("Delete_Confirm1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enter the domain name you would like to add.
         /// </summary>
         internal static string Domains_Add {

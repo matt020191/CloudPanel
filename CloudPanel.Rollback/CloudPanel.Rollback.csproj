@@ -58,6 +58,10 @@
       <Project>{5c2b5fc4-0814-47c0-b371-0bc299e433e0}</Project>
       <Name>CloudPanel.Base</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CloudPanel.Exchange\CloudPanel.Exchange.csproj">
+      <Project>{51c6ec47-98ab-49d1-b4cb-b48665d1725e}</Project>
+      <Name>CloudPanel.Exchange</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

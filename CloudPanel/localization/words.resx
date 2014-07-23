@@ -459,4 +459,7 @@
   <data name="AddContact" xml:space="preserve">
     <value>Add Contact</value>
   </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
 </root>

@@ -1,5 +1,7 @@
 ﻿using CloudPanel.Base.Config;
-using log4net;
+using CloudPanel.Base.Database.Models;
+using CloudPanel.Database.EntityFramework;
+using CloudPanel.Exchange;
 //
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
@@ -32,41 +34,38 @@ using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Management.Automation;
-using System.Text;
+using System.Web;
 
-namespace CloudPanel.Exchange
+namespace CloudPanel.code
 {
-    public class Exch2013 : Exch2010
+    public class DomainClass
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(Exch2013));
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(DomainClass));
 
-        public Exch2013(string uri, string username, string password, bool kerberos, string domainController) :
-            base(uri, username, password, kerberos, domainController)
+        private CloudPanelContext db = null;
+
+        public DomainClass()
         {
+            this.db = new CloudPanelContext(Settings.ConnectionString);
         }
 
-        #region GAL / OAL / Address Book Policies
-
-        public override void New_OfflineAddressBook(string companyCode)
+        public void Update_Domain(Domain updateDomain)
         {
-            string name = string.Format(Settings.ExchangeOALName, companyCode);
-            string gal = string.Format(Settings.ExchangeGALName, companyCode);
+            var domain = (from d in db.Domains
+                          where d.DomainID == updateDomain.DomainID
+                          where d.CompanyCode == updateDomain.CompanyCode
+                          select d).First();
 
-            logger.DebugFormat("Creating new offline address list '{0}' for {1}", name, companyCode);
 
-            PSCommand cmd = new PSCommand();
-            cmd.AddCommand("New-OfflineAddressBook");
-            cmd.AddParameter("Name", name);
-            cmd.AddParameter("AddressLists", gal);
-            cmd.AddParameter("GlobalWebDistributionEnabled", true);
-            cmd.AddParameter("DomainController", this._domainController);
-            _powershell.Commands = cmd;
-            _powershell.Invoke();
-
-            HandleErrors();
         }
 
-        #endregion
+        private Exch2010 GetExchangeClass()
+        {
+            return new Exch2010(string.Format("https://{0}/powershell", Settings.ExchangeServer),
+                                Settings.Username,
+                                Settings.DecryptedPassword,
+                                Settings.ExchangeConnection.Equals("Kerberos", StringComparison.CurrentCultureIgnoreCase) ? true : false,
+                                Settings.PrimaryDC);
+        }
     }
 }

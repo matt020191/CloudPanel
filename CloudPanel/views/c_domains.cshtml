@@ -28,37 +28,12 @@
             </tr>
         </thead>
         <tbody>
-            @if (Model != null)
-            {
-                foreach (dynamic domain in Model)
-                {
-                    <tr>
-                        <td>@domain.Domain1</td>
-                        <td>
-                            @if (domain.IsDefault) { 
-                                <span class="glyphicon glyphicon-check"></span>
-                            }
-                        </td>
-                        <td>
-                            @if (domain.IsAcceptedDomain) { 
-                                <span class="glyphicon glyphicon-check"></span>
-                            }
-                        </td>
-                        <td>
-                            <div class="btn-group pull-right">
-                                <a href="@Url.Content("~/Company/Domains/" + domain.CompanyCode + "/" + domain.DomainID)" data-toggle="modal" class="btn btn-xs btn-orange">@Text.words.Modify</a>
-                                <button type='button' class='btn btn-xs btn-orange dropdown-toggle' data-toggle='dropdown'>
-                                    <span class='caret'></span>
-                                    <span class='sr-only'>@Text.words.Dropdown</span>
-                                </button>
-                                <ul class='dropdown-menu' role='menu'>
-                                    <li><a href="#" id="deleteDomainLink" data-toggle="modal" data-target="#deleteModal" data-id="@domain.DomainID" data-name="@domain.Domain1">@Text.words.Delete</a></li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                }
-            }
+            <tr>
+                <td>@Text.phrases.Load_FromServer</td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
         </tbody>
     </table>
 </div>
@@ -90,7 +65,6 @@
 @section CUSTOMJAVASCRIPT {
 <script src="~/Content/js/jquery.validate.min.js"></script>
 <script src="~/Content/js/jquery.datatables.min.js"></script>
-<script src="~/content/js/jquery.datatables.fnFilterOnReturn.js"></script>
 <script type="text/javascript">
     $(document).ajaxStart(function () {
         $.blockUI({
@@ -102,6 +76,49 @@
     $(document).ajaxStop($.unblockUI);
 
     $(document).ready(function () {
+
+        $("#domainsDataTable").dataTable({
+            "bProcessing": true,
+            "bStateSave": false,
+            "bServerSide": true,
+            "bJQueryUI": false,
+            "bFilter": true,
+            "bLengthChange": true,
+            "sPaginationType": "full_numbers",
+            "sAjaxSource": "@Url.Content("~/Company/Domains/")" + "@Model/json",
+            "aoColumns": [
+                { "mData": "Domain1", "bSortable": false },
+                {
+                    "mData": "IsDefault", "bSortable": false, "bSearchable": false, "mRender": function (data) {
+                        if (data == true)
+                            return "<span class='glyphicon glyphicon-check'></span>"
+                    }
+                },
+                {
+                    "mData": "IsAcceptedDomain", "bSortable": false, "bSearchable": false, "mRender": function (data) {
+                        if (data == true)
+                            return "<span class='glyphicon glyphicon-check'></span>"
+                    }
+                },
+                {
+                    "mData": "DomainID", "bSortable": false, "bSearchable": false, "mRender": function (data, type, full) {
+                        return "<div class='btn-group pull-right'>" +
+                                    "<a href='#' class='btn btn-xs btn-orange' onclick='GetDomain(\"" + data + "\");'>@Text.words.Modify</a>" +
+                                    "<button type='button' class='btn btn-xs btn-orange dropdown-toggle' data-toggle='dropdown'>" +
+                                        "<span class='caret'></span>" +
+                                        "<span class='sr-only'>@Text.words.Dropdown</span>" +
+                                    "</button>" +
+                                    "<ul class='dropdown-menu' role='menu'>" +
+                                    "<li>" +
+                                        "<a href='#' id='deleteDomainLink' data-toggle='modal' data-target='#deleteModal' data-id='" + data + "' data-name='" + full["Domain1"] + "'>@Text.words.Delete</a>" +
+                                    "</li>" +
+                                    "</ul>" +
+                                    "</div>";
+                    }
+                },
+            ]
+        });
+
         $("#addDomainForm").validate({
             onkeyup: false,
             rules: {
@@ -120,8 +137,6 @@
                 jQuery(element).closest('.form-group').removeClass('has-error');
             }
         });
-
-        $("#domainsDataTable").dataTable();
 
         // Chosen Select
         jQuery("select").chosen({

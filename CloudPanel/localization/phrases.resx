@@ -138,6 +138,9 @@
   <data name="Company_OverviewDesc" xml:space="preserve">
     <value>Overview of your company</value>
   </data>
+  <data name="Delete_Confirm1" xml:space="preserve">
+    <value>Are you sure you want to delete</value>
+  </data>
   <data name="Domains_Add" xml:space="preserve">
     <value>Enter the domain name you would like to add</value>
   </data>
