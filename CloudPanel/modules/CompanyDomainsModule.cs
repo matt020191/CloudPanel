@@ -134,6 +134,26 @@ namespace CloudPanel.modules
                         return View["error.cshtml", ex.ToString()];
                     }
                 };
+
+            Put["/{CompanyCode}/{DomainID}"] = _ =>
+                {
+                    try
+                    {
+                        Domain updateDomain = this.Bind<Domain>();
+                        updateDomain.CompanyCode = _.CompanyCode;
+
+                        DomainClass domain = new DomainClass();
+                        domain.Update_Domain(updateDomain);
+
+                        string redirect = string.Format("~/Company/Domains/{0}", _.CompanyCode);
+                        return this.Response.AsRedirect(redirect);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Error updating company domain for {0} with id {1}. Error: {2}", _.CompanyCode, _.DomainID, ex.ToString());
+                        return View["error.cshtml", ex.ToString()];
+                    }
+                };
         }
     }
 }

@@ -656,7 +656,8 @@
     <Content Include="content\js\jquery.blockUI.js" />
     <Content Include="content\js\jquery.cookies.js" />
     <Content Include="content\js\jquery.datatables.fnFilterOnReturn.js" />
-    <Content Include="content\js\jquery.datatables.min.js" />
+    <Content Include="content\js\jquery.dataTables.min.js" />
+    <Content Include="content\js\jquery.datatables.min_1.9.4.js" />
     <Content Include="content\js\jquery.gritter.min.js" />
     <Content Include="content\js\jquery.maskedinput.min.js" />
     <Content Include="content\js\jquery.maskMoney.min.js" />

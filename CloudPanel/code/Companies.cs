@@ -406,6 +406,7 @@ namespace CloudPanel.code
             catch (Exception ex)
             {
                 log.ErrorFormat("Error adding domain {0} to {1}. Error {2}", domainName, companyCode, ex.ToString());
+                reverse.RollbackNow();
                 throw;
             }
             finally

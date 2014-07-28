@@ -87,13 +87,14 @@ namespace CloudPanel.code
             }
             finally
             {
-                exchange.Dispose();
+                if (exchange != null)
+                    exchange.Dispose();
             }
         }
 
         public void Update_MailContact(Contact updateContact)
         {
-            Exch2010 exchange = null;
+            dynamic exchange = null;
 
             try
             {
@@ -122,13 +123,14 @@ namespace CloudPanel.code
             }
             finally
             {
-                exchange.Dispose();
+                if (exchange != null)
+                    exchange.Dispose();
             }
         }
 
         public void Remove_MailContact(string companyCode, int contactID)
         {
-            Exch2010 exchange = null;
+            dynamic exchange = null;
 
             try
             {
@@ -160,13 +162,138 @@ namespace CloudPanel.code
 
         #endregion
 
-        private dynamic GetExchangeClass()
+        #region Domains
+
+        public void New_AcceptedDomain(Domain newDomain)
         {
-            return new Exch2010(string.Format("https://{0}/powershell", Settings.ExchangeServer),
-                                Settings.Username,
-                                Settings.DecryptedPassword,
-                                Settings.ExchangeConnection.Equals("Kerberos", StringComparison.CurrentCultureIgnoreCase) ? true : false,
-                                Settings.PrimaryDC);
+            dynamic exchange = null;
+
+            try
+            {
+                if (string.IsNullOrEmpty(newDomain.CompanyCode))
+                    throw new MissingFieldException("Domain", "CompanyCode");
+
+                if (newDomain.DomainID == null || newDomain.DomainID <= 0)
+                    throw new MissingFieldException("Domain", "ID");
+
+                var domain = (from c in db.Domains
+                              where c.DomainID == newDomain.DomainID
+                              where c.CompanyCode == newDomain.CompanyCode
+                              select c).First();
+
+                exchange = GetExchangeClass();
+                exchange.New_AcceptedDomain(newDomain);
+
+                domain.IsAcceptedDomain = true;
+                domain.DomainType = newDomain.DomainType;
+
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error adding new accepted domain for {0} with domain id {1}. Error: {2}", newDomain.CompanyCode, newDomain.DomainID, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (exchange != null)
+                    exchange.Dispose();
+            }
         }
+
+        public void Update_AcceptedDomain(Domain updateDomain)
+        {
+            dynamic exchange = null;
+
+            try
+            {
+                if (string.IsNullOrEmpty(updateDomain.CompanyCode))
+                    throw new MissingFieldException("Domain", "CompanyCode");
+
+                if (updateDomain.DomainID <= 0)
+                    throw new MissingFieldException("Domain", "ID");
+
+                var domain = (from c in db.Domains
+                              where c.DomainID == updateDomain.DomainID
+                              where c.CompanyCode == updateDomain.CompanyCode
+                              select c).First();
+
+                exchange = GetExchangeClass();
+                exchange.Update_AcceptedDomain(updateDomain);
+
+                domain.IsAcceptedDomain = true;
+                domain.DomainType = updateDomain.DomainType == null ? 1 : updateDomain.DomainType; // Set to authoritative if it isn't specified
+
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error updating domain for {0} with domain id {1}. Error: {2}", updateDomain.CompanyCode, updateDomain.DomainID, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (exchange != null)
+                    exchange.Dispose();
+            }
+        }
+
+        public void Remove_AcceptedDomain(Domain deleteDomain)
+        {
+            dynamic exchange = null;
+
+            try
+            {
+                if (string.IsNullOrEmpty(deleteDomain.CompanyCode))
+                    throw new MissingFieldException("Domain", "CompanyCode");
+
+                if (deleteDomain.DomainID <= 0)
+                    throw new MissingFieldException("Domain", "ID");
+
+                var domain = (from c in db.Domains
+                              where c.DomainID == deleteDomain.DomainID
+                              where c.CompanyCode == deleteDomain.CompanyCode
+                              select c).First();
+
+                exchange = GetExchangeClass();
+                exchange.Remove_AcceptedDomain(deleteDomain);
+
+                domain.IsAcceptedDomain = false;
+                domain.DomainType = 0;
+
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error removing accepted domain for {0} with domain id {1}. Error: {2}", deleteDomain.CompanyCode, deleteDomain.DomainID, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (exchange != null)
+                    exchange.Dispose();
+            }
+        }
+
+        #endregion
+
+        public static dynamic GetExchangeClass()
+        {
+            if (Settings.ExchangeVersion == 2010)
+                return new Exch2010(string.Format("https://{0}/powershell", Settings.ExchangeServer),
+                                    Settings.Username,
+                                    Settings.DecryptedPassword,
+                                    Settings.ExchangeConnection.Equals("Kerberos", StringComparison.CurrentCultureIgnoreCase) ? true : false,
+                                    Settings.PrimaryDC);
+            else if (Settings.ExchangeVersion == 2013)
+                return new Exch2013(string.Format("https://{0}/powershell", Settings.ExchangeServer),
+                                   Settings.Username,
+                                   Settings.DecryptedPassword,
+                                   Settings.ExchangeConnection.Equals("Kerberos", StringComparison.CurrentCultureIgnoreCase) ? true : false,
+                                   Settings.PrimaryDC);
+            else
+                return null;
+        }
+
     }
 }

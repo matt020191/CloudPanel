@@ -248,21 +248,21 @@ namespace CloudPanel.ActiveDirectory
                 log.DebugFormat("Adding the following domains {0} to all organizational units under {1}", string.Join(", ", domains), distinguishedName);
 
                 de = GetDirectoryEntry(distinguishedName);
-                dr = new DirectorySearcher(de, "(objectClass=OrganizationalUnit)", new[] { "uPNSuffixes" }, SearchScope.Subtree);
+                dr = new DirectorySearcher(de);
+                dr.Filter = "(objectClass=OrganizationalUnit)";
+                dr.SearchScope = SearchScope.Subtree;
 
-                foreach (var org in dr.FindAll())
+                foreach (SearchResult sr in dr.FindAll())
                 {
                     // Get our organizational unit
-                    DirectoryEntry tmp = (DirectoryEntry)org;
+                    DirectoryEntry tmp = sr.GetDirectoryEntry();
 
                     // Get a list of current domains
-                    var current = (string[])tmp.Properties["uPNSuffixes"].Value;
+                    PropertyValueCollection uPNSuffixes = tmp.Properties["uPNSuffixes"];
 
-                    // Loop through each domain and add the ones that don't exist
                     foreach (var d in domains)
                     {
-                        int found = (from c in current where c.Equals(d, StringComparison.CurrentCultureIgnoreCase) select c).Count();
-                        if (found == 0)
+                        if (!tmp.Properties["uPNSuffixes"].Contains(d))
                             tmp.Properties["uPNSuffixes"].Add(d);
                     }
 
@@ -299,21 +299,21 @@ namespace CloudPanel.ActiveDirectory
                 log.DebugFormat("Removing the following domains {0} to all organizational units under {1}", string.Join(", ", domains), distinguishedName);
 
                 de = GetDirectoryEntry(distinguishedName);
-                dr = new DirectorySearcher(de, "(objectClass=OrganizationalUnit)", new[] { "uPNSuffixes" }, SearchScope.Subtree);
+                dr = new DirectorySearcher(de);
+                dr.Filter = "(objectClass=OrganizationalUnit)";
+                dr.SearchScope = SearchScope.Subtree;
 
-                foreach (var org in dr.FindAll())
+                foreach (SearchResult sr in dr.FindAll())
                 {
                     // Get our organizational unit
-                    DirectoryEntry tmp = (DirectoryEntry)org;
+                    DirectoryEntry tmp = sr.GetDirectoryEntry();
 
                     // Get a list of current domains
-                    var current = (string[])tmp.Properties["uPNSuffixes"].Value;
+                    PropertyValueCollection uPNSuffixes = tmp.Properties["uPNSuffixes"];
 
-                    // Loop through each domain and remove the ones that exist
                     foreach (var d in domains)
                     {
-                        int found = (from c in current where c.Equals(d, StringComparison.CurrentCultureIgnoreCase) select c).Count();
-                        if (found > 0)
+                        if (tmp.Properties["uPNSuffixes"].Contains(d))
                             tmp.Properties["uPNSuffixes"].Remove(d);
                     }
 

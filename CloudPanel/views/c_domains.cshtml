@@ -85,25 +85,31 @@
             "bFilter": true,
             "bLengthChange": true,
             "sPaginationType": "full_numbers",
-            "sAjaxSource": "@Url.Content("~/Company/Domains/")" + "@Model/json",
+            "sAjaxSource": "@Url.Content("~/Company/Domains/"+Model+"/json")",
             "aoColumns": [
                 { "mData": "Domain1", "bSortable": false },
                 {
-                    "mData": "IsDefault", "bSortable": false, "bSearchable": false, "mRender": function (data) {
-                        if (data == true)
-                            return "<span class='glyphicon glyphicon-check'></span>"
+                    "mData": "IsDefault", "bSortable": false, "bSearchable": false, "mRender": function (data, type, full) {
+                        if (data) {
+                            return "<span class='glyphicon glyphicon-check'></span>";
+                        } else {
+                            return "";
+                        }
                     }
                 },
                 {
-                    "mData": "IsAcceptedDomain", "bSortable": false, "bSearchable": false, "mRender": function (data) {
-                        if (data == true)
-                            return "<span class='glyphicon glyphicon-check'></span>"
+                    "mData": "IsAcceptedDomain", "bSortable": false, "bSearchable": false, "mRender": function (data, type, full) {
+                        if (data) {
+                            return "<span class='glyphicon glyphicon-check'></span>";
+                        } else {
+                            return "";
+                        }
                     }
                 },
                 {
                     "mData": "DomainID", "bSortable": false, "bSearchable": false, "mRender": function (data, type, full) {
                         return "<div class='btn-group pull-right'>" +
-                                    "<a href='#' class='btn btn-xs btn-orange' onclick='GetDomain(\"" + data + "\");'>@Text.words.Modify</a>" +
+                                    "<a href='@Url.Content("~/Company/Domains/"+Model+"/")"+data+"' class='btn btn-xs btn-orange'>@Text.words.Modify</a>" +
                                     "<button type='button' class='btn btn-xs btn-orange dropdown-toggle' data-toggle='dropdown'>" +
                                         "<span class='caret'></span>" +
                                         "<span class='sr-only'>@Text.words.Dropdown</span>" +
@@ -115,7 +121,7 @@
                                     "</ul>" +
                                     "</div>";
                     }
-                },
+                }
             ]
         });
 

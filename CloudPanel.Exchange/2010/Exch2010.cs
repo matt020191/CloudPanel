@@ -338,5 +338,81 @@ namespace CloudPanel.Exchange
         }
 
         #endregion
+
+        #region Domains
+
+        public void New_AcceptedDomain(Domain newDomain)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("New-AcceptedDomain");
+            cmd.AddParameter("Name", newDomain.Domain1);
+            cmd.AddParameter("DomainName", newDomain.Domain1);
+
+            switch (newDomain.DomainType)
+            {
+                case 2:
+                    cmd.AddParameter("DomainType", "InternalRelay");
+                    break;
+                case 3:
+                    cmd.AddParameter("DomainType", "ExternalRelay");
+                    break;
+                default:
+                    cmd.AddParameter("DomainType", "Authoritative");
+                    break;
+            }
+
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+
+            logger.InfoFormat("Created new accepted domain {0}", newDomain.Domain1);
+        }
+
+        public void Update_AcceptedDomain(Domain updateDomain)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Set-AcceptedDomain");
+            cmd.AddParameter("Identity", updateDomain.Domain1);
+
+            switch (updateDomain.DomainType)
+            {
+                case 2:
+                    cmd.AddParameter("DomainType", "InternalRelay");
+                    break;
+                case 3:
+                    cmd.AddParameter("DomainType", "ExternalRelay");
+                    break;
+                default:
+                    cmd.AddParameter("DomainType", "Authoritative");
+                    break;
+            }
+
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+
+            logger.DebugFormat("Removed accepted domain {0}", updateDomain.Domain1);
+        }
+
+        public void Remove_AcceptedDomain(Domain deleteDomain)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Remove-AcceptedDomain");
+            cmd.AddParameter("Identity", deleteDomain.Domain1);
+            cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors(true);
+
+            logger.InfoFormat("Removed accepted domain {0}", deleteDomain.Domain1);
+        }
+
+        #endregion
     }
 }

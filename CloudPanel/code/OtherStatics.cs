@@ -1,4 +1,6 @@
-﻿using CloudPanel.Database.EntityFramework;
+﻿using CloudPanel.Base.Config;
+using CloudPanel.Database.EntityFramework;
+using CloudPanel.Exchange;
 //
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.

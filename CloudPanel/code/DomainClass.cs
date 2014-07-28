@@ -51,21 +51,46 @@ namespace CloudPanel.code
 
         public void Update_Domain(Domain updateDomain)
         {
+            if (string.IsNullOrEmpty(updateDomain.CompanyCode))
+                throw new MissingFieldException("Domain", "CompanyCode");
+
+            if (updateDomain.DomainID <= 0)
+                throw new MissingFieldException("Domain", "ID");
+
+            // Retrieve our domain that we are updating from the database
             var domain = (from d in db.Domains
                           where d.DomainID == updateDomain.DomainID
                           where d.CompanyCode == updateDomain.CompanyCode
                           select d).First();
 
+            // Lets see if it is default
+            if (updateDomain.IsDefault)
+            {
+                domain.IsDefault = true;
 
-        }
+                // Remove default attribute from the rest since this is the new default
+                var domains = from d in db.Domains
+                              where d.CompanyCode == updateDomain.CompanyCode
+                              select d;
 
-        private Exch2010 GetExchangeClass()
-        {
-            return new Exch2010(string.Format("https://{0}/powershell", Settings.ExchangeServer),
-                                Settings.Username,
-                                Settings.DecryptedPassword,
-                                Settings.ExchangeConnection.Equals("Kerberos", StringComparison.CurrentCultureIgnoreCase) ? true : false,
-                                Settings.PrimaryDC);
+                foreach (var d in domains)
+                {
+                    if (d.DomainID != domain.DomainID)
+                        d.IsDefault = false;
+                }
+            }
+            db.SaveChanges();
+
+            //
+            // Exchange settings
+            //
+            EmailClass email = new EmailClass();
+            if (!domain.IsAcceptedDomain && updateDomain.IsAcceptedDomain)
+                email.New_AcceptedDomain(updateDomain);
+            else if (domain.IsAcceptedDomain && !updateDomain.IsAcceptedDomain)
+                email.Remove_AcceptedDomain(updateDomain);
+            else if (domain.IsAcceptedDomain && updateDomain.IsAcceptedDomain)
+                email.Update_AcceptedDomain(updateDomain);
         }
     }
 }
