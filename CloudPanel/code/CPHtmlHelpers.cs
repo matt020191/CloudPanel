@@ -127,7 +127,7 @@ namespace CloudPanel.code
             return new NonEncodedHtmlString(htmlSelectBox);
         }
 
-        public static IHtmlString GetCompanyPlans(string companyCode, int orgID)
+        public static IHtmlString GetCompanyPlans(string companyCode, int? orgID)
         {
             var sb = new StringBuilder();
 
@@ -136,7 +136,9 @@ namespace CloudPanel.code
             {
                 db = new CloudPanelContext(Settings.ConnectionString);
 
-                var plans = from p in db.Plans_Organization orderby p.OrgPlanName select p;
+                var plans = from p in db.Plans_Organization 
+                            orderby p.OrgPlanName select p;
+
                 foreach (var p in plans)
                 {
                     sb.AppendFormat("<option value='{0}' {1}>{2}</option>",

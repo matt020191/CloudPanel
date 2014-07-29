@@ -64,6 +64,10 @@ namespace CloudPanel.modules
                 try
                 {
                     var data = this.Bind<Company>();
+
+                    Companies companies = new Companies();
+                    companies.Create(data, Request.Form.DomainName, _.Resellercode);
+                    
                     return View["companies.cshtml", _.ResellerCode];
                 }
                 catch (Exception ex)

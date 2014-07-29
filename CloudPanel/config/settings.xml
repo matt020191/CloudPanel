@@ -1,14 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <cloudpanel>
+  <Database></Database>
   <Settings>
     <!-- The name of the hoster. Do not change this value after implementation if you are not using resellers -->
     <CompanyName>Know More IT</CompanyName>
     <!-- The DISTINGUISHEDNAME from Active Directory of the OU you will be placing all the reseller and company objects in -->
     <HostingOU>OU=Hosting,DC=lab,DC=local</HostingOU>
     <!-- The OU to place users in instead of the default company directory -->
-    <UsersOU>asdf</UsersOU>
+    <UsersOU></UsersOU>
     <!-- The primary domain controller that CloudPanel should communicate with -->
-    <PrimaryDC>DC.lab.local</PrimaryDC>
+    <PrimaryDC>LAB-DC.lab.local</PrimaryDC>
     <!-- A domain user that has rights to Create/Update/Delete from Active Directory, Exchange and other services -->
     <Username>LAB\Administrator</Username>
     <!-- The password for the domain user listed above -->
@@ -25,9 +26,9 @@
   <!-- Microsoft Exchange -->
   <Exchange>
     <!-- The server or network load balancer for Microsoft Exchange CAS -->
-    <ExchangeServer>exch2013.lab.local</ExchangeServer>
+    <ExchangeServer>LAB-EXCH2013.lab.local</ExchangeServer>
     <!-- The server for public folder access (normally the mailbox server) -->
-    <ExchangePFServer>exch2013.lab.local</ExchangePFServer>
+    <ExchangePFServer>LAB-EXCH2013.lab.local</ExchangePFServer>
     <!-- If public folders are going to be offered or not -->
     <ExchangePFEnabled>true</ExchangePFEnabled>
     <!-- The version of Exchange (2010 or 2013) -->

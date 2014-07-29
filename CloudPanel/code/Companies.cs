@@ -89,7 +89,12 @@ namespace CloudPanel.code
                 newOrg.UPNSuffixes = new[] { domainName };
                 newOrg.Description = newCompany.Description;
 
-                var createdCompany = organizationalUnits.Create(Settings.HostingOU, newOrg);
+                OrganizationalUnit createdCompany = null;
+                if (Settings.ResellersEnabled)
+                    createdCompany = organizationalUnits.Create(string.Format("OU={0},{1}", resellerCode, Settings.HostingOU), newOrg);
+                else
+                    createdCompany = organizationalUnits.Create(Settings.HostingOU, newOrg);
+
                 reverse.AddAction(Actions.CreateOrganizationalUnit, createdCompany.DistinguishedName);
 
                 //
@@ -99,19 +104,19 @@ namespace CloudPanel.code
 
                 // Create Admins@ group
                 SecurityGroup newGroup = new SecurityGroup();
-                newGroup.Name = string.Format("Admins@", strippedCompanyCode);
+                newGroup.Name = string.Format("Admins@{0}", strippedCompanyCode);
                 newGroup.SamAccountName = newGroup.Name.Length > 19 ? newGroup.Name.Substring(0, 18) : newGroup.Name;
                 groups.Create(createdCompany.DistinguishedName, newGroup);
                 reverse.AddAction(Actions.CreateSecurityGroup, newGroup.Name);
 
                 // Create AllUsers@ group
-                newGroup.Name = string.Format("AllUsers@", strippedCompanyCode);
+                newGroup.Name = string.Format("AllUsers@{0}", strippedCompanyCode);
                 newGroup.SamAccountName = newGroup.Name.Length > 19 ? newGroup.Name.Substring(0, 18) : newGroup.Name;
                 groups.Create(createdCompany.DistinguishedName, newGroup);
                 reverse.AddAction(Actions.CreateSecurityGroup, newGroup.Name);
 
                 // Create AllTSUsers@ group
-                newGroup.Name = string.Format("AllTSUsers@", strippedCompanyCode);
+                newGroup.Name = string.Format("AllTSUsers@{0}", strippedCompanyCode);
                 newGroup.SamAccountName = newGroup.Name.Length > 19 ? newGroup.Name.Substring(0, 18) : newGroup.Name;
                 groups.Create(createdCompany.DistinguishedName, newGroup);
                 reverse.AddAction(Actions.CreateSecurityGroup, newGroup.Name);
