@@ -126,7 +126,7 @@ namespace CloudPanel.modules
                         Companies companies = new Companies();
                         Domain domain = companies.GetDomain(_.CompanyCode, _.DomainID);
 
-                        return View["c_domainsedit.cshtml", domain];
+                        return View["c_domainsedit.cshtml", new { Domain = domain, IsExchangeEnabled = companies.IsExchangeEnabled(_.CompanyCode) }];
                     }
                     catch (Exception ex)
                     {
