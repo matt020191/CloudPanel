@@ -352,6 +352,12 @@
                             <input type="text" id="CreateDomainName" name="DomainName" class="form-control" required>
                         </div>
                     </div>
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="control-label">@Text.words.Plan <span class="asterisk">*</span></label>
+                            @CloudPanel.code.CPHtmlHelpers.GetCompanyPlans(Model, null)
+                        </div>
+                    </div>
                     <div style="text-align: right" class="clearfix">
                         <br />
                         <input id="btnCreateNew" type="submit" value="@Text.words.Create" class="btn btn-success" />
@@ -733,6 +739,10 @@
         return $('#CompanyNameValidation').val() == $('#spanCompanyName').text()
     }, "* @Text.phrases.Resellers_DeleteDidNotMatch");
 
+    $.validator.addMethod("optionNotDefault", function (value, element, defaultOption) {
+        return value != defaultOption;
+    }, "@Text.phrases.ChooseOption");
+
     $(document).ready(function () {
         $("#companiesDataTable").dataTable({
             "bProcessing": true,
@@ -805,6 +815,10 @@
                         type: "POST",
                         url: "@Url.Content("~/ajax/validation/domain/")"
                     }
+                },
+                OrgPlanID: {
+                    required: true,
+                    optionNotDefault: 0
                 }
             },
             highlight: function (element) {
@@ -816,7 +830,7 @@
         });
 
         // Chosen Select
-        jQuery("select").chosen({
+        jQuery("select.chosen-select").chosen({
             'min-width': '200px',
             'white-space': 'nowrap',
             disable_search_threshold: 10
