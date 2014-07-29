@@ -148,6 +148,17 @@ namespace CloudPanel.code
                 newCompany.IsReseller = false;
 
                 db.Companies.Add(newCompany);
+
+                db.Domains.Add(new Domain
+                    {
+                        CompanyCode = newCompany.CompanyCode,
+                        Domain1 = domainName,
+                        IsAcceptedDomain = false,
+                        IsLyncDomain = false,
+                        IsSubDomain = false,
+                        IsDefault = true,
+                    });
+
                 db.SaveChanges();
 
                 log.InfoFormat("Successfully created new company {0}", newCompany.CompanyName);
