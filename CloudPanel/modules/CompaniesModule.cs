@@ -46,8 +46,6 @@ namespace CloudPanel.modules
             this.RequiresAuthentication();
             this.RequiresAnyClaim(new[] { "SuperAdmin" });
 
-            #region Companies
-
             Get["/{ResellerCode}"] = _ =>
             {
                 // Set the selected reseller code in the user context
@@ -110,8 +108,6 @@ namespace CloudPanel.modules
                         return View["companies.cshtml", _.ResellerCode];
                     }
                 };
-
-            #endregion
         }
     }
 }

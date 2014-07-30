@@ -772,7 +772,12 @@
             }
         });
 
-        $("#resellerDataTable").dataTable();
+        $("#resellerDataTable").dataTable({
+            "bJQueryUI": false,
+            "bFilter": true,
+            "bLengthChange": true,
+            "sPaginationType": "full_numbers"
+        });
 
         // Chosen Select
         jQuery("select").chosen({
