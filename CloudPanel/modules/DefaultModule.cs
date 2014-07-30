@@ -42,6 +42,11 @@ namespace CloudPanel.modules
     {
         public DefaultModule()
         {
+            Get["/"] = _ =>
+                {
+                    return View["login.cshtml"];
+                };
+
             Get["/login"] = _ =>
                 {
                     return View["login.cshtml"];
