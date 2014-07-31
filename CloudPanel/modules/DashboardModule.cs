@@ -34,19 +34,133 @@ using System.Linq;
 using System.Web;
 using Nancy.Authentication;
 using Nancy.Security;
+using CloudPanel.Database.EntityFramework;
+using CloudPanel.Base.Config;
+using System.Globalization;
 
 namespace CloudPanel.modules
 {
     public class DashboardModule : NancyModule
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(DashboardModule));
+
         public DashboardModule() : base("/dashboard")
         {
             this.RequiresAuthentication();
 
             Get["/"] = _ =>
-            {
-                return View["dashboard.cshtml"];
-            };
+                {
+                    return View["dashboard.cshtml"];
+                };
+
+            Get["/chart/area/json"] = _ =>
+                {
+                    CloudPanelContext db = null;
+                    try
+                    {
+                        db = new CloudPanelContext(Settings.ConnectionString);
+
+                        string[] months = new string[12];
+
+                        int?[] userCount = new int?[12];
+                        int?[] exchCount = new int?[12];
+                        int?[] citrixCount = new int?[12];
+
+                        DateTime yearAgo = DateTime.Now.AddMonths(-11);
+                        for (int i = 0; i < 12; i++)
+                        {
+                            months[i] = yearAgo.ToString("MMM");
+                            userCount[i] = GetUserCount(ref db, yearAgo);
+
+                            if (Settings.ExchangeModule)
+                                exchCount[i] = GetMailboxCount(ref db, yearAgo);
+
+                            if (Settings.CitrixModule)
+                                citrixCount[i] = GetCitrixCount(ref db, yearAgo);
+
+                            yearAgo = yearAgo.AddMonths(1);
+                        }
+
+                        return Response.AsJson(new
+                            {
+                                months = months,
+                                users = userCount,
+                                exchange = exchCount,
+                                citrix = citrixCount
+                            });
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Error retrieving area chart for dashboard. Error: {0}", ex.ToString());
+                        return HttpStatusCode.InternalServerError;
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+                    }
+                };
+        }
+
+        private int? GetUserCount(ref CloudPanelContext db, DateTime pickDate)
+        {
+            int value = 0;
+
+            if (pickDate.Month == DateTime.Now.Month && pickDate.Year == DateTime.Now.Year)
+                value = (from u in db.Users
+                         select u.ID).Count();
+            else
+                value = (from d in db.Stats_UserCount
+                         where d.StatDate.Month == pickDate.Month
+                         where d.StatDate.Year == pickDate.Year
+                         orderby d.StatDate descending
+                         select d.UserCount).FirstOrDefault();
+
+            if (value == 0)
+                return null;
+            else
+                return value;
+        }
+
+        private int? GetMailboxCount(ref CloudPanelContext db, DateTime pickDate)
+        {
+            int value = 0;
+
+            if (pickDate.Month == DateTime.Now.Month && pickDate.Year == DateTime.Now.Year)
+                value = (from u in db.Users
+                         where u.MailboxPlan > 0
+                         select u.ID).Count();
+            else
+                value = (from d in db.Stats_ExchCount
+                         where d.StatDate.Month == pickDate.Month
+                         where d.StatDate.Year == pickDate.Year
+                         orderby d.StatDate descending
+                         select d.UserCount).FirstOrDefault();
+
+            if (value == 0)
+                return null;
+            else
+                return value;
+        }
+
+        private int? GetCitrixCount(ref CloudPanelContext db, DateTime pickDate)
+        {
+            int value = 0;
+
+            if (pickDate.Month == DateTime.Now.Month && pickDate.Year == DateTime.Now.Year)
+                value = (from u in db.UserPlansCitrix
+                         select u.UserID).Distinct().Count();
+            else
+                value = (from d in db.Stats_CitrixCount
+                         where d.StatDate.Month == pickDate.Month
+                         where d.StatDate.Year == pickDate.Year
+                         orderby d.StatDate descending
+                         select d.UserCount).FirstOrDefault();
+
+            if (value == 0)
+                return null;
+            else
+                return value;
         }
     }
 }
