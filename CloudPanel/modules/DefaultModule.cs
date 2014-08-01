@@ -65,7 +65,7 @@ namespace CloudPanel.modules
                     }
                     else
                     {
-                        return this.LoginAndRedirect(usersGuid.Value, null, "dashboard");
+                        return this.LoginAndRedirect(usersGuid.Value, null, "/dashboard");
                     }
                 };
 

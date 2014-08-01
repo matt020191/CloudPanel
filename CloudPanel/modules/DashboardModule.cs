@@ -37,6 +37,8 @@ using Nancy.Security;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Base.Config;
 using System.Globalization;
+using System.Data.SqlClient;
+using System.Threading;
 
 namespace CloudPanel.modules
 {
@@ -46,11 +48,99 @@ namespace CloudPanel.modules
 
         public DashboardModule() : base("/dashboard")
         {
-            this.RequiresAuthentication();
+           // this.RequiresAuthentication();
 
             Get["/"] = _ =>
                 {
                     return View["dashboard.cshtml"];
+                };
+
+            Get["/chart/progress/json"] = _ =>
+                {
+                    CloudPanelContext db = null;
+                    try
+                    {
+                        db = new CloudPanelContext(Settings.ConnectionString);
+
+                        // Get the total count of users
+                        int users = (from u in db.Users select u.ID).Count();
+                        int domains = (from d in db.Domains select d.DomainID).Count();
+
+                        //
+                        // Get Exchange information
+                        // 
+                        int mailboxes = 0;
+                        int acceptedDomains = 0;
+                        if (Settings.ExchangeModule)
+                        {
+                            mailboxes = (from u in db.Users where u.MailboxPlan > 0 select u.ID).Count();
+                            acceptedDomains = (from d in db.Domains where d.IsAcceptedDomain select d.DomainID).Count();
+                        }
+
+
+                        return Response.AsJson(new
+                        {
+                            totalusers = users,
+                            totalmailboxes = mailboxes,
+                            totaldomains = domains,
+                            totalaccepteddomains = acceptedDomains
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Error retrieving area chart for dashboard. Error: {0}", ex.ToString());
+                        return HttpStatusCode.InternalServerError;
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+                    }
+                };
+
+            Get["/chart/pie/json"] = _ =>
+                {
+                    SqlConnection sql = null;
+                    SqlCommand cmd = null;
+                    try
+                    {
+                        sql = new SqlConnection(Settings.ConnectionString);
+                        cmd = new SqlCommand(@"SELECT TOP 5
+                                               (SELECT CompanyName FROM Companies WHERE CompanyCode=u.CompanyCode) AS CompanyName,
+                                               COUNT(ID) AS Total FROM Users u
+                                               GROUP BY CompanyCode ORDER BY Total DESC", sql);
+
+                        var array = new List<object>();
+                        sql.Open();
+
+                        SqlDataReader r = cmd.ExecuteReader();
+                        while (r.Read())
+                        {
+                            array.Add(new
+                            {
+                                name = r["CompanyName"].ToString(),
+                                y = (int)r["Total"]
+                            });
+                        }
+
+                        return Response.AsJson(new
+                        {
+                            totals = array
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Error retrieving pie chart for dashboard. Error: {0}", ex.ToString());
+                        return HttpStatusCode.InternalServerError;
+                    }
+                    finally
+                    {
+                        if (cmd != null)
+                            cmd.Dispose();
+
+                        if (sql != null)
+                            sql.Dispose();
+                    }
                 };
 
             Get["/chart/area/json"] = _ =>

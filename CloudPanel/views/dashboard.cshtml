@@ -22,29 +22,43 @@
             </div>
             <div class="panel-body">
                 <div class="row">
-                    <div class="col-sm-8">
+                    <div id="areaChartDiv" class="col-sm-8">
                         <div id="areaChart"></div>
                     </div>
                     <div class="col-sm-4">
-                        <span class="sublabel">Mailbox Usage (3TB / 6TB)</span>
-                        <div class="progress progress-sm progress-striped active">
-                            <div class="progress-bar progress-bar-primary animate-progress-bar" data-percentage="50%"></div>
-                        </div>
+                        <h5 class="subtitle mb5">Server Status</h5>
+                        <p class="mb15">Summary of the status of your server.</p>
 
-                        <span class="sublabel">Mailboxes (900) / 1000)</span>
-                        <div class="progress progress-sm progress-striped active">
-                            <div class="progress-bar progress-bar-success animate-progress-bar" data-percentage="90%"></div>
-                        </div>
+                        <span class="sublabel">CPU Usage (40.05 - 32 cpus)</span>
+                        <div class="progress progress-sm">
+                            <div style="width: 40%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="40" role="progressbar" class="progress-bar progress-bar-primary"></div>
+                        </div><!-- progress -->
 
-                        <span class="sublabel">Citrix Users (100) / 1000)</span>
-                        <div class="progress progress-sm progress-striped active">
-                            <div class="progress-bar progress-bar-warning animate-progress-bar" data-percentage="10%"></div>
-                        </div>
+                        <span class="sublabel">Memory Usage (32.2%)</span>
+                        <div class="progress progress-sm">
+                            <div style="width: 32%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="40" role="progressbar" class="progress-bar progress-bar-success"></div>
+                        </div><!-- progress -->
 
-                        <span class="sublabel">Lync Users (50) / 1000)</span>
-                        <div class="progress progress-sm progress-striped active">
-                            <div class="progress-bar progress-bar-danger animate-progress-bar" data-percentage="5%"></div>
-                        </div>
+                        <span class="sublabel">Disk Usage (82.2%)</span>
+                        <div class="progress progress-sm">
+                            <div style="width: 82%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="40" role="progressbar" class="progress-bar progress-bar-danger"></div>
+                        </div><!-- progress -->
+
+                        <span class="sublabel">Databases (63/100)</span>
+                        <div class="progress progress-sm">
+                            <div style="width: 63%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="40" role="progressbar" class="progress-bar progress-bar-warning"></div>
+                        </div><!-- progress -->
+
+                        <span class="sublabel">Domains (2/10)</span>
+                        <div class="progress progress-sm">
+                            <div style="width: 20%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="40" role="progressbar" class="progress-bar progress-bar-success"></div>
+                        </div><!-- progress -->
+
+                        <span class="sublabel">Email Account (13/50)</span>
+                        <div class="progress progress-sm">
+                            <div style="width: 26%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="40" role="progressbar" class="progress-bar progress-bar-success"></div>
+                        </div><!-- progress -->
+
 
                     </div>
                 </div>
@@ -63,8 +77,8 @@
                 <!-- panel-btns -->
                 <h3 class="panel-title">Top 5 Customers</h3>
             </div>
-            <div class="panel-body">
-                <div id="columnchart"></div>
+            <div id="pieChartDiv" class="panel-body">
+                <div id="pieChart"></div>
             </div>
         </div>
     </div>
@@ -117,7 +131,6 @@
 
 @section CUSTOMJAVASCRIPT{
     <script src="~/Content/js/highcharts/highcharts.js"></script>
-    <script src="~/Content/js/highcharts/highcharts-3d.js"></script>
     <script type="text/javascript">
 
         function GenerateAreaChart() {
@@ -135,8 +148,12 @@
 
             $.ajax({
                 type: "get",
+                async: true,
                 url: "@Url.Content("~/dashboard/chart/area/json")",
                 dataType: "json",
+                beforeSend: function(jqxhr, settings) {
+                    $('#areaChartDiv').block();
+                },
                 success: function (data) {
                     areaChart.addSeries({ name: "@Text.words.Users", data: data.users });
 
@@ -148,86 +165,62 @@
 
                     areaChart.xAxis[0].categories = data.months;
                     areaChart.redraw();
+                },
+                complete: function (jqxhr, status) {
+                    $('#areaChartDiv').unblock();
                 }
             });
         }
 
-        function GenerateColumnChart() {
-            var columnChart = new Highcharts.Chart({
-                chart: {
-                    type: 'column',
-                    renderTo: 'columnchart',
-                    backgroundColor: 'transparent'
-                },
-                title: {
-                    text: ''
-                },
-                xAxis: {
-                    categories: [
-                        'Users',
-                        'Mailboxes',
-                        'Mailbox GB Used',
-                        'Mailbox GB Allocated'
-                    ]
-                },
-                yAxis: {
-                    min: 0,
-                    title: {
-                        text: ''
-                    }
-                },
-                credits: {
-                    enabled: false
-                },
-                tooltip: {
-                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                    pointFormat:  '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                                  '<td style="padding:0"><b>{point.y}</b></td></tr>',
-                    footerFormat: '</table>',
-                    shared: true,
-                    useHTML: true
-                },
-                plotOptions: {
-                    column: {
-                        pointPadding: 0.2,
-                        borderWidth: 0
-                    }
-                },
-                series: []
-            });
-
+        function GeneratePieChart() {
             $.ajax({
                 type: "get",
-                url: "@Url.Content("~/charts/column/dashboard/top/5/json")",
+                async: true,
+                url: "@Url.Content("~/dashboard/chart/pie/json")",
                 dataType: "json",
+                beforeSend: function (jqxhr, settings) {
+                    $('#pieChartDiv').block();
+                },
                 success: function (data) {
-                    $.each(data, function (index, value) {
-                        columnChart.addSeries({
-                            name: data[index].companyName,
-                            data: [
-                                data[index].TotalUsers,
-                                data[index].TotalMailboxes,
-                                data[index].TotalExchInGBUsed,
-                                data[index].TotalExchInGBAllocated
-                            ]
-                        });
+                    var pieChart = new Highcharts.Chart({
+                        chart: {
+                            renderTo: 'pieChart',
+                            plotBackgroundColor: null,
+                            plotBorderWidth: null,
+                            plotShadow: false
+                        },
+                        title: { text: '' },
+                        credits: { enabled: false },
+                        plotOptions: {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer'
+                            }
+                        },
+                        series: [{
+                            type: 'pie',
+                            name: '@Text.words.Users',
+                            data: data.totals
+                        }]
                     });
-                    columnChart.redraw();
+                },
+                complete: function (jqxhr, status) {
+                    $('#pieChartDiv').unblock();
                 }
             });
         }
 
         $(document).ready(function () {
-
-            $('.animate-progress-bar').each(function () {
-                $(this).css('width', $(this).attr("data-percentage"));
-            });
-
+            
             $('.animate-number').each(function () {
                 $(this).animateNumbers($(this).attr("data-value"), true, parseInt($(this).attr("data-animation-duration")));
             });
+            
+            $.blockUI.defaults.message = "<img src='@Url.Content("~/Content/images/loaders/loader10.gif")' />"
+            $.blockUI.defaults.overlayCSS = {};
+            $.blockUI.defaults.css = {};
 
-            GenerateColumnChart();
+            GeneratePieChart();
 
             GenerateAreaChart();
         });

@@ -236,7 +236,6 @@
     <Content Include="content\images\is-document.png" />
     <Content Include="content\images\is-money.png" />
     <Content Include="content\images\is-user.png" />
-    <Content Include="content\images\loaders\index.html" />
     <Content Include="content\images\loaders\loader1.gif" />
     <Content Include="content\images\loaders\loader10.gif" />
     <Content Include="content\images\loaders\loader11.gif" />
@@ -267,6 +266,7 @@
     <Content Include="content\images\loaders\loader7.gif" />
     <Content Include="content\images\loaders\loader8.gif" />
     <Content Include="content\images\loaders\loader9.gif" />
+    <Content Include="content\images\loaders\loader_large.gif" />
     <Content Include="content\images\locked.png" />
     <Content Include="content\images\minus%402x.png" />
     <Content Include="content\images\minus.png" />
