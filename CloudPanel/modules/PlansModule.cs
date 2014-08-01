@@ -37,6 +37,7 @@ using System.Web;
 using Nancy.ModelBinding;
 using CloudPanel.code;
 using CloudPanel.Base.Exceptions;
+using System.Dynamic;
 
 namespace CloudPanel.modules
 {
@@ -128,6 +129,65 @@ namespace CloudPanel.modules
                 };
 
             #endregion
-        }    
+
+            #region Activesync Plans
+            Get["/activesync"] = _ =>
+                {
+                    var thing = View["p_activesync.cshtml", new {
+                        Plans = new[] { new { Name = "Chicken", ID = "12345" }.ToExpando() },
+                        DisplayName = "Ploob",
+                        Description = "Description",
+                        RefreshIntervalInHours = "3",
+                        AllowNonProvisionableDevices = true,
+                        RequirePassword = true,
+                        RequireAlphanumericPassword = false,
+                        MinCharacterSets = "4",
+                        EnablePasswordRecovery = true,
+                        RequireEncryptionOnDevice = false,
+                        RequireEncryptionOnStorageCard = true,
+                        AllowSimplePassword = true,
+                        NumberOfFailedAttempted = "50",
+                        MinimumPasswordLength = "5",
+                        InactivityTimeoutInMinutes = "15",
+                        PasswordExpirationInDays = "30",
+                        EnforcePasswordHistory = false,
+                        IncludePastCalendarItems = "TwoWeeks",
+                        IncludePastEmailItems = "All",
+                        AllowDirectPushWhenRoaming = true,
+                        LimitEmailSizeInKB = "10000",
+                        AllowHTMLEmail = true,
+                        AllowAttachmentsDownload = false,
+                        MaximumAttachmentSizeInKB = "8000",
+                        AllowRemovableStorage = true,
+                        AllowCamera = true,
+                        AllowWiFi = true,
+                        AllowInfrared = true,
+                        AllowInternetSharing = true,
+                        AllowRemoteDesktop = true,
+                        AllowDesktopSync = true,
+                        AllowTextMessaging = true,
+                        AllowBluetooth = "HandsfreeOnly",
+                        AllowBrowser = true,
+                        AllowConsumerMail = true,
+                        AllowUnsignedApplications = true,
+                        AllowUnsignedInstallationPackages = true,
+                    }.ToExpando()];
+
+                    return thing;
+                };
+            #endregion
+
+        }
+    }
+
+    public static class AnonymousTypeMixins
+    {
+        public static ExpandoObject ToExpando(this object obj)
+        {
+            IDictionary<string, object> expando = new ExpandoObject();
+            foreach (var info in obj.GetType().GetProperties())
+                expando.Add(new KeyValuePair<string, object>(info.Name, info.GetValue(obj)));
+            return (ExpandoObject)expando;
+        }
     }
 }

@@ -61,6 +61,15 @@ namespace CloudPanel.localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The ability to modify policies on this tab is a premium Exchange ActiveSync feature that requires an Exchange Enterprise Client Access License for each mailbox policies are restricted on..
+        /// </summary>
+        internal static string ActiveSync_ExchangeEnterpriseMessage {
+            get {
+                return ResourceManager.GetString("ActiveSync_ExchangeEnterpriseMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please choose an option.
         /// </summary>
         internal static string ChooseOption {
