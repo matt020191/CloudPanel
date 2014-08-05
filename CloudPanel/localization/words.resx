@@ -462,4 +462,142 @@
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="AllowNonProvisionableDevices" xml:space="preserve">
+    <value>Allow non-provisionable devices</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="RefreshIntervalInHours" xml:space="preserve">
+    <value>Refresh Interval (Hours)</value>
+  </data>
+  <data name="AllowAttachmentsDownload" xml:space="preserve">
+    <value>Allow attachments to be downloaded to device</value>
+  </data>
+  <data name="AllowBluetooth" xml:space="preserve">
+    <value>Allow Bluetooth</value>
+  </data>
+  <data name="AllowBrowser" xml:space="preserve">
+    <value>Allow Browser</value>
+  </data>
+  <data name="AllowCamera" xml:space="preserve">
+    <value>Allow camera</value>
+  </data>
+  <data name="AllowConsumerMail" xml:space="preserve">
+    <value>Allow consumer mail</value>
+  </data>
+  <data name="AllowDesktopSync" xml:space="preserve">
+    <value>Allow desktop synchronization</value>
+  </data>
+  <data name="AllowHTMLEmail" xml:space="preserve">
+    <value>Allow HTML formatted email</value>
+  </data>
+  <data name="AllowInfrared" xml:space="preserve">
+    <value>Allow Infrared</value>
+  </data>
+  <data name="AllowInternetSharing" xml:space="preserve">
+    <value>Allow internet sharing from device</value>
+  </data>
+  <data name="AllowRemoteDesktop" xml:space="preserve">
+    <value>Allow remote desktop from device</value>
+  </data>
+  <data name="AllowRemovableStorage" xml:space="preserve">
+    <value>Allow removable storage</value>
+  </data>
+  <data name="AllowSimplePassword" xml:space="preserve">
+    <value>Allow simple password</value>
+  </data>
+  <data name="AllowTextMessaging" xml:space="preserve">
+    <value>Allow text messaging</value>
+  </data>
+  <data name="AllowUnsignedApplications" xml:space="preserve">
+    <value>Allow unsigned applications</value>
+  </data>
+  <data name="AllowUnsignedInstallationPackages" xml:space="preserve">
+    <value>Allow unsigned installation packages</value>
+  </data>
+  <data name="AllowWiFi" xml:space="preserve">
+    <value>Allow Wi-Fi</value>
+  </data>
+  <data name="BluetoothOptions_Allow" xml:space="preserve">
+    <value>Allow</value>
+  </data>
+  <data name="BluetoothOptions_Disable" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="BluetoothOptions_HandsfreeOnly" xml:space="preserve">
+    <value>Handsfree Only</value>
+  </data>
+  <data name="EnablePasswordRecovery" xml:space="preserve">
+    <value>Enable password recovery</value>
+  </data>
+  <data name="EnforcePasswordHistory" xml:space="preserve">
+    <value>Enforce password history</value>
+  </data>
+  <data name="InactivityTimeoutInMinutes" xml:space="preserve">
+    <value>Inactivity Timeout (Minutes)</value>
+  </data>
+  <data name="IncludePastCalendarItems" xml:space="preserve">
+    <value>Include past calendar items</value>
+  </data>
+  <data name="IncludePastEmailItems" xml:space="preserve">
+    <value>Include past email items</value>
+  </data>
+  <data name="LimitEmailSizeInKB" xml:space="preserve">
+    <value>Limit email size (KB)</value>
+  </data>
+  <data name="MaximumAttachmentSizeInKB" xml:space="preserve">
+    <value>Maximum attachment size (KB)</value>
+  </data>
+  <data name="MinimumPasswordLength" xml:space="preserve">
+    <value>Minimum password length</value>
+  </data>
+  <data name="MinNumberCharacterSets" xml:space="preserve">
+    <value>Minimum number of character sets</value>
+  </data>
+  <data name="NumberOfFailedAttempted" xml:space="preserve">
+    <value>Number of failed attempts allowed</value>
+  </data>
+  <data name="PasswordExpirationInDays" xml:space="preserve">
+    <value>Password expiration (Days)</value>
+  </data>
+  <data name="RequireAlphanumericPassword" xml:space="preserve">
+    <value>Require alphanumeric password</value>
+  </data>
+  <data name="RequireEncryptionCard" xml:space="preserve">
+    <value>Require Encryption on Storage Card</value>
+  </data>
+  <data name="RequireEncryptionOnDevice" xml:space="preserve">
+    <value>Require Encryption on Device</value>
+  </data>
+  <data name="RequireManualSyncWhenRoaming" xml:space="preserve">
+    <value>Require manual sync when roaming</value>
+  </data>
+  <data name="RequirePassword" xml:space="preserve">
+    <value>Require password</value>
+  </data>
+  <data name="Timespan_All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Timespan_OneDay" xml:space="preserve">
+    <value>One Day</value>
+  </data>
+  <data name="Timespan_OneMonth" xml:space="preserve">
+    <value>One Month</value>
+  </data>
+  <data name="Timespan_OneWeek" xml:space="preserve">
+    <value>One Week</value>
+  </data>
+  <data name="Timespan_SixMonths" xml:space="preserve">
+    <value>Six Months</value>
+  </data>
+  <data name="Timespan_ThreeDays" xml:space="preserve">
+    <value>Three Days</value>
+  </data>
+  <data name="Timespan_ThreeMonths" xml:space="preserve">
+    <value>Three Months</value>
+  </data>
+  <data name="Timespan_TwoWeeks" xml:space="preserve">
+    <value>Two Weeks</value>
+  </data>
 </root>

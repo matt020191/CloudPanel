@@ -678,6 +678,7 @@
     <Content Include="content\js\toggles.min.js" />
     <Content Include="content\js\wysihtml5-0.3.0.min.js" />
     <Content Include="Global.asax" />
+    <None Include="views\p_activesync.cshtml" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
