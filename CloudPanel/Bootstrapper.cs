@@ -10,12 +10,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using CloudPanel.code;
 
 namespace CloudPanel
 {
     public class Bootstrapper : DefaultNancyBootstrapper
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(Bootstrapper));
+        private static readonly Auditor auditor = new Auditor();
 
         protected override void ApplicationStartup(Nancy.TinyIoc.TinyIoCContainer container, Nancy.Bootstrapper.IPipelines pipelines)
         {
@@ -27,6 +29,8 @@ namespace CloudPanel
 
             // Enable cookie based sessions
             CookieBasedSessions.Enable(pipelines);
+
+            auditor.AuditOn(pipelines);
 
             base.ApplicationStartup(container, pipelines);
         }
@@ -40,6 +44,7 @@ namespace CloudPanel
             // database "context" or other request scoped services.
             container.Register<IUserMapper, UserMapper>();
             container.Register<CloudPanelContext>((x, y) => string.IsNullOrEmpty(Settings.ConnectionString) ? null : new CloudPanelContext(Settings.ConnectionString));
+            container.Register<Auditor>(auditor);
         }
 
         protected override void RequestStartup(TinyIoCContainer requestContainer, IPipelines pipelines, NancyContext context)
@@ -58,6 +63,31 @@ namespace CloudPanel
                 };
 
             FormsAuthentication.Enable(pipelines, formsAuthConfiguration);
+        }
+    }
+
+    public static class AuditorMixins
+    {
+        public static void AuditOn(this Auditor This, IPipelines pipelines)
+        {
+            var methods = new[] { "POST", "DELETE", "PUT", "PATCH", };
+            pipelines.AfterRequest += x =>
+            {
+                int statusCode = (int)x.Response.StatusCode;
+                if (statusCode >= 200 && statusCode < 300 && methods.Contains(x.ResolvedRoute.Description.Method))
+                {
+                    var currentUser = x.CurrentUser as AuthenticatedUser;
+
+                    var ip = x.Request.UserHostAddress;
+                    var user = x.CurrentUser.UserName;
+                    var companyCode = currentUser == null ? "" : currentUser.CompanyCode;
+                    var method = x.ResolvedRoute.Description.Method;
+                    var path = x.ResolvedRoute.Description.Path;
+                    var info = x.Items.FirstOrDefault(y => y.Key == "AuditInfo").Value;
+
+                    This.Audit(user, companyCode, method, path, ip, info as string);
+                }
+            };
         }
     }
 }
