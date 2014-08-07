@@ -54,7 +54,7 @@ namespace CloudPanel.modules
                 {
                     try
                     {
-                        string domain = Request.Form.DomainName;
+                        string domain = Request.Query.DomainName;
 
                         // Validate the domain
                         if (domain.Contains(" ") || !domain.Contains("."))
