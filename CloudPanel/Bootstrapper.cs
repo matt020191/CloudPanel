@@ -73,7 +73,10 @@ namespace CloudPanel
             pipelines.AfterRequest += x =>
             {
                 int statusCode = (int)x.Response.StatusCode;
-                if (statusCode >= 200 && statusCode < 300 && methods.Contains(x.ResolvedRoute.Description.Method))
+                var info = x.Items.FirstOrDefault(y => y.Key == AUDIT_INFO_KEY).Value;
+
+                if ((statusCode >= 200 && statusCode < 300 && methods.Contains(x.ResolvedRoute.Description.Method)) ||
+                    (info != null))
                 {
                     var currentUser = x.CurrentUser as AuthenticatedUser;
 
@@ -82,7 +85,6 @@ namespace CloudPanel
                     var companyCode = currentUser == null ? "" : currentUser.CompanyCode ?? "";
                     var method = x.ResolvedRoute.Description.Method;
                     var path = x.Request.Path;
-                    var info = x.Items.FirstOrDefault(y => y.Key == "AuditInfo").Value;
 
                     This.Audit(user, companyCode, method, path, ip, info as string);
                 }
