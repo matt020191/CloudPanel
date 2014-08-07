@@ -88,5 +88,12 @@ namespace CloudPanel
                 }
             };
         }
+
+        public static void AuditIdentifyingInfo(this NancyModule This, string info)
+        {
+            This.Context.Items[AUDIT_INFO_KEY] = info;
+        }
+
+        private const string AUDIT_INFO_KEY = "AuditIdentifyingInfo";
     }
 }
