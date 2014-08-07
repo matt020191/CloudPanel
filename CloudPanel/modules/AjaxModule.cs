@@ -50,7 +50,7 @@ namespace CloudPanel.modules
 
             #region Validation
 
-            Post["/validation/domain"] = _ =>
+            Get["/validation/domain"] = _ =>
                 {
                     try
                     {
