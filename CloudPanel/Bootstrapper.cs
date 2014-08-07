@@ -81,7 +81,7 @@ namespace CloudPanel
                     var user = x.CurrentUser.UserName;
                     var companyCode = currentUser == null ? "" : currentUser.CompanyCode ?? "";
                     var method = x.ResolvedRoute.Description.Method;
-                    var path = x.ResolvedRoute.Description.Path;
+                    var path = x.Request.Path;
                     var info = x.Items.FirstOrDefault(y => y.Key == "AuditInfo").Value;
 
                     This.Audit(user, companyCode, method, path, ip, info as string);
