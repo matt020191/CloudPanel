@@ -40,6 +40,7 @@ namespace CloudPanel
                 newUser.UserGuid = Guid.NewGuid();
                 newUser.UserName = username;
                 newUser.Claims = new[] { "SuperAdmin" };
+                newUser.CompanyCode = "XYZ";
                 loggedInUsers.Add(newUser);
 
                 userRecord = newUser;
