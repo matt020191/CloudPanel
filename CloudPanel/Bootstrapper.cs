@@ -44,7 +44,6 @@ namespace CloudPanel
             // database "context" or other request scoped services.
             container.Register<IUserMapper, UserMapper>();
             container.Register<CloudPanelContext>((x, y) => string.IsNullOrEmpty(Settings.ConnectionString) ? null : new CloudPanelContext(Settings.ConnectionString));
-            container.Register<Auditor>(auditor);
         }
 
         protected override void RequestStartup(TinyIoCContainer requestContainer, IPipelines pipelines, NancyContext context)
@@ -80,7 +79,7 @@ namespace CloudPanel
 
                     var ip = x.Request.UserHostAddress;
                     var user = x.CurrentUser.UserName;
-                    var companyCode = currentUser == null ? "" : currentUser.CompanyCode;
+                    var companyCode = currentUser == null ? "" : currentUser.CompanyCode ?? "";
                     var method = x.ResolvedRoute.Description.Method;
                     var path = x.ResolvedRoute.Description.Path;
                     var info = x.Items.FirstOrDefault(y => y.Key == "AuditInfo").Value;
