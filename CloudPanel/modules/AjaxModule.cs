@@ -50,11 +50,11 @@ namespace CloudPanel.modules
 
             #region Validation
 
-            Post["/validation/domain"] = _ =>
+            Get["/validation/domain"] = _ =>
                 {
                     try
                     {
-                        string domain = Request.Form.DomainName;
+                        string domain = Request.Query.DomainName;
 
                         // Validate the domain
                         if (domain.Contains(" ") || !domain.Contains("."))
