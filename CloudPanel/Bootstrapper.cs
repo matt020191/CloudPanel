@@ -10,12 +10,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using CloudPanel.code;
 
 namespace CloudPanel
 {
     public class Bootstrapper : DefaultNancyBootstrapper
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(Bootstrapper));
+        private static readonly Auditor auditor = new Auditor();
 
         protected override void ApplicationStartup(Nancy.TinyIoc.TinyIoCContainer container, Nancy.Bootstrapper.IPipelines pipelines)
         {
@@ -27,6 +29,8 @@ namespace CloudPanel
 
             // Enable cookie based sessions
             CookieBasedSessions.Enable(pipelines);
+
+            auditor.AuditOn(pipelines);
 
             base.ApplicationStartup(container, pipelines);
         }
@@ -59,5 +63,39 @@ namespace CloudPanel
 
             FormsAuthentication.Enable(pipelines, formsAuthConfiguration);
         }
+    }
+
+    public static class AuditorMixins
+    {
+        public static void AuditOn(this Auditor This, IPipelines pipelines)
+        {
+            var methods = new[] { "POST", "DELETE", "PUT", "PATCH", };
+            pipelines.AfterRequest += x =>
+            {
+                int statusCode = (int)x.Response.StatusCode;
+                var info = x.Items.FirstOrDefault(y => y.Key == AUDIT_INFO_KEY).Value;
+
+                if ((statusCode >= 200 && statusCode < 300 && methods.Contains(x.ResolvedRoute.Description.Method)) ||
+                    (info != null))
+                {
+                    var currentUser = x.CurrentUser as AuthenticatedUser;
+
+                    var ip = x.Request.UserHostAddress;
+                    var user = x.CurrentUser.UserName;
+                    var companyCode = currentUser == null ? "" : currentUser.CompanyCode ?? "";
+                    var method = x.ResolvedRoute.Description.Method;
+                    var path = x.Request.Path;
+
+                    This.Audit(user, companyCode, method, path, ip, info as string);
+                }
+            };
+        }
+
+        public static void AuditIdentifyingInfo(this NancyModule This, string info)
+        {
+            This.Context.Items[AUDIT_INFO_KEY] = info;
+        }
+
+        private const string AUDIT_INFO_KEY = "AuditIdentifyingInfo";
     }
 }

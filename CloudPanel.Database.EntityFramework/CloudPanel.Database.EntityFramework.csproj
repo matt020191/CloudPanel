@@ -61,6 +61,10 @@
     <Compile Include="Migrations\201407080136532_UpgradeTo3.1.Designer.cs">
       <DependentUpon>201407080136532_UpgradeTo3.1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201408071616205_ChangeAuditTable.cs" />
+    <Compile Include="Migrations\201408071616205_ChangeAuditTable.Designer.cs">
+      <DependentUpon>201408071616205_ChangeAuditTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Mapping\ApiAccessMap.cs" />
     <Compile Include="Models\Mapping\AuditLoginMap.cs" />
@@ -110,6 +114,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201407080136532_UpgradeTo3.1.resx">
       <DependentUpon>201407080136532_UpgradeTo3.1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201408071616205_ChangeAuditTable.resx">
+      <DependentUpon>201408071616205_ChangeAuditTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

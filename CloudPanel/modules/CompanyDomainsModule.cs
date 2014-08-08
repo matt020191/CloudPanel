@@ -107,7 +107,9 @@ namespace CloudPanel.modules
                     try
                     {
                         Companies companies = new Companies();
-                        companies.AddDomain(_.CompanyCode, Request.Form.DomainName);
+                        string domainName = Request.Form.DomainName;
+                        companies.AddDomain(_.CompanyCode, domainName);
+                        this.AuditIdentifyingInfo(domainName);
                     }
                     catch (Exception ex)
                     {

@@ -37,9 +37,10 @@ namespace CloudPanel.Base.Database.Models
         public int AuditID { get; set; }
         public string CompanyCode { get; set; }
         public string Username { get; set; }
-        public System.DateTime Date { get; set; }
-        public int ActionID { get; set; }
-        public string Variable1 { get; set; }
-        public string Variable2 { get; set; }
+        public DateTime? Timestamp { get; set; }
+        public string Method { get; set; }
+        public string Path { get; set; }
+        public string IdentifyingInfo { get; set; }
+        public string UserHostAddress { get; set; }
     }
 }

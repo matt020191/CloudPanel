@@ -683,6 +683,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="code\Auditor.cs" />
     <Compile Include="code\AuthenticatedUser.cs" />
     <Compile Include="code\BrandingsRequest.cs" />
     <Compile Include="code\CitrixClass.cs" />
