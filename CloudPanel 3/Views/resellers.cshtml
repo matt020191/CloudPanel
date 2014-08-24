@@ -1,0 +1,155 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+@{
+    Layout = "__master.cshtml";
+}
+@section HEAD{
+    <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
+}
+
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li class="active">Resellers</li>
+    </ol>
+
+    <h1>Resellers</h1>
+    <div class="options">
+        <div class="btn-toolbar">
+            <a href="#" class="btn btn-primary hidden-xs">Add New</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Select a Reseller</div>
+                <div class="panel-body">
+                    <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered datatables" id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>Company Name</th>
+                                <th>Company Code</th>
+                                <th>Created</th>
+                                <th>Total Companies</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Loading...</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<form id="editForm" action="" method="post">
+    <input type="hidden" name="_method" value="PUT" />
+    <div id="editModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Edit Reseller</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this reseller?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Delete Modal -->
+<form id="deleteForm" action="" method="post">
+    <input type="hidden" name="_method" value="DELETE" />
+    <div id="deleteModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Edit Reseller</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this reseller?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section JAVASCRIPT{
+    <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
+    <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
+    <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#dataTable").DataTable({
+                "serverSide": true,
+                "processing": true,
+                "ajax": {
+                    type: 'GET',
+                    dataType: 'json'
+                },
+                "columns": [
+                    { "data": "companyName", "render": function (data, type, full, meta) {
+                        return '<a href="' + @Url.Content("~/companies/") + full["companyCode"] + '">' + data + '</a>';
+                        }
+                    },
+                    { "data": "companyCode" },
+                    {
+                        "data": "created", "render": function (data, type, full, meta) {
+                            return moment(data).format('LLLL');
+                        }
+                    },
+                    { "data": "totalCompanies" },
+                    {
+                        "data": "companyCode", "orderable": false, "className": "text-right", "render": function (data, type, full, meta) {
+                            return GetButton(data);
+                        }
+                    }
+                ]
+            });
+        });
+
+        function SetForm(element)
+        {
+            var companyCode = $(element).data("id");
+            var href = $(element).attr('href');
+            $(href).closest("form").attr("action", "@Url.Content("~/resellers/")" + companyCode);
+        }
+
+        function GetButton(companyCode) {
+            return '<div class="btn-group"> \
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"> \
+                                Modify <span class="caret"></span> \
+                            </button> \
+                            <ul class="dropdown-menu" role="menu"> \
+                                <li><a href="#editModal" data-toggle="modal" data-id="' + companyCode + '" onclick="SetForm(this);">Edit</a></li> \
+                                <li class="divider"></li> \
+                                <li><a href="#deleteModal" data-toggle="modal" data-id="' + companyCode + '" onclick="SetForm(this);">Delete</a></li> \
+                            </ul> \
+                    </div>';
+        }
+    </script>
+}

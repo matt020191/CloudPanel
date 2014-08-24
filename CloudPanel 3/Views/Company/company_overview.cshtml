@@ -1,0 +1,155 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+@{
+    Layout = "__master.cshtml";
+}
+@section HEAD{
+<link href="~/Content/plugins/charts-morrisjs/morris.css" rel="stylesheet" />
+}
+
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li class="active">@Model.company.CompanyName</li>
+    </ol>
+
+    <h1>@Model.company.CompanyName</h1>
+</div>
+
+<div class="container">
+    <div class="row">
+
+        <!-- Company Info -->
+        <div class="col-md-8">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Company Information</div>
+                <div class="panel-body">
+                    <p>Information on your company</p>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Company Name</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="CompanyName" name="CompanyName" value="@Model.company.CompanyName">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Point of Contact</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="AdminName" name="AdminName" value="@Model.company.AdminName">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Email for Point of Contact</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="AdminEmail" name="AdminEmail" value="@Model.company.AdminEmail">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Telephone</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="PhoneNumber" name="PhoneNumber" value="@Model.company.PhoneNumber">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Website</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="Website" name="Website" value="@Model.company.Website">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Company Plan</label>
+                            <div class="col-sm-6">
+                                @CloudPanel.CPHtmlHelpers.GetCompanyPlans(Model.company.OrgPlanID)
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="panel-footer">
+                    <div class="col-sm-12 text-right">
+                        <div class="btn-toolbar">
+                            <button class="btn-primary btn">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="col-md-4">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Company Limits</div>
+                <div class="panel-body">
+                    <div class="col-xs-12">
+                        <p>Details on how close your company is to the limit.</p>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="domcontext">
+                                <div class="contextual-progress">
+                                    <div class="clearfix">
+                                        <div class="progress-title">Users</div>
+                                        <div class="progress-percentage _users">@Model.totalUsers / @Model.companyPlan.MaxUsers</div>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-info _users" style="width: @((int)(0.5f + ((100f * Model.totalUsers) / Model.companyPlan.MaxUsers)))%"></div>
+                                    </div>
+                                </div> <!-- Users -->
+                                <div class="contextual-progress">
+                                    <div class="clearfix">
+                                        <div class="progress-title">Domains</div>
+                                        <div class="progress-percentage _domains">@Model.totalDomains / @Model.companyPlan.MaxDomains</div>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-primary _domains" style="width: @((int)(0.5f + ((100f * Model.totalDomains) / Model.companyPlan.MaxDomains)))%"></div>
+                                    </div>
+                                </div> <!-- Domains -->
+                                <div class="contextual-progress">
+                                    <div class="clearfix">
+                                        <div class="progress-title">Mailboxes</div>
+                                        <div class="progress-percentage _mailboxes">@Model.totalMailboxes / @Model.companyPlan.MaxExchangeMailboxes</div>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-warning _mailboxes" style="width: @((int)(0.5f + ((100f * Model.totalMailboxes) / Model.companyPlan.MaxExchangeMailboxes)))%"></div>
+                                    </div>
+                                </div> <!-- Mailboxes -->
+                                <div class="contextual-progress">
+                                    <div class="clearfix">
+                                        <div class="progress-title">Contacts</div>
+                                        <div class="progress-percentage _contacts">@Model.totalContacts / @Model.companyPlan.MaxExchangeContacts</div>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-danger _contacts" style="width: @((int)(0.5f + ((100f * Model.totalContacts) / Model.companyPlan.MaxExchangeContacts)))%"></div>
+                                    </div>
+                                </div> <!-- Contacts -->
+                                <div class="contextual-progress">
+                                    <div class="clearfix">
+                                        <div class="progress-title">Distribution Groups</div>
+                                        <div class="progress-percentage _groups">@Model.totalGroups / @Model.companyPlan.MaxExchangeDistLists</div>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success _groups" style="width: @((int)(0.5f + ((100f * Model.totalGroups) / Model.companyPlan.MaxExchangeDistLists)))%"></div>
+                                    </div>
+                                </div> <!-- Distribution Groups -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section JAVASCRIPT{
+    <script src="~/Content/plugins/charts-morrisjs/morris.min.js"></script>
+    <script src="~/Content/plugins/charts-morrisjs/raphael.min.js"></script>
+    <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $.ajax({
+                dataType: "json",
+                success: function (data) {
+                    
+                }
+            });
+        });
+    </script>
+}

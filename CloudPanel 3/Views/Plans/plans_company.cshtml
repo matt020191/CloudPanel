@@ -1,0 +1,132 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+@{
+    Layout = "__master.cshtml";
+}
+@section HEAD{
+    <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
+}
+
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li class="active">Company Plans</li>
+    </ol>
+
+    <h1>Company Plans</h1>
+    <div class="options">
+        <div class="btn-toolbar">
+            <a href="#" class="btn btn-primary hidden-xs">Add New</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary">
+                    <div class="panel-heading">Details</div>
+                    <div class="panel-body form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Name</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="DisplayName" name="DisplayName">
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="help-block">
+                                    <span data-toggle="tooltip" data-original-title="Enter a name to identity the plan. Examples: Small Company, Large Company" class="tooltip-ex">
+                                        <i class="fa fa-question-circle"></i>
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Users</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="MaxUsers" name="MaxUsers">
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="help-block">
+                                    <span data-toggle="tooltip" data-original-title="Set the maximum users allowed. This will limit the amount of users a company can create when assigned this plan." class="tooltip-ex">
+                                        <i class="fa fa-question-circle"></i>
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Domains</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="MaxDomains" name="MaxDomains">
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="help-block">
+                                    <span data-toggle="tooltip" data-original-title="Set the maximum domains allowed. This will limit the amount of domains a company can create when assigned this plan." class="tooltip-ex">
+                                        <i class="fa fa-question-circle"></i>
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Microsoft Exchange</div>
+                <div class="panel-body form-horizontal">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Mailboxes</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="DisplayName" name="DisplayName">
+                        </div>
+                        <div class="col-sm-3">
+                            <p class="help-block">
+                                <span data-toggle="tooltip" data-original-title="Enter a name to identity the plan. Examples: Small Company, Large Company" class="tooltip-ex">
+                                    <i class="fa fa-question-circle"></i>
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Maximum Users</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="MaxUsers" name="MaxUsers">
+                        </div>
+                        <div class="col-sm-3">
+                            <p class="help-block">
+                                <span data-toggle="tooltip" data-original-title="Set the maximum users allowed. This will limit the amount of users a company can create when assigned this plan." class="tooltip-ex">
+                                    <i class="fa fa-question-circle"></i>
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Domains</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="MaxDomains" name="MaxDomains">
+                        </div>
+                        <div class="col-sm-3">
+                            <p class="help-block">
+                                <span data-toggle="tooltip" data-original-title="Set the maximum domains allowed. This will limit the amount of domains a company can create when assigned this plan." class="tooltip-ex">
+                                    <i class="fa fa-question-circle"></i>
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section JAVASCRIPT{
+    <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
+    <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
+    <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+        });
+    </script>
+}
