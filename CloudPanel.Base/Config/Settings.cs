@@ -40,8 +40,9 @@ namespace CloudPanel.Base.Config
         public static string ConnectionString
         {
             get 
-            { 
-                return "server=DXN-PC\\SQLEXPRESS;database=CloudPanel;uid=CloudPanel;password=password;";
+            {
+                // Need ;Persist Security Info=True for EF6 connection open (when handling opening and closing connetions ourselves
+                return "server=DXN-PC\\SQLEXPRESS;database=CloudPanel;uid=CloudPanel;password=password;Persist Security Info=True";
                 //return "server=172.31.0.91;database=CloudPanel;uid=sa;password=Password1";
             }
         }

@@ -2,6 +2,7 @@
 using CloudPanel.Base.Charting;
 using CloudPanel.Database.EntityFramework;
 using Nancy;
+using Nancy.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,9 @@ namespace CloudPanel.Modules
     {
         public SuperChartsModule() : base("/charts/super")
         {
+            this.RequiresAuthentication();
+            this.RequiresAnyClaim(new[] { "SuperAdmin" });
+
             Get["/customers/top/{X:int}"] = _ =>
                 {
                     int top = _.X;

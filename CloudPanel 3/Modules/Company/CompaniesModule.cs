@@ -1,6 +1,7 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Database.EntityFramework;
 using Nancy;
+using Nancy.Security;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -11,9 +12,12 @@ namespace CloudPanel.Modules.Companies
     {
         public CompaniesModule() : base("/companies/{ResellerCode}")
         {
+            this.RequiresAuthentication();
+
             Get["/"] = _ =>
             {
                 string resellerCode = _.ResellerCode;
+                NancyContextHelpers.SetSelectedResellerCode(this.Context, _.ResellerCode);
 
                 #region Returns the companies view with model or json data based on the request
                 CloudPanelContext db = null;

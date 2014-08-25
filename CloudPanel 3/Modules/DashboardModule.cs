@@ -1,6 +1,7 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Database.EntityFramework;
 using Nancy;
+using Nancy.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,8 @@ namespace CloudPanel.Modules
     {
         public DashboardModule() : base("/dashboard")
         {
+            this.RequiresAuthentication();
+
             Get["/"] = _ =>
                 {
                     CloudPanelContext db = null;

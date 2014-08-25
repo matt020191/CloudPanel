@@ -1,37 +1,52 @@
-﻿<nav id="page-leftbar" role="navigation">
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@{bool isSuperAdmin = CloudPanel.NancyContextHelpers.IsSuperAdmin(this.RenderContext.Context);}
+@{string selectedResellerCode = CloudPanel.NancyContextHelpers.GetSelectedResellerCode(this.RenderContext.Context);}
+@{string selectedCompanyCode = CloudPanel.NancyContextHelpers.GetSelectedCompanyCode(this.RenderContext.Context);}
+
+<nav id="page-leftbar" role="navigation">
     <ul class="acc-menu" id="sidebar">
         <li><a href="~/dashboard"><i class="fa fa-home"></i> <span>Dashboard</span></a></li>
-        <li><a href="~/dashboard"><i class="fa fa-building"></i> <span>Companies</span></a></li>
-        <li>
-            <a href="javascript:;"><i class="fa fa-pencil"></i> <span>Plans</span> </a>
-            <ul class="acc-menu">
-                <li><a href="~/plans/citrix">Citrix</a></li>
-                <li><a href="~/plans/company">Company</a></li>
-                <li>
-                    <a href="javascript:;">Exchange</a>
-                    <ul class="acc-menu">
-                        <li><a href="~/plans/exchange/mailbox">Mailbox Plans</a></li>
-                        <li><a href="~/plans/exchange/activesync">Activesync Plans</a></li>
-                    </ul>
-                </li>
-                <li><a href="~/plans/lync">Lync</a></li>
-            </ul>
-        </li>
-        <li><a href="~/reports"><i class="fa fa-bar-chart-o"></i> <span>Reports</span></a></li>
+        @if (isSuperAdmin) {
+        <li><a href="~/resellers"><i class="fa fa-users"></i> <span>Resellers</span></a></li>
+        }
+        @if (!string.IsNullOrEmpty(selectedResellerCode)) { 
+            <li><a href="@Url.Content("~/companies/" + selectedResellerCode)"><i class="fa fa-building"></i> <span>Companies</span></a></li>
+        }
+        @if (isSuperAdmin)
+        {
+            <li>
+                <a href="javascript:;"><i class="fa fa-pencil"></i> <span>Plans</span> </a>
+                <ul class="acc-menu">
+                    <li><a href="~/plans/citrix">Citrix</a></li>
+                    <li><a href="~/plans/company/new">Company</a></li>
+                    <li>
+                        <a href="javascript:;">Exchange</a>
+                        <ul class="acc-menu">
+                            <li><a href="~/plans/exchange/mailbox/new">Mailbox Plans</a></li>
+                            <li><a href="~/plans/exchange/activesync">Activesync Plans</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="~/plans/lync">Lync</a></li>
+                </ul>
+            </li>
+            <li><a href="~/reports"><i class="fa fa-bar-chart-o"></i> <span>Reports</span></a></li>
+        }
         <li class="divider"></li>
-        <li><a href="~/company/{CompanyCode}"><i class="fa fa-dashboard"></i> <span>Overview</span></a></li>
-        <li><a href="~/company/domains/{CompanyCode}"><i class="fa fa-globe"></i> <span>Domains</span></a></li>
-        <li><a href="~/company/users/{CompanyCode}"><i class="fa fa-user"></i> <span>Users</span></a></li>
-        <li>
-            <a href="javascript:;"><i class="fa fa-envelope"></i> <span>Exchange</span> </a>
-            <ul class="acc-menu">
-                <li><a href="~/company/exchange/contacts/{CompanyCode}">Contacts</a></li>
-                <li><a href="~/company/exchange/groups/{CompanyCode}">Distribution Groups</a></li>
-                <li><a href="~/company/exchange/resourcemailboxes/{CompanyCode}">Resource Mailboxes</a></li>
-                <li><a href="~/company/exchange/publicfolders/{CompanyCode}">Public Folders</a></li>
-            </ul>
-        </li>
-        <li><a href="~/company/citrix/{CompanyCode}"><i class="fa fa-tablet"></i> <span>Citrix</span></a></li>
-        <li><a href="~/company/billing/{CompanyCode}"><i class="fa fa-money"></i> <span>Billing</span></a></li>
+        @if (!string.IsNullOrEmpty(selectedCompanyCode)) { 
+            <li><a href="~/company/@selectedCompanyCode/overview"><i class="fa fa-dashboard"></i> <span>Overview</span></a></li>
+            <li><a href="~/company/domains/@selectedCompanyCode"><i class="fa fa-globe"></i> <span>Domains</span></a></li>
+            <li><a href="~/company/users/@selectedCompanyCode"><i class="fa fa-user"></i> <span>Users</span></a></li>
+            <li>
+                <a href="javascript:;"><i class="fa fa-envelope"></i> <span>Exchange</span> </a>
+                <ul class="acc-menu">
+                    <li><a href="~/company/exchange/contacts/@selectedCompanyCode">Contacts</a></li>
+                    <li><a href="~/company/exchange/groups/@selectedCompanyCode">Distribution Groups</a></li>
+                    <li><a href="~/company/exchange/resourcemailboxes/@selectedCompanyCode">Resource Mailboxes</a></li>
+                    <li><a href="~/company/exchange/publicfolders/@selectedCompanyCode">Public Folders</a></li>
+                </ul>
+            </li>
+            <li><a href="~/company/citrix/@selectedCompanyCode"><i class="fa fa-tablet"></i> <span>Citrix</span></a></li>
+            <li><a href="~/company/billing/@selectedCompanyCode"><i class="fa fa-money"></i> <span>Billing</span></a></li>
+        }
     </ul>
 </nav>

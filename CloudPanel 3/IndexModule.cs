@@ -1,4 +1,4 @@
-﻿namespace CloudPanel_3
+﻿namespace CloudPanel
 {
     using Nancy;
 

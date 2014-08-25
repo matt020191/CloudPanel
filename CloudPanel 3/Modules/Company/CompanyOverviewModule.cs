@@ -1,6 +1,7 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Database.EntityFramework;
 using Nancy;
+using Nancy.Security;
 using System;
 using System.Linq;
 
@@ -10,9 +11,12 @@ namespace CloudPanel.Modules
     {
         public CompanyOverviewModule() : base("/company/{CompanyCode}/overview")
         {
+            this.RequiresAuthentication();
+
             Get["/"] = _ =>
             {
                 string companyCode = _.CompanyCode;
+                NancyContextHelpers.SetSelectedCompanyCode(this.Context, _.CompanyCode);
 
                 CloudPanelContext db = null;
                 try

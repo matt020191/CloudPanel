@@ -37,36 +37,12 @@ namespace CloudPanel.Base.Charting
     public class TopXCustomers
     {
         public string CompanyCode { get; set; }
+
         public string CompanyName { get; set; }
 
-        public string ResellerCode { get; set; }
-
         public int TotalUsers { get; set; }
+
         public int TotalMailboxes { get; set; }
-
-        public decimal TotalExchInMBUsed { get; set; }
-        public decimal TotalExchInMBAllocated { get; set; }
-
-        public decimal TotalExchInGBUsed
-        {
-            get
-            {
-                if (TotalExchInMBUsed < 1)
-                    return 0;
-                else
-                    return decimal.Round(decimal.Parse(TotalExchInMBUsed.ToString()) / 1024, 2);
-            }
-        }
-        public decimal TotalExchInGBAllocated
-        {
-            get
-            {
-                if (TotalExchInMBAllocated < 1)
-                    return 0;
-                else
-                    return decimal.Round(decimal.Parse(TotalExchInMBAllocated.ToString()) / 1024, 2);
-            }
-        }
 
     }
 }
