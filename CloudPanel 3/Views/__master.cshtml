@@ -15,7 +15,7 @@
     <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
 
     <link href="~/Content/variations/theme-default.css" rel="stylesheet" />
-    
+
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries. Placeholdr.js enables the placeholder attribute -->
     <!--[if lt IE 9]>
         <link rel="stylesheet" href="~/content/css/ie8.css">
@@ -296,6 +296,23 @@
 
         <div id="page-content">
             <div id='wrap'>
+                @if (Model != null)
+                {
+                    var dict = ((System.Collections.Generic.IDictionary<string, object>)Model);
+                    if (dict.ContainsKey("success"))
+                        <div class="alert alert-dismissable alert-success"><strong>SUCCESS</strong> @Model.success <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button></div>
+                    
+                    if (dict.ContainsKey("info"))
+                        <div class="alert alert-dismissable alert-info"><strong>IFO</strong> @Model.success <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button></div>
+                    
+                    if (dict.ContainsKey("warning"))
+                        <div class="alert alert-dismissable alert-warning"><strong>WARNING</strong> @Model.warning <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button></div>
+                    
+                    if (dict.ContainsKey("error"))
+                        <div class="alert alert-dismissable alert-danger"><strong>ERROR</strong> @Model.error <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button></div>
+                    
+                }
+
                 @RenderBody()
             </div>
         </div>

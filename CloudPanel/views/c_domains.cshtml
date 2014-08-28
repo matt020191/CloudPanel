@@ -66,17 +66,7 @@
 <script src="~/Content/js/jquery.validate.min.js"></script>
 <script src="~/Content/js/jquery.datatables.min.js"></script>
 <script type="text/javascript">
-    $(document).ajaxStart(function () {
-        $.blockUI({
-            message: '<p>Processing</p><img src="@Url.Content("~/Content/images/loaders/loader25.gif")" />',
-            baseZ: 5000
-        });
-    });
-
-    $(document).ajaxStop($.unblockUI);
-
     $(document).ready(function () {
-
         $("#domainsDataTable").dataTable({
             "bProcessing": true,
             "bStateSave": false,

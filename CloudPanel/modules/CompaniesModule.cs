@@ -41,18 +41,17 @@ namespace CloudPanel.modules
 {
     public class CompaniesModule : NancyModule
     {
-        public CompaniesModule() : base("/Companies")
+        public CompaniesModule() : base("/companies")
         {
-            this.RequiresAuthentication();
-            this.RequiresAnyClaim(new[] { "SuperAdmin" });
+            //this.RequiresAuthentication();
 
             Get["/{ResellerCode}"] = _ =>
             {
                 // Set the selected reseller code in the user context
-                var user = this.Context.CurrentUser as AuthenticatedUser;
-                user.SelectedResellerCode = _.ResellerCode;
+                //var user = this.Context.CurrentUser as AuthenticatedUser;
+                //user.SelectedResellerCode = _.ResellerCode;
 
-                this.Context.CurrentUser = user;
+                //this.Context.CurrentUser = user;
 
                 return View["companies.cshtml", _.ResellerCode];
             };

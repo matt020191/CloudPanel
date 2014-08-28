@@ -1018,6 +1018,10 @@
     <Compile Include="Modules\Company\CompaniesModule.cs" />
     <Compile Include="Modules\Company\CompanyDomainsModule.cs" />
     <Compile Include="Modules\Company\CompanyOverviewModule.cs" />
+    <Compile Include="Modules\Company\CompanyUsersModule.cs" />
+    <Compile Include="Modules\Company\Exchange\ContactsModule.cs" />
+    <Compile Include="Modules\Company\Exchange\GroupsModule.cs" />
+    <Compile Include="Modules\Company\Exchange\ResourceModule.cs" />
     <Compile Include="Modules\DashboardModule.cs" />
     <Compile Include="Modules\ResellersModule.cs" />
     <Compile Include="Modules\LoginModule.cs" />
@@ -1257,6 +1261,10 @@
     <Content Include="Views\Plans\plans_mailbox.cshtml" />
     <Content Include="Views\login.cshtml" />
     <Content Include="Views\Company\company_domains.cshtml" />
+    <Content Include="Views\Company\company_users.cshtml" />
+    <Content Include="Views\Company\Exchange\company_contacts.cshtml" />
+    <Content Include="Views\Company\Exchange\company_groups.cshtml" />
+    <Content Include="Views\Company\Exchange\company_resourcemailboxes.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -1266,6 +1274,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\plugins\jquery-fileupload\server\php\files\thumbnail\" />
+    <Folder Include="Log\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CloudPanel.ActiveDirectory\CloudPanel.ActiveDirectory.csproj">

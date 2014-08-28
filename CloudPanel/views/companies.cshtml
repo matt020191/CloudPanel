@@ -17,24 +17,28 @@
 <div class="mb30"></div>
 
 <div class="row">
-    <table id="companiesDataTable" class="table table-dark table-hover mb30">
-        <thead>
-            <tr>
-                <th>@Text.words.Name</th>
-                <th>@Text.words.Address</th>
-                <th>@Text.words.Created</th>
-                <th style="width: 10%"></th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>@Text.phrases.Load_FromServer</td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <table id="companiesDataTable" class="table table-dark table-hover mb30">
+                <thead>
+                    <tr>
+                        <th>@Text.words.Name</th>
+                        <th>@Text.words.Address</th>
+                        <th>@Text.words.Created</th>
+                        <th style="width: 10%"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@Text.phrases.Load_FromServer</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <!-- New Company -->
@@ -755,14 +759,14 @@
             "sAjaxSource": "@Url.Content("~/ajax/reseller/" + Model + "/companies")",
             "aoColumns": [
                 {
-                    "mData": "CompanyName", "sTitle": "@Text.words.Name", "bSortable": true, "mRender": function (data, type, full) {
-                        return "<a href=\"" + @Url.Content("~/Company/") +full["CompanyCode"]+ "\">" + data + "</a>";
+                    "mData": "companyName", "sTitle": "@Text.words.Name", "bSortable": true, "mRender": function (data, type, full) {
+                        return "<a href=\"" + @Url.Content("~/Company/") +full["companyCode"]+ "\">" + data + "</a>";
                     }
                 },
-                { "mData": "FullAddressFormatted", "sTitle": "@Text.words.Address", "bSortable": false },
-                { "mData": "Created", "sTitle": "@Text.words.Created", "bSortable": false },
+                { "mData": "fullAddressFormatted", "sTitle": "@Text.words.Address", "bSortable": false },
+                { "mData": "created", "sTitle": "@Text.words.Created", "bSortable": false },
                 { 
-                    "mData": "CompanyCode", "bSortable": false, "bSearchable": false, "mRender": function (data, type, full) {
+                    "mData": "companyCode", "bSortable": false, "bSearchable": false, "mRender": function (data, type, full) {
                         return "<div class='btn-group pull-right'>" +
                                     "<a href='#' class='btn btn-xs btn-orange' onclick='GetCompany(\"" + data + "\");'>@Text.words.Modify</a>" +
                                     "<button type='button' class='btn btn-xs btn-orange dropdown-toggle' data-toggle='dropdown'>" +
@@ -771,7 +775,7 @@
                                     "</button>" +
                                     "<ul class='dropdown-menu' role='menu'>" +
                                     "<li>" +
-                                        "<a href='#' id='deleteCompanyLink' data-toggle='modal' data-target='#deleteModal' data-id='" + data + "' data-name='" + full["CompanyName"] + "'>@Text.words.Delete</a>" +
+                                        "<a href='#' id='deleteCompanyLink' data-toggle='modal' data-target='#deleteModal' data-id='" + data + "' data-name='" + full["companyName"] + "'>@Text.words.Delete</a>" +
                                     "</li>" +
                                     "</ul>" +
                                     "</div>";

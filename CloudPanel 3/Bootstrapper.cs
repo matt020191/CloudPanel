@@ -1,6 +1,9 @@
 ﻿namespace CloudPanel
 {
     using CloudPanel;
+    using CloudPanel.Base.Config;
+    using CloudPanel.Database.EntityFramework;
+    using log4net.Config;
     using Nancy;
     using Nancy.Authentication.Forms;
     using Nancy.Bootstrapper;
@@ -11,6 +14,9 @@
     {
         protected override void ApplicationStartup(Nancy.TinyIoc.TinyIoCContainer container, Nancy.Bootstrapper.IPipelines pipelines)
         {
+            // Enable the logger
+            XmlConfigurator.Configure();
+
             // Enable cookie based sessions
             CookieBasedSessions.Enable(pipelines);
 
@@ -22,6 +28,7 @@
             base.ConfigureRequestContainer(container, context);
 
             container.Register<IUserMapper, UserMapper>();
+            container.Register<CloudPanelContext>((x, y) => string.IsNullOrEmpty(Settings.ConnectionString) ? null : new CloudPanelContext(Settings.ConnectionString));
         }
 
         protected override void RequestStartup(TinyIoCContainer requestContainer, IPipelines pipelines, NancyContext context)

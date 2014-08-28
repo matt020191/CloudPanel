@@ -3,37 +3,35 @@ using CloudPanel.Database.EntityFramework;
 using Nancy;
 using Nancy.Security;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Web;
 
-namespace CloudPanel.Modules.Companies
+namespace CloudPanel.Modules
 {
-    public class CompaniesModule : NancyModule
+    public class CompanyDomainsModule : NancyModule
     {
-        public CompaniesModule() : base("/companies/{ResellerCode}")
+        public CompanyDomainsModule() : base("/company/domains/{CompanyCode}")
         {
             this.RequiresAuthentication();
 
             Get["/"] = _ =>
             {
-                string resellerCode = _.ResellerCode;
-                NancyContextHelpers.SetSelectedResellerCode(this.Context, _.ResellerCode);
-
-                #region Returns the companies view with model or json data based on the request
+                #region Returns the domains view with model or json data based on the request
                 CloudPanelContext db = null;
                 try
                 {
                     db = new CloudPanelContext(Settings.ConnectionString);
                     db.Database.Connection.Open();
 
-                    // Retrieve all resellers from the database
-                    var companies = (from d in db.Companies
-                                     where !d.IsReseller
-                                     where d.ResellerCode == resellerCode
-                                     orderby d.CompanyName
-                                     select d).ToList();
+                    string companyCode = _.CompanyCode;
+                    var domains = (from d in db.Domains
+                                   where d.CompanyCode == companyCode
+                                   orderby d.Domain1
+                                   select d).ToList();
 
-                    int draw = 0, start = 0, length = 0, recordsTotal = companies.Count, recordsFiltered = companies.Count, orderColumn = 0;
+                    int draw = 0, start = 0, length = 0, recordsTotal = domains.Count, recordsFiltered = domains.Count, orderColumn = 0;
                     string searchValue = "", orderColumnName = "";
                     bool isAscendingOrder = true;
 
@@ -51,46 +49,40 @@ namespace CloudPanel.Modules.Companies
                         // See if we are using dataTables to search
                         if (!string.IsNullOrEmpty(searchValue))
                         {
-                            companies = (from d in companies
-                                         where d.CompanyCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.City.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.State.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.ZipCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.Country.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
-                                         select d).ToList();
-                            recordsFiltered = companies.Count;
+                            domains = (from d in domains
+                                       where d.Domain1.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 
+                                       select d).ToList();
+                            recordsFiltered = domains.Count;
                         }
 
                         if (isAscendingOrder)
-                            companies = companies.OrderBy(x => x.GetType()
+                            domains = domains.OrderBy(x => x.GetType()
                                                     .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
                                                     .Skip(start)
                                                     .Take(length)
                                                     .ToList();
                         else
-                            companies = companies.OrderByDescending(x => x.GetType()
+                            domains = domains.OrderByDescending(x => x.GetType()
                                                     .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
                                                     .Skip(start)
                                                     .Take(length)
                                                     .ToList();
                     }
 
-                    return Negotiate.WithModel(new { resellerCode = resellerCode })
+                    return Negotiate.WithModel(domains)
                                     .WithMediaRangeModel("application/json", new
                                     {
                                         draw = draw,
                                         recordsTotal = recordsTotal,
                                         recordsFiltered = recordsFiltered,
-                                        data = companies
+                                        data = domains
                                     })
-                                    .WithView("companies.cshtml");
+                                    .WithView("Company/company_domains.cshtml");
                 }
                 catch (Exception ex)
                 {
-                    return Negotiate.WithModel(resellerCode)
-                                    .WithMediaRangeModel("application/json", new { error = ex.Message })
-                                    .WithView("comapnies.cshtml");
+                    return Negotiate.WithMediaRangeModel("application/json", new { error = ex.Message })
+                                    .WithView("Company/company_domains.cshtml");
                 }
                 finally
                 {
@@ -98,21 +90,6 @@ namespace CloudPanel.Modules.Companies
                         db.Dispose();
                 }
                 #endregion
-            };
-
-            Post["/{CompanyCode}"] = _ =>
-            {
-                return HttpStatusCode.InternalServerError;
-            };
-
-            Put["/{CompanyCode}"] = _ =>
-            {
-                return HttpStatusCode.InternalServerError;
-            };
-
-            Delete["/{CompanyCode}"] = _ =>
-            {
-                return HttpStatusCode.InternalServerError;
             };
         }
     }

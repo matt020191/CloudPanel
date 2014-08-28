@@ -61,21 +61,15 @@
     <Reference Include="Nancy.Authentication.Forms">
       <HintPath>..\packages\Nancy.Authentication.Forms.0.23.2\lib\net40\Nancy.Authentication.Forms.dll</HintPath>
     </Reference>
-    <Reference Include="Nancy.Authentication.Stateless">
-      <HintPath>..\packages\Nancy.Authentication.Stateless.0.23.1\lib\net40\Nancy.Authentication.Stateless.dll</HintPath>
+    <Reference Include="Nancy.Authentication.Stateless, Version=0.23.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Nancy.Authentication.Stateless.0.23.2\lib\net40\Nancy.Authentication.Stateless.dll</HintPath>
     </Reference>
     <Reference Include="Nancy.Hosting.Aspnet">
       <HintPath>..\packages\Nancy.Hosting.Aspnet.0.23.2\lib\net40\Nancy.Hosting.Aspnet.dll</HintPath>
     </Reference>
-    <Reference Include="Nancy.Serialization.JsonNet">
-      <HintPath>..\packages\Nancy.Serialization.JsonNet.0.23.2\lib\net40\Nancy.Serialization.JsonNet.dll</HintPath>
-    </Reference>
     <Reference Include="Nancy.ViewEngines.Razor">
       <HintPath>..\packages\Nancy.Viewengines.Razor.0.23.2\lib\net40\Nancy.ViewEngines.Razor.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Web.DynamicData" />
@@ -671,7 +665,11 @@
     <Content Include="content\js\jquery.validate.min.js" />
     <Content Include="content\js\masonry.pkgd.min.js" />
     <Content Include="content\js\modernizr.min.js" />
+    <Content Include="content\js\moment-with-locales.js" />
     <Content Include="content\js\morris.min.js" />
+    <Content Include="content\plugins\parsley\parsley.css" />
+    <Content Include="content\plugins\parsley\parsley.min.js" />
+    <Content Include="content\plugins\parsley\parsley.remote.min.js" />
     <Content Include="content\js\raphael-2.1.0.min.js" />
     <Content Include="content\js\respond.min.js" />
     <Content Include="content\js\retina.min.js" />
@@ -688,8 +686,10 @@
     <Compile Include="code\BrandingsRequest.cs" />
     <Compile Include="code\CitrixClass.cs" />
     <Compile Include="code\Companies.cs" />
+    <Compile Include="code\CustomHtmlHelpers.cs" />
     <Compile Include="code\DomainClass.cs" />
     <Compile Include="code\EmailClass.cs" />
+    <Compile Include="code\GetData.cs" />
     <Compile Include="code\Plans.cs" />
     <Compile Include="code\Users.cs" />
     <Compile Include="code\CPHtmlHelpers.cs" />

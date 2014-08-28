@@ -1,6 +1,9 @@
 ﻿using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Exceptions;
+using CloudPanel.code;
 using log4net;
 using Nancy;
+using Nancy.ModelBinding;
 //
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
@@ -32,11 +35,6 @@ using Nancy;
 //
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using Nancy.ModelBinding;
-using CloudPanel.code;
-using CloudPanel.Base.Exceptions;
 using System.Dynamic;
 
 namespace CloudPanel.modules

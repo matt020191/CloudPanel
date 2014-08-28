@@ -136,8 +136,9 @@ namespace CloudPanel.code
             {
                 db = new CloudPanelContext(Settings.ConnectionString);
 
-                var plans = from p in db.Plans_Organization 
-                            orderby p.OrgPlanName select p;
+                var plans = from p in db.Plans_Organization
+                            orderby p.OrgPlanName
+                            select p;
 
                 foreach (var p in plans)
                 {
@@ -244,7 +245,7 @@ namespace CloudPanel.code
                     "ERROR",
                     ex.Message);
 
-                log.ErrorFormat("Error getting mailbox plans. Error: {0}",  ex.ToString());
+                log.ErrorFormat("Error getting mailbox plans. Error: {0}", ex.ToString());
             }
             finally
             {
@@ -269,7 +270,7 @@ namespace CloudPanel.code
             try
             {
                 db = new CloudPanelContext(Settings.ConnectionString);
-                                
+
                 foreach (var p in plans)
                 {
                     sb.AppendFormat("<option value='{0}' {1}>{2}</option>",

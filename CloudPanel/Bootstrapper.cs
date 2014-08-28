@@ -1,16 +1,14 @@
 ﻿using CloudPanel.Base.Config;
+using CloudPanel.code;
 using CloudPanel.Database.EntityFramework;
 using log4net;
 using Nancy;
 using Nancy.Authentication.Forms;
 using Nancy.Bootstrapper;
+using Nancy.Json;
 using Nancy.Session;
 using Nancy.TinyIoc;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using CloudPanel.code;
 
 namespace CloudPanel
 {

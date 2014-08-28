@@ -6,34 +6,30 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-namespace CloudPanel.Modules.Companies
+namespace CloudPanel.Modules.Company.Exchange
 {
-    public class CompaniesModule : NancyModule
+    public class ContactsModule : NancyModule
     {
-        public CompaniesModule() : base("/companies/{ResellerCode}")
+        public ContactsModule() : base("/company/exchange/contacts/{CompanyCode}")
         {
             this.RequiresAuthentication();
 
             Get["/"] = _ =>
             {
-                string resellerCode = _.ResellerCode;
-                NancyContextHelpers.SetSelectedResellerCode(this.Context, _.ResellerCode);
-
-                #region Returns the companies view with model or json data based on the request
+                #region Returns the contacts view with model or json data based on the request
                 CloudPanelContext db = null;
                 try
                 {
                     db = new CloudPanelContext(Settings.ConnectionString);
                     db.Database.Connection.Open();
 
-                    // Retrieve all resellers from the database
-                    var companies = (from d in db.Companies
-                                     where !d.IsReseller
-                                     where d.ResellerCode == resellerCode
-                                     orderby d.CompanyName
-                                     select d).ToList();
+                    string companyCode = _.CompanyCode;
+                    var contacts = (from d in db.Contacts
+                                    where d.CompanyCode == companyCode
+                                    orderby d.DisplayName
+                                    select d).ToList();
 
-                    int draw = 0, start = 0, length = 0, recordsTotal = companies.Count, recordsFiltered = companies.Count, orderColumn = 0;
+                    int draw = 0, start = 0, length = 0, recordsTotal = contacts.Count, recordsFiltered = contacts.Count, orderColumn = 0;
                     string searchValue = "", orderColumnName = "";
                     bool isAscendingOrder = true;
 
@@ -51,46 +47,41 @@ namespace CloudPanel.Modules.Companies
                         // See if we are using dataTables to search
                         if (!string.IsNullOrEmpty(searchValue))
                         {
-                            companies = (from d in companies
-                                         where d.CompanyCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.City.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.State.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.ZipCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.Country.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
-                                         select d).ToList();
-                            recordsFiltered = companies.Count;
+                            contacts = (from d in contacts
+                                       where d.DisplayName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 || 
+                                             d.Email.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
+                                       select d).ToList();
+                            recordsFiltered = contacts.Count;
                         }
 
                         if (isAscendingOrder)
-                            companies = companies.OrderBy(x => x.GetType()
+                            contacts = contacts.OrderBy(x => x.GetType()
                                                     .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
                                                     .Skip(start)
                                                     .Take(length)
                                                     .ToList();
                         else
-                            companies = companies.OrderByDescending(x => x.GetType()
+                            contacts = contacts.OrderByDescending(x => x.GetType()
                                                     .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
                                                     .Skip(start)
                                                     .Take(length)
                                                     .ToList();
                     }
 
-                    return Negotiate.WithModel(new { resellerCode = resellerCode })
+                    return Negotiate.WithModel(contacts)
                                     .WithMediaRangeModel("application/json", new
                                     {
                                         draw = draw,
                                         recordsTotal = recordsTotal,
                                         recordsFiltered = recordsFiltered,
-                                        data = companies
+                                        data = contacts
                                     })
-                                    .WithView("companies.cshtml");
+                                    .WithView("Company/Exchange/company_contacts.cshtml");
                 }
                 catch (Exception ex)
                 {
-                    return Negotiate.WithModel(resellerCode)
-                                    .WithMediaRangeModel("application/json", new { error = ex.Message })
-                                    .WithView("comapnies.cshtml");
+                    return Negotiate.WithMediaRangeModel("application/json", new { error = ex.Message })
+                                    .WithView("Company/Exchange/company_contacts.cshtml");
                 }
                 finally
                 {

@@ -45,53 +45,77 @@ namespace CloudPanel.modules
     {
         private static readonly ILog log = log4net.LogManager.GetLogger(typeof(ResellersModule));
 
-        public ResellersModule() : base("/Resellers")
+        public ResellersModule() : base("/resellers")
         {
-            this.RequiresAuthentication();
-
-            #region Resellers
+            //this.RequiresAuthentication();
 
             Get["/"] = _ =>
                 {
-                    //this.RequiresAuthentication();
                     //this.RequiresClaims(new[] { "SuperAdmin" });
 
-                    try
-                    {
-                        Resellers resellers = new Resellers();
-                        return View["resellers.cshtml", resellers.GetAll()];
-                    }
-                    catch (Exception ex)
-                    {
-                        ViewBag.Error = ex.Message;
-                        log.ErrorFormat("Failed to retrieve resellers. Exception: {0}", ex.ToString());
-
-                        return View["resellers.cshtml"];
-                    }
+                    return View["resellers.cshtml"];
                 };
 
-            Get["/{ResellerCode}"] = _ =>
+            Get["/json"] = _ =>
                 {
-                    //this.RequiresAuthentication();
+                    List<Company> resellers = GetData.GetResellers();
+                    return Response.AsJson(resellers, HttpStatusCode.OK);
+                };
+
+            Get["/json/dt"] = _ =>
+                {
+                    // Only sortable by CompanyName
+                    List<Company> resellers = GetData.GetResellers();
+                    if (resellers != null)
+                    {
+                        string search = Request.Query.search.HasValue ? Request.Query.search : "";
+                        string displaySort = Request.Query.order.HasValue ? Request.Query.order : "asc";
+                        int recordsTotal = resellers.Count;
+                        int draw = Request.Query.draw;
+                        int start = Request.Query.start;
+                        int length = Request.Query.length;
+
+                        resellers = resellers.Where(c => (
+                                                        c.CompanyName.IndexOf(search, StringComparison.CurrentCultureIgnoreCase) != -1 ||
+                                                        c.AdminName.IndexOf(search, StringComparison.CurrentCultureIgnoreCase) != -1 ||
+                                                        c.FullAddressFormatted.IndexOf(search, StringComparison.CurrentCultureIgnoreCase) != -1
+                                                    )).ToList();
+                        int recordsFiltered = resellers.Count;
+
+                        switch (displaySort.ToLower())
+                        {
+                            case "desc":
+                                return Response.AsJson(new
+                                {
+                                    draw = draw,
+                                    recordsTotal = recordsTotal,
+                                    recordsFiltered = recordsFiltered,
+                                    data = resellers.OrderByDescending(x => x.CompanyName).Skip(start).Take(length)
+                                });
+                            default:
+                                return Response.AsJson(new
+                                {
+                                    draw = draw,
+                                    recordsTotal = recordsTotal,
+                                    recordsFiltered = recordsFiltered,
+                                    data = resellers.OrderBy(x => x.CompanyName).Skip(start).Take(length)
+                                });
+                        }
+                    }
+                    else
+                        return Response.AsJson(resellers, HttpStatusCode.InternalServerError);
+                };
+
+            Get["/{ResellerCode}/json"] = _ =>
+                {
                     //this.RequiresClaims(new[] { "SuperAdmin" });
 
-                    try
-                    {
-                        Resellers resellers = new Resellers();
-                        Company foundReseller = resellers.GetReseller(_.ResellerCode);
-
-                        return Response.AsJson(foundReseller, HttpStatusCode.OK);
-                    }
-                    catch (Exception ex)
-                    {
-                        ViewBag.Error = ex.Message;
-                        return View["resellers.cshtml", GetResellers()];
-                    }
+                    Company reseller = GetData.GetReseller(_.ResellerCode);
+                    return Response.AsJson(reseller, HttpStatusCode.OK);
                 };
 
             Put["/"] = _ =>
             {
-                //this.RequiresAuthentication();
                 //this.RequiresClaims(new[] { "SuperAdmin" });
 
                 try
@@ -101,17 +125,17 @@ namespace CloudPanel.modules
                     Resellers resellers = new Resellers();
                     resellers.Update(reseller);
 
-                    return View["resellers.cshtml", resellers.GetAll()];
+                    return View["resellers.cshtml"];
                 }
                 catch (Exception ex)
                 {
-                    ViewBag.Error = ex.Message;
-                    return View["resellers.cshtml", GetResellers()];
+                    return View["resellers.cshtml"];
                 }
             };
 
             Delete["/"] = _ =>
                 {
+                    //this.RequiresClaims(new[] { "SuperAdmin" });
                     try
                     {
                         string companyName = Request.Form.CompanyNameValidation;
@@ -125,12 +149,12 @@ namespace CloudPanel.modules
                         Resellers resellers = new Resellers();
                         resellers.Delete(companyCode);
 
-                        return View["resellers.cshtml", resellers.GetAll()];
+                        return View["resellers.cshtml"];
                     }
                     catch (Exception ex)
                     {
                         ViewBag.Error = ex.Message;
-                        return View["resellers.cshtml", GetResellers()];
+                        return View["resellers.cshtml"];
                     }
                 };
 
@@ -148,33 +172,9 @@ namespace CloudPanel.modules
                     catch (Exception ex)
                     {
                         ViewBag.Error = ex.Message;
-                        return View["resellers.cshtml", GetResellers()];
+                        return View["resellers.cshtml"];
                     }
                 };
-
-            #endregion
-
-            
-        }
-
-        /// <summary>
-        /// This is used for the catch station to pull the 
-        /// resellers so we don't send back a blank page
-        /// It doesn't throw an exception which is why we can use it 
-        /// </summary>
-        /// <returns></returns>
-        private dynamic GetResellers()
-        {
-            try
-            {
-                Resellers resellers = new Resellers();
-                return resellers.GetAll();
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Failed to retrieve resellers from the database. Error: {0}", ex.ToString());
-                return null;
-            }
         }
     }
 }

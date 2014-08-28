@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPanel.Database.EntityF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPanel.Exchange", "CloudPanel.Exchange\CloudPanel.Exchange.csproj", "{51C6EC47-98AB-49D1-B4CB-B48665D1725E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPanel 3", "CloudPanel 3\CloudPanel 3.csproj", "{B4F9C525-5C56-440E-B4C2-972A33D7C8CD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,10 @@ Global
 		{51C6EC47-98AB-49D1-B4CB-B48665D1725E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51C6EC47-98AB-49D1-B4CB-B48665D1725E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51C6EC47-98AB-49D1-B4CB-B48665D1725E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4F9C525-5C56-440E-B4C2-972A33D7C8CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4F9C525-5C56-440E-B4C2-972A33D7C8CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4F9C525-5C56-440E-B4C2-972A33D7C8CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4F9C525-5C56-440E-B4C2-972A33D7C8CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,5 +66,6 @@ Global
 		{5C2B5FC4-0814-47C0-B371-0BC299E433E0} = {D64FED88-8FF5-46A5-B8E9-31D132A099D6}
 		{6144303A-7153-4938-8AB5-02BB0CF8F2A4} = {D64FED88-8FF5-46A5-B8E9-31D132A099D6}
 		{51C6EC47-98AB-49D1-B4CB-B48665D1725E} = {D64FED88-8FF5-46A5-B8E9-31D132A099D6}
+		{B4F9C525-5C56-440E-B4C2-972A33D7C8CD} = {77C0EB4D-486D-48EC-9EB9-8554E7E79008}
 	EndGlobalSection
 EndGlobal
