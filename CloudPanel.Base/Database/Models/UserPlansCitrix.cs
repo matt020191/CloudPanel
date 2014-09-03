@@ -27,15 +27,22 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-using System;
-using System.Collections.Generic;
-
 namespace CloudPanel.Base.Database.Models
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+    using System.Data.Entity.Spatial;
+
+    [Table("UserPlansCitrix")]
     public partial class UserPlansCitrix
     {
+        [Key]
         public int UPCID { get; set; }
+
         public int UserID { get; set; }
+
         public int CitrixPlanID { get; set; }
     }
 }

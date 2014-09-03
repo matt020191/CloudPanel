@@ -59,8 +59,8 @@ namespace CloudPanel.code
         /// <param name="resellerCode"></param>
         public void Create(Company newCompany, string domainName, string resellerCode)
         {
-            OrganizationalUnits organizationalUnits = null;
-            Groups groups = null;
+            ADOrganizationalUnits organizationalUnits = null;
+            ADGroups groups = null;
 
             ReverseActions reverse = new ReverseActions();
             try
@@ -71,8 +71,8 @@ namespace CloudPanel.code
                 if (string.IsNullOrEmpty(resellerCode))
                     throw new MissingFieldException("", "ResellerCode");
 
-                organizationalUnits = new OrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-                groups = new Groups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                organizationalUnits = new ADOrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                groups = new ADGroups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
 
                 // Check if the user provided a company code or not
                 // If they didn't then we will automatically generate one
@@ -185,14 +185,14 @@ namespace CloudPanel.code
         /// <param name="existingCompany"></param>
         public void Update(Company existingCompany)
         {
-            OrganizationalUnits organizationalUnits = null;
+            ADOrganizationalUnits organizationalUnits = null;
 
             try
             {
                 if (string.IsNullOrEmpty(existingCompany.CompanyCode))
                     throw new MissingFieldException("Company", "CompanyCode");
 
-                organizationalUnits = new OrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                organizationalUnits = new ADOrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
 
                 // Find the company from SQL
                 var company = (from c in db.Companies
@@ -277,14 +277,14 @@ namespace CloudPanel.code
         /// <param name="companyCode"></param>
         public void Delete(string companyCode)
         {
-            OrganizationalUnits organizationalUnits = null;
+            ADOrganizationalUnits organizationalUnits = null;
 
             try
             {
                 if (string.IsNullOrEmpty(companyCode))
                     throw new MissingFieldException("", "CompanyCode");
 
-                organizationalUnits = new OrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                organizationalUnits = new ADOrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
 
                 // Find the resellers from SQL
                 var company = (from c in db.Companies
@@ -397,11 +397,11 @@ namespace CloudPanel.code
             // Check for company limits
             // TODO
 
-            OrganizationalUnits organizationalUnits = null;
+            ADOrganizationalUnits organizationalUnits = null;
             ReverseActions reverse = new ReverseActions();
             try
             {
-                organizationalUnits = new OrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                organizationalUnits = new ADOrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
                 organizationalUnits.AddDomains(company.DistinguishedName, new[] { domainName });
                 reverse.AddAction(Actions.AddDomains, new object[] { 
                     company.DistinguishedName, 

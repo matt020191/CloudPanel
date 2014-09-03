@@ -42,7 +42,7 @@ namespace CloudPanel.Base.Config
             get 
             {
                 // Need ;Persist Security Info=True for EF6 connection open (when handling opening and closing connetions ourselves
-                return "server=DXN-PC\\SQLEXPRESS;database=CloudPanel;uid=CloudPanel;password=password;Persist Security Info=True";
+                return "server=DXN-PC\\SQLEXPRESS;database=CloudPanel;uid=CloudPanel;password=password;";
                 //return "server=172.31.0.91;database=CloudPanel;uid=sa;password=Password1";
             }
         }
@@ -66,6 +66,8 @@ namespace CloudPanel.Base.Config
         public static string CompanyName { get; set; }
 
         public static bool ResellersEnabled { get; set; }
+
+        public static bool UseNameInsteadOfCompanyCode { get; set; }
 
         #endregion
 

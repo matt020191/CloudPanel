@@ -27,16 +27,27 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-using System;
-using System.Collections.Generic;
-
 namespace CloudPanel.Base.Database.Models
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+    using System.Data.Entity.Spatial;
+
+    [Table("PriceOverride")]
     public partial class PriceOverride
     {
+        [Key]
+        [StringLength(255)]
         public string CompanyCode { get; set; }
+
+        [StringLength(25)]
         public string Price { get; set; }
-        public Nullable<int> PlanID { get; set; }
+
+        public int? PlanID { get; set; }
+
+        [StringLength(25)]
         public string Product { get; set; }
     }
 }

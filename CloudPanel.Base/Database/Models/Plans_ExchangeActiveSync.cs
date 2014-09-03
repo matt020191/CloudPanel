@@ -27,51 +27,102 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-using System;
-using System.Collections.Generic;
-
 namespace CloudPanel.Base.Database.Models
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+    using System.Data.Entity.Spatial;
+
     public partial class Plans_ExchangeActiveSync
     {
+        [Key]
         public int ASID { get; set; }
+
+        [Required]
+        [StringLength(255)]
         public string CompanyCode { get; set; }
+
+        [Required]
+        [StringLength(150)]
         public string DisplayName { get; set; }
+
+        [Column(TypeName = "ntext")]
         public string Description { get; set; }
+
+        [StringLength(75)]
         public string ExchangeName { get; set; }
-        public Nullable<bool> AllowNonProvisionableDevices { get; set; }
-        public Nullable<int> RefreshIntervalInHours { get; set; }
-        public Nullable<bool> RequirePassword { get; set; }
-        public Nullable<bool> RequireAlphanumericPassword { get; set; }
-        public Nullable<bool> EnablePasswordRecovery { get; set; }
-        public Nullable<bool> RequireEncryptionOnDevice { get; set; }
-        public Nullable<bool> RequireEncryptionOnStorageCard { get; set; }
-        public Nullable<bool> AllowSimplePassword { get; set; }
-        public Nullable<int> NumberOfFailedAttempted { get; set; }
-        public Nullable<int> MinimumPasswordLength { get; set; }
-        public Nullable<int> InactivityTimeoutInMinutes { get; set; }
-        public Nullable<int> PasswordExpirationInDays { get; set; }
-        public Nullable<int> EnforcePasswordHistory { get; set; }
+
+        public bool? AllowNonProvisionableDevices { get; set; }
+
+        public int? RefreshIntervalInHours { get; set; }
+
+        public bool? RequirePassword { get; set; }
+
+        public bool? RequireAlphanumericPassword { get; set; }
+
+        public bool? EnablePasswordRecovery { get; set; }
+
+        public bool? RequireEncryptionOnDevice { get; set; }
+
+        public bool? RequireEncryptionOnStorageCard { get; set; }
+
+        public bool? AllowSimplePassword { get; set; }
+
+        public int? NumberOfFailedAttempted { get; set; }
+
+        public int? MinimumPasswordLength { get; set; }
+
+        public int? InactivityTimeoutInMinutes { get; set; }
+
+        public int? PasswordExpirationInDays { get; set; }
+
+        public int? EnforcePasswordHistory { get; set; }
+
+        [StringLength(20)]
         public string IncludePastCalendarItems { get; set; }
+
+        [StringLength(20)]
         public string IncludePastEmailItems { get; set; }
-        public Nullable<int> LimitEmailSizeInKB { get; set; }
-        public Nullable<bool> AllowDirectPushWhenRoaming { get; set; }
-        public Nullable<bool> AllowHTMLEmail { get; set; }
-        public Nullable<bool> AllowAttachmentsDownload { get; set; }
-        public Nullable<int> MaximumAttachmentSizeInKB { get; set; }
-        public Nullable<bool> AllowRemovableStorage { get; set; }
-        public Nullable<bool> AllowCamera { get; set; }
-        public Nullable<bool> AllowWiFi { get; set; }
-        public Nullable<bool> AllowInfrared { get; set; }
-        public Nullable<bool> AllowInternetSharing { get; set; }
-        public Nullable<bool> AllowRemoteDesktop { get; set; }
-        public Nullable<bool> AllowDesktopSync { get; set; }
+
+        public int? LimitEmailSizeInKB { get; set; }
+
+        public bool? AllowDirectPushWhenRoaming { get; set; }
+
+        public bool? AllowHTMLEmail { get; set; }
+
+        public bool? AllowAttachmentsDownload { get; set; }
+
+        public int? MaximumAttachmentSizeInKB { get; set; }
+
+        public bool? AllowRemovableStorage { get; set; }
+
+        public bool? AllowCamera { get; set; }
+
+        public bool? AllowWiFi { get; set; }
+
+        public bool? AllowInfrared { get; set; }
+
+        public bool? AllowInternetSharing { get; set; }
+
+        public bool? AllowRemoteDesktop { get; set; }
+
+        public bool? AllowDesktopSync { get; set; }
+
+        [StringLength(10)]
         public string AllowBluetooth { get; set; }
-        public Nullable<bool> AllowBrowser { get; set; }
-        public Nullable<bool> AllowConsumerMail { get; set; }
-        public Nullable<bool> IsEnterpriseCAL { get; set; }
-        public Nullable<bool> AllowTextMessaging { get; set; }
-        public Nullable<bool> AllowUnsignedApplications { get; set; }
-        public Nullable<bool> AllowUnsignedInstallationPackages { get; set; }
+
+        public bool? AllowBrowser { get; set; }
+
+        public bool? AllowConsumerMail { get; set; }
+
+        public bool? IsEnterpriseCAL { get; set; }
+
+        public bool? AllowTextMessaging { get; set; }
+
+        public bool? AllowUnsignedApplications { get; set; }
+
+        public bool? AllowUnsignedInstallationPackages { get; set; }
     }
 }

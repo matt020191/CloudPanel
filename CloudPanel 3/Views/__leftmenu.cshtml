@@ -34,7 +34,7 @@
         <li class="divider"></li>
         @if (!string.IsNullOrEmpty(selectedCompanyCode)) { 
             <li><a href="~/company/@selectedCompanyCode/overview"><i class="fa fa-dashboard"></i> <span>Overview</span></a></li>
-            <li><a href="~/company/domains/@selectedCompanyCode"><i class="fa fa-globe"></i> <span>Domains</span></a></li>
+            <li><a href="~/company/@selectedCompanyCode/domains"><i class="fa fa-globe"></i> <span>Domains</span></a></li>
             <li><a href="~/company/users/@selectedCompanyCode"><i class="fa fa-user"></i> <span>Users</span></a></li>
             <li>
                 <a href="javascript:;"><i class="fa fa-envelope"></i> <span>Exchange</span> </a>

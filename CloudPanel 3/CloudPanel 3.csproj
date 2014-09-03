@@ -79,9 +79,14 @@
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Config\settings.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\css\ie8.css" />
+    <Content Include="Content\css\wait.css" />
     <Content Include="Content\css\styles.css" />
     <Content Include="Content\css\styles.min.css" />
     <Content Include="Content\fonts\font-awesome\css\font-awesome.css" />
@@ -131,6 +136,7 @@
     <Content Include="Content\js\less.js" />
     <Content Include="Content\js\placeholdr.js" />
     <Content Include="Content\js\zoomico.png" />
+    <Content Include="Content\plugins\blockUI\jquery.blockUI.js" />
     <Content Include="Content\plugins\bootbox\bootbox.min.js" />
     <Content Include="Content\plugins\bootbox\readme.txt" />
     <Content Include="Content\plugins\bootstro.js\bootstro.css" />
@@ -1013,21 +1019,32 @@
     <Compile Include="Code\CPHtmlHelpers.cs" />
     <Compile Include="Code\CPStaticHelpers.cs" />
     <Compile Include="Code\NancyContextHelpers.cs" />
+    <Compile Include="Code\SettingsReader.cs" />
     <Compile Include="IndexModule.cs" />
-    <Compile Include="Modules\Charts\SuperChartsModule.cs" />
-    <Compile Include="Modules\Company\CompaniesModule.cs" />
-    <Compile Include="Modules\Company\CompanyDomainsModule.cs" />
-    <Compile Include="Modules\Company\CompanyOverviewModule.cs" />
-    <Compile Include="Modules\Company\CompanyUsersModule.cs" />
-    <Compile Include="Modules\Company\Exchange\ContactsModule.cs" />
-    <Compile Include="Modules\Company\Exchange\GroupsModule.cs" />
-    <Compile Include="Modules\Company\Exchange\ResourceModule.cs" />
+    <Compile Include="Modules\ChartsModules\SuperChartsModule.cs" />
+    <Compile Include="Modules\CompanyModules\CompaniesModule.cs" />
+    <Compile Include="Modules\CompanyModules\CompanyDomainsModule.cs" />
+    <Compile Include="Modules\CompanyModules\CompanyOverviewModule.cs" />
+    <Compile Include="Modules\CompanyModules\CompanyUsersModule.cs" />
+    <Compile Include="Modules\CompanyModules\Exchange\ContactsModule.cs" />
+    <Compile Include="Modules\CompanyModules\Exchange\GroupsModule.cs" />
+    <Compile Include="Modules\CompanyModules\Exchange\ResourceModule.cs" />
     <Compile Include="Modules\DashboardModule.cs" />
     <Compile Include="Modules\ResellersModule.cs" />
     <Compile Include="Modules\LoginModule.cs" />
-    <Compile Include="Modules\Plans\CompanyPlanModule.cs" />
-    <Compile Include="Modules\Plans\MailboxPlanModule.cs" />
+    <Compile Include="Modules\PlansModules\CompanyPlanModule.cs" />
+    <Compile Include="Modules\PlansModules\MailboxPlanModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="RazorConfig.cs" />
     <Compile Include="UserMapper.cs" />
   </ItemGroup>
@@ -1265,6 +1282,12 @@
     <Content Include="Views\Company\Exchange\company_contacts.cshtml" />
     <Content Include="Views\Company\Exchange\company_groups.cshtml" />
     <Content Include="Views\Company\Exchange\company_resourcemailboxes.cshtml" />
+    <None Include="Properties\PublishProfiles\LAB DC.pubxml" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="Views\error.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -1293,6 +1316,16 @@
       <Project>{51c6ec47-98ab-49d1-b4cb-b48665d1725e}</Project>
       <Name>CloudPanel.Exchange</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CloudPanel.Rollback\CloudPanel.Rollback.csproj">
+      <Project>{af34d7d3-ff49-4c73-acc0-de631b4fa390}</Project>
+      <Name>CloudPanel.Rollback</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

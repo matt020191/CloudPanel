@@ -93,14 +93,14 @@ namespace CloudPanel.code
 
         public void Create(Company newReseller)
         {
-            OrganizationalUnits organizationalUnits = null;
-            Groups groups = null;
+            ADOrganizationalUnits organizationalUnits = null;
+            ADGroups groups = null;
 
             ReverseActions reverse = new ReverseActions();
             try
             {
-                organizationalUnits = new OrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-                groups = new Groups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                organizationalUnits = new ADOrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                groups = new ADGroups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
 
                 // Check if the user provided a company code or not
                 // If they didn't then we will automatically generate one
@@ -164,14 +164,14 @@ namespace CloudPanel.code
 
         public void Update(Company existingReseller)
         {
-            OrganizationalUnits organizationalUnits = null;
+            ADOrganizationalUnits organizationalUnits = null;
 
             try
             {
                 if (string.IsNullOrEmpty(existingReseller.CompanyCode))
                     throw new MissingFieldException("Company", "CompanyCode");
 
-                organizationalUnits = new OrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                organizationalUnits = new ADOrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
 
                 // Find the resellers from SQL
                 var reseller = (from c in db.Companies
@@ -228,14 +228,14 @@ namespace CloudPanel.code
 
         public void Delete(string resellerCode)
         {
-            OrganizationalUnits organizationalUnits = null;
+            ADOrganizationalUnits organizationalUnits = null;
 
             try
             {
                 if (string.IsNullOrEmpty(resellerCode))
                     throw new MissingFieldException("", "ResellerCode");
 
-                organizationalUnits = new OrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                organizationalUnits = new ADOrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
 
                 // Find the resellers from SQL
                 var reseller = (from c in db.Companies

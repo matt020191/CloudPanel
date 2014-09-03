@@ -37,9 +37,9 @@ namespace CloudPanel.Base.Other
 {
     public class UsersEditPage
     {
-        public User User { get; set; }
+        public Users User { get; set; }
 
-        public List<Domain> Domains { get; set; }
+        public List<Domains> Domains { get; set; }
 
         public List<Plans_ExchangeMailbox> MailboxPlans { get; set; }
 
@@ -47,7 +47,7 @@ namespace CloudPanel.Base.Other
 
         public Dictionary<string, string> UsersPermissionList { get; set; }
 
-        public List<Domain> EmailDomains
+        public List<Domains> EmailDomains
         {
             get
             {

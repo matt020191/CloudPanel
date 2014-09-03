@@ -48,10 +48,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\UserPrincipalExt.cs" />
-    <Compile Include="Groups.cs" />
-    <Compile Include="OrganizationalUnits.cs" />
+    <Compile Include="ADGroups.cs" />
+    <Compile Include="ADOrganizationalUnits.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Users.cs" />
+    <Compile Include="ADUsers.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

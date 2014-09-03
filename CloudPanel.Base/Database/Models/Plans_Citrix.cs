@@ -27,21 +27,42 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-using System;
-using System.Collections.Generic;
-
 namespace CloudPanel.Base.Database.Models
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+    using System.Data.Entity.Spatial;
+
     public partial class Plans_Citrix
     {
+        [Key]
         public int CitrixPlanID { get; set; }
+
+        [Required]
+        [StringLength(56)]
         public string Name { get; set; }
+
+        [Required]
+        [StringLength(64)]
         public string GroupName { get; set; }
+
+        [Column(TypeName = "ntext")]
         public string Description { get; set; }
+
         public bool IsServer { get; set; }
+
+        [StringLength(255)]
         public string CompanyCode { get; set; }
+
+        [StringLength(20)]
         public string Price { get; set; }
+
+        [StringLength(20)]
         public string Cost { get; set; }
+
+        [StringLength(255)]
         public string PictureURL { get; set; }
     }
 }

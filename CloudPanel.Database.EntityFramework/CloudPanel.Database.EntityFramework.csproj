@@ -40,6 +40,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\EntityFramework.6.1.1\lib\net40\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -53,46 +56,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrap.cs" />
-    <Compile Include="Migrations\201407080129571_InitialCreate.cs" />
-    <Compile Include="Migrations\201407080129571_InitialCreate.Designer.cs">
-      <DependentUpon>201407080129571_InitialCreate.cs</DependentUpon>
+    <Compile Include="Migrations\201409020050278_Initial.cs" />
+    <Compile Include="Migrations\201409020050278_Initial.Designer.cs">
+      <DependentUpon>201409020050278_Initial.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201407080136532_UpgradeTo3.1.cs" />
-    <Compile Include="Migrations\201407080136532_UpgradeTo3.1.Designer.cs">
-      <DependentUpon>201407080136532_UpgradeTo3.1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201408071616205_ChangeAuditTable.cs" />
-    <Compile Include="Migrations\201408071616205_ChangeAuditTable.Designer.cs">
-      <DependentUpon>201408071616205_ChangeAuditTable.cs</DependentUpon>
+    <Compile Include="Migrations\201409020105082_First_3.1_Update.cs" />
+    <Compile Include="Migrations\201409020105082_First_3.1_Update.Designer.cs">
+      <DependentUpon>201409020105082_First_3.1_Update.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\Mapping\ApiAccessMap.cs" />
-    <Compile Include="Models\Mapping\AuditLoginMap.cs" />
-    <Compile Include="Models\Mapping\AuditMap.cs" />
-    <Compile Include="Models\Mapping\CompanyMap.cs" />
-    <Compile Include="Models\Mapping\CompanyStatMap.cs" />
-    <Compile Include="Models\Mapping\ContactMap.cs" />
-    <Compile Include="Models\Mapping\DistributionGroupMap.cs" />
-    <Compile Include="Models\Mapping\DomainMap.cs" />
-    <Compile Include="Models\Mapping\LogTableMap.cs" />
-    <Compile Include="Models\Mapping\Plans_CitrixMap.cs" />
-    <Compile Include="Models\Mapping\Plans_ExchangeActiveSyncMap.cs" />
-    <Compile Include="Models\Mapping\Plans_ExchangeMailboxMap.cs" />
-    <Compile Include="Models\Mapping\Plans_OrganizationMap.cs" />
-    <Compile Include="Models\Mapping\PriceMap.cs" />
-    <Compile Include="Models\Mapping\PriceOverrideMap.cs" />
-    <Compile Include="Models\Mapping\ResourceMailboxMap.cs" />
-    <Compile Include="Models\Mapping\SettingMap.cs" />
-    <Compile Include="Models\Mapping\Stats_CitrixCountMap.cs" />
-    <Compile Include="Models\Mapping\Stats_ExchCountMap.cs" />
-    <Compile Include="Models\Mapping\Stats_UserCountMap.cs" />
-    <Compile Include="Models\Mapping\SvcMailboxDatabaseSizeMap.cs" />
-    <Compile Include="Models\Mapping\SvcMailboxSizeMap.cs" />
-    <Compile Include="Models\Mapping\SvcQueueMap.cs" />
-    <Compile Include="Models\Mapping\SvcTaskMap.cs" />
-    <Compile Include="Models\Mapping\UserMap.cs" />
-    <Compile Include="Models\Mapping\UserPermissionMap.cs" />
-    <Compile Include="Models\Mapping\UserPlansCitrixMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -109,14 +81,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201407080129571_InitialCreate.resx">
-      <DependentUpon>201407080129571_InitialCreate.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201409020050278_Initial.resx">
+      <DependentUpon>201409020050278_Initial.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201407080136532_UpgradeTo3.1.resx">
-      <DependentUpon>201407080136532_UpgradeTo3.1.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201408071616205_ChangeAuditTable.resx">
-      <DependentUpon>201408071616205_ChangeAuditTable.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201409020105082_First_3.1_Update.resx">
+      <DependentUpon>201409020105082_First_3.1_Update.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

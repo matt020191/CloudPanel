@@ -257,7 +257,7 @@ namespace CloudPanel.Exchange
 
         #region Contacts
 
-        public Contact New_MailContact(Contact mailContact, string organizationalUnit)
+        public Contacts New_MailContact(Contacts mailContact, string organizationalUnit)
         {
             string[] emailSplit = mailContact.Email.Split('@');
 
@@ -298,7 +298,7 @@ namespace CloudPanel.Exchange
             return mailContact;
         }
 
-        public Contact Update_MailContact(Contact mailContact)
+        public Contacts Update_MailContact(Contacts mailContact)
         {
             logger.DebugFormat("Updating mail contact {0} with values: {1}, {2}, {3}", mailContact.DistinguishedName, mailContact.DisplayName, mailContact.CompanyCode, mailContact.Hidden);
 
@@ -341,12 +341,12 @@ namespace CloudPanel.Exchange
 
         #region Domains
 
-        public void New_AcceptedDomain(Domain newDomain)
+        public void New_AcceptedDomain(Domains newDomain)
         {
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("New-AcceptedDomain");
-            cmd.AddParameter("Name", newDomain.Domain1);
-            cmd.AddParameter("DomainName", newDomain.Domain1);
+            cmd.AddParameter("Name", newDomain.Domain);
+            cmd.AddParameter("DomainName", newDomain.Domain);
 
             switch (newDomain.DomainType)
             {
@@ -367,14 +367,14 @@ namespace CloudPanel.Exchange
 
             HandleErrors();
 
-            logger.InfoFormat("Created new accepted domain {0}", newDomain.Domain1);
+            logger.InfoFormat("Created new accepted domain {0}", newDomain.Domain);
         }
 
-        public void Update_AcceptedDomain(Domain updateDomain)
+        public void Update_AcceptedDomain(Domains updateDomain)
         {
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-AcceptedDomain");
-            cmd.AddParameter("Identity", updateDomain.Domain1);
+            cmd.AddParameter("Identity", updateDomain.Domain);
 
             switch (updateDomain.DomainType)
             {
@@ -395,14 +395,14 @@ namespace CloudPanel.Exchange
 
             HandleErrors();
 
-            logger.DebugFormat("Removed accepted domain {0}", updateDomain.Domain1);
+            logger.DebugFormat("Removed accepted domain {0}", updateDomain.Domain);
         }
 
-        public void Remove_AcceptedDomain(Domain deleteDomain)
+        public void Remove_AcceptedDomain(Domains deleteDomain)
         {
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Remove-AcceptedDomain");
-            cmd.AddParameter("Identity", deleteDomain.Domain1);
+            cmd.AddParameter("Identity", deleteDomain.Domain);
             cmd.AddParameter("Confirm", false);
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
@@ -410,7 +410,7 @@ namespace CloudPanel.Exchange
 
             HandleErrors(true);
 
-            logger.InfoFormat("Removed accepted domain {0}", deleteDomain.Domain1);
+            logger.InfoFormat("Removed accepted domain {0}", deleteDomain.Domain);
         }
 
         #endregion

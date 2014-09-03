@@ -27,20 +27,32 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-using System;
-using System.Collections.Generic;
-
 namespace CloudPanel.Base.Database.Models
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+    using System.Data.Entity.Spatial;
+
+    [Table("SvcTask")]
     public partial class SvcTask
     {
         public int SvcTaskID { get; set; }
+
         public int TaskType { get; set; }
-        public System.DateTime LastRun { get; set; }
-        public Nullable<System.DateTime> NextRun { get; set; }
+
+        public DateTime LastRun { get; set; }
+
+        public DateTime? NextRun { get; set; }
+
+        [Column(TypeName = "ntext")]
         public string TaskOutput { get; set; }
+
         public int TaskDelayInMinutes { get; set; }
-        public Nullable<System.DateTime> TaskCreated { get; set; }
+
+        public DateTime? TaskCreated { get; set; }
+
         public bool Reoccurring { get; set; }
     }
 }

@@ -1,4 +1,6 @@
-﻿using Nancy;
+﻿using CloudPanel.Base.Config;
+using CloudPanel.Database.EntityFramework;
+using Nancy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +29,57 @@ namespace CloudPanel
 
                 return "0 Bytes";
             }
+        }
+
+        public static string GenerateCompanyCode(string companyName)
+        {
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                // Generate code
+                char[] arr = companyName.ToCharArray();
+                arr = Array.FindAll<char>(arr, (c => (char.IsLetterOrDigit(c))));
+
+                string companyCode = new string(arr).ToUpper();
+                if (companyCode.Length > 3)
+                    companyCode = companyCode.Substring(0, 3);
+
+                // Make sure it doesn't exist in the database
+                int count = 1;
+                string validCompanyCode = companyCode;
+                while (true)
+                {
+                    int codeExist = (from d in db.Companies where d.CompanyCode == validCompanyCode select d).Count();
+                    if (codeExist > 0)
+                    {
+                        validCompanyCode = string.Format("{0}{1}", companyCode, count);
+                        count = count + 1;
+                    }
+                    else
+                        break;
+                }
+
+                return validCompanyCode;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static string StripCharacters(string dataToStrip)
+        {
+            char[] arr = dataToStrip.ToCharArray();
+            arr = Array.FindAll<char>(arr, (c => (char.IsLetterOrDigit(c))));
+
+            return new string(arr);
         }
     }
 }

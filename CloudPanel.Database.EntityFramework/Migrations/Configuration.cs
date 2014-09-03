@@ -1,4 +1,4 @@
-﻿namespace CloudPanel.Database.EntityFramework.Migrations
+namespace CloudPanel.Database.EntityFramework.Migrations
 {
     using System;
     using System.Data.Entity;
@@ -10,7 +10,6 @@
         public Configuration()
         {
             AutomaticMigrationsEnabled = true;
-            MigrationsDirectory = @"Migrations";
         }
 
         protected override void Seed(CloudPanel.Database.EntityFramework.CloudPanelContext context)

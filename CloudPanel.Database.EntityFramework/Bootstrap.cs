@@ -1,7 +1,6 @@
-﻿using CloudPanel.Base.Database.Models;
-using CloudPanel.Database.EntityFramework.Migrations;
-using CloudPanel.Database.EntityFramework.Models;
-using CloudPanel.Database.EntityFramework.Models.Mapping;
+﻿using CloudPanel.Base.Config;
+using CloudPanel.Base.Database.Models;
+using log4net;
 using System.Data.Entity;
 using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Infrastructure;
@@ -14,108 +13,184 @@ using System.Linq;
 // NB: http://stackoverflow.com/questions/16210771/entity-framework-code-first-without-app-config
 namespace CloudPanel.Database.EntityFramework
 {
-    internal sealed class CloudPanelDbConfiguration : DbConfiguration
+    public partial class CloudPanelContext : DbContext
     {
-    }
-
-    internal sealed class CloudPanelContextInitializer : IDatabaseInitializer<CloudPanelContext>
-    {
-        #region IDatabaseInitializer<CloudPanelContext> Members
-
-        public void InitializeDatabase(CloudPanelContext context)
+        private static readonly ILog logger = log4net.LogManager.GetLogger(typeof(CloudPanelContext));
+        
+        public CloudPanelContext() : base(Settings.ConnectionString)
         {
-            //if (!context.Database.Exists())
-            //{
-                var configuration = new Configuration
-                {
-                   TargetDatabase = new DbConnectionInfo(context.Database.Connection.ConnectionString, @"System.Data.SqlClient"),
-                };
-
-                var migrator = new DbMigrator(configuration);
-                migrator.Update();
-            //}
-        }
-
-        #endregion
-    }
-
-    public sealed class CloudPanelContext : DbContext
-    {
-        public CloudPanelContext()
-        {
+            logger.Debug("Context called without a connection string");
         }
 
         public CloudPanelContext(string connectionString) : base(connectionString)
         {
-            System.Data.Entity.Database.SetInitializer(new CloudPanelContextInitializer());
+            logger.DebugFormat("Context called with connection string {0}", connectionString);
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
-
-            modelBuilder.Configurations.Add(new ApiAccessMap());
-            modelBuilder.Configurations.Add(new AuditMap());
-            modelBuilder.Configurations.Add(new AuditLoginMap());
-            modelBuilder.Configurations.Add(new CompanyMap());
-            modelBuilder.Configurations.Add(new CompanyStatMap());
-            modelBuilder.Configurations.Add(new ContactMap());
-            modelBuilder.Configurations.Add(new DistributionGroupMap());
-            modelBuilder.Configurations.Add(new DomainMap());
-            modelBuilder.Configurations.Add(new LogTableMap());
-            modelBuilder.Configurations.Add(new Plans_CitrixMap());
-            modelBuilder.Configurations.Add(new Plans_ExchangeActiveSyncMap());
-            modelBuilder.Configurations.Add(new Plans_ExchangeMailboxMap());
-            modelBuilder.Configurations.Add(new Plans_OrganizationMap());
-            modelBuilder.Configurations.Add(new PriceOverrideMap());
-            modelBuilder.Configurations.Add(new PriceMap());
-            modelBuilder.Configurations.Add(new ResourceMailboxMap());
-            modelBuilder.Configurations.Add(new SettingMap());
-            modelBuilder.Configurations.Add(new Stats_CitrixCountMap());
-            modelBuilder.Configurations.Add(new Stats_ExchCountMap());
-            modelBuilder.Configurations.Add(new Stats_UserCountMap());
-            modelBuilder.Configurations.Add(new SvcMailboxDatabaseSizeMap());
-            modelBuilder.Configurations.Add(new SvcMailboxSizeMap());
-            modelBuilder.Configurations.Add(new SvcQueueMap());
-            modelBuilder.Configurations.Add(new SvcTaskMap());
-            modelBuilder.Configurations.Add(new UserPermissionMap());
-            modelBuilder.Configurations.Add(new UserPlansCitrixMap());
-            modelBuilder.Configurations.Add(new UserMap());
-
+            modelBuilder.Entity<Companies>()
+                .Property(e => e.Country)
+                .IsUnicode(false);
             
-            /*modelBuilder.Entity<DeleteCompany>().MapToStoredProcedures(s =>
-                {
-                    s.Delete(d => d.HasName("DeleteCompany").Parameter(
-                        p => p.CompanyCode, "CompanyCode")
-                    );
-                });
-            
-            modelBuilder.Entity<DeleteUser>().MapToStoredProcedures(s =>
-                {
-                    s.Delete(d => d.HasName("DeleteUser"));
-                });
+            modelBuilder.Entity<Contacts>()
+                .Property(e => e.DistinguishedName)
+                .IsUnicode(false);
 
-            modelBuilder.Entity<DisableExchange>().MapToStoredProcedures(s =>
-                {
-                    s.Delete(d => d.HasName("DisableExchange"));
-                });
+            modelBuilder.Entity<Contacts>()
+                .Property(e => e.CompanyCode)
+                .IsUnicode(false);
 
-            modelBuilder.Entity<DisableMailbox>().MapToStoredProcedures(s =>
-                {
-                    s.Delete(d => d.HasName("DisableMailbox"));
-                });
+            modelBuilder.Entity<Contacts>()
+                .Property(e => e.DisplayName)
+                .IsUnicode(false);
 
-            modelBuilder.Entity<UpdatePriceOverride>().MapToStoredProcedures(s =>
-                {
-                    s.Update(u => u.HasName("UpdatePriceOverride"));
-                });
-             */
+            modelBuilder.Entity<Contacts>()
+                .Property(e => e.Email)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<DistributionGroups>()
+                .Property(e => e.DistinguishedName)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<DistributionGroups>()
+                .Property(e => e.CompanyCode)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<DistributionGroups>()
+                .Property(e => e.DisplayName)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<DistributionGroups>()
+                .Property(e => e.Email)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Domains>()
+                .Property(e => e.CompanyCode)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Plans_Citrix>()
+                .Property(e => e.Name)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Plans_Citrix>()
+                .Property(e => e.GroupName)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Plans_Citrix>()
+                .Property(e => e.CompanyCode)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Plans_Citrix>()
+                .Property(e => e.PictureURL)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Plans_ExchangeActiveSync>()
+                .Property(e => e.CompanyCode)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Plans_ExchangeActiveSync>()
+                .Property(e => e.DisplayName)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Plans_ExchangeActiveSync>()
+                .Property(e => e.ExchangeName)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Plans_ExchangeActiveSync>()
+                .Property(e => e.IncludePastCalendarItems)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Plans_ExchangeActiveSync>()
+                .Property(e => e.IncludePastEmailItems)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Plans_ExchangeActiveSync>()
+                .Property(e => e.AllowBluetooth)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Plans_ExchangeMailbox>()
+                .Property(e => e.ResellerCode)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Plans_ExchangeMailbox>()
+                .Property(e => e.CompanyCode)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Plans_Organization>()
+                .Property(e => e.ResellerCode)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Prices>()
+                .Property(e => e.CompanyCode)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Prices>()
+                .Property(e => e.Price)
+                .HasPrecision(19, 4);
+
+            modelBuilder.Entity<ResourceMailboxes>()
+                .Property(e => e.CompanyCode)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<ResourceMailboxes>()
+                .Property(e => e.ResourceType)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<SvcMailboxSizes>()
+                .Property(e => e.UserPrincipalName)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<SvcMailboxSizes>()
+                .Property(e => e.MailboxDatabase)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<SvcMailboxSizes>()
+                .Property(e => e.TotalItemSizeInKB)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<SvcMailboxSizes>()
+                .Property(e => e.TotalDeletedItemSizeInKB)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<SvcQueue>()
+                .Property(e => e.UserPrincipalName)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<SvcQueue>()
+                .Property(e => e.CompanyCode)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Users>()
+                .Property(e => e.CompanyCode)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Users>()
+                .Property(e => e.DistinguishedName)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Plans_TerminalServices>()
+                .Property(e => e.ResellerCode)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<PriceOverride>()
+                .Property(e => e.CompanyCode)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<PriceOverride>()
+                .Property(e => e.Product)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<UserPlans>()
+                .Property(e => e.CompanyCode)
+                .IsUnicode(false);
         }
 
         public override int SaveChanges()
         {
             try
             {
+                logger.DebugFormat("Saving database changes");
                 return base.SaveChanges();
             }
             catch (DbEntityValidationException ex)
@@ -136,62 +211,32 @@ namespace CloudPanel.Database.EntityFramework
             }
         }
 
-        #region Temp Stored Procedures Commands
-
-        public void spDeleteCompany(string companyCode)
-        {
-            var companyCodeParm = new SqlParameter("CompanyCode", companyCode);
-
-            this.Database.ExecuteSqlCommand("DeleteCompany @companyCode", companyCodeParm);
-        }
-
-        #endregion
-
         #region Tables
 
-        public DbSet<ApiAccess> ApiAccesses { get; set; }
-        public DbSet<Audit> Audits { get; set; }
-        public DbSet<AuditLogin> AuditLogins { get; set; }
-        public DbSet<Company> Companies { get; set; }
-        public DbSet<CompanyStat> CompanyStats { get; set; }
-        public DbSet<Contact> Contacts { get; set; }
-        public DbSet<DistributionGroup> DistributionGroups { get; set; }
-        public DbSet<Domain> Domains { get; set; }
-        public DbSet<LogTable> LogTables { get; set; }
-        public DbSet<Plans_Citrix> Plans_Citrix { get; set; }
-        public DbSet<Plans_ExchangeActiveSync> Plans_ExchangeActiveSync { get; set; }
-        public DbSet<Plans_ExchangeMailbox> Plans_ExchangeMailbox { get; set; }
-        public DbSet<Plans_Organization> Plans_Organization { get; set; }
-        public DbSet<PriceOverride> PriceOverrides { get; set; }
-        public DbSet<Price> Prices { get; set; }
-        public DbSet<ResourceMailbox> ResourceMailboxes { get; set; }
-        public DbSet<Setting> Settings { get; set; }
-        public DbSet<Stats_CitrixCount> Stats_CitrixCount { get; set; }
-        public DbSet<Stats_ExchCount> Stats_ExchCount { get; set; }
-        public DbSet<Stats_UserCount> Stats_UserCount { get; set; }
-        public DbSet<SvcMailboxDatabaseSize> SvcMailboxDatabaseSizes { get; set; }
-        public DbSet<SvcMailboxSize> SvcMailboxSizes { get; set; }
-        public DbSet<SvcQueue> SvcQueues { get; set; }
-        public DbSet<SvcTask> SvcTasks { get; set; }
-        public DbSet<UserPermission> UserPermissions { get; set; }
-        public DbSet<UserPlansCitrix> UserPlansCitrix { get; set; }
-        public DbSet<User> Users { get; set; }
+        public virtual DbSet<Companies> Companies { get; set; }
+        public virtual DbSet<Contacts> Contacts { get; set; }
+        public virtual DbSet<DistributionGroups> DistributionGroups { get; set; }
+        public virtual DbSet<Domains> Domains { get; set; }
+        public virtual DbSet<Plans_Citrix> Plans_Citrix { get; set; }
+        public virtual DbSet<Plans_ExchangeActiveSync> Plans_ExchangeActiveSync { get; set; }
+        public virtual DbSet<Plans_ExchangeMailbox> Plans_ExchangeMailbox { get; set; }
+        public virtual DbSet<Plans_Organization> Plans_Organization { get; set; }
+        public virtual DbSet<Prices> Prices { get; set; }
+        public virtual DbSet<ResourceMailboxes> ResourceMailboxes { get; set; }
+        public virtual DbSet<Stats_CitrixCount> Stats_CitrixCount { get; set; }
+        public virtual DbSet<Stats_ExchCount> Stats_ExchCount { get; set; }
+        public virtual DbSet<Stats_UserCount> Stats_UserCount { get; set; }
+        public virtual DbSet<SvcMailboxDatabaseSizes> SvcMailboxDatabaseSizes { get; set; }
+        public virtual DbSet<SvcMailboxSizes> SvcMailboxSizes { get; set; }
+        public virtual DbSet<SvcQueue> SvcQueue { get; set; }
+        public virtual DbSet<SvcTask> SvcTask { get; set; }
+        public virtual DbSet<UserPermissions> UserPermissions { get; set; }
+        public virtual DbSet<UserPlansCitrix> UserPlansCitrix { get; set; }
+        public virtual DbSet<Users> Users { get; set; }
+        public virtual DbSet<Plans_TerminalServices> Plans_TerminalServices { get; set; }
+        public virtual DbSet<PriceOverride> PriceOverride { get; set; }
+        public virtual DbSet<UserPlans> UserPlans { get; set; }
 
-        #endregion
-
-        #region Stored Procedures
-        
-        /*
-        public DbSet<DeleteCompany> DeleteCompany { get; set; }
-
-        public DbSet<DeleteUser> DeleteUser { get; set; }
-
-        public DbSet<DisableExchange> DisableExchange { get; set; }
-
-        public DbSet<DisableMailbox> DisableMailbox { get; set; }
-
-        public DbSet<UpdatePriceOverride> UpdatePriceOverride {  get;set ;}
-        */
         #endregion
     }
 }

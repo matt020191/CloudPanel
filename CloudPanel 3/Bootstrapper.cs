@@ -2,6 +2,7 @@
 {
     using CloudPanel;
     using CloudPanel.Base.Config;
+    using CloudPanel.Code;
     using CloudPanel.Database.EntityFramework;
     using log4net.Config;
     using Nancy;
@@ -14,8 +15,13 @@
     {
         protected override void ApplicationStartup(Nancy.TinyIoc.TinyIoCContainer container, Nancy.Bootstrapper.IPipelines pipelines)
         {
+            StaticConfiguration.DisableErrorTraces = false;
+
             // Enable the logger
             XmlConfigurator.Configure();
+
+            // Load the settings
+            SettingsReader.RetrieveSettings();
 
             // Enable cookie based sessions
             CookieBasedSessions.Enable(pipelines);

@@ -71,11 +71,11 @@ namespace CloudPanel.code
 
         public User GetUserFromAD(string companyCode, Guid userGuid)
         {
-            ActiveDirectory.Users users = null;
+            ActiveDirectory.ADUsers users = null;
 
             try
             {
-                users = new ActiveDirectory.Users(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                users = new ActiveDirectory.ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
 
                 var sqlUser = GetUserFromSql(companyCode, userGuid);
                 var adUser = users.GetUserWithoutGroups(sqlUser.UserPrincipalName);

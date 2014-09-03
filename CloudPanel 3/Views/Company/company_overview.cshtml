@@ -20,28 +20,29 @@
     <div class="row">
 
         <!-- Company Info -->
-        <div class="col-md-8">
-            <div class="panel panel-primary">
-                <div class="panel-heading">Company Information</div>
-                <div class="panel-body">
-                    <p>Information on your company</p>
-                    <form class="form-horizontal">
+        <form class="form-horizontal" action="" method="post" data-parsley-validate>
+            <div class="col-md-8">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Company Information</div>
+                    <div class="panel-body">
+                        <p>Information on your company</p>
+                        <input type="hidden" name="_method" value="PUT" />
                         <div class="form-group">
                             <label for="focusedinput" class="col-sm-3 control-label">Company Name</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control" id="CompanyName" name="CompanyName" value="@Model.company.CompanyName">
+                                <input type="text" class="form-control" id="CompanyName" name="CompanyName" value="@Model.company.CompanyName" data-parsley-required="true">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="focusedinput" class="col-sm-3 control-label">Point of Contact</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control" id="AdminName" name="AdminName" value="@Model.company.AdminName">
+                                <input type="text" class="form-control" id="AdminName" name="AdminName" value="@Model.company.AdminName" data-parsley-required="true">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="focusedinput" class="col-sm-3 control-label">Email for Point of Contact</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control" id="AdminEmail" name="AdminEmail" value="@Model.company.AdminEmail">
+                                <input type="text" class="form-control" id="AdminEmail" name="AdminEmail" value="@Model.company.AdminEmail" data-parsley-required="true" data-parsley-type="email">
                             </div>
                         </div>
                         <div class="form-group">
@@ -53,7 +54,7 @@
                         <div class="form-group">
                             <label for="focusedinput" class="col-sm-3 control-label">Website</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control" id="Website" name="Website" value="@Model.company.Website">
+                                <input type="text" class="form-control" id="Website" name="Website" value="@Model.company.Website" data-parsley-type="url">
                             </div>
                         </div>
                         <div class="form-group">
@@ -62,17 +63,17 @@
                                 @CloudPanel.CPHtmlHelpers.GetCompanyPlans(Model.company.OrgPlanID, "")
                             </div>
                         </div>
-                    </form>
-                </div>
-                <div class="panel-footer">
-                    <div class="col-sm-12 text-right">
-                        <div class="btn-toolbar">
-                            <button class="btn-primary btn">Save</button>
+                    </div>
+                    <div class="panel-footer">
+                        <div class="col-sm-12 text-right">
+                            <div class="btn-toolbar">
+                                <button class="btn-primary btn" type="submit">Save</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
 
         <!-- Chart -->
         <div class="col-md-4">
@@ -82,7 +83,7 @@
                     <div class="col-xs-12">
                         <p>Details on how close your company is to the limit.</p>
                         <div class="tab-content">
-                            <div class="tab-pane active" id="domcontext">
+                             <div class="tab-pane active" id="domcontext">
                                 <div class="contextual-progress">
                                     <div class="clearfix">
                                         <div class="progress-title">Users</div>
