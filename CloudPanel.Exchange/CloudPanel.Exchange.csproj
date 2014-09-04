@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="2010\Exch2010.cs" />
     <Compile Include="2013\Exch2013.cs" />
+    <Compile Include="2013_CU5\Exch2013_CU5.cs" />
     <Compile Include="ExchPowershell.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -55,9 +56,7 @@
     <None Include="CloudPanel.Exchange.licenseheader" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="2013_CU5\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\CloudPanel.Base\CloudPanel.Base.csproj">
       <Project>{5c2b5fc4-0814-47c0-b371-0bc299e433e0}</Project>

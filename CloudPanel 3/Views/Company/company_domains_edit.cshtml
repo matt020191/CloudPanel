@@ -1,0 +1,87 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+@{
+    Layout = "__master.cshtml";
+}
+@section HEAD{
+    <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-toggle/toggles.css" rel="stylesheet" />
+}
+
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li><a href="~/company/{CompanyCode}/overview">{Company Name}</a></li>
+        <li><a href="~/company/{CompanyCode}/domains">Domains</a></li>
+        <li class="active">Edit</li>
+    </ol>
+
+    <h1>Edit Domain</h1>
+</div>
+
+<div class="container">
+    <div class="row">
+        <form id="editDomain" action="" method="post">
+            <input type="hidden" name="_method" value="PUT" />
+            <div class="col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Edit Domain</div>
+                    <div class="panel-body">
+                        <div class="form-horizontal">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Domain Name</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="Domain" name="Domain" value="@Model.domain.Domain" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Is Default</label>
+                                <div class="col-sm-3 control-label">
+                                    <div id="defaultswitch"></div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <input id="IsDefault" name="IsDefault" type="checkbox" value="@(Model.domain.IsDefault == true ? "true" : "false")" @(Model.domain.IsDefault == true ? "checked" : "") hidden />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Domain Type</label>
+                                <div class="col-sm-6">
+                                    @CloudPanel.CPHtmlHelpers.GetDomainTypes(Model.domain.DomainType, "")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <div class="btn-toolbar text-right">
+                            <button class="btn-default btn">Cancel</button>
+                            <button class="btn-primary btn" type="submit">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section JAVASCRIPT{
+    <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
+    <script src="~/Content/plugins/form-toggle/toggle.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#defaultswitch').toggles({
+                text: { on: 'Yes', off: 'No' },
+                checkbox: $('#IsDefault'),
+                on: $('#IsDefault').is(':checked')
+            });
+
+            $('#defaultswitch').on('toggle', function (e, active) {
+                if (active) {
+                    $('#IsDefault').val(true);
+                } else {
+                    $('#IsDefault').val(false);
+                }
+            });
+        });
+    </script>
+}

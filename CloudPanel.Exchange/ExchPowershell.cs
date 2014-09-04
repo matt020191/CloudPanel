@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using CloudPanel.Base.Config;
+using log4net;
 //
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
@@ -122,6 +123,19 @@ namespace CloudPanel.Exchange
                 wsinfo.AuthenticationMechanism = AuthenticationMechanism.Basic;
 
             return wsinfo;
+        }
+
+        // Returns the appropriate class based on their Exchange version
+        public dynamic GetClass()
+        {
+            if (Settings.ExchangeVersion == 2010)
+                return new Exch2010(Settings.ExchangeConnection, Settings.Username, Settings.DecryptedPassword, false, Settings.PrimaryDC);
+            else if (Settings.ExchangeVersion == 2013)
+                return new Exch2013(Settings.ExchangeConnection, Settings.Username, Settings.DecryptedPassword, false, Settings.PrimaryDC);
+            else if (Settings.ExchangeVersion == 20135)
+                return new Exch2013(Settings.ExchangeConnection, Settings.Username, Settings.DecryptedPassword, false, Settings.PrimaryDC);
+            else
+                throw new Exception("Unable to determine Exchange version");
         }
 
         #region Dispose

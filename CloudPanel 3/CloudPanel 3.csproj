@@ -1017,6 +1017,7 @@
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="Code\AuthenticatedUser.cs" />
     <Compile Include="Code\CPHtmlHelpers.cs" />
+    <Compile Include="Code\CPLimitsChecks.cs" />
     <Compile Include="Code\CPStaticHelpers.cs" />
     <Compile Include="Code\NancyContextHelpers.cs" />
     <Compile Include="Code\SettingsReader.cs" />
@@ -1288,6 +1289,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <Content Include="Views\error.cshtml" />
+    <Content Include="Views\Company\company_domains_edit.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

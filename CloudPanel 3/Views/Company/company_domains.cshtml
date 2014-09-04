@@ -5,6 +5,7 @@
 }
 @section HEAD{
     <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
 }
 
 <div id="page-heading">
@@ -17,7 +18,7 @@
     <h1>Domains</h1>
     <div class="options">
         <div class="btn-toolbar">
-            <a href="#" class="btn btn-primary hidden-xs">Add New</a>
+            <a href="#" class="btn btn-primary hidden-xs" data-toggle="modal" data-target="#newModal">Add New</a>
         </div>
     </div>
 </div>
@@ -56,7 +57,7 @@
 </div>
 
 <!-- New Modal -->
-<form id="newForm" action="" method="post">
+<form id="newForm" action="" method="post" data-parsley-validate>
     <div id="newModal" class="modal fade">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -65,11 +66,18 @@
                     <h4 class="modal-title">New Domain</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to delete this reseller?</p>
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Domain Name</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="DomainName" name="DomainName" data-parsley-required="true">
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
                 </div>
             </div>
         </div>
@@ -84,14 +92,16 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    <h4 class="modal-title">Edit Reseller</h4>
+                    <h4 class="modal-title">Delete Domain</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to delete this reseller?</p>
+                    <p>Are you sure you want to delete this domain?</p>
+                    <p><small>Before deleting this domain make sure it is not in use.</small></p>
+                    <input id="DomainID" name="DomainID" type="hidden" />
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-danger">Delete</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
                 </div>
             </div>
         </div>
@@ -102,6 +112,7 @@
     <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
     <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
     <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
+    <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             $("#dataTable").DataTable({
@@ -132,7 +143,7 @@
                     },
                     {
                         "data": "domainID", "orderable": false, "className": "text-right", "render": function (data, type, full, meta) {
-                            return GetButton(data);
+                            return GetButton(data, full["companyCode"]);
                         }
                     },
                 ]
@@ -141,17 +152,17 @@
 
         function SetForm(element)
         {
-            var companyCode = $(element).data("id");
-            var href = $(element).attr('href');
-            $(href).closest("form").attr("action", "@Url.Content("~/resellers/")" + companyCode);
+            var id = $(element).data("id");
+            $('#deleteForm input[name="DomainID"]').val(id);
         }
 
-        function GetButton(id) {
+        function GetButton(id, companyCode) {
             return '<div class="btn-group"> \
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"> \
                                 Modify <span class="caret"></span> \
                             </button> \
                             <ul class="dropdown-menu" role="menu"> \
+                                <li><a href="@Url.Content("~/company/")' + companyCode + '/domains/' + id + '">Edit</a></li> \
                                 <li><a href="#deleteModal" data-toggle="modal" data-id="' + id + '" onclick="SetForm(this);">Delete</a></li> \
                             </ul> \
                     </div>';

@@ -10,6 +10,29 @@ namespace CloudPanel
 {
     public class CPHtmlHelpers
     {
+        public static IHtmlString GetDomainTypes(int? selectedId, string insertBefore)
+        {
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendFormat("<select id='DomainType' name='DomainType' class='form-control'>");
+
+            if (!string.IsNullOrEmpty(insertBefore))
+                stringBuilder.Append(insertBefore);
+
+            stringBuilder.Append("<option value='0'>Regular Domain</option>");
+            stringBuilder.Append("<optgroup id='exchange-domains' label='Email'>");
+            stringBuilder.Append("<option value='1'>Authoritative</option>");
+            stringBuilder.Append("<option value='2'>Internal Relay</option>");
+            stringBuilder.Append("<option value='3'>External Relay</option>");
+            stringBuilder.Append("</optgroup>");
+            stringBuilder.Append("</select>");
+
+            string returnString = stringBuilder.ToString();
+            if (selectedId != null)
+                returnString = returnString.Replace( string.Format("value='{0}'", selectedId), string.Format("value='{0}' selected", selectedId) );
+
+            return new NonEncodedHtmlString(returnString);
+        }
+
         public static IHtmlString GetCompanyPlans(int selectedId, string insertBefore)
         {
             var stringBuilder = new StringBuilder();
