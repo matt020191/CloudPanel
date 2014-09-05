@@ -35,18 +35,20 @@
         @if (!string.IsNullOrEmpty(selectedCompanyCode)) { 
             <li><a href="~/company/@selectedCompanyCode/overview"><i class="fa fa-dashboard"></i> <span>Overview</span></a></li>
             <li><a href="~/company/@selectedCompanyCode/domains"><i class="fa fa-globe"></i> <span>Domains</span></a></li>
-            <li><a href="~/company/users/@selectedCompanyCode"><i class="fa fa-user"></i> <span>Users</span></a></li>
+            <li><a href="~/company/@selectedCompanyCode/users"><i class="fa fa-user"></i> <span>Users</span></a></li>
             <li>
                 <a href="javascript:;"><i class="fa fa-envelope"></i> <span>Exchange</span> </a>
                 <ul class="acc-menu">
-                    <li><a href="~/company/exchange/contacts/@selectedCompanyCode">Contacts</a></li>
-                    <li><a href="~/company/exchange/groups/@selectedCompanyCode">Distribution Groups</a></li>
-                    <li><a href="~/company/exchange/resourcemailboxes/@selectedCompanyCode">Resource Mailboxes</a></li>
-                    <li><a href="~/company/exchange/publicfolders/@selectedCompanyCode">Public Folders</a></li>
+                    <li><a href="~/company/@selectedCompanyCode/exchange/enable">Enable</a></li>
+                    <li><a href="~/company/@selectedCompanyCode/exchange/disable">Disable</a></li>
+                    <li><a href="~/company/@selectedCompanyCode/exchange/contacts">Contacts</a></li>
+                    <li><a href="~/company/@selectedCompanyCode/exchange/groups">Distribution Groups</a></li>
+                    <li><a href="~/company/@selectedCompanyCode/exchange/resourcemailboxes">Resource Mailboxes</a></li>
+                    <li><a href="~/company/@selectedCompanyCode/exchange/publicfolders">Public Folders</a></li>
                 </ul>
             </li>
-            <li><a href="~/company/citrix/@selectedCompanyCode"><i class="fa fa-tablet"></i> <span>Citrix</span></a></li>
-            <li><a href="~/company/billing/@selectedCompanyCode"><i class="fa fa-money"></i> <span>Billing</span></a></li>
+            <li><a href="~/company/@selectedCompanyCode/citrix"><i class="fa fa-tablet"></i> <span>Citrix</span></a></li>
+            <li><a href="~/company/@selectedCompanyCode/billing"><i class="fa fa-money"></i> <span>Billing</span></a></li>
         }
     </ul>
 </nav>

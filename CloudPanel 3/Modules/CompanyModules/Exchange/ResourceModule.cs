@@ -13,7 +13,7 @@ namespace CloudPanel.Modules
 {
     public class ResourceModule : NancyModule
     {
-        public ResourceModule() : base("/company/exchange/resourcemailboxes/{CompanyCode}")
+        public ResourceModule() : base("/company/{CompanyCode}/exchange/resourcemailboxes")
         {
             this.RequiresAuthentication();
 

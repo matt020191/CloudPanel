@@ -10,7 +10,7 @@ namespace CloudPanel.Modules
 {
     public class ContactsModule : NancyModule
     {
-        public ContactsModule() : base("/company/exchange/contacts/{CompanyCode}")
+        public ContactsModule() : base("/company/{CompanyCode}/exchange/contacts")
         {
             this.RequiresAuthentication();
 

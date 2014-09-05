@@ -1028,6 +1028,7 @@
     <Compile Include="Modules\CompanyModules\CompanyOverviewModule.cs" />
     <Compile Include="Modules\CompanyModules\CompanyUsersModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\ContactsModule.cs" />
+    <Compile Include="Modules\CompanyModules\Exchange\EnableModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\GroupsModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\ResourceModule.cs" />
     <Compile Include="Modules\DashboardModule.cs" />
@@ -1280,9 +1281,9 @@
     <Content Include="Views\login.cshtml" />
     <Content Include="Views\Company\company_domains.cshtml" />
     <Content Include="Views\Company\company_users.cshtml" />
-    <Content Include="Views\Company\Exchange\company_contacts.cshtml" />
-    <Content Include="Views\Company\Exchange\company_groups.cshtml" />
-    <Content Include="Views\Company\Exchange\company_resourcemailboxes.cshtml" />
+    <Content Include="Views\Company\Exchange\contacts.cshtml" />
+    <Content Include="Views\Company\Exchange\groups.cshtml" />
+    <Content Include="Views\Company\Exchange\resourcemailboxes.cshtml" />
     <None Include="Properties\PublishProfiles\LAB DC.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -1290,6 +1291,7 @@
     </None>
     <Content Include="Views\error.cshtml" />
     <Content Include="Views\Company\company_domains_edit.cshtml" />
+    <Content Include="Views\Company\Exchange\enable.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

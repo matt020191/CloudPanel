@@ -10,7 +10,7 @@ namespace CloudPanel.Modules
 {
     public class GroupsModule : NancyModule
     {
-        public GroupsModule() : base("/company/exchange/groups/{CompanyCode}")
+        public GroupsModule() : base("/company/{CompanyCode}/exchange/groups")
         {
             this.RequiresAuthentication();
 
