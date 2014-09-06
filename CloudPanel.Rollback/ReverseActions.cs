@@ -1,10 +1,9 @@
 ﻿using CloudPanel.ActiveDirectory;
 using CloudPanel.Base.Config;
+using CloudPanel.Exchange;
 using log4net;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace CloudPanel.Rollback
 {
@@ -12,7 +11,11 @@ namespace CloudPanel.Rollback
     {
         CreateOrganizationalUnit,
         CreateSecurityGroup,
-        AddDomains
+        AddDomains,
+        CreateGlobalAddressList,
+        CreateAddressList,
+        CreateOfflineAddressBook,
+        CreateAddressBookPolicy
     }
 
     public class ReverseActionValue
@@ -72,6 +75,12 @@ namespace CloudPanel.Rollback
                     case Actions.AddDomains:
                         RollbackADAction(a._PerformedAction, a._ActionAttributes);
                         break;
+                    case Actions.CreateAddressBookPolicy:
+                    case Actions.CreateAddressList:
+                    case Actions.CreateGlobalAddressList:
+                    case Actions.CreateOfflineAddressBook:
+                        RollbackExchangeAction(a._PerformedAction, new[] { a._ActionAttribute });
+                        break;
                     default:
                         break;
                 }
@@ -86,7 +95,7 @@ namespace CloudPanel.Rollback
 
             try
             {
-                log.DebugFormat("Rolling back action {0}...", action.ToString());
+                log.InfoFormat("Rolling back action {0}...", action.ToString());
 
                 switch (action)
                 {
@@ -124,6 +133,48 @@ namespace CloudPanel.Rollback
 
                 if (org != null)
                     org.Dispose();
+            }
+        }
+
+        private void RollbackExchangeAction(Actions action, object[] attribute)
+        {
+            dynamic powershell = null;
+            try
+            {
+                log.InfoFormat("Rolling back action {0}...", action.ToString());
+                powershell = ExchPowershell.GetClass();
+
+                switch (action)
+                {
+                    case Actions.CreateGlobalAddressList:
+                        powershell.Remove_GlobalAddressList(attribute[0].ToString());
+                        log.DebugFormat("Successfully rolled back action {0} for {1}", action.ToString(), attribute[0].ToString());
+                        break;
+                    case Actions.CreateOfflineAddressBook:
+                        powershell.Remove_OfflineAddressBook(attribute[0].ToString());
+                        log.DebugFormat("Successfully rolled back action {0} for {1}", action.ToString(), attribute[0].ToString());
+                        break;
+                    case Actions.CreateAddressBookPolicy:
+                        powershell.Remove_AddressBookPolicy(attribute[0].ToString());
+                        log.DebugFormat("Successfully rolled back action {0} for {1}", action.ToString(), attribute[0].ToString());
+                        break;
+                    case Actions.CreateAddressList:
+                        powershell.Remove_AddressList(attribute[0].ToString());
+                        log.DebugFormat("Successfully rolled back action {0} for {1}", action.ToString(), attribute[0].ToString());
+                        break;
+                    default:
+                        log.DebugFormat("Unknown action {0}... Skipping...", action.ToString());
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed to rollback action {0}. Exception: {1}", action.ToString(), ex.ToString());
+            }
+            finally
+            {
+                if (powershell != null)
+                    powershell.Dispose();
             }
         }
     }

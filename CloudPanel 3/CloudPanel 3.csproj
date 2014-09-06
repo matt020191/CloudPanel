@@ -1028,6 +1028,7 @@
     <Compile Include="Modules\CompanyModules\CompanyOverviewModule.cs" />
     <Compile Include="Modules\CompanyModules\CompanyUsersModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\ContactsModule.cs" />
+    <Compile Include="Modules\CompanyModules\Exchange\DisableModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\EnableModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\GroupsModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\ResourceModule.cs" />
@@ -1292,6 +1293,7 @@
     <Content Include="Views\error.cshtml" />
     <Content Include="Views\Company\company_domains_edit.cshtml" />
     <Content Include="Views\Company\Exchange\enable.cshtml" />
+    <Content Include="Views\Company\Exchange\disable.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

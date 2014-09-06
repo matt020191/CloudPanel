@@ -51,7 +51,7 @@ namespace CloudPanel.Exchange
 
         #region Address Lists
 
-        public void New_AddressListForUsers(string companyCode, string organizationalUnit)
+        public string New_AddressListForUsers(string companyCode, string organizationalUnit)
         {
             string name = string.Format(Settings.ExchangeUSERSName, companyCode);
             string filter = string.Format(Settings.ExchangeUSERSFilter, companyCode);
@@ -68,9 +68,11 @@ namespace CloudPanel.Exchange
             _powershell.Invoke();
 
             HandleErrors();
+
+            return name;
         }
 
-        public void New_AddressListForContacts(string companyCode, string organizationalUnit)
+        public string New_AddressListForContacts(string companyCode, string organizationalUnit)
         {
             string name = string.Format(Settings.ExchangeCONTACTSName, companyCode);
             string filter = string.Format(Settings.ExchangeCONTACTSFilter, companyCode);
@@ -87,9 +89,11 @@ namespace CloudPanel.Exchange
             _powershell.Invoke();
 
             HandleErrors();
+
+            return name;
         }
 
-        public void New_AddressListForGroups(string companyCode, string organizationalUnit)
+        public string New_AddressListForGroups(string companyCode, string organizationalUnit)
         {
             string name = string.Format(Settings.ExchangeGROUPSName, companyCode);
             string filter = string.Format(Settings.ExchangeGROUPSFilter, companyCode);
@@ -106,9 +110,11 @@ namespace CloudPanel.Exchange
             _powershell.Invoke();
 
             HandleErrors();
+
+            return name;
         }
 
-        public void New_AddressListForRooms(string companyCode, string organizationalUnit)
+        public string New_AddressListForRooms(string companyCode, string organizationalUnit)
         {
             string name = string.Format(Settings.ExchangeROOMSName, companyCode);
             string filter = string.Format(Settings.ExchangeROOMSFilter, companyCode);
@@ -125,6 +131,8 @@ namespace CloudPanel.Exchange
             _powershell.Invoke();
 
             HandleErrors();
+
+            return name;
         }
 
         public void Remove_AddressList(string name)
@@ -133,7 +141,7 @@ namespace CloudPanel.Exchange
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Remove-AddressList");
-            cmd.AddParameter("Name", name);
+            cmd.AddParameter("Identity", name);
             cmd.AddParameter("Confirm", false);
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
@@ -146,7 +154,7 @@ namespace CloudPanel.Exchange
 
         #region GAL / OAL / Address Book Policies
 
-        public void New_GlobalAddressList(string companyCode, string organizationalUnit)
+        public string New_GlobalAddressList(string companyCode, string organizationalUnit)
         {
             string name = string.Format(Settings.ExchangeGALName, companyCode);
             string filter = string.Format(Settings.ExchangeGALFilter, companyCode);
@@ -163,6 +171,8 @@ namespace CloudPanel.Exchange
             _powershell.Invoke();
 
             HandleErrors();
+
+            return name;
         }
 
         public void Remove_GlobalAddressList(string name)
@@ -171,7 +181,7 @@ namespace CloudPanel.Exchange
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Remove-GlobalAddressList");
-            cmd.AddParameter("Name", name);
+            cmd.AddParameter("Identity", name);
             cmd.AddParameter("Confirm", false);
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
@@ -180,7 +190,7 @@ namespace CloudPanel.Exchange
             HandleErrors(true);
         }
 
-        public virtual void New_OfflineAddressBook(string companyCode)
+        public virtual string New_OfflineAddressBook(string companyCode)
         {
             string name = string.Format(Settings.ExchangeOALName, companyCode);
             string gal = string.Format(Settings.ExchangeGALName, companyCode);
@@ -197,6 +207,8 @@ namespace CloudPanel.Exchange
             _powershell.Invoke();
 
             HandleErrors();
+
+            return name;
         }
 
         public void Remove_OfflineAddressBook(string name)
@@ -205,7 +217,7 @@ namespace CloudPanel.Exchange
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Remove-OfflineAddressBook");
-            cmd.AddParameter("Name", name);
+            cmd.AddParameter("Identity", name);
             cmd.AddParameter("Confirm", false);
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
@@ -214,7 +226,7 @@ namespace CloudPanel.Exchange
             HandleErrors(true);
         }
 
-        public void New_AddressBookPolicy(string companyCode)
+        public string New_AddressBookPolicy(string companyCode)
         {
             string name = string.Format(Settings.ExchangeABPName, companyCode);
 
@@ -236,6 +248,8 @@ namespace CloudPanel.Exchange
             _powershell.Invoke();
 
             HandleErrors();
+
+            return name;
         }
 
         public void Remove_AddressBookPolicy(string name)
@@ -244,7 +258,7 @@ namespace CloudPanel.Exchange
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Remove-AddressBookPolicy");
-            cmd.AddParameter("Name", name);
+            cmd.AddParameter("Identity", name);
             cmd.AddParameter("Confirm", false);
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;

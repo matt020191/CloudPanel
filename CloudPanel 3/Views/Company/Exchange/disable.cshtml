@@ -1,0 +1,69 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+@{
+    Layout = "__master.cshtml";
+}
+
+@section HEAD {
+    <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
+}
+
+
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li><a href="~/company/{CompanyCode}/overview">{Company Name}</a></li>
+        <li>Exchange</li>
+        <li class="active">Disable</li>
+    </ol>
+
+    <h1>Disable Exchange</h1>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Disable Exchange</div>
+                <div class="panel-body">
+                    <form id="enableExchange" action="" method="post" data-parsley-validate>
+                        <p class="text-center">
+                            Disabling Exchange will delete all email data associated with your company. This action is NOT reversable.
+                        </p>
+                        <hr />
+                        <div class="form-horizontal">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Code:</label>
+                                <div class="col-sm-4">
+                                    <input id="SecurityCode" name="SecurityCode" type="text" class="form-control" value="@CloudPanel.CPStaticHelpers.RandomCharacters()" readonly />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Retype Code</label>
+                                <div class="col-sm-4">
+                                    <input id="SecurityCodeEntered" name="SecurityCodeEntered" type="text" class="form-control" data-parsley-equalto="#SecurityCode" data-parsley-required />
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <p class="text-center">
+                            <button type="submit" class="btn btn-danger">Yes I want to delete ALL data</button>
+                        </p>
+                    </form>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section JAVASCRIPT {
+    <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".form-control").bind("cut copy paste", function (e) {
+                e.preventDefault();
+            });
+        });
+    </script>
+}

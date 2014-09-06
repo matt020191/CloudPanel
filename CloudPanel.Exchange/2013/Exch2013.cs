@@ -48,7 +48,7 @@ namespace CloudPanel.Exchange
 
         #region GAL / OAL / Address Book Policies
 
-        public override void New_OfflineAddressBook(string companyCode)
+        public override string New_OfflineAddressBook(string companyCode)
         {
             string name = string.Format(Settings.ExchangeOALName, companyCode);
             string gal = string.Format(Settings.ExchangeGALName, companyCode);
@@ -65,6 +65,8 @@ namespace CloudPanel.Exchange
             _powershell.Invoke();
 
             HandleErrors();
+
+            return name;
         }
 
         #endregion

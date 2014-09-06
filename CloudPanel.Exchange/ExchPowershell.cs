@@ -126,14 +126,14 @@ namespace CloudPanel.Exchange
         }
 
         // Returns the appropriate class based on their Exchange version
-        public dynamic GetClass()
+        public static dynamic GetClass()
         {
             if (Settings.ExchangeVersion == 2010)
-                return new Exch2010(Settings.ExchangeConnection, Settings.Username, Settings.DecryptedPassword, false, Settings.PrimaryDC);
+                return new Exch2010(Settings.ExchangeUri, Settings.Username, Settings.DecryptedPassword, false, Settings.PrimaryDC);
             else if (Settings.ExchangeVersion == 2013)
-                return new Exch2013(Settings.ExchangeConnection, Settings.Username, Settings.DecryptedPassword, false, Settings.PrimaryDC);
+                return new Exch2013(Settings.ExchangeUri, Settings.Username, Settings.DecryptedPassword, false, Settings.PrimaryDC);
             else if (Settings.ExchangeVersion == 20135)
-                return new Exch2013(Settings.ExchangeConnection, Settings.Username, Settings.DecryptedPassword, false, Settings.PrimaryDC);
+                return new Exch2013(Settings.ExchangeUri, Settings.Username, Settings.DecryptedPassword, false, Settings.PrimaryDC);
             else
                 throw new Exception("Unable to determine Exchange version");
         }

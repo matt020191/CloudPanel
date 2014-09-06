@@ -14,7 +14,7 @@
     <SaltKey>rI1aosWPff9S5EsY+hj6Pjq0my6DcYWCscivVBr4vA0=</SaltKey>
   </Settings>
   <Exchange>
-    <ExchangeServer>LEXCH2013.lab.local</ExchangeServer>
+    <ExchangeServer>EXCH2013.lab.local</ExchangeServer>
     <ExchangePFServer>EXCH2013.lab.local</ExchangePFServer>
     <ExchangePFEnabled>true</ExchangePFEnabled>
     <ExchangeVersion>2013</ExchangeVersion>
