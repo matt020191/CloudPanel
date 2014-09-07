@@ -199,18 +199,18 @@ namespace CloudPanel.Base.Config
             set { _exchangegroupsfilter = value; }
         }
 
-        private static string _exchangeou;
-        public static string ExchangeOU
+        private static string _exchangeouname;
+        public static string ExchangeOUName
         {
-            get { return string.IsNullOrEmpty(_exchangeou) ? "Exchange" : _exchangeou; }
-            set { _exchangeou = value; }
+            get { return string.IsNullOrEmpty(_exchangeouname) ? "Exchange" : _exchangeouname; }
+            set { _exchangeouname = value; }
         }
 
-        private static string _applicationsou;
-        public static string ApplicationsOU
+        private static string _applicationsouname;
+        public static string ApplicationsOUName
         {
-            get { return string.IsNullOrEmpty(_applicationsou) ? "Applications" : _applicationsou; }
-            set { _applicationsou = value; }
+            get { return string.IsNullOrEmpty(_applicationsouname) ? "Applications" : _applicationsouname; }
+            set { _applicationsouname = value; }
         }
 
         #endregion
@@ -225,6 +225,23 @@ namespace CloudPanel.Base.Config
             }
         }
 
+        public static string ExchangeOuPath(string parentOu)
+        {
+            return string.Format("OU={0},{1}", ExchangeOUName, parentOu);
+        }
+
+        public static string ApplicationOuPath(string parentOu)
+        {
+            return string.Format("OU={0},{1}", ApplicationsOUName, parentOu);
+        }
+
+        public static string UsersOuPath(string parentOu)
+        {
+            if (string.IsNullOrEmpty(UsersOU))
+                return parentOu;
+            else
+                return string.Format("OU={0},{1}", UsersOU, parentOu);
+        }
 
         public static string EncryptPassword
         {

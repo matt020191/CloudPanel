@@ -72,7 +72,7 @@ namespace CloudPanel.Code
                     Settings.ExchangeCONTACTSName = s.Element("ExchangeCONTACTSName").Value;
                     Settings.ExchangeROOMSName = s.Element("ExchangeROOMSName").Value;
                     Settings.ExchangeGROUPSName = s.Element("ExchangeGROUPSName").Value;
-                    Settings.ExchangeOU = s.Element("ExchangeOU").Value;
+                    Settings.ExchangeOUName = s.Element("ExchangeOU").Value;
                 }
 
                 /* Load Module Settings */
@@ -101,7 +101,7 @@ namespace CloudPanel.Code
 
                 foreach (var a in advanced)
                 {
-                    Settings.ApplicationsOU = a.Element("ApplicationsOU").Value;
+                    Settings.ApplicationsOUName = a.Element("ApplicationsOU").Value;
                 }
             }
             catch (Exception ex)

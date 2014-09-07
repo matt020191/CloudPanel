@@ -38,9 +38,13 @@ namespace CloudPanel.Base.Database.Models
     public partial class Contacts
     {
         [Key]
+        public int ID { get; set; }
+        
+        [Required]
         [StringLength(255)]
         public string DistinguishedName { get; set; }
 
+        [Required]
         [StringLength(255)]
         public string CompanyCode { get; set; }
 

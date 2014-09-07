@@ -4,6 +4,7 @@ using CloudPanel.Exchange;
 using CloudPanel.Rollback;
 using log4net;
 using Nancy;
+using Nancy.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,8 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
 
         public EnableModule() : base("/company/{CompanyCode}/exchange/enable")
         {
+            this.RequiresAuthentication();
+
             Get["/"] = _ =>
             {
                 return View["Company/Exchange/enable.cshtml"];

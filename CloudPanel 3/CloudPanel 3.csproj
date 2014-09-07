@@ -1294,6 +1294,8 @@
     <Content Include="Views\Company\company_domains_edit.cshtml" />
     <Content Include="Views\Company\Exchange\enable.cshtml" />
     <Content Include="Views\Company\Exchange\disable.cshtml" />
+    <Content Include="Views\Company\Exchange\contacts_edit.cshtml" />
+    <Content Include="Views\Company\users_edit.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

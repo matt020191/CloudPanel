@@ -36,18 +36,18 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label class="col-sm-3 control-label">Domain Type</label>
+                                <div class="col-sm-6">
+                                    @CloudPanel.CPHtmlHelpers.GetDomainTypes(Model.domain.DomainType, "")
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="col-sm-3 control-label">Is Default</label>
                                 <div class="col-sm-3 control-label">
                                     <div id="defaultswitch"></div>
                                 </div>
                                 <div class="col-sm-6">
                                     <input id="IsDefault" name="IsDefault" type="checkbox" value="@(Model.domain.IsDefault == true ? "true" : "false")" @(Model.domain.IsDefault == true ? "checked" : "") hidden />
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">Domain Type</label>
-                                <div class="col-sm-6">
-                                    @CloudPanel.CPHtmlHelpers.GetDomainTypes(Model.domain.DomainType, "")
                                 </div>
                             </div>
                         </div>

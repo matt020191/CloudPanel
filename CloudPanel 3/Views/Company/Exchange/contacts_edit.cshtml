@@ -1,0 +1,71 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+@{
+    Layout = "__master.cshtml";
+}
+@section HEAD{
+    <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-toggle/toggles.css" rel="stylesheet" />
+}
+
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li><a href="~/company/{CompanyCode}/overview">{Company Name}</a></li>
+        <li>Exchange</li>
+        <li><a href="~/company/{CompanyCode}/exchange/contacts">Contacts</a></li>
+        <li class="active">Edit Contact</li>
+    </ol>
+
+    <h1>Edit Contact</h1>
+</div>
+
+<div class="container">
+    <div class="row">
+        <form id="editContact" action="" method="post" data-parsley-validate>
+            <input type="hidden" name="_method" value="PUT" />
+            <div class="col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Edit Contact</div>
+                    <div class="panel-body">
+                        <div class="form-horizontal">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Name</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="DisplayName" name="DisplayName" value="@Model.contact.DisplayName" data-parsley-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Email</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="Email" name="Email" value="@Model.contact.Email" data-parsley-required="true" readonly>
+                                </div>
+                            </div>
+                            <div class="form-horizontal">
+                                <div class="form-group">
+                                    <label for="focusedinput" class="col-sm-3 control-label"></label>
+                                    <div class="col-sm-9">
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" id="Hidden" name="Hidden" value="@Model.contact.Hidden" @(Model.contact.Hidden == true ? "checked" : "")>Hidden from Address List? </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <div class="btn-toolbar text-right">
+                            <button class="btn-default btn" type="button" onclick="history.go(-1)">Cancel</button>
+                            <button class="btn-primary btn" type="submit">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section JAVASCRIPT{
+    <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
+}

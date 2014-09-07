@@ -186,11 +186,11 @@ namespace CloudPanel.Modules
                         reverse.AddAction(Actions.CreateOrganizationalUnit, createdOrg.DistinguishedName); // Add to our rollback actions in case we need to remove
 
                         logger.DebugFormat("Creating Applications organizational unit in Active Directory");
-                        var appOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = "Applications", UPNSuffixes = createdOrg.UPNSuffixes });
+                        var appOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.ApplicationsOUName, UPNSuffixes = createdOrg.UPNSuffixes });
                         org.RemoveRights(appOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
 
                         logger.DebugFormat("Creating Exchange organizational unit in Active Directory");
-                        var exchOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = "Exchange", UPNSuffixes = createdOrg.UPNSuffixes });
+                        var exchOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.ExchangeOUName, UPNSuffixes = createdOrg.UPNSuffixes });
                         org.RemoveRights(exchOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
 
                         if (!string.IsNullOrEmpty(Settings.UsersOU))

@@ -19,12 +19,12 @@ namespace CloudPanel.Database.EntityFramework
         
         public CloudPanelContext() : base(Settings.ConnectionString)
         {
-            logger.Debug("Context called without a connection string");
+            //logger.Debug("Context called without a connection string");
         }
 
         public CloudPanelContext(string connectionString) : base(connectionString)
         {
-            logger.DebugFormat("Context called with connection string {0}", connectionString);
+            //logger.DebugFormat("Context called with connection string {0}", connectionString);
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

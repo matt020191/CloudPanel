@@ -72,6 +72,56 @@ namespace CloudPanel
             }
         }
 
+        public static IHtmlString GetCompanyDomains(string companyCode, int selectedId, string insertBefore)
+        {
+            var stringBuilder = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var companyDomains = (from d in db.Domains
+                                    where d.CompanyCode == companyCode
+                                    select d).ToList();
+
+                if (!string.IsNullOrEmpty(insertBefore))
+                    stringBuilder.Append(insertBefore);
+
+                companyDomains.ForEach(x =>
+                {
+                    if (selectedId > 0)
+                    {
+                        stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                                x.DomainID,
+                                x.DomainID == selectedId ? "selected" : "",
+                                x.Domain
+                            );
+                    }
+                    else
+                    {
+                        stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                                x.DomainID,
+                                x.IsDefault ? "selected" : "",
+                                x.Domain
+                            );
+                    }
+                });
+
+                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}\" class=\"form-control\">{1}</select>", "DomainID", stringBuilder.ToString());
+                return new NonEncodedHtmlString(returnValue);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
         public static IHtmlString GetMailboxPlans(int selectedId, string companyCode, string insertBefore)
         {
             var stringBuilder = new StringBuilder();

@@ -7,11 +7,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using log4net;
 
 namespace CloudPanel.Modules
 {
     public class SuperChartsModule : NancyModule
     {
+        private static readonly ILog logger = log4net.LogManager.GetLogger(typeof(SuperChartsModule));
+
         public SuperChartsModule() : base("/charts/super")
         {
             this.RequiresAuthentication();
@@ -26,14 +29,16 @@ namespace CloudPanel.Modules
                     {
                         db = new CloudPanelContext(Settings.ConnectionString);
 
+                        logger.DebugFormat("Getting top {0} customers for super admin", _.X);
                         var topCustomers = (from d in db.Users
-                                             group d by d.CompanyCode into grp
+                                            group d by d.CompanyCode into grp
                                              select new
                                              {
                                                  CompanyCode = grp.Key,
                                                  Count = grp.Select(x => x.UserGuid).Distinct().Count()
                                              }).OrderByDescending(x => x.Count).Take(top).ToList();
 
+                        logger.DebugFormat("Found a total of {0} companies", topCustomers.Count());
                         List<TopXCustomers> topX = new List<TopXCustomers>();
                         foreach (var data in topCustomers)
                         {
@@ -53,6 +58,7 @@ namespace CloudPanel.Modules
                     }
                     catch (Exception ex)
                     {
+                        logger.ErrorFormat("Error getting top X customers: {0}", ex.ToString());
                         throw;
                     }
                     finally

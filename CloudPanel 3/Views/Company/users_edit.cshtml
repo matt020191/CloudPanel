@@ -1,0 +1,123 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@{string selectedCompanyCode = CloudPanel.NancyContextHelpers.GetSelectedCompanyCode(this.RenderContext.Context);}
+
+@{
+    Layout = "__master.cshtml";
+}
+
+@section HEAD{
+    <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
+    <style type="text/css">
+        span.tab-space {
+            padding-left: 0.5em;
+        }
+    </style>
+}
+
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li><a href="~/company/@selectedCompanyCode/overview">{Company Name}</a></li>
+        <li><a href="~/company/@selectedCompanyCode/users">Users</a></li>
+        <li class="active">Edit User</li>
+    </ol>
+
+    <h1>Edit User</h1>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <form id="editUser" action="" method="post" data-parsley-validate>
+                <input type="hidden" name="_method" value="PUT" />
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Edit User</div>
+                    <div class="panel-body">
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="domtabs">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="tab-container tab-danger">
+                                            <ul class="nav nav-tabs">
+                                                <li class="active"><a href="#user" data-toggle="tab">User</a></li>
+                                                <li><a href="#profile1" data-toggle="tab">Profile</a></li>
+                                                <li class="dropdown">
+                                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Dropdown <span class="caret"></span></a>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a href="#">Something</a></li>
+                                                        <li><a href="#">Something Else</a></li>
+                                                        <li class="divider"></li>
+                                                        <li><a href="#">And one more thing</a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                            <div class="tab-content">
+                                                <div class="tab-pane active" id="user">
+                                                    <div class="form-horizontal">
+                                                        <div class="form-group">
+                                                            <label for="focusedinput" class="col-sm-2 control-label">First Name</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" class="form-control" id="Firstname" name="Firstname" data-parsley-required="true">
+                                                            </div>
+                                                            <div class="col-sm-3">
+                                                                <p class="help-block">
+                                                                    <span data-toggle="tooltip" data-original-title="Choose a plan to edit / delete or select Create New to create a new plan" class="tooltip-ex">
+                                                                        <i class="fa fa-question-circle"></i>
+                                                                    </span>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="focusedinput" class="col-sm-2 control-label">Middle Name</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" class="form-control" id="Middlename" name="Middlename">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="focusedinput" class="col-sm-2 control-label">Last Name</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" class="form-control" id="Lastname" name="Lastname" data-parsley-required="true">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="focusedinput" class="col-sm-2 control-label">Display Name</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" class="form-control" id="DisplayName" name="DisplayName" data-parsley-required="true">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="focusedinput" class="col-sm-2 control-label">Department</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" class="form-control" id="Department" name="Department">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="tab-pane" id="profile1"><p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Asperiores porro eveniet debitis quas sed harum nobis libero voluptatibus dolorum odio at veniam aut id corrupti hic esse quisquam fugiat. Asperiores in eveniet sapiente error fuga tenetur ex ea dignissimos voluptas ab molestiae eos totam quo dolorem maxime illo neque quia itaque.</p></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <div class="btn-toolbar text-right">
+                            <button class="btn-default btn">Cancel</button>
+                            <button class="btn-primary btn" type="submit">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section JAVASCRIPT{
+    <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+        });
+    </script>
+}

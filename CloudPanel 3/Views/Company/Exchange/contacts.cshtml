@@ -5,6 +5,7 @@
 }
 @section HEAD{
     <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
 }
 
 <div id="page-heading">
@@ -18,7 +19,7 @@
     <h1>Contacts</h1>
     <div class="options">
         <div class="btn-toolbar">
-            <a href="#" class="btn btn-primary hidden-xs">Add New</a>
+            <a href="#" class="btn btn-primary hidden-xs" data-toggle="modal" data-target="#newModal">Add New</a>
         </div>
     </div>
 </div>
@@ -55,20 +56,45 @@
 </div>
 
 <!-- New Modal -->
-<form id="newForm" action="" method="post">
+<form id="newForm" action="" method="post" data-parsley-validate>
     <div id="newModal" class="modal fade">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    <h4 class="modal-title">New Domain</h4>
+                    <h4 class="modal-title">New Contact</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to delete this reseller?</p>
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Name</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="DisplayName" name="DisplayName" data-parsley-required="true">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Email</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="Email" name="Email" data-parsley-required="true" data-parsley-type="email">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label"></label>
+                            <div class="col-sm-9">
+                                <div class="checkbox">
+                                    <label><input type="checkbox" id="Hidden" name="Hidden" value="false">Hidden from Address List? </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </div>
         </div>
@@ -83,14 +109,15 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    <h4 class="modal-title">Edit Reseller</h4>
+                    <h4 class="modal-title">Delete Contact</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to delete this reseller?</p>
+                    <p>Are you sure you want to delete this contact?</p>
+                    <input id="ContactID" name="ContactID" type="hidden" />
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-danger">Delete</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
                 </div>
             </div>
         </div>
@@ -101,51 +128,52 @@
     <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
     <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
     <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
+    <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
     <script type="text/javascript">
-        $(document).ready(function () {
-            $("#dataTable").DataTable({
-                "serverSide": true,
-                "processing": true,
-                "ajax": {
-                    type: 'GET',
-                    dataType: 'json'
+    $(document).ready(function () {
+        $("#dataTable").DataTable({
+            "serverSide": true,
+            "processing": true,
+            "ajax": {
+                type: 'GET',
+                dataType: 'json'
+            },
+            "columns": [
+                { "data": "displayName" },
+                { "data": "email" },
+                {
+                    "data": "hidden", "width": "10%", "class": "text-center", "render": function (data, type, full, meta) {
+                        if (data == true)
+                            return '<i class="fa fa-check-square"></i>';
+                        else
+                            return '';
+                    }
                 },
-                "columns": [
-                    { "data": "displayName" },
-                    { "data": "email" },
-                    {
-                        "data": "hidden", "width": "10%", "class": "text-center", "render": function (data, type, full, meta) {
-                            if (data == true)
-                                return '<i class="fa fa-check-square"></i>';
-                            else
-                                return '';
-                        }
-                    },
-                    {
-                        "data": "iD", "orderable": false, "className": "text-right", "render": function (data, type, full, meta) {
-                            return GetButton(data);
-                        }
-                    },
-                ]
-            });
+                {
+                    "data": "iD", "orderable": false, "className": "text-right", "render": function (data, type, full, meta) {
+                        return GetButton(data, full["companyCode"]);
+                    }
+                },
+            ]
         });
+    });
 
-        function SetForm(element)
-        {
-            var companyCode = $(element).data("id");
-            var href = $(element).attr('href');
-            $(href).closest("form").attr("action", "@Url.Content("~/resellers/")" + companyCode);
-        }
+    function SetForm(element) {
+        var id = $(element).data("id");
+        var href = $(element).attr('href');
+        $(href).find("#ContactID").val(id);
+    }
 
-        function GetButton(id) {
-            return '<div class="btn-group"> \
+    function GetButton(id, companyCode) {
+        return '<div class="btn-group"> \
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"> \
                                 Modify <span class="caret"></span> \
                             </button> \
                             <ul class="dropdown-menu" role="menu"> \
+                                <li><a href="@Url.Content("~/company/")' + companyCode + '/exchange/contacts/' + id + '">Edit</a></li> \
                                 <li><a href="#deleteModal" data-toggle="modal" data-id="' + id + '" onclick="SetForm(this);">Delete</a></li> \
                             </ul> \
                     </div>';
-        }
+    }
     </script>
 }

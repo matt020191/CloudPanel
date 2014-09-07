@@ -3,19 +3,23 @@ using CloudPanel.Database.EntityFramework;
 using log4net;
 using Nancy;
 using Nancy.Security;
+using Nancy.ModelBinding;
 using System;
 using System.Linq;
 using System.Reflection;
+using CloudPanel.Base.Database.Models;
+using CloudPanel.ActiveDirectory;
+using CloudPanel.Rollback;
 
 namespace CloudPanel.Modules
 {
     public class CompanyUsersModule : NancyModule
     {
-        private static readonly ILog log = LogManager.GetLogger(typeof(CompanyUsersModule));
+        private static readonly ILog logger = LogManager.GetLogger(typeof(CompanyUsersModule));
 
         public CompanyUsersModule() : base("/company/{CompanyCode}/users")
         {
-            this.RequiresAuthentication();
+            //this.RequiresAuthentication();
 
             Get["/"] = _ =>
             {
@@ -88,7 +92,7 @@ namespace CloudPanel.Modules
                                                     .ToList();
                     }
 
-                    return Negotiate.WithModel(users)
+                    return Negotiate.WithModel(new { users = users })
                                     .WithMediaRangeModel("application/json", new
                                     {
                                         draw = draw,
@@ -100,8 +104,270 @@ namespace CloudPanel.Modules
                 }
                 catch (Exception ex)
                 {
-                    return Negotiate.WithMediaRangeModel("application/json", new { error = ex.Message })
+                    return Negotiate.WithModel(new { error = ex.Message })
                                     .WithView("Company/company_users.cshtml");
+                }
+                finally
+                {
+                    if (db != null)
+                        db.Dispose();
+                }
+                #endregion
+            };
+
+            Post["/"] = _ =>
+            {
+                #region Creates a new user
+
+                CloudPanelContext db = null;
+                ADUsers adUsers = null;
+                ADGroups adGroups = null;
+
+                ReverseActions reverse = new ReverseActions();
+                try
+                {
+                    logger.DebugFormat("Creating a new user... validating parameters");
+
+                    if (!Request.Form.Firstname.HasValue)
+                        throw new Exception("First name is a required field");
+
+                    if (!Request.Form.Lastname.HasValue)
+                        throw new Exception("Last name is a required field");
+
+                    if (!Request.Form.DisplayName.HasValue)
+                        throw new Exception("Display name is a required field");
+
+                    if (!Request.Form.Department.HasValue)
+                        throw new Exception("Department is not a required field but it must be passed with a empty string or a value");
+
+                    if (!Request.Form.Username.HasValue)
+                        throw new Exception("Username is a required field");
+
+                    if (!Request.Form.Password.HasValue)
+                        throw new Exception("Password is a required field");
+
+                    logger.DebugFormat("Getting selected domain from the database");
+                    int domainID = Request.Form.DomainID;
+                    string companyCode = _.CompanyCode;
+
+                    db = new CloudPanelContext(Settings.ConnectionString);
+                    db.Database.Connection.Open();
+
+                    var domain = (from d in db.Domains
+                                  where d.CompanyCode == companyCode
+                                  where d.DomainID == domainID
+                                  select d).FirstOrDefault();
+
+                    if (domain == null)
+                        throw new Exception("Unable to find the domain in the database");
+                    else
+                    {
+                        logger.DebugFormat("Compiling data into Users object");
+
+                        Users newUser = new Users();
+                        newUser.CompanyCode = companyCode;
+                        newUser.Name = Request.Form.DisplayName; // TODO: MAKE THIS USE EITHER DISPLAY NAME OR EMAIL BASED ON CONFIG FILE
+                        newUser.Firstname = Request.Form.Firstname;
+                        newUser.Middlename = string.Empty;
+                        newUser.Lastname = Request.Form.Lastname;
+                        newUser.DisplayName = Request.Form.DisplayName;
+                        newUser.Department = Request.Form.Department;
+                        newUser.Email = string.Empty;
+                        newUser.IsResellerAdmin = false;
+                        newUser.IsCompanyAdmin = false;
+                        newUser.MailboxPlan = 0;
+                        newUser.TSPlan = 0;
+                        newUser.LyncPlan = 0;
+                        newUser.Created = DateTime.Now;
+                        newUser.AdditionalMB = 0;
+                        newUser.ActiveSyncPlan = 0;
+                        newUser.IsEnabled = true;
+
+                        logger.DebugFormat("Formatting the UserPrincipalName");
+                        string upn = string.Format("{0}@{1}", Request.Form.Username, domain.Domain);
+
+                        logger.DebugFormat("Replacing whitespace characters in UPN: {0}", upn);
+                        upn = upn.Replace(" ", string.Empty);
+
+                        logger.DebugFormat("UPN after replacing whitepsace characters: {0}", upn);
+
+                        logger.DebugFormat("Making sure the userprincipalname {0} is not already taken", upn);
+                        var takenUPN = (from d in db.Users
+                                        where d.CompanyCode == companyCode
+                                        where d.UserPrincipalName == upn
+                                        select d).Count();
+
+                        if (takenUPN > 0)
+                            throw new Exception("The username you entered is already taken");
+                        else
+                        {
+                            logger.DebugFormat("Username {0} was not taken.. continue creating user... Getting company from database", upn);
+                            newUser.UserPrincipalName = upn;
+
+                            var company = (from d in db.Companies
+                                           where !d.IsReseller
+                                           where d.CompanyCode == companyCode
+                                           select d).FirstOrDefault();
+
+                            if (company == null)
+                                throw new Exception("Unable to find company in database");
+                            else
+                            {
+                                logger.DebugFormat("Creating user in Active Directory now");
+                                adUsers = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                                newUser = adUsers.Create(Settings.UsersOuPath(company.DistinguishedName), Request.Form.Password, newUser);
+                                reverse.AddAction(Actions.AddUsers, newUser.UserPrincipalName);
+
+                                logger.DebugFormat("User {0} created in Active Directory. Adding to the AllUsers security group", upn);
+                                adGroups = new ADGroups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                                adGroups.AddUser("AllUsers@" + company.CompanyCode, newUser.UserPrincipalName);
+
+                                logger.DebugFormat("User {0} was created successfully. Adding to database");
+                                db.Users.Add(newUser);
+                                db.SaveChanges();
+
+                                return Negotiate.WithModel(new { success = "Created new user " + upn })
+                                                .WithView("Company/company_users.cshtml");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error creating new user for company {0}: {1}", _.CompanyCode, ex.ToString());
+
+                    reverse.RollbackNow();
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithView("Company/company_users.cshtml");
+                }
+                finally
+                {
+                    if (adUsers != null)
+                        adUsers.Dispose();
+
+                    if (db != null)
+                        db.Dispose();
+                }
+
+                #endregion
+            };
+
+            Delete["/"] = _ =>
+            {
+                #region Deletes a user from Active Directory and the database
+                CloudPanelContext db = null;
+                ADUsers adUsers = null;
+                try
+                {
+                    logger.DebugFormat("Opening connection to delete user for {0}", _.CompanyCode);
+                    db = new CloudPanelContext(Settings.ConnectionString);
+                    db.Database.Connection.Open();
+
+                    logger.DebugFormat("Validating parameters");
+                    if (!Request.Form.UserPrincipalName.HasValue)
+                        throw new Exception("UserPrincipalName is a required field");
+                    else
+                    {
+                        logger.DebugFormat("Getting company code and userprincipalname for {0}", _.CompanyCode);
+                        string companyCode = _.CompanyCode;
+                        string upn = Request.Form.UserPrincipalName;
+
+                        logger.DebugFormat("Getting user {0} from database", upn);
+                        var user = (from d in db.Users
+                                    where d.CompanyCode == companyCode
+                                    where d.UserPrincipalName == upn
+                                    select d).FirstOrDefault();
+
+                        if (user == null)
+                            throw new Exception("Unable to find user in database");
+                        else
+                        {
+                            logger.DebugFormat("Deleting {0} from Active Directory", upn);
+                            adUsers = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                            adUsers.Delete(upn);
+
+                            logger.DebugFormat("Removing user from database");
+                            int userId = user.ID; // To perform more cleanup
+                            db.Users.Remove(user);
+                            db.SaveChanges();
+
+                            logger.DebugFormat("User has been removed. Now cleaning up the database to remove all traces of the user");
+
+                            logger.DebugFormat("Clearing user from citrix plans");
+                            var citrixPlans = from d in db.UserPlansCitrix where d.UserID == userId select d;
+                            if (citrixPlans != null)
+                                db.UserPlansCitrix.RemoveRange(citrixPlans);
+
+                            logger.DebugFormat("Clearing user from permissions");
+                            var permissions = from d in db.UserPermissions where d.UserID == userId select d;
+                            if (permissions != null)
+                                db.UserPermissions.RemoveRange(permissions);
+
+                            logger.DebugFormat("Clearing user from queues");
+                            var queues = from d in db.SvcQueue where d.UserPrincipalName == upn select d;
+                            if (queues != null)
+                                db.SvcQueue.RemoveRange(queues);
+
+                            logger.DebugFormat("Clearing user from mailbox sizes");
+                            var mailboxSizes = from d in db.SvcMailboxSizes where d.UserPrincipalName == upn select d;
+                            if (mailboxSizes != null)
+                                db.SvcMailboxSizes.RemoveRange(mailboxSizes);
+
+                            logger.DebugFormat("Finished cleanup for {0}", upn);
+                            db.SaveChanges();
+
+                            return Negotiate.WithModel(new { success = "Deleted user " + upn })
+                                            .WithView("Company/company_users.cshtml");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithView("Company/company_users.cshtml");
+                }
+                finally
+                {
+                    if (adUsers != null)
+                        adUsers.Dispose();
+
+                    if (db != null)
+                        db.Dispose();
+                }
+                #endregion
+            };
+
+            Get["/{UserPrincipalName}"] = _ =>
+            {
+                #region Gets a specific user
+                CloudPanelContext db = null;
+                try
+                {
+                    db = new CloudPanelContext(Settings.ConnectionString);
+                    db.Database.Connection.Open();
+
+                    logger.DebugFormat("Getting user {0} from the system", _.UserPrincipalName);
+                    string companyCode = _.CompanyCode;
+                    string upn = _.UserPrincipalName;
+
+                    logger.DebugFormat("Querying the database for {0}", upn);
+                    var user = (from d in db.Users
+                                where d.CompanyCode == companyCode
+                                where d.UserPrincipalName == upn
+                                select d).FirstOrDefault();
+
+                    if (user == null)
+                        throw new Exception("Unable to find user in database");
+                    else
+                    {
+                        return Negotiate.WithModel(new { user = user })
+                                        .WithView("Company/users_edit.cshtml");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithView("error.cshtml");
                 }
                 finally
                 {

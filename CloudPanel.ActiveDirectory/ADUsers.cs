@@ -14,7 +14,7 @@ namespace CloudPanel.ActiveDirectory
 {
     public class ADUsers : IDisposable
     {
-        private readonly ILog log = LogManager.GetLogger(typeof(Users));
+        private readonly ILog logger = LogManager.GetLogger(typeof(Users));
 
         private string _username;
         private string _password;
@@ -38,7 +38,7 @@ namespace CloudPanel.ActiveDirectory
 
         private DirectoryEntry GetDirectoryEntry(string dnPath = null)
         {
-            log.DebugFormat("Retrieving the DirectoryEntry... Path: {0}", dnPath);
+            logger.DebugFormat("Retrieving the DirectoryEntry... Path: {0}", dnPath);
 
             if (de == null)
                 de = new DirectoryEntry(_ldapStr, this._username, this._password);
@@ -54,7 +54,7 @@ namespace CloudPanel.ActiveDirectory
 
         private PrincipalContext GetPrincipalContext()
         {
-            log.Debug("Retrieving the PrincipalContext...");
+            logger.Debug("Retrieving the PrincipalContext...");
 
             if (pc == null)
                 pc = new PrincipalContext(ContextType.Domain, this._domainController, this._username, this._password);
@@ -70,21 +70,21 @@ namespace CloudPanel.ActiveDirectory
             {
                 pc = GetPrincipalContext();
 
-                log.DebugFormat("Attempting to authenticate user {0}", username);
+                logger.DebugFormat("Attempting to authenticate user {0}", username);
 
                 bool valid = pc.ValidateCredentials(username, password);
                 if (!valid)
                     throw new UnauthorizedAccessException();
                 else
                 {
-                    log.DebugFormat("Successfully authenticated user {0}... Now retrieving security groups...", username);
+                    logger.DebugFormat("Successfully authenticated user {0}... Now retrieving security groups...", username);
 
                     return GetUser(username);
                 }                
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error authenticating user {0}. Exception: {1}", username, ex.ToString());
+                logger.ErrorFormat("Error authenticating user {0}. Exception: {1}", username, ex.ToString());
                 throw;
             }
         }
@@ -98,7 +98,7 @@ namespace CloudPanel.ActiveDirectory
             {
                 pc = GetPrincipalContext();
 
-                log.DebugFormat("Attempting to retrieve user {0}", username);
+                logger.DebugFormat("Attempting to retrieve user {0}", username);
                 usr = UserPrincipal.FindByIdentity(pc, IdentityType.UserPrincipalName, username);
 
                 DirectoryEntry tmp = (DirectoryEntry)usr.GetUnderlyingObject();
@@ -151,7 +151,7 @@ namespace CloudPanel.ActiveDirectory
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error retrieving user {0}. Exception: {1}", username, ex.ToString());
+                logger.ErrorFormat("Error retrieving user {0}. Exception: {1}", username, ex.ToString());
                 throw;
             }
             finally
@@ -170,7 +170,7 @@ namespace CloudPanel.ActiveDirectory
             {
                 pc = GetPrincipalContext();
 
-                log.DebugFormat("Attempting to retrieve user {0}", username);
+                logger.DebugFormat("Attempting to retrieve user {0}", username);
                 usr = UserPrincipal.FindByIdentity(pc, IdentityType.UserPrincipalName, username);
 
                 DirectoryEntry tmp = (DirectoryEntry)usr.GetUnderlyingObject();
@@ -215,7 +215,7 @@ namespace CloudPanel.ActiveDirectory
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error retrieving user {0}. Exception: {1}", username, ex.ToString());
+                logger.ErrorFormat("Error retrieving user {0}. Exception: {1}", username, ex.ToString());
                 throw;
             }
             finally
@@ -234,7 +234,7 @@ namespace CloudPanel.ActiveDirectory
             {
                 pc = GetPrincipalContext();
 
-                log.DebugFormat("Attempting to retrieve user {0}", username);
+                logger.DebugFormat("Attempting to retrieve user {0}", username);
                 usr = UserPrincipal.FindByIdentity(pc, IdentityType.UserPrincipalName, username);
 
                 DirectoryEntry tmp = (DirectoryEntry)usr.GetUnderlyingObject();
@@ -290,7 +290,7 @@ namespace CloudPanel.ActiveDirectory
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error retrieving user {0}. Exception: {1}", username, ex.ToString());
+                logger.ErrorFormat("Error retrieving user {0}. Exception: {1}", username, ex.ToString());
                 throw;
             }
             finally
@@ -307,7 +307,7 @@ namespace CloudPanel.ActiveDirectory
 
             try
             {
-                log.Debug("Attempting to create new user");
+                logger.Debug("Attempting to create new user");
 
                 if (string.IsNullOrEmpty(usersOU))
                     throw new MissingFieldException("User", "usersOU");
@@ -315,8 +315,8 @@ namespace CloudPanel.ActiveDirectory
                 if (string.IsNullOrEmpty(clearTextPassword))
                     throw new MissingFieldException("User", "clearTextPassword");
 
-                if (string.IsNullOrEmpty(userObject.sAMAccountName))
-                    throw new MissingFieldException("User", "SamAccountName");
+                //if (string.IsNullOrEmpty(userObject.sAMAccountName))
+                    //throw new MissingFieldException("User", "SamAccountName");
 
                 if (string.IsNullOrEmpty(userObject.UserPrincipalName))
                     throw new MissingFieldException("User", "UserPrincipalName");
@@ -337,6 +337,7 @@ namespace CloudPanel.ActiveDirectory
                     throw new PrincipalExistsException(userObject.UserPrincipalName);
 
                 // Now we can create the user!
+                logger.DebugFormat("User doesn't exist. Continuing...");
                 userObject.sAMAccountName = GetAvailableSamAccountName(userObject.UserPrincipalName);
                 ctx = new PrincipalContext(ContextType.Domain, this._domainController, usersOU, this._username, this._password); // Used for creating new user
                 usr = new UserPrincipalExt(ctx, userObject.sAMAccountName, clearTextPassword, true);
@@ -351,17 +352,20 @@ namespace CloudPanel.ActiveDirectory
                 if (!string.IsNullOrEmpty(userObject.Department))
                     usr.Department = userObject.Department;
 
+                logger.DebugFormat("Saving new user {0} in the directory store", userObject.UserPrincipalName);
                 usr.Save();
 
                 // After we save we need to return some data
+                logger.DebugFormat("Getting new data for user {0} after saving in Active Directory", userObject.UserPrincipalName);
                 userObject.UserGuid = (Guid)usr.Guid;
                 userObject.DistinguishedName = usr.DistinguishedName;
 
+                logger.DebugFormat("User object {0} was created in Active Directory", userObject.DistinguishedName);
                 return userObject;
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error retrieving user {0}. Exception: {1}", userObject.UserPrincipalName, ex.ToString());
+                logger.ErrorFormat("Error retrieving user {0}. Exception: {1}", userObject.UserPrincipalName, ex.ToString());
                 throw;
             }
             finally
@@ -386,7 +390,7 @@ namespace CloudPanel.ActiveDirectory
                 if (string.IsNullOrEmpty(userObject.DisplayName))
                     throw new MissingFieldException("User", "DisplayName");
 
-                log.DebugFormat("Updating user {0} values...", userObject.UserPrincipalName);
+                logger.DebugFormat("Updating user {0} values...", userObject.UserPrincipalName);
 
                 pc = GetPrincipalContext();
                 usr = UserPrincipal.FindByIdentity(pc, IdentityType.UserPrincipalName, userObject.UserPrincipalName);
@@ -419,11 +423,11 @@ namespace CloudPanel.ActiveDirectory
                 SetPropertyValue(ref deEntry, "wWWHomePage", userObject.Webpage);
 
                 deEntry.CommitChanges();
-                log.InfoFormat("Successfully updated user {0}", userObject.UserPrincipalName);
+                logger.InfoFormat("Successfully updated user {0}", userObject.UserPrincipalName);
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error updating {0}. Exception: {1}", userObject.UserPrincipalName, ex.ToString());
+                logger.ErrorFormat("Error updating {0}. Exception: {1}", userObject.UserPrincipalName, ex.ToString());
                 throw;
             }
             finally
@@ -445,7 +449,7 @@ namespace CloudPanel.ActiveDirectory
                 if (string.IsNullOrEmpty(property))
                     throw new MissingFieldException("Users", "Property");
 
-                log.DebugFormat("Updating user {0} property {1} to {2}...", userPrincipalName, property, newValue);
+                logger.DebugFormat("Updating user {0} property {1} to {2}...", userPrincipalName, property, newValue);
 
                 pc = GetPrincipalContext();
                 usr = UserPrincipal.FindByIdentity(pc, IdentityType.UserPrincipalName, userPrincipalName);
@@ -456,11 +460,11 @@ namespace CloudPanel.ActiveDirectory
                 SetPropertyValue(ref deEntry, property, newValue);
 
                 deEntry.CommitChanges();
-                log.InfoFormat("Successfully updated user {0} property {1} to {2}.", userPrincipalName, property, newValue);
+                logger.InfoFormat("Successfully updated user {0} property {1} to {2}.", userPrincipalName, property, newValue);
             }
             catch (Exception ex)
             {
-                log.InfoFormat("Error updating user {0} property {1}.", userPrincipalName, property);
+                logger.InfoFormat("Error updating user {0} property {1}.", userPrincipalName, property);
                 throw;
             }
             finally
@@ -478,20 +482,20 @@ namespace CloudPanel.ActiveDirectory
             {
                 pc = GetPrincipalContext();
 
-                log.DebugFormat("Attempting to retrieve user {0}", username);
+                logger.DebugFormat("Attempting to retrieve user {0}", username);
                 usr = UserPrincipal.FindByIdentity(pc, IdentityType.UserPrincipalName, username);
 
                 if (usr != null)
                 {
                     usr.Delete();
-                    log.InfoFormat("Successfully deleted user {0}", username);
+                    logger.InfoFormat("Successfully deleted user {0}", username);
                 }
                 else
-                    log.InfoFormat("Attempted to delete user {0} but could not find the user in Active Directory. Assuming user was manually deleted... continuing...", username);
+                    logger.InfoFormat("Attempted to delete user {0} but could not find the user in Active Directory. Assuming user was manually deleted... continuing...", username);
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed to delete user {0}. Exception: {1}", username, ex.ToString());
+                logger.ErrorFormat("Failed to delete user {0}. Exception: {1}", username, ex.ToString());
                 throw;
             }
             finally
@@ -506,7 +510,7 @@ namespace CloudPanel.ActiveDirectory
             UserPrincipal usr = null;
             try
             {
-                log.DebugFormat("Attempting to reset password for user {0}", username);
+                logger.DebugFormat("Attempting to reset password for user {0}", username);
 
                 if (string.IsNullOrEmpty(username))
                     throw new MissingFieldException("Users", "username");
@@ -521,11 +525,11 @@ namespace CloudPanel.ActiveDirectory
 
                 usr.SetPassword(newClearTextPassword);
 
-                log.InfoFormat("Successfully reset password for {0}", username);
+                logger.InfoFormat("Successfully reset password for {0}", username);
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error resetting password for {0}. Exception {1}.", username, ex.ToString());
+                logger.ErrorFormat("Error resetting password for {0}. Exception {1}.", username, ex.ToString());
                 throw;
             }
             finally
@@ -548,7 +552,7 @@ namespace CloudPanel.ActiveDirectory
                 if (string.IsNullOrEmpty(userPrincipalName))
                     throw new MissingFieldException("Users", "userPrincipalName");
 
-                log.DebugFormat("Attempting to add {0} to group {1}...", userPrincipalName, groupName);
+                logger.DebugFormat("Attempting to add {0} to group {1}...", userPrincipalName, groupName);
 
                 pc = GetPrincipalContext();
                 gp = GroupPrincipal.FindByIdentity(pc, IdentityType.Name, groupName);
@@ -564,14 +568,14 @@ namespace CloudPanel.ActiveDirectory
                     gp.Members.Add(usr);
                     gp.Save();
 
-                    log.InfoFormat("Successfully added {0} to group {1}.", userPrincipalName, groupName);
+                    logger.InfoFormat("Successfully added {0} to group {1}.", userPrincipalName, groupName);
                 }
                 else
-                    log.DebugFormat("Did not add {0} to group {1} because the user was already a member.", userPrincipalName, groupName);
+                    logger.DebugFormat("Did not add {0} to group {1} because the user was already a member.", userPrincipalName, groupName);
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error adding {0} to group {1}. Exception: {2}", userPrincipalName, groupName, ex.ToString());
+                logger.ErrorFormat("Error adding {0} to group {1}. Exception: {2}", userPrincipalName, groupName, ex.ToString());
                 throw;
             }
             finally
@@ -605,28 +609,28 @@ namespace CloudPanel.ActiveDirectory
                 {
                     foreach (string group in groupsName)
                     {
-                        log.DebugFormat("Attempting to add {0} to group {1}", userPrincipalName, group);
+                        logger.DebugFormat("Attempting to add {0} to group {1}", userPrincipalName, group);
 
                         gp = GroupPrincipal.FindByIdentity(pc, IdentityType.Name, group);
                         if (gp == null)
-                            log.WarnFormat("Unable to add {0} to group {1} because the group was not found.", userPrincipalName, group);
+                            logger.WarnFormat("Unable to add {0} to group {1} because the group was not found.", userPrincipalName, group);
                         else
                         {
                             if (gp.Members.Contains(usr) == false)
                             {
                                 gp.Members.Add(usr);
                                 gp.Save();
-                                log.DebugFormat("Successfully added {0} to group {1}", userPrincipalName, group);
+                                logger.DebugFormat("Successfully added {0} to group {1}", userPrincipalName, group);
                             }
                             else
-                                log.DebugFormat("Unable to add {0} to group {1} because they were already a member", userPrincipalName, group);
+                                logger.DebugFormat("Unable to add {0} to group {1} because they were already a member", userPrincipalName, group);
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error adding {0} to the following groups {1}. Exception: {2}", userPrincipalName, string.Join(", ", groupsName), ex.ToString());
+                logger.ErrorFormat("Error adding {0} to the following groups {1}. Exception: {2}", userPrincipalName, string.Join(", ", groupsName), ex.ToString());
                 throw;
             }
             finally
@@ -652,7 +656,7 @@ namespace CloudPanel.ActiveDirectory
                 if (string.IsNullOrEmpty(userPrincipalName))
                     throw new MissingFieldException("Users", "userPrincipalName");
 
-                log.DebugFormat("Attempting to remove {0} from group {1}...", userPrincipalName, groupName);
+                logger.DebugFormat("Attempting to remove {0} from group {1}...", userPrincipalName, groupName);
 
                 pc = GetPrincipalContext();
                 gp = GroupPrincipal.FindByIdentity(pc, IdentityType.Name, groupName);
@@ -668,14 +672,14 @@ namespace CloudPanel.ActiveDirectory
                     gp.Members.Remove(usr);
                     gp.Save();
 
-                    log.InfoFormat("Successfully removed {0} from group {1}.", userPrincipalName, groupName);
+                    logger.InfoFormat("Successfully removed {0} from group {1}.", userPrincipalName, groupName);
                 }
                 else
-                    log.DebugFormat("Did not remove {0} from group {1} because the user was not a member.", userPrincipalName, groupName);
+                    logger.DebugFormat("Did not remove {0} from group {1} because the user was not a member.", userPrincipalName, groupName);
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error removing {0} from group {1}. Exception: {2}", userPrincipalName, groupName, ex.ToString());
+                logger.ErrorFormat("Error removing {0} from group {1}. Exception: {2}", userPrincipalName, groupName, ex.ToString());
                 throw;
             }
             finally
@@ -709,28 +713,28 @@ namespace CloudPanel.ActiveDirectory
                 {
                     foreach (string group in groupsName)
                     {
-                        log.DebugFormat("Attempting to remove {0} from group {1}", userPrincipalName, group);
+                        logger.DebugFormat("Attempting to remove {0} from group {1}", userPrincipalName, group);
 
                         gp = GroupPrincipal.FindByIdentity(pc, IdentityType.Name, group);
                         if (gp == null)
-                            log.WarnFormat("Unable to remove {0} from group {1} because the group was not found.", userPrincipalName, group);
+                            logger.WarnFormat("Unable to remove {0} from group {1} because the group was not found.", userPrincipalName, group);
                         else
                         {
                             if (gp.Members.Contains(usr) == true)
                             {
                                 gp.Members.Remove(usr);
                                 gp.Save();
-                                log.DebugFormat("Successfully removed {0} from group {1}", userPrincipalName, group);
+                                logger.DebugFormat("Successfully removed {0} from group {1}", userPrincipalName, group);
                             }
                             else
-                                log.DebugFormat("Unable to remove {0} from group {1} because they were not a member", userPrincipalName, group);
+                                logger.DebugFormat("Unable to remove {0} from group {1} because they were not a member", userPrincipalName, group);
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error removing {0} from the following groups {1}. Exception: {2}", userPrincipalName, string.Join(", ", groupsName), ex.ToString());
+                logger.ErrorFormat("Error removing {0} from the following groups {1}. Exception: {2}", userPrincipalName, string.Join(", ", groupsName), ex.ToString());
                 throw;
             }
             finally
@@ -751,7 +755,7 @@ namespace CloudPanel.ActiveDirectory
             {
                 pc = GetPrincipalContext();
 
-                log.DebugFormat("Attempting to retrieve user photo for {0}", username);
+                logger.DebugFormat("Attempting to retrieve user photo for {0}", username);
                 usr = UserPrincipal.FindByIdentity(pc, IdentityType.UserPrincipalName, username);
 
                 DirectoryEntry tmp = (DirectoryEntry)usr.GetUnderlyingObject();
@@ -763,7 +767,7 @@ namespace CloudPanel.ActiveDirectory
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error retrieving user photo for {0}. Exception: {1}", username, ex.ToString());
+                logger.ErrorFormat("Error retrieving user photo for {0}. Exception: {1}", username, ex.ToString());
                 throw;
             }
             finally
@@ -812,7 +816,7 @@ namespace CloudPanel.ActiveDirectory
 
             try
             {
-                log.DebugFormat("Attempting to find an available sAMAccountName for {0}.", userPrincipalName);
+                logger.DebugFormat("Attempting to find an available sAMAccountName for {0}.", userPrincipalName);
 
                 // Get the first part of the user principal name
                 string upnFirstPart = userPrincipalName.Split('@')[0];
@@ -834,11 +838,12 @@ namespace CloudPanel.ActiveDirectory
                 }
 
                 // We found our available sAMAccountName
+                logger.DebugFormat("Available sAMAccountName was found: {0}", sAMAccountName);
                 return sAMAccountName;
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error searching for available SamAccountName for {0}. Exception: {1} ", userPrincipalName, ex.ToString());
+                logger.ErrorFormat("Error searching for available SamAccountName for {0}. Exception: {1} ", userPrincipalName, ex.ToString());
                 throw;
             }
             finally

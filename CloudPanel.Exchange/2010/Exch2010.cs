@@ -271,14 +271,15 @@ namespace CloudPanel.Exchange
 
         #region Contacts
 
-        public Contacts New_MailContact(Contacts mailContact, string organizationalUnit)
+        public Contacts New_MailContact(Contacts mailContact, string defaultDomain, string organizationalUnit)
         {
             string[] emailSplit = mailContact.Email.Split('@');
+            string primarySmtpAddress = string.Format("{0}{{at}}{1}.{{contact}}@{2}", emailSplit[0], emailSplit[1], defaultDomain);
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("New-MailContact");
-            cmd.AddParameter("Name", mailContact.DisplayName);
-            cmd.AddParameter("PrimarySmtpAddress", string.Format("{0}@{1}", Guid.NewGuid(), emailSplit[1]));
+            cmd.AddParameter("Name", mailContact.Email);
+            cmd.AddParameter("PrimarySmtpAddress", primarySmtpAddress);
             cmd.AddParameter("ExternalEmailAddress", mailContact.Email);
             cmd.AddParameter("OrganizationalUnit", organizationalUnit);
             cmd.AddParameter("DomainController", this._domainController);
@@ -293,7 +294,10 @@ namespace CloudPanel.Exchange
                 foreach (var o in psObjects)
                 {
                     if (o.Properties["DistinguishedName"] != null)
+                    {
                         mailContact.DistinguishedName = o.Properties["DistinguishedName"].Value.ToString();
+                        break;
+                    }
                 }
 
                 cmd.Clear();
@@ -319,7 +323,7 @@ namespace CloudPanel.Exchange
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-MailContact");
             cmd.AddParameter("Identity", mailContact.DistinguishedName);
-            cmd.AddParameter("Name", mailContact.DisplayName);
+            cmd.AddParameter("Name", mailContact.Email);
             cmd.AddParameter("DisplayName", mailContact.DisplayName);
             cmd.AddParameter("HiddenFromAddressListsEnabled", mailContact.Hidden);
             cmd.AddParameter("DomainController", this._domainController);
@@ -349,6 +353,22 @@ namespace CloudPanel.Exchange
             _powershell.Invoke();
 
             HandleErrors(true);
+        }
+
+        public void Remove_AllContacts(string companyCode)
+        {
+            logger.DebugFormat("Removing all mail contacts where CustomAttribute1 equals {0}", companyCode);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-MailContact");
+            cmd.AddParameter("Filter", string.Format("CustomAttribute1 -eq \"{0}\"", companyCode));
+            cmd.AddParameter("ResultSize", "Unlimited");
+            cmd.AddCommand("Remove-MailContact");
+            cmd.AddParameter("Confirm", false);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
         }
 
         #endregion
@@ -425,6 +445,46 @@ namespace CloudPanel.Exchange
             HandleErrors(true);
 
             logger.InfoFormat("Removed accepted domain {0}", deleteDomain.Domain);
+        }
+
+        #endregion
+
+        #region Groups
+
+        public void Remove_AllGroups(string companyCode)
+        {
+            logger.DebugFormat("Removing all distribution groups where CustomAttribute1 equals {0}", companyCode);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-DistributionGroup");
+            cmd.AddParameter("Filter", string.Format("CustomAttribute1 -eq \"{0}\"", companyCode));
+            cmd.AddParameter("ResultSize", "Unlimited");
+            cmd.AddCommand("Remove-DistributionGroup");
+            cmd.AddParameter("Confirm", false);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        #endregion
+
+        #region Mailboxes
+
+        public void Remove_AllMailboxes(string companyCode)
+        {
+            logger.DebugFormat("Removing all mailboxes where CustomAttribute1 equals {0}", companyCode);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-Mailbox");
+            cmd.AddParameter("Filter", string.Format("CustomAttribute1 -eq \"{0}\"", companyCode));
+            cmd.AddParameter("ResultSize", "Unlimited");
+            cmd.AddCommand("Disable-Mailbox");
+            cmd.AddParameter("Confirm", false);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
         }
 
         #endregion

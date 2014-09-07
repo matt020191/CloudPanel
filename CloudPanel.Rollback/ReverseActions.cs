@@ -12,10 +12,12 @@ namespace CloudPanel.Rollback
         CreateOrganizationalUnit,
         CreateSecurityGroup,
         AddDomains,
+        AddUsers,
         CreateGlobalAddressList,
         CreateAddressList,
         CreateOfflineAddressBook,
-        CreateAddressBookPolicy
+        CreateAddressBookPolicy,
+        CreateMailContact
     }
 
     public class ReverseActionValue
@@ -70,6 +72,7 @@ namespace CloudPanel.Rollback
                 {
                     case Actions.CreateOrganizationalUnit:
                     case Actions.CreateSecurityGroup:
+                    case Actions.AddUsers:
                         RollbackADAction(a._PerformedAction, new[] { a._ActionAttribute });
                         break;
                     case Actions.AddDomains:
@@ -113,6 +116,11 @@ namespace CloudPanel.Rollback
                         org = new ADOrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
                         org.RemoveDomains(attribute[0].ToString(), new string[] { attribute[1].ToString() });
                         log.DebugFormat("Successfully rolled back action {0} for org {1}", action.ToString(), attribute[0].ToString());
+                        break;
+                    case Actions.AddUsers:
+                        usr = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                        usr.Delete(attribute[0].ToString());
+                        log.DebugFormat("Successfully rolled back action {0} for user {1}", action.ToString(), attribute[0].ToString());
                         break;
                     default:
                         log.DebugFormat("Unknown action {0}... Skipping...", action.ToString());
@@ -160,6 +168,10 @@ namespace CloudPanel.Rollback
                         break;
                     case Actions.CreateAddressList:
                         powershell.Remove_AddressList(attribute[0].ToString());
+                        log.DebugFormat("Successfully rolled back action {0} for {1}", action.ToString(), attribute[0].ToString());
+                        break;
+                    case Actions.CreateMailContact:
+                        powershell.Remove_MailContact(attribute[0].ToString());
                         log.DebugFormat("Successfully rolled back action {0} for {1}", action.ToString(), attribute[0].ToString());
                         break;
                     default:
