@@ -39,7 +39,7 @@
             <li>
                 <a href="javascript:;"><i class="fa fa-envelope"></i> <span>Exchange</span> </a>
                 <ul class="acc-menu">
-                    @if (!CloudPanel.NancyContextHelpers.IsExchangeEnabled(selectedCompanyCode)) { 
+                    @if (!CloudPanel.CPStaticHelpers.IsExchangeEnabled(selectedCompanyCode)) { 
                         <li><a href="~/company/@selectedCompanyCode/exchange/enable">Enable</a></li>
                     }
                     else { 

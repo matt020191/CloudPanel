@@ -34,12 +34,16 @@ namespace CloudPanel.Modules
                     db = new CloudPanelContext(Settings.ConnectionString);
 
                     var newPlan = this.Bind<Plans_ExchangeMailbox>();
+
+                    if (newPlan.CompanyCode == "0")
+                        newPlan.CompanyCode = string.Empty;
+
                     db.Plans_ExchangeMailbox.Add(newPlan);
                     db.SaveChanges();
 
                     return Negotiate.WithModel(new
                                 {
-                                    selectedPlan = new Plans_Organization()
+                                    selectedPlan = new Plans_ExchangeMailbox()
                                 })
                                 .WithMediaRangeModel("application/json", HttpStatusCode.OK)
                                 .WithView("Plans/plans_mailbox.cshtml");

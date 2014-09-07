@@ -58,33 +58,5 @@ namespace CloudPanel
             var user = context.CurrentUser as AuthenticatedUser;
             return user.Claims.Any(x => x.Contains("SuperAdmin"));
         }
-
-        public static bool IsExchangeEnabled(string companyCode)
-        {
-            CloudPanelContext db = null;
-            try
-            {
-                logger.DebugFormat("Checking if company {0} is enabled for Exchange", companyCode);
-
-                if (string.IsNullOrEmpty(companyCode))
-                    return false;
-                {
-                    db = new CloudPanelContext(Settings.ConnectionString);
-
-                    var isEnabled = (from d in db.Companies where !d.IsReseller where d.CompanyCode == companyCode select d.ExchEnabled).FirstOrDefault();
-                    return isEnabled;
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.DebugFormat("Error checking if company was enabled for Exchange. Returning false by default: {0}", ex.ToString());
-                return false;
-            }
-            finally
-            {
-                if (db != null)
-                    db.Dispose();
-            }
-        }
     }
 }

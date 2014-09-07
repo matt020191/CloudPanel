@@ -64,6 +64,10 @@
     <Compile Include="Migrations\201409020105082_First_3.1_Update.Designer.cs">
       <DependentUpon>201409020105082_First_3.1_Update.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201409071845102_AdditionalColumnsToUserTable.cs" />
+    <Compile Include="Migrations\201409071845102_AdditionalColumnsToUserTable.Designer.cs">
+      <DependentUpon>201409071845102_AdditionalColumnsToUserTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -86,6 +90,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201409020105082_First_3.1_Update.resx">
       <DependentUpon>201409020105082_First_3.1_Update.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201409071845102_AdditionalColumnsToUserTable.resx">
+      <DependentUpon>201409071845102_AdditionalColumnsToUserTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

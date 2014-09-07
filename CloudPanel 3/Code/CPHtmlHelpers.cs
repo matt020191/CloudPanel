@@ -1,5 +1,6 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Database.EntityFramework;
+using log4net;
 using Nancy.ViewEngines.Razor;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,8 @@ namespace CloudPanel
 {
     public class CPHtmlHelpers
     {
+        private static readonly ILog logger = log4net.LogManager.GetLogger(typeof(CPHtmlHelpers));
+
         public static IHtmlString GetDomainTypes(int? selectedId, string insertBefore)
         {
             var stringBuilder = new StringBuilder();
@@ -122,6 +125,57 @@ namespace CloudPanel
             }
         }
 
+        public static IHtmlString GetCompanyEmailDomains(string companyCode, string selectedDomain, string insertBefore)
+        {
+            var stringBuilder = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var companyDomains = (from d in db.Domains
+                                      where d.CompanyCode == companyCode
+                                      where d.IsAcceptedDomain
+                                      select d).ToList();
+
+                if (!string.IsNullOrEmpty(insertBefore))
+                    stringBuilder.Append(insertBefore);
+
+                companyDomains.ForEach(x =>
+                {
+                    if (!string.IsNullOrEmpty(selectedDomain))
+                    {
+                        stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                                x.DomainID,
+                                x.Domain == selectedDomain ? "selected" : "",
+                                x.Domain
+                            );
+                    }
+                    else
+                    {
+                        stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                                x.DomainID,
+                                x.IsDefault ? "selected" : "",
+                                x.Domain
+                            );
+                    }
+                });
+
+                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}\" class=\"form-control\">{1}</select>", "DomainID", stringBuilder.ToString());
+                return new NonEncodedHtmlString(returnValue);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
         public static IHtmlString GetMailboxPlans(int selectedId, string companyCode, string insertBefore)
         {
             var stringBuilder = new StringBuilder();
@@ -132,22 +186,23 @@ namespace CloudPanel
                 db = new CloudPanelContext(Settings.ConnectionString);
 
                 var mailboxPlans = (from d in db.Plans_ExchangeMailbox
+                                    where string.IsNullOrEmpty(d.CompanyCode) || d.CompanyCode == companyCode
                                     orderby d.MailboxPlanName
                                     select d).ToList();
 
-                // If provided a company code limit the values to ones set to their company and set to all companies
-                if (!string.IsNullOrEmpty(companyCode))
-                    mailboxPlans = (from d in mailboxPlans
-                                    where string.IsNullOrEmpty(d.CompanyCode) || d.CompanyCode == companyCode
-                                    select d).ToList();
-
+                logger.DebugFormat("Found a total of {0} mailbox plans", mailboxPlans.Count());
                 if (!string.IsNullOrEmpty(insertBefore))
                     stringBuilder.Append(insertBefore);
 
                 mailboxPlans.ForEach(x =>
                 {
-                    stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                    stringBuilder.AppendFormat("<option value=\"{0}\" data-size=\"{1}\" data-maxsize=\"{2}\" data-description=\"{3}\" data-price=\"{4}\" data-additionalprice=\"{5}\"  {6}>{7}</option>",
                             x.MailboxPlanID,
+                            x.MailboxSizeMB,
+                            x.MaxMailboxSizeMB,
+                            x.MailboxPlanDesc.Replace("\"", "'"),
+                            x.Price,
+                            x.AdditionalGBPrice,
                             x.MailboxPlanID == selectedId ? "selected" : "",
                             x.MailboxPlanName
                         );
@@ -158,6 +213,53 @@ namespace CloudPanel
             }
             catch (Exception ex)
             {
+                logger.ErrorFormat("Error getting mailbox plans: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static IHtmlString GetMailboxUsersForPermissions(string[] selectedValues, string companyCode, string controlId, string insertBefore)
+        {
+            var stringBuilder = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                logger.DebugFormat("Getting mailbox permission select boxes");
+                var users = (from u in db.Users
+                             where u.CompanyCode == companyCode
+                             where u.MailboxPlan > 0
+                             orderby u.DisplayName
+                             select u).ToList();
+
+                logger.DebugFormat("Found a total of {0} users that can be given permission", users.Count());
+
+                if (!string.IsNullOrEmpty(insertBefore))
+                    stringBuilder.Append(insertBefore);
+
+                users.ForEach(x =>
+                {
+                    stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                            x.sAMAccountName,
+                            selectedValues.Contains(x.sAMAccountName) ? "selected" : "",
+                            x.DisplayName
+                        );
+                });
+
+                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}\" multiple style=\"width:100%\" class=\"populate\">{1}</select>", controlId, stringBuilder.ToString());
+                return new NonEncodedHtmlString(returnValue);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting mailbox users for permissions: {0}", ex.ToString());
                 throw;
             }
             finally

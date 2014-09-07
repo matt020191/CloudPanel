@@ -4,6 +4,7 @@ using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
 using CloudPanel.Base.Enums;
 using CloudPanel.Database.EntityFramework;
+using CloudPanel.Exchange;
 using log4net;
 using Nancy;
 using Nancy.Security;
@@ -313,10 +314,61 @@ namespace CloudPanel.Modules
                                   where d.DomainID == domainId
                                   select d).First();
 
+
+                    //
+                    // Update domain in Exchange only if this company is enabled for Exchange
+                    //
+                    if (CPStaticHelpers.IsExchangeEnabled(companyCode))
+                    {
+                        logger.DebugFormat("Checking if domain type was changed");
+                        int originalDomainType = domain.DomainType == null ? 0 : (int)domain.DomainType;
+                        int newDomainType = Request.Form.DomainType.HasValue ? Request.Form.DomainType : 0;
+                        domain.DomainType = newDomainType;
+
+                        logger.DebugFormat("Original domain type was {0} and now is {1}", originalDomainType, newDomainType);
+                        if (originalDomainType != newDomainType)
+                        {
+                            logger.DebugFormat("Domain type was changed");
+                            exchangePowershell = ExchPowershell.GetClass();
+
+                            if (originalDomainType == 0)
+                            {
+                                // Enabling accepted domain
+                                logger.DebugFormat("Enabling domain {0} for Exchange", domain.Domain);
+                                exchangePowershell.New_AcceptedDomain(new Domains() { Domain = domain.Domain, DomainType = newDomainType });
+                                domain.IsAcceptedDomain = true;
+                            }
+                            else if (newDomainType == 0)
+                            {
+                                // Disabling accepted domain
+                                logger.DebugFormat("Removing domain {0} from Exchange", domain.Domain);
+                                exchangePowershell.Remove_AcceptedDomain(new Domains() { Domain = domain.Domain });
+                                domain.IsAcceptedDomain = false;
+                            }
+                            else
+                            {
+                                // Update domain type
+                                logger.DebugFormat("Setting domain {0} type to {1} in Exchange", domain.Domain, newDomainType);
+                                exchangePowershell.Update_AcceptedDomain(new Domains() { Domain = domain.Domain, DomainType = newDomainType });
+                                domain.IsAcceptedDomain = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        domain.DomainType = DomainType.Default;
+                        domain.IsAcceptedDomain = false;
+                    }
+                    db.SaveChanges();
+                    
+                    //
+                    // See if this domain is the default
+                    //
                     logger.DebugFormat("Checking if this domain was set to the default");
                     bool newIsDefault = Request.Form.IsDefault;
                     if (domain.IsDefault == false && newIsDefault)
                     {
+                        // See if the default domain was changed
                         logger.DebugFormat("Domain {0} is being changed to the default", domain.Domain);
                         var allDomains = from d in db.Domains where d.CompanyCode == companyCode select d;
                         foreach (var d in allDomains)
@@ -329,8 +381,6 @@ namespace CloudPanel.Modules
                         domain.IsDefault = true;
                         db.SaveChanges();
                     }
-
-                    logger.DebugFormat("Checking if domain type was changed");
 
                     string redirectUrl = string.Format("~/company/{0}/domains", companyCode);
                     return Response.AsRedirect(redirectUrl);

@@ -10,6 +10,7 @@ using System.Reflection;
 using CloudPanel.Base.Database.Models;
 using CloudPanel.ActiveDirectory;
 using CloudPanel.Rollback;
+using CloudPanel.Base.Exchange;
 
 namespace CloudPanel.Modules
 {
@@ -360,7 +361,8 @@ namespace CloudPanel.Modules
                         throw new Exception("Unable to find user in database");
                     else
                     {
-                        return Negotiate.WithModel(new { user = user })
+                        var emailSettings = new EmailInfo();
+                        return Negotiate.WithModel(new { user = user, mailbox = emailSettings })
                                         .WithView("Company/users_edit.cshtml");
                     }
                 }
@@ -376,6 +378,82 @@ namespace CloudPanel.Modules
                 }
                 #endregion
             };
+
+            Put["/{UserPrincipalName}"] = _ =>
+            {
+                CloudPanelContext db = null;
+                ADUsers adUsers = null;
+                try
+                {
+                    db = new CloudPanelContext(Settings.ConnectionString);
+
+                    string upn = _.UserPrincipalName;
+                    string companyCode = _.CompanyCode;
+
+                    // Bind user to form
+                    logger.DebugFormat("Binding form to object..");
+                    var updatedUser = this.Bind<Users>();
+                    updatedUser.UserPrincipalName = upn;
+
+                    logger.DebugFormat("Getting user {0} from the database", upn);
+                    var existingUser = (from d in db.Users
+                                        where d.CompanyCode == companyCode
+                                        where d.UserPrincipalName == upn
+                                        select d).First();
+                    if (existingUser == null)
+                        throw new Exception("Unable to find user in the database: " + upn);
+                    else
+                    {
+                        logger.DebugFormat("Updating {0} in Active Directory", upn);
+                        adUsers = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                        adUsers.UpdateUser(updatedUser);
+
+                        logger.DebugFormat("Successfully updated user {0} in Active Directory. Now updating database", upn);
+                        Combine(ref existingUser, ref updatedUser);
+
+                        logger.DebugFormat("Saving database");
+                        db.SaveChanges();
+
+                        logger.InfoFormat("Successfully updated user {0}", upn);
+                        return Negotiate.WithModel(new { success = "Successfully updated user " + upn })
+                                        .WithMediaRangeResponse("text/html", this.Response.AsRedirect("~/company/" + companyCode + "/users"));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error updating user {0}: {1}", _.UserPrincipalName, ex.ToString());
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithView("error.cshtml");
+                }
+                finally
+                {
+                    if (adUsers != null)
+                        adUsers.Dispose();
+
+                    if (db != null)
+                        db.Dispose();
+                }
+            };
+        }
+
+        private void Combine(ref Users oldObject, ref Users newObject)
+        {
+            logger.DebugFormat("Combining Users object for {0}", oldObject.UserPrincipalName);
+
+            oldObject.Firstname = newObject.Firstname;
+            oldObject.Middlename = newObject.Middlename;
+            oldObject.Lastname = newObject.Lastname;
+            oldObject.DisplayName = newObject.DisplayName;
+            oldObject.Company = newObject.Company;
+            oldObject.Department = newObject.Department;
+            oldObject.JobTitle = newObject.JobTitle;
+            oldObject.TelephoneNumber = newObject.TelephoneNumber;
+            oldObject.Fax = newObject.Fax;
+            oldObject.Street = newObject.Street;
+            oldObject.City = newObject.City;
+            oldObject.State = newObject.State;
+            oldObject.PostalCode = newObject.PostalCode;
+            oldObject.Country = newObject.Country;
         }
     }
 }

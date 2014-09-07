@@ -93,7 +93,7 @@ namespace CloudPanel.Base.Database.Models
 
         public int? ActiveSyncPlan { get; set; }
 
-        #region Not Mapped
+        #region Additional Details
 
         /// <summary>
         /// Property: description
@@ -110,25 +110,21 @@ namespace CloudPanel.Base.Database.Models
         /// <summary>
         /// Property: streetAddress
         /// </summary>
-        [NotMapped]
         public string Street { get; set; }
 
         /// <summary>
         /// Property: l
         /// </summary>
-        [NotMapped]
         public string City { get; set; }
 
         /// <summary>
         /// Property: st
         /// </summary>
-        [NotMapped]
         public string State { get; set; }
 
         /// <summary>
         /// Property: postalCode
         /// </summary>
-        [NotMapped]
         public string PostalCode { get; set; }
 
         /// <summary>
@@ -140,7 +136,6 @@ namespace CloudPanel.Base.Database.Models
         /// <summary>
         /// Property: co
         /// </summary>
-        [NotMapped]
         public string Country { get; set; }
 
         /// <summary>
@@ -152,37 +147,31 @@ namespace CloudPanel.Base.Database.Models
         /// <summary>
         /// Property: Company
         /// </summary>
-        [NotMapped]
         public string Company { get; set; }
 
         /// <summary>
         /// Property: title
         /// </summary>
-        [NotMapped]
         public string JobTitle { get; set; }
 
         /// <summary>
         /// Property: telephoneNumber
         /// </summary>
-        [NotMapped]
         public string TelephoneNumber { get; set; }
 
         /// <summary>
         /// Property: facsimileTelephoneNumber
         /// </summary>
-        [NotMapped]
         public string Fax { get; set; }
 
         /// <summary>
         /// Property: homePhone
         /// </summary>
-        [NotMapped]
         public string HomePhone { get; set; }
 
         /// <summary>
         /// Property: mobile
         /// </summary>
-        [NotMapped]
         public string MobilePhone { get; set; }
 
         /// <summary>
@@ -206,7 +195,6 @@ namespace CloudPanel.Base.Database.Models
         /// <summary>
         /// Property: info
         /// </summary>
-        [NotMapped]
         public string Notes { get; set; }
 
         /// <summary>
