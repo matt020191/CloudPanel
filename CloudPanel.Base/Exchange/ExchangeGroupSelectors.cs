@@ -34,30 +34,12 @@ using System.Text;
 
 namespace CloudPanel.Base.Exchange
 {
-    public class EmailInfo
+    public class ExchangeGroupSelectors
     {
-        public bool IsEmailEnabled { get; set; }
+        public string Name { get; set; }
 
-        public int MailboxPlanID { get; set; }
+        public string Email { get; set; }
 
-        public int DomainID { get; set; }
-
-        public int SizeInMB { get; set; }
-       
-        public string EmailFirst { get; set; }
-
-        public string EmailDomain { get; set; }
-
-        public string ForwardTo { get; set; }
-
-        public bool DeliverToAndForward { get; set; }
-
-        public string[] EmailAliases { get; set; }
-
-        public string[] FullAccess { get; set; }
-
-        public string[] SendAs { get; set; }
-
-        public string[] SendOnBehalf { get; set; }
+        public int IdValue { get; set; }
     }
 }

@@ -1,0 +1,217 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@{string selectedCompanyCode = CloudPanel.NancyContextHelpers.GetSelectedCompanyCode(this.RenderContext.Context);}
+
+@{
+    Layout = "__master.cshtml";
+}
+@section HEAD{
+    <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-toggle/toggles.css" rel="stylesheet" />
+}
+
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li><a href="~/company/{CompanyCode}/overview">{Company Name}</a></li>
+        <li>Exchange</li>
+        <li><a href="~/company/{CompanyCode}/exchange/groups">Distribution Groups</a></li>
+        <li class="active">Add Group</li>
+    </ol>
+
+    <h1>Add Group</h1>
+</div>
+
+<div class="container">
+    <div class="row">
+        <form id="addGroup" action="" method="post">
+
+            <div class="col-md-6">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Details</div>
+                    <div class="panel-body">
+                        <div class="form-horizontal">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Name</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="DisplayName" name="DisplayName" value="" data-parsley-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Email</label>
+                                <div class="col-sm-6">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="EmailFirst" name="EmailFirst" value="" data-parsley-required="true">
+                                        <span class="input-group-addon">@@</span>
+                                        @CloudPanel.CPHtmlHelpers.GetCompanyEmailDomains(selectedCompanyCode, string.Empty, string.Empty)
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="focusedinput" class="col-sm-3 control-label"></label>
+                                <div class="col-sm-9">
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" id="Hidden" name="Hidden" value="false" @(false == true ? "checked" : "")>Hidden from Address List? </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Managed By-->
+            <div class="col-md-6">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Managed By
+                        <div class="options">
+                            <a href="#" data-toggle="modal" data-target="#selectModal" onclick="ShowPopup('#managedBy');">ADD <i class="fa fa-plus-square"></i></a>
+                        </div>
+                    </div>
+                    <div class="panel-body scrollthis">
+                        <div id="managedBy" class="list-group">
+                        </div>
+                        <input id="managedByPlus" name="managedByPlus" type="hidden" class="plus" />
+                        <input id="managedByMinus" name="managedByMinus" type="hidden" class="minus" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Members -->
+            <div class="col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        Members
+                        <div class="options">
+                            <a href="#" data-toggle="modal" data-target="#selectModal" onclick="ShowPopup('#members');">ADD <i class="fa fa-plus-square"></i></a>
+                        </div>
+                    </div>
+                    <div class="panel-body scrollthis">
+                        <div id="members" class="list-group">
+                        </div>
+                        <input id="membersPlus" name="membersPlus" type="hidden" class="plus" />
+                        <input id="membersMinus" name="membersMinus" type="hidden" class="minus" />
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="selectModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Select</h4>
+            </div>
+            <div class="modal-body">
+                <table cellpadding="0" cellspacing="0" border="0" class="table datatables" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th style="display: none">Hidden Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @CloudPanel.CPHtmlHelpers.GetAllExchangeObjectsInTableFormat(selectedCompanyCode)
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button id="dataTableSave" type="button" class="btn btn-primary" data-dismiss="modal">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section JAVASCRIPT{
+    <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
+
+<script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
+<script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
+    <script type="text/javascript">
+        var currentPopup;
+        var table;
+
+        $(document).ready(function () {
+            table = $("#dataTable").DataTable();
+
+            $("#dataTable tbody").on("click", "tr", function () {
+                $(this).toggleClass("selected");
+            });
+
+            $("#dataTableSave").click(function () {
+                table.rows('.selected').indexes().each(function (idx) {
+                    AddItem(currentPopup,
+                            table.cell(idx, 1).data(),
+                            table.cell(idx, 3).data(),
+                            table.cell(idx, 0).data());
+                });
+            });
+        });
+
+        function ShowPopup(div) {
+            currentPopup = div;
+            table.rows('.selected').nodes().to$().removeClass('selected');
+        }
+
+        function RemoveItem(item) {
+            var id = $(item).data("id");
+
+            var plusField = $(item).parent().parent().find('.plus');
+            if (plusField.val().indexOf(id) !== -1) {
+                Replace(plusField, id + ",", "");
+            }
+
+            var minusField = $(item).parent().parent().find('.minus');
+            if (minusField.val().indexOf(id) == -1) {
+                Append(minusField, id + ",");
+            }
+
+            item.remove();
+        }
+
+        function AddItem(div, text, value, valueType) {
+            var newRow = '<a href="#" class="list-group-item" onclick="RemoveItem(this);" data-id="' + value + '">' +
+                         '<span class="badge badge-danger">Delete</span>' +
+                         '<i class="' + GetFontAwesome(valueType) + '"></i> ' + text + '</a>';
+
+            var plusField = $(div).parent().find('.plus');
+            var addedToField = Append(plusField, value + ",");
+
+            var minusField = $(div).parent().find('.minus');
+            Replace(minusField, value + ",", "");
+
+            if (addedToField) {
+                $(div).append(newRow);
+            }
+        }
+
+        function GetFontAwesome(valueType) {
+            if (valueType == "1")
+                return "fa fa-users";
+            else if (valueType == "2")
+                return "fa fa-user";
+            else
+                return "fa fa-user";
+        }
+
+        function Append(input, value) {
+            if ($(input).val().indexOf(value) == -1) {
+                $(input).val($(input).val() + value);
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function Replace(input, findValue, replaceValue) {
+            $(input).val( $(input).val().replace(findValue, replaceValue) );
+        }
+    </script>
+}

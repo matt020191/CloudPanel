@@ -139,6 +139,15 @@
     <Content Include="Content\plugins\blockUI\jquery.blockUI.js" />
     <Content Include="Content\plugins\bootbox\bootbox.min.js" />
     <Content Include="Content\plugins\bootbox\readme.txt" />
+    <Content Include="Content\plugins\bootstrap-multiselect\css\bootstrap-3.1.1.min.css" />
+    <Content Include="Content\plugins\bootstrap-multiselect\css\bootstrap-multiselect.css" />
+    <Content Include="Content\plugins\bootstrap-multiselect\css\prettify.css" />
+    <Content Include="Content\plugins\bootstrap-multiselect\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Content\plugins\bootstrap-multiselect\index.html" />
+    <Content Include="Content\plugins\bootstrap-multiselect\js\bootstrap-3.1.1.min.js" />
+    <Content Include="Content\plugins\bootstrap-multiselect\js\bootstrap-multiselect.js" />
+    <Content Include="Content\plugins\bootstrap-multiselect\js\jquery-2.1.0.min.js" />
+    <Content Include="Content\plugins\bootstrap-multiselect\js\prettify.js" />
     <Content Include="Content\plugins\bootstro.js\bootstro.css" />
     <Content Include="Content\plugins\bootstro.js\bootstro.js" />
     <Content Include="Content\plugins\bootstro.js\bootstro.min.css" />
@@ -1285,6 +1294,13 @@
     <Content Include="Views\Company\Exchange\contacts.cshtml" />
     <Content Include="Views\Company\Exchange\groups.cshtml" />
     <Content Include="Views\Company\Exchange\resourcemailboxes.cshtml" />
+    <Content Include="Content\plugins\bootstrap-multiselect\.gitignore" />
+    <Content Include="Content\plugins\bootstrap-multiselect\bower.json" />
+    <Content Include="Content\plugins\bootstrap-multiselect\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Content\plugins\bootstrap-multiselect\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="Content\plugins\bootstrap-multiselect\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="Content\plugins\bootstrap-multiselect\less\bootstrap-multiselect.less" />
+    <Content Include="Content\plugins\bootstrap-multiselect\README.md" />
     <None Include="Properties\PublishProfiles\LAB DC.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -1296,6 +1312,7 @@
     <Content Include="Views\Company\Exchange\disable.cshtml" />
     <Content Include="Views\Company\Exchange\contacts_edit.cshtml" />
     <Content Include="Views\Company\users_edit.cshtml" />
+    <Content Include="Views\Company\Exchange\groups_edit.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

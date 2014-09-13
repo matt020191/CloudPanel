@@ -42,13 +42,11 @@
                                     <input type="text" class="form-control" id="Email" name="Email" value="@Model.contact.Email" data-parsley-required="true" readonly>
                                 </div>
                             </div>
-                            <div class="form-horizontal">
-                                <div class="form-group">
-                                    <label for="focusedinput" class="col-sm-3 control-label"></label>
-                                    <div class="col-sm-9">
-                                        <div class="checkbox">
-                                            <label><input type="checkbox" id="Hidden" name="Hidden" value="@Model.contact.Hidden" @(Model.contact.Hidden == true ? "checked" : "")>Hidden from Address List? </label>
-                                        </div>
+                            <div class="form-group">
+                                <label for="focusedinput" class="col-sm-3 control-label"></label>
+                                <div class="col-sm-9">
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" id="Hidden" name="Hidden" value="@Model.contact.Hidden" @(Model.contact.Hidden == true ? "checked" : "")>Hidden from Address List? </label>
                                     </div>
                                 </div>
                             </div>

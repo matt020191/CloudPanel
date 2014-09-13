@@ -68,7 +68,7 @@ namespace CloudPanel.Modules
                                                     .ToList();
                     }
 
-                    return Negotiate.WithModel(groups)
+                    return Negotiate.WithModel(new { groups = groups })
                                     .WithMediaRangeModel("application/json", new
                                     {
                                         draw = draw,
@@ -76,12 +76,12 @@ namespace CloudPanel.Modules
                                         recordsFiltered = recordsFiltered,
                                         data = groups
                                     })
-                                    .WithView("Company/Exchange/company_groups.cshtml");
+                                    .WithView("Company/Exchange/groups.cshtml");
                 }
                 catch (Exception ex)
                 {
                     return Negotiate.WithMediaRangeModel("application/json", new { error = ex.Message })
-                                    .WithView("Company/Exchange/company_groups.cshtml");
+                                    .WithView("Company/Exchange/groups.cshtml");
                 }
                 finally
                 {
@@ -104,6 +104,11 @@ namespace CloudPanel.Modules
             Delete["/{CompanyCode}"] = _ =>
             {
                 return HttpStatusCode.InternalServerError;
+            };
+
+            Get["/new"] = _ =>
+            {
+                return View["Company/Exchange/groups_edit.cshtml", new { companyCode = _.CompanyCode }];
             };
         }
     }

@@ -32,32 +32,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CloudPanel.Base.Exchange
+namespace CloudPanel.Base.Enums
 {
-    public class EmailInfo
+    public static class ExchangeGroupType
     {
-        public bool IsEmailEnabled { get; set; }
-
-        public int MailboxPlanID { get; set; }
-
-        public int DomainID { get; set; }
-
-        public int SizeInMB { get; set; }
-       
-        public string EmailFirst { get; set; }
-
-        public string EmailDomain { get; set; }
-
-        public string ForwardTo { get; set; }
-
-        public bool DeliverToAndForward { get; set; }
-
-        public string[] EmailAliases { get; set; }
-
-        public string[] FullAccess { get; set; }
-
-        public string[] SendAs { get; set; }
-
-        public string[] SendOnBehalf { get; set; }
+        public const int User = 0;
+        public const int Group = 1;
+        public const int Contact = 2;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Exchange;
 using log4net;
 //
 // Copyright (c) 2014, Jacob Dixon
@@ -471,6 +472,84 @@ namespace CloudPanel.Exchange
 
         #region Mailboxes
 
+        public void Enable_Mailbox(string userPrincipalName, string companyCode, EmailInfo emailInfo, Plans_ExchangeMailbox p)
+        {
+            logger.DebugFormat("Enabling mailbox for {0}", userPrincipalName);
+
+            int sizeInMB = 0;
+            if (p.MailboxSizeMB > 0)
+            {
+                // If mailbox size for plan is greater than 0 then its not unlimited
+                if (p.MaxMailboxSizeMB != null && emailInfo.SizeInMB > p.MaxMailboxSizeMB)
+                    sizeInMB = (int)p.MaxMailboxSizeMB;
+
+                if (p.MaxMailboxSizeMB == null && emailInfo.SizeInMB > p.MailboxSizeMB)
+                    sizeInMB = p.MailboxSizeMB;
+            }
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Enable-Mailbox");
+            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("AddressBookPolicy", string.Format(Settings.ExchangeABPName, companyCode));
+            cmd.AddParameter("PrimarySmtpAddress", string.Format("{0}@{1}", emailInfo.EmailFirst, emailInfo.EmailDomain));
+            cmd.AddParameter("Alias", string.Format("{0}_{1}", emailInfo.EmailFirst, emailInfo.EmailDomain));
+            cmd.AddParameter("DomainController", this._domainController);
+
+            logger.DebugFormat("Continuing to Set-Mailbox...");
+            cmd.AddStatement();
+            cmd.AddCommand("Set-Mailbox");
+            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("EmailAddressPolicyEnabled", false);
+            cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
+            cmd.AddParameter("MaxReceiveSize", p.MaxReceiveKB > 0 ? string.Format("{0}KB", p.MaxReceiveKB) : "Unlimited");
+            cmd.AddParameter("MaxSendSize", p.MaxSendKB > 0 ? string.Format("{0}KB", p.MaxSendKB) : "Unlimited");
+            cmd.AddParameter("OfflineAddressBook", string.Format(Settings.ExchangeOALName, companyCode));
+            cmd.AddParameter("ProhibitSendQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB) : "Unlimited");
+            cmd.AddParameter("ProhibitSendReceiveQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB) : "Unlimited");
+            cmd.AddParameter("RecipientLimits", p.MaxRecipients > 0 ? string.Format("{0}", p.MaxRecipients) : "Unlimited");
+            cmd.AddParameter("RetainDeletedItemsFor", p.MaxKeepDeletedItems > 0 ? p.MaxKeepDeletedItems : 30);
+            cmd.AddParameter("UseDatabaseQuotaDefaults", false);
+            cmd.AddParameter("UseDatabaseRetentionDefaults", false);
+            cmd.AddParameter("RetainDeletedItemsUntilBackup", true);
+            cmd.AddParameter("CustomAttribute1", companyCode);
+            //cmd.AddParameter("RoleAssignmentPolicy", "Alternate Assignment Policy");
+            cmd.AddParameter("DomainController", this._domainController);
+
+            logger.DebugFormat("Continuing to Set-CASMailbox...");
+            cmd.AddStatement();
+            cmd.AddCommand("Set-CASMailbox");
+            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("ActiveSyncEnabled", p.EnableAS);
+            cmd.AddParameter("ECPEnabled", p.EnableECP);
+            cmd.AddParameter("ImapEnabled", p.EnableIMAP);
+            cmd.AddParameter("MAPIEnabled", p.EnableMAPI);
+            cmd.AddParameter("OWAEnabled", p.EnableOWA);
+            cmd.AddParameter("PopEnabled", p.EnablePOP3);
+            //cmd.AddParameter("ActiveSyncMailboxPolicy", "");
+            cmd.AddParameter("DomainController", this._domainController);
+
+            logger.DebugFormat("Executing powershell commands...");
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        public void Disable_Mailbox(string userPrincipalName)
+        {
+            logger.DebugFormat("Removing mailbox {0}", userPrincipalName);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Disable-Mailbox");
+            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
         public void Remove_AllMailboxes(string companyCode)
         {
             logger.DebugFormat("Removing all mailboxes where CustomAttribute1 equals {0}", companyCode);
@@ -479,8 +558,10 @@ namespace CloudPanel.Exchange
             cmd.AddCommand("Get-Mailbox");
             cmd.AddParameter("Filter", string.Format("CustomAttribute1 -eq \"{0}\"", companyCode));
             cmd.AddParameter("ResultSize", "Unlimited");
+            cmd.AddParameter("DomainController", this._domainController);
             cmd.AddCommand("Disable-Mailbox");
             cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
             _powershell.Invoke();
 

@@ -11,6 +11,7 @@
     <link href="~/Content/js/jqueryui.min.css" rel="stylesheet" />
     <link href="~/Content/plugins/form-tokenfield/bootstrap-tokenfield.css" rel="stylesheet" />
     <link href="~/Content/plugins/form-select2/select2.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-toggle/toggles.css" rel="stylesheet" />
     <style type="text/css">
         span.tab-space {
             padding-left: 0.5em;
@@ -171,76 +172,97 @@
 
                                                 <!-- MAILBOX SETTINGS -->
                                                 <div class="tab-pane" id="mailbox">
-                                                    <h3>Modify the user's email settings</h3><br />
-                                                    <div class="form-horizontal">
+
+                                                    <!-- Enable or Disable Email Toggle Switch -->
+                                                    <div id="EmailDisabled" class="form-horizontal">
                                                         <div class="form-group">
-                                                            <label class="col-sm-3 control-label">Plan</label>
+                                                            <label class="col-sm-3 control-label">Email Enabled</label>
+                                                            <div class="col-sm-3 control-label">
+                                                                <div id="defaultswitch"></div>
+                                                            </div>
                                                             <div class="col-sm-6">
-                                                                @CloudPanel.CPHtmlHelpers.GetMailboxPlans(Model.mailbox.PlanID, selectedCompanyCode, string.Empty)
-                                                                <p id="mailboxPlanDescription"></p>
+                                                                <input id="IsEmailEnabled" name="IsEmailEnabled" type="checkbox" value="@(Model.mailbox.IsEmailEnabled)" @(Model.mailbox.IsEmailEnabled == true ? "checked" : "") hidden/>
                                                             </div>
                                                         </div>
-                                                        <div class="form-group">
-                                                            <label class="col-sm-3 control-label">Email</label>
-                                                            <div class="col-sm-6">
-                                                                <div class="input-group">
-                                                                    <input type="text" class="form-control" id="EmailFirst" name="EmailFirst" value="@Model.mailbox.EmailFirst">
-                                                                    <span class="input-group-addon">@@</span>
-                                                                    @CloudPanel.CPHtmlHelpers.GetCompanyEmailDomains(selectedCompanyCode, Model.mailbox.EmailDomain, string.Empty)
+                                                    </div>
+
+                                                    <hr />
+
+                                                    <!-- Email Is Enabled DIV -->
+                                                    <div id="DivEmailEnabled" style="display: none">
+                                                        <h3>Modify the user's email settings</h3><br />
+                                                        <div class="form-horizontal">
+                                                            <div class="form-group">
+                                                                <label class="col-sm-3 control-label">Plan</label>
+                                                                <div class="col-sm-6">
+                                                                    @CloudPanel.CPHtmlHelpers.GetMailboxPlans(Model.mailbox.MailboxPlanID, selectedCompanyCode, string.Empty)
+                                                                    <p id="mailboxPlanDescription"></p>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <div id="sliderDiv" class="form-group">
-                                                            <label class="col-sm-3 control-label">Size</label>
-                                                            <div class="col-sm-6" style="padding-top: 13px">
-                                                                <div id="slider-range-min" class="slider bg-yellow"></div>
-                                                            </div>
-                                                            <div class="col-sm-3">
-                                                                <p class="help-block">
-                                                                    <div class="slider-value"> 
-                                                                        <span class="slider-value" id="slider-range-min-amount"></span>
-                                                                        <input id="MailboxSelectedSize" name="MailboxSelectedSize" type="hidden" />
+                                                            <div class="form-group">
+                                                                <label class="col-sm-3 control-label">Email</label>
+                                                                <div class="col-sm-6">
+                                                                    <div class="input-group">
+                                                                        <input type="text" class="form-control" id="EmailFirst" name="EmailFirst" value="@Model.mailbox.EmailFirst">
+                                                                        <span class="input-group-addon">@@</span>
+                                                                        @CloudPanel.CPHtmlHelpers.GetCompanyEmailDomains(selectedCompanyCode, Model.mailbox.EmailDomain, string.Empty)
                                                                     </div>
-                                                                </p>
+                                                                </div>
+                                                            </div>
+                                                            <div id="sliderDiv" class="form-group">
+                                                                <label class="col-sm-3 control-label">Size</label>
+                                                                <div class="col-sm-6" style="padding-top: 13px">
+                                                                    <div id="slider-range-min" class="slider bg-yellow"></div>
+                                                                </div>
+                                                                <div class="col-sm-3">
+                                                                    <p class="help-block">
+                                                                        <div class="slider-value"> 
+                                                                            <span class="slider-value" id="slider-range-min-amount"></span>
+                                                                            <input id="SizeInMB" name="SizeInMB" type="hidden" />
+                                                                        </div>
+                                                                    </p>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <hr />
-                                                    <h3>Email Aliases</h3><br />
-                                                    <div class="form-horizontal">
-                                                        <div class="form-group">
-                                                            <label class="col-sm-3 control-label">Email Aliases</label>
-                                                            <div class="col-sm-6">
-                                                                <div class="input-group">
-                                                                    <input type="text" class="form-control" id="EmailAliases" name="EmailAliases" value="@Model.mailbox.EmailAliases" data-limit="10" />
-                                                                    <span class="input-group-addon"><span class="fa fa-envelope"></span></span>
+                                                        <hr />
+                                                        <h3>Email Aliases</h3><br />
+                                                        <div class="form-horizontal">
+                                                            <div class="form-group">
+                                                                <label class="col-sm-3 control-label">Email Aliases</label>
+                                                                <div class="col-sm-6">
+                                                                    <div class="input-group">
+                                                                        <input type="text" class="form-control" id="EmailAliases" name="EmailAliases" value="@Model.mailbox.EmailAliases" data-limit="10" />
+                                                                        <span class="input-group-addon"><span class="fa fa-envelope"></span></span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <hr />
+                                                        <h3>Permissions</h3><br />
+                                                        <div class="form-horizontal">
+                                                            <div class="form-group">
+                                                                <label class="col-sm-3 control-label">Full Access</label>
+                                                                <div class="col-sm-6">
+                                                                    @CloudPanel.CPHtmlHelpers.GetMailboxUsersForPermissions(Model.mailbox.FullAccess, selectedCompanyCode, "FullAccess", "")
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label class="col-sm-3 control-label">Send As</label>
+                                                                <div class="col-sm-6">
+                                                                    @CloudPanel.CPHtmlHelpers.GetMailboxUsersForPermissions(Model.mailbox.SendAs, selectedCompanyCode, "SendAs", "")
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label class="col-sm-3 control-label">Send on Behalf</label>
+                                                                <div class="col-sm-6">
+                                                                    @CloudPanel.CPHtmlHelpers.GetMailboxUsersForPermissions(Model.mailbox.SendOnBehalf, selectedCompanyCode, "SendOnBehalf", "")
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <hr />
-                                                    <h3>Permissions</h3><br />
-                                                    <div class="form-horizontal">
-                                                        <div class="form-group">
-                                                            <label class="col-sm-3 control-label">Full Access</label>
-                                                            <div class="col-sm-6">
-                                                                @CloudPanel.CPHtmlHelpers.GetMailboxUsersForPermissions(Model.mailbox.FullAccess, selectedCompanyCode, "FullAccess", "")
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label class="col-sm-3 control-label">Send As</label>
-                                                            <div class="col-sm-6">
-                                                                @CloudPanel.CPHtmlHelpers.GetMailboxUsersForPermissions(Model.mailbox.SendAs, selectedCompanyCode, "SendAs", "")
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label class="col-sm-3 control-label">Send on Behalf</label>
-                                                            <div class="col-sm-6">
-                                                                @CloudPanel.CPHtmlHelpers.GetMailboxUsersForPermissions(Model.mailbox.SendOnBehalf, selectedCompanyCode, "SendOnBehalf", "")
-                                                            </div>
-                                                        </div>
-                                                    </div>
+
                                                 </div>
+
                                             </div>
                                         </div>
                                     </div>
@@ -268,6 +290,7 @@
     <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
     <script src="~/Content/plugins/form-tokenfield/bootstrap-tokenfield.min.js"></script>
     <script src="~/Content/plugins/form-select2/select2.min.js"></script>
+    <script src="~/Content/plugins/form-toggle/toggle.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
 
@@ -284,11 +307,30 @@
 
             /* Multiple fields */
             $(".populate").select2({ width: 'resolve' });
+
+            /* Email enabled or disabled */
+            $('#defaultswitch').toggles({
+                text: { on: 'Yes', off: 'No' },
+                checkbox: $('#IsEmailEnabled'),
+                on: $('#IsEmailEnabled').is(':checked')
+            });
+
+            $('#defaultswitch').on('toggle', function (e, active) {
+                if (active) {
+                    $('#IsEmailEnabled').val(true);
+                    $('#DivEmailEnabled').show();
+                } else {
+                    $('#IsEmailEnabled').val(false);
+                    $('#DivEmailEnabled').hide();
+                }
+            });
         });
 
         function SetSlider(min, max, selectedValue, description) {
-            if (min == 0)
+            if (min == 0) {
                 $("#sliderDiv").hide();
+                $("#SizeInMB").val("0");
+            }
             else {
                 $("#sliderDiv").show();
                 $("#slider-range-min").slider({
@@ -299,12 +341,12 @@
                     max: max,
                     slide: function (event, ui) {
                         $("#slider-range-min-amount").text(ui.value + "MB");
-                        $("#MailboxSelectedSize").val(ui.value);
+                        $("#SizeInMB").val(ui.value);
                     }
                 });
 
                 $("#slider-range-min-amount").text(selectedValue + "MB");
-                $("#MailboxSelectedSize").val(selectedValue);
+                $("#SizeInMB").val(selectedValue);
             }
 
             $("#mailboxPlanDescription").text(description)

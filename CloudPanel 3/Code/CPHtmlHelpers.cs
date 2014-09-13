@@ -1,4 +1,5 @@
 ﻿using CloudPanel.Base.Config;
+using CloudPanel.Base.Enums;
 using CloudPanel.Database.EntityFramework;
 using log4net;
 using Nancy.ViewEngines.Razor;
@@ -249,13 +250,145 @@ namespace CloudPanel
                 {
                     stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
                             x.sAMAccountName,
-                            selectedValues.Contains(x.sAMAccountName) ? "selected" : "",
+                            (selectedValues != null && selectedValues.Contains(x.sAMAccountName)) ? "selected" : "",
                             x.DisplayName
                         );
                 });
 
                 string returnValue = string.Format("<select id=\"{0}\" name=\"{0}\" multiple style=\"width:100%\" class=\"populate\">{1}</select>", controlId, stringBuilder.ToString());
                 return new NonEncodedHtmlString(returnValue);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting mailbox users for permissions: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static IHtmlString GetAllExchangeObjectsInSelectFormat(string[] selectedValues, string companyCode, string controlId, string insertBefore)
+        {
+            var stringBuilder = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                logger.DebugFormat("Getting mailbox users for {0}", companyCode);
+                var users = (from u in db.Users
+                             where u.CompanyCode == companyCode
+                             where u.MailboxPlan > 0
+                             orderby u.DisplayName
+                             select u).ToList();
+
+                logger.DebugFormat("Found a total of {0} mailbox users", users.Count());
+                if (!string.IsNullOrEmpty(insertBefore))
+                    stringBuilder.Append(insertBefore);
+
+                stringBuilder.Append("<optgroup label='Users'>");
+                users.ForEach(x =>
+                {
+                    stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                            x.sAMAccountName,
+                            (selectedValues != null && selectedValues.Contains(x.sAMAccountName)) ? "selected" : "",
+                            x.DisplayName
+                        );
+                });
+                stringBuilder.Append("</optgroup>");
+
+                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}[]\" multiple style=\"width:100%\" class=\"multiselect\">{1}</select>", controlId, stringBuilder.ToString());
+                return new NonEncodedHtmlString(returnValue);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting mailbox users for permissions: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static IHtmlString GetAllExchangeObjectsInTableFormat(string companyCode)
+        {
+            var stringBuilder = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                logger.DebugFormat("Getting mailbox users for {0}", companyCode);
+                var users = (from u in db.Users
+                             where u.CompanyCode == companyCode
+                             where u.MailboxPlan > 0
+                             orderby u.DisplayName
+                             select u).ToList();
+
+                logger.DebugFormat("Found a total of {0} mailbox users", users.Count());
+                users.ForEach(x =>
+                {
+                    stringBuilder.AppendFormat("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td style='display: none'>{3}</td></tr>",
+                            ExchangeGroupType.User,
+                            x.DisplayName,
+                            x.Email,
+                            x.UserPrincipalName
+                        );
+                });
+
+                return new NonEncodedHtmlString(stringBuilder.ToString());
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting mailbox users for permissions: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static IHtmlString GetMailboxUsers(string[] selectedValues, string companyCode)
+        {
+            var stringBuilder = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                logger.DebugFormat("Getting mailbox users for {0}", companyCode);
+                var users = (from u in db.Users
+                             where u.CompanyCode == companyCode
+                             where u.MailboxPlan > 0
+                             orderby u.DisplayName
+                             select u).ToList();
+
+                logger.DebugFormat("Found a total of {0} mailbox users", users.Count());
+                users.ForEach(x =>
+                {
+                    stringBuilder.AppendFormat("<div class='checkbpx'><label>");
+                    stringBuilder.AppendFormat("<input type='checkbox' id='{0}' name='mailboxUsers[]' value='{1}' {2} /> {3} </label></div>",
+                            x.sAMAccountName,
+                            (selectedValues != null && selectedValues.Contains(x.sAMAccountName)) ? "true" : "false",
+                            (selectedValues != null && selectedValues.Contains(x.sAMAccountName)) ? "checked" : "",
+                            x.DisplayName
+                        );
+                });
+
+                return new NonEncodedHtmlString(stringBuilder.ToString());
             }
             catch (Exception ex)
             {
