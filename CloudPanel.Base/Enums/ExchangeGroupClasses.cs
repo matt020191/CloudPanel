@@ -40,4 +40,22 @@ namespace CloudPanel.Base.Enums
         public const int Group = 1;
         public const int Contact = 2;
     }
+
+    public static class ExchangeValues
+    {
+        public const int User = 0;
+        public const int Group = 1;
+        public const int Contact = 2;
+
+        public const int Open = 10;
+        public const int Closed = 11;
+        public const int ApprovalRequired = 12;
+
+        public const int Inside = 15;
+        public const int InsideAndOutside = 16;
+
+        public const int Always = 20;
+        public const int Internal = 21;
+        public const int Never = 22;
+    }
 }

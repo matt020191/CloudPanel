@@ -1313,6 +1313,7 @@
     <Content Include="Views\Company\Exchange\contacts_edit.cshtml" />
     <Content Include="Views\Company\users_edit.cshtml" />
     <Content Include="Views\Company\Exchange\groups_edit.cshtml" />
+    <Content Include="Views\Company\Exchange\groups_add.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

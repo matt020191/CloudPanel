@@ -80,7 +80,7 @@
     <Compile Include="Database\Models\UserPlansCitrix.cs" />
     <Compile Include="Database\Models\Users.cs" />
     <Compile Include="Enums\DomainType.cs" />
-    <Compile Include="Enums\ExchangeGroupType.cs" />
+    <Compile Include="Enums\ExchangeGroupClasses.cs" />
     <Compile Include="Exceptions\MatchFoundException.cs" />
     <Compile Include="Exceptions\MissingDataException.cs" />
     <Compile Include="Exchange\EmailInfo.cs" />

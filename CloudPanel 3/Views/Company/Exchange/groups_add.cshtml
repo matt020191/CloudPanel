@@ -35,16 +35,16 @@
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Name</label>
                                 <div class="col-sm-6">
-                                    <input type="text" class="form-control" id="DisplayName" name="DisplayName" value="@Model.group.DisplayName" data-parsley-required="true">
+                                    <input type="text" class="form-control" id="DisplayName" name="DisplayName" value="" data-parsley-required="true">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Email</label>
                                 <div class="col-sm-6">
                                     <div class="input-group">
-                                        <input type="text" class="form-control" id="EmailFirst" name="EmailFirst" value="@Model.group.EmailFirst" data-parsley-required="true">
+                                        <input type="text" class="form-control" id="EmailFirst" name="EmailFirst" value="" data-parsley-required="true">
                                         <span class="input-group-addon">@@</span>
-                                        @CloudPanel.CPHtmlHelpers.GetCompanyEmailDomains(selectedCompanyCode, Model.group.EmailLast, string.Empty)
+                                        @CloudPanel.CPHtmlHelpers.GetCompanyEmailDomains(selectedCompanyCode, string.Empty, string.Empty)
                                     </div>
                                 </div>
                             </div>
@@ -52,7 +52,7 @@
                                 <label for="focusedinput" class="col-sm-3 control-label"></label>
                                 <div class="col-sm-9">
                                     <div class="checkbox">
-                                        <label><input type="checkbox" id="Hidden" name="Hidden" value="@(Model.group.Hidden.ToString().ToLower())" @(Model.group.Hidden == true ? "checked" : "")>Hidden from Address List? </label>
+                                        <label><input type="checkbox" id="Hidden" name="Hidden" value="false" @(false == true ? "checked" : "")>Hidden from Address List? </label>
                                     </div>
                                 </div>
                             </div>
@@ -90,10 +90,6 @@
                     </div>
                     <div class="panel-body scrollthis">
                         <div id="members" class="list-group">
-                            @foreach (var i in Model.group.MembersOriginalObject)
-                            {
-                                <a href="#" class="list-group-item" onclick="RemoveItem(this);" data-id="@i.DistinguishedName"><span class="badge badge-danger">Delete</span><i class=""></i>@i.Name (@i.Email)</a>
-                            }
                         </div>
                         <input id="MembersAdded" name="MembersAdded" type="hidden" class="plus" />
                         <input id="MembersRemoved" name="MembersRemoved" type="hidden" class="minus" />
@@ -111,13 +107,13 @@
                                 <label class="col-sm-3 control-label">Owner Approval Required to Join?</label>
                                 <div class="col-sm-6">
                                     <div class="radio">
-                                        <label><input type="radio" name="MemberJoinRestriction" value="10" @(Model.group.MemberJoinRestriction == CloudPanel.Base.Enums.ExchangeValues.Open ? "checked" : "")> OPEN: Anyone can join this group without being approved by the group owners</label>
+                                        <label><input type="radio" name="MemberJoinRestriction" value="10" checked> OPEN: Anyone can join this group without being approved by the group owners</label>
                                     </div>
                                     <div class="radio">
-                                        <label><input type="radio" name="MemberJoinRestriction" value="11" @(Model.group.MemberJoinRestriction == CloudPanel.Base.Enums.ExchangeValues.Closed ? "checked" : "")> CLOSED: Members can be added only by the group owners. All requests to join will be rejected automatically</label>
+                                        <label><input type="radio" name="MemberJoinRestriction" value="11"> CLOSED: Members can be added only by the group owners. All requests to join will be rejected automatically</label>
                                     </div>
                                     <div class="radio">
-                                        <label><input type="radio" name="MemberJoinRestriction" value="12" @(Model.group.MemberJoinRestriction == CloudPanel.Base.Enums.ExchangeValues.ApprovalRequired ? "checked" : "")> OWNER APPROVAL: All requests are approved or rejected by the group owners</label>
+                                        <label><input type="radio" name="MemberJoinRestriction" value="12"> OWNER APPROVAL: All requests are approved or rejected by the group owners</label>
                                     </div>
                                 </div>
                             </div>
@@ -125,10 +121,10 @@
                                 <label class="col-sm-3 control-label">Can users leave?</label>
                                 <div class="col-sm-6">
                                     <div class="radio">
-                                        <label><input type="radio" name="MemberDepartRestriction" value="10" @(Model.group.MemberJoinRestriction == CloudPanel.Base.Enums.ExchangeValues.Open ? "checked" : "")> OPEN: Anyone can leave this group without being approved by the group owners</label>
+                                        <label><input type="radio" name="MemberDepartRestriction" value="10" checked> OPEN: Anyone can leave this group without being approved by the group owners</label>
                                     </div>
                                     <div class="radio">
-                                        <label><input type="radio" name="MemberDepartRestriction" value="11" @(Model.group.MemberJoinRestriction == CloudPanel.Base.Enums.ExchangeValues.Closed ? "checked" : "")> CLOSED: Members can be removed only by the group owners. All requests to leave will be rejected automatically</label>
+                                        <label><input type="radio" name="MemberDepartRestriction" value="11"> CLOSED: Members can be removed only by the group owners. All requests to leave will be rejected automatically</label>
                                     </div>
                                 </div>
                             </div>
@@ -148,10 +144,10 @@
                                 <div class="col-sm-6">
                                     <p>By default, only senders inside your organization can send messages to this group. You can also allow people outside the organization to send to this group. Choose one of the options below:</p>
                                     <div class="radio">
-                                        <label><input type="radio" name="RequireSenderAuthenticationEnabled" value="15" checked> Only senders inside my organization can send to this group</label>
+                                        <label><input type="radio" name="RequireSendersAuthenticationEnabled" value="15" checked> Only senders inside my organization can send to this group</label>
                                     </div>
                                     <div class="radio">
-                                        <label><input type="radio" name="RequireSenderAuthenticationEnabled" value="16"> Senders inside and outside of my organization can send to this group</label>
+                                        <label><input type="radio" name="RequireSendersAuthenticationEnabled" value="16"> Senders inside and outside of my organization can send to this group</label>
                                     </div>
                                 </div>
                             </div>
@@ -160,7 +156,7 @@
                                 <label class="col-sm-3 control-label"></label>
                                 <div class="col-sm-6">
                                     <p>If you want to restrict who can send messages to the group, add users or groups to the list below. Only the specified senders will be able to send to the group and mail sent by anyone else will be rejected.</p>
-                                    @CloudPanel.CPHtmlHelpers.GetAllExchangeObjectsInSelectFormat(Model.group.AcceptMessagesOnlyFromSendersOrMembers, selectedCompanyCode, "AcceptMessagesOnlyFromSendersOrMembers", "")
+                                    @CloudPanel.CPHtmlHelpers.GetAllExchangeObjectsInSelectFormat(null, selectedCompanyCode, "AcceptMessagesOnlyFromSendersOrMembers", "")
                                 </div>
                             </div>
                         </div>

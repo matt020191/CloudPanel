@@ -1,5 +1,6 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Enums;
 using CloudPanel.Base.Exchange;
 using log4net;
 //
@@ -32,6 +33,7 @@ using log4net;
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
@@ -451,6 +453,211 @@ namespace CloudPanel.Exchange
         #endregion
 
         #region Groups
+
+        public DistributionGroups New_DistributionGroup(DistributionGroups group, string organizationalUnit)
+        {
+            logger.DebugFormat("Creating new distribution group {0} for {1}", group.DisplayName, group.CompanyCode);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("New-DistributionGroup");
+            cmd.AddParameter("Name", group.DisplayName);
+            cmd.AddParameter("DisplayName", group.DisplayName);
+            cmd.AddParameter("ManagedBy", group.ManagedByAdded);
+            cmd.AddParameter("Members", group.MembersAdded);
+            cmd.AddParameter("ModeratedBy", group.ModeratedBy);
+            cmd.AddParameter("ModerationEnabled", group.ModerationEnabled);
+            cmd.AddParameter("OrganizationalUnit", organizationalUnit);
+            cmd.AddParameter("PrimarySmtpAddress", group.Email);
+            cmd.AddParameter("DomainController", this._domainController);
+
+            switch (group.MemberDepartRestriction)
+            {
+                case ExchangeValues.Closed:
+                    cmd.AddParameter("MemberDepartRestriction", "Closed");
+                    break;
+                case ExchangeValues.ApprovalRequired:
+                    cmd.AddParameter("MemberDepartRestriction", "ApprovalRequired");
+                    break;
+                default:
+                    cmd.AddParameter("MemberDepartRestriction", "Open");
+                    break;
+            }
+
+            switch (group.MemberJoinRestriction)
+            {
+                case ExchangeValues.Closed:
+                    cmd.AddParameter("MemberJoinRestriction", "Closed");
+                    break;
+                case ExchangeValues.ApprovalRequired:
+                    cmd.AddParameter("MemberJoinRestriction", "ApprovalRequired");
+                    break;
+                default:
+                    cmd.AddParameter("MemberJoinRestriction", "Open");
+                    break;
+            }
+
+            switch (group.SendModerationNotifications)
+            {
+                case ExchangeValues.Always:
+                    cmd.AddParameter("SendModerationNotifications", "Always");
+                    break;
+                case ExchangeValues.Internal:
+                    cmd.AddParameter("SendModerationNotifications", "Internal");
+                    break;
+                default:
+                    cmd.AddParameter("SendModerationNotifications", "Never");
+                    break;
+            }
+            _powershell.Commands = cmd;
+
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                // Get the distinguished name of the new object
+                foreach (var o in psObjects)
+                {
+                    if (o.Properties["DistinguishedName"] != null)
+                    {
+                        group.DistinguishedName = o.Properties["DistinguishedName"].Value.ToString();
+                        break;
+                    }
+                }
+
+                cmd.Clear();
+                cmd.AddCommand("Set-DistributionGroup");
+                cmd.AddParameter("Identity", group.DistinguishedName);
+                cmd.AddParameter("CustomAttribute1", group.CompanyCode);
+                cmd.AddParameter("HiddenFromAddressListsEnabled", group.Hidden);
+                cmd.AddParameter("DomainController", this._domainController);
+                _powershell.Commands = cmd;
+                _powershell.Invoke();
+
+                HandleErrors();
+            }
+
+            return group;
+        }
+
+        public DistributionGroups Get_DistributionGroup(string identity)
+        {
+            logger.DebugFormat("Retrieving distribution group {0}", identity);
+            var returnGroup = new DistributionGroups();
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-DistributionGroup");
+            cmd.AddParameter("Identity", identity);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                logger.DebugFormat("Found group {0}. Retrieving values...", identity);
+
+                // Get the distinguished name of the new object
+                var foundGroup = psObjects[0];
+                returnGroup.DisplayName = foundGroup.Properties["DisplayName"].Value.ToString();
+                returnGroup.DistinguishedName = foundGroup.Properties["DistinguishedName"].Value.ToString();
+                returnGroup.CompanyCode = foundGroup.Properties["CustomAttribute1"].Value.ToString();
+                returnGroup.Email = foundGroup.Properties["PrimarySmtpAddress"].Value.ToString();
+                returnGroup.ModerationEnabled = (bool)foundGroup.Properties["ModerationEnabled"].Value;
+                returnGroup.Hidden = (bool)foundGroup.Properties["HiddenFromAddressListsEnabled"].Value;
+                
+                logger.DebugFormat("Checking if authentication is required to send to the group");
+                bool requireAuthenticatedSenders = false;
+                bool.TryParse(foundGroup.Properties["RequireSenderAuthenticationEnabled"].Value.ToString(), out requireAuthenticatedSenders);
+                returnGroup.RequireSenderAuthenticationEnabled = requireAuthenticatedSenders ? ExchangeValues.Inside : ExchangeValues.InsideAndOutside;
+
+                logger.DebugFormat("Getting the join restriction");
+                int memberJoinRestriction = ExchangeValues.Open;
+                if (foundGroup.Properties["MemberJoinRestriction"].Value.ToString() == "Closed")
+                    memberJoinRestriction = ExchangeValues.Closed;
+                else if (foundGroup.Properties["MemberJoinRestriction"].Value.ToString() == "ApprovalRequired")
+                    memberJoinRestriction = ExchangeValues.ApprovalRequired;
+                returnGroup.MemberJoinRestriction = memberJoinRestriction;
+
+                logger.DebugFormat("Getting the departure restriction");
+                int memberDepartRestriction = ExchangeValues.Open;
+                if (foundGroup.Properties["MemberDepartRestriction"].Value.ToString() == "Closed")
+                    memberDepartRestriction = ExchangeValues.Closed;
+                else if (foundGroup.Properties["MemberDepartRestriction"].Value.ToString() == "ApprovalRequired")
+                    memberDepartRestriction = ExchangeValues.ApprovalRequired;
+                returnGroup.MemberDepartRestriction = memberDepartRestriction;
+
+                logger.DebugFormat("Getting the ManagedBy list");
+                if (foundGroup.Properties["ManagedBy"] != null)
+                {
+                    var multiValue = foundGroup.Properties["ManagedBy"].Value as PSObject;
+                    var owners = multiValue.BaseObject as ArrayList;
+                    returnGroup.ManagedByOriginal = owners.ToArray(typeof(string)) as string[];
+                }
+
+                logger.DebugFormat("Checking the AcceptMessagesOnlyFromSendersOrMembers values");
+                if (foundGroup.Properties["AcceptMessagesOnlyFromSendersOrMembers"] != null)
+                {
+                    returnGroup.AcceptMessagesOnlyFromSendersOrMembers = foundGroup.Properties["AcceptMessagesOnlyFromSendersOrMembers"].Value.ToString().Split(',');
+                }
+
+                logger.DebugFormat("Checking the ModeratedBy values");
+                if (foundGroup.Properties["ModeratedBy"] != null)
+                {
+                    returnGroup.ModeratedBy = foundGroup.Properties["ModeratedBy"].Value.ToString().Split(',');
+                }
+
+                logger.DebugFormat("Checking the BypassModerationFromSendersOrMembers values");
+                if (foundGroup.Properties["BypassModerationFromSendersOrMembers"] != null)
+                {
+                    returnGroup.BypassModerationFromSendersOrMembers = foundGroup.Properties["BypassModerationFromSendersOrMembers"].Value.ToString().Split(',');
+                }
+
+                // Get members
+                returnGroup.MembersOriginalObject = Get_DistributionGroupMembers(identity);
+                returnGroup.MembersOriginal = returnGroup.MembersOriginalObject.Select(x => x.DistinguishedName).ToArray();
+
+                return returnGroup;
+            }
+        }
+
+        public List<ExchangeGroupSelectors> Get_DistributionGroupMembers(string identity)
+        {
+            var returnObject = new List<ExchangeGroupSelectors>();
+
+            logger.DebugFormat("Getting distribution group members for {0}", identity);
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-DistributionGroupMember");
+            cmd.AddParameter("Identity", identity);
+            cmd.AddParameter("ResultSize", "Unlimited");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            var results = _powershell.Invoke();
+            foreach (var r in results)
+            {
+                string recipientType = r.Properties["RecipientType"].Value.ToString().ToLower();
+
+                var newObject = new ExchangeGroupSelectors();
+                newObject.Name = r.Properties["DisplayName"].Value.ToString();
+                newObject.Email = r.Properties["PrimarySmtpAddress"].Value.ToString();
+                newObject.DistinguishedName = r.Properties["DistinguishedName"].Value.ToString();
+
+                if (recipientType.Contains("distributiongroup"))
+                    newObject.IdValue = ExchangeValues.Group;
+                else if (recipientType.Contains("contact"))
+                    newObject.IdValue = ExchangeValues.Contact;
+                else
+                    newObject.IdValue = ExchangeValues.User;
+
+                returnObject.Add(newObject);
+            }
+
+            HandleErrors();
+
+            return returnObject;
+        }
 
         public void Remove_AllGroups(string companyCode)
         {

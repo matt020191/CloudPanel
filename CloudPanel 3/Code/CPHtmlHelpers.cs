@@ -302,7 +302,7 @@ namespace CloudPanel
                 });
                 stringBuilder.Append("</optgroup>");
 
-                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}[]\" multiple style=\"width:100%\" class=\"multiselect\">{1}</select>", controlId, stringBuilder.ToString());
+                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}\" multiple style=\"width:100%\" class=\"multiselect\">{1}</select>", controlId, stringBuilder.ToString());
                 return new NonEncodedHtmlString(returnValue);
             }
             catch (Exception ex)

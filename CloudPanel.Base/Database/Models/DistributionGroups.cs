@@ -29,6 +29,8 @@
 //
 namespace CloudPanel.Base.Database.Models
 {
+    using CloudPanel.Base.Enums;
+    using CloudPanel.Base.Exchange;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
@@ -56,5 +58,63 @@ namespace CloudPanel.Base.Database.Models
         public string Email { get; set; }
 
         public bool Hidden { get; set; }
+
+        #region Not Mapped
+
+        [NotMapped]
+        public string EmailFirst { get; set; }
+
+        [NotMapped]
+        public string EmailLast { get; set; }
+
+        [NotMapped]
+        public int DomainID { get; set; }
+
+        [NotMapped]
+        public string[] ManagedByOriginal { get; set; }
+
+        [NotMapped]
+        public string[] ManagedByAdded { get; set; }
+
+        [NotMapped]
+        public string[] ManagedByRemoved { get; set; }
+
+        [NotMapped]
+        public string[] MembersOriginal { get; set; }
+
+        [NotMapped]
+        public List<ExchangeGroupSelectors> MembersOriginalObject { get; set; }
+
+        [NotMapped]
+        public string[] MembersAdded { get; set; }
+
+        [NotMapped]
+        public string[] MembersRemoved { get; set; }
+
+        [NotMapped]
+        public int MemberJoinRestriction { get; set; }
+
+        [NotMapped]
+        public int MemberDepartRestriction { get; set; }
+
+        [NotMapped]
+        public int RequireSenderAuthenticationEnabled { get; set; }
+
+        [NotMapped]
+        public string[] AcceptMessagesOnlyFromSendersOrMembers { get; set; }
+
+        [NotMapped]
+        public bool ModerationEnabled { get; set; }
+
+        [NotMapped]
+        public string[] ModeratedBy { get; set; }
+
+        [NotMapped]
+        public string[] BypassModerationFromSendersOrMembers { get; set; }
+
+        [NotMapped]
+        public int SendModerationNotifications { get; set; }
+
+        #endregion
     }
 }

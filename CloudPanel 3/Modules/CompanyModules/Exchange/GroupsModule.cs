@@ -1,15 +1,21 @@
 ﻿using CloudPanel.Base.Config;
+using CloudPanel.Base.Database.Models;
 using CloudPanel.Database.EntityFramework;
+using log4net;
 using Nancy;
 using Nancy.Security;
+using Nancy.ModelBinding;
 using System;
 using System.Linq;
 using System.Reflection;
+using CloudPanel.Exchange;
 
 namespace CloudPanel.Modules
 {
     public class GroupsModule : NancyModule
     {
+        private static readonly ILog logger = log4net.LogManager.GetLogger(typeof(GroupsModule));
+
         public GroupsModule() : base("/company/{CompanyCode}/exchange/groups")
         {
             this.RequiresAuthentication();
@@ -91,9 +97,56 @@ namespace CloudPanel.Modules
                 #endregion
             };
 
-            Post["/{CompanyCode}"] = _ =>
+            Get["/{ID:int}"] = _ =>
             {
-                return HttpStatusCode.InternalServerError;
+                #region Gets an existing group for editing
+                CloudPanelContext db = null;
+                dynamic powershell = null;
+                try
+                {
+                    int id = _.ID;
+                    string companyCode = _.CompanyCode;
+
+                    // Get group from database first
+                    logger.DebugFormat("Retrieving distribution group {0} from the database", _.ID);
+                    db = new CloudPanelContext(Settings.ConnectionString);
+                    var dbGroup = (from d in db.DistributionGroups
+                                   where d.CompanyCode == companyCode
+                                   where d.ID == id
+                                   select d).FirstOrDefault();
+                    if (dbGroup == null)
+                        throw new Exception("Unable to find group in database.");
+                    else
+                    {
+                        logger.DebugFormat("Retrieving distribution group from Exchange");
+                        powershell = ExchPowershell.GetClass();
+
+                        DistributionGroups group = powershell.Get_DistributionGroup(dbGroup.DistinguishedName);
+                        string[] emailSplit = group.Email.Split('@');
+                        group.EmailFirst = emailSplit[0];
+                        group.EmailLast = emailSplit[1];
+
+                        return Negotiate.WithModel(new { group = group })
+                                        .WithView("Company/Exchange/groups_edit.cshtml");
+                    }  
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error getting group {0} for {1}: {2}", _.ID, _.CompanyCode, ex.ToString());
+
+                    ViewBag.error = ex.ToString();
+                    return Negotiate.WithMediaRangeModel("application/json", new { error = ex.Message })
+                                    .WithView("error.cshtml");
+                }
+                finally
+                {
+                    if (powershell != null)
+                        powershell.Dispose();
+
+                    if (db != null)
+                        db.Dispose();
+                }
+                #endregion
             };
 
             Put["/{CompanyCode}"] = _ =>
@@ -108,7 +161,83 @@ namespace CloudPanel.Modules
 
             Get["/new"] = _ =>
             {
-                return View["Company/Exchange/groups_edit.cshtml", new { companyCode = _.CompanyCode }];
+                return View["Company/Exchange/groups_add.cshtml", new { companyCode = _.CompanyCode }];
+            };
+
+            Post["/new"] = _ =>
+            {
+                #region Create a new group
+                CloudPanelContext db = null;
+                dynamic powershell = null;
+                try
+                {
+                    string companyCode = _.CompanyCode;
+
+                    // Bind our class to the form
+                    logger.DebugFormat("Binding class for new group for {0}", companyCode);
+                    DistributionGroups newGroup = this.Bind<DistributionGroups>();
+
+                    // Get the company from the database so we can find the OU to put the group in
+                    logger.DebugFormat("Getting company from database");
+                    db = new CloudPanelContext(Settings.ConnectionString);
+                    var company = (from d in db.Companies
+                                   where !d.IsReseller
+                                   where d.CompanyCode == companyCode
+                                   select d).FirstOrDefault();
+                    if (company == null)
+                        throw new Exception("Unable to find company in the dabase.");
+                    else
+                    {
+                        // Get the domain from the database
+                        logger.DebugFormat("Getting selected domain");
+                        var domain = (from d in db.Domains
+                                      where d.CompanyCode == companyCode
+                                      where d.DomainID == newGroup.DomainID
+                                      select d).FirstOrDefault();
+                        if (domain == null)
+                            throw new Exception("Unable to find domain in the database");
+                        else
+                        {
+                            // Format the attributes
+                            logger.DebugFormat("Formatting the email and other attributes..");
+                            newGroup.Email = string.Format("{0}@{1}", newGroup.EmailFirst.Replace(" ", string.Empty), domain.Domain);
+                            newGroup.CompanyCode = companyCode;
+                            newGroup.ManagedByAdded = newGroup.ManagedByAdded.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                            newGroup.MembersAdded = newGroup.MembersAdded.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+
+                            logger.DebugFormat("Initializing Exchange powershell");
+                            powershell = ExchPowershell.GetClass();
+
+                            logger.DebugFormat("Creating new group in Exchange");
+                            var createdGroup = powershell.New_DistributionGroup(newGroup, Settings.ExchangeOuPath(company.DistinguishedName));
+
+                            logger.DebugFormat("Adding group to database");
+                            db.DistributionGroups.Add(createdGroup);
+                            db.SaveChanges();
+                        }
+                    }
+
+                    string redirectUrl = string.Format("/company/{0}/exchange/groups", companyCode);
+                    return Negotiate.WithModel(new { success = "Successfully created new group" })
+                                    .WithMediaRangeResponse("text/html", this.Response.AsRedirect(redirectUrl));
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error creating new group for {0}: {1}", _.CompanyCode, ex.ToString());
+
+                    ViewBag.error = ex.ToString();
+                    return Negotiate.WithMediaRangeModel("application/json", new { error = ex.Message })
+                                    .WithView("error.cshtml");
+                }
+                finally
+                {
+                    if (powershell != null)
+                        powershell.Dispose();
+
+                    if (db != null)
+                        db.Dispose();
+                }
+                #endregion
             };
         }
     }
