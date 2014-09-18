@@ -74,6 +74,9 @@ namespace CloudPanel.Base.Database.Models
         public string[] ManagedByOriginal { get; set; }
 
         [NotMapped]
+        public List<ExchangeGroupSelectors> ManagedByOriginalObject { get; set; }
+
+        [NotMapped]
         public string[] ManagedByAdded { get; set; }
 
         [NotMapped]

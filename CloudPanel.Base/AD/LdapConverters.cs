@@ -32,33 +32,41 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CloudPanel.Base.Enums
+namespace CloudPanel.Base.AD
 {
-    public static class ExchangeGroupType
+    public class LdapConverters
     {
-        public const int User = 0;
-        public const int Group = 1;
-        public const int Contact = 2;
-    }
+        public static string ToCanonicalName(string distinguishedName)
+        {
+            string[] originalArray = distinguishedName.Split(',');
+            string[] reversedArray = distinguishedName.Split(',');
+            Array.Reverse(reversedArray);
 
-    public static class ExchangeValues
-    {
-        public const int User = 0;
-        public const int Group = 1;
-        public const int Contact = 2;
+            string canonicalName = string.Empty;
+            foreach (string s in reversedArray)
+            {
+                if (s.StartsWith("CN="))
+                    canonicalName += s.Replace("CN=", string.Empty) + "/";
+                else if (s.StartsWith("OU="))
+                    canonicalName += s.Replace("OU=", string.Empty) + "/";
+            }
 
-        public const int Open = 10;
-        public const int Closed = 11;
-        public const int ApprovalRequired = 12;
+            // Remove the ending slash
+            canonicalName = canonicalName.Substring(0, canonicalName.Length - 1);
 
-        public const int Inside = 15;
-        public const int InsideAndOutside = 16;
+            // Now our canonical name should be formatted except for the DC=
+            // Lets do the DC= now
+            string domain = string.Empty;
+            foreach (string s in originalArray)
+            {
+                if (s.StartsWith("DC="))
+                    domain += s.Replace("DC=", string.Empty) + ".";
+            }
 
-        public const int Always = 20;
-        public const int Internal = 21;
-        public const int Never = 22;
+            // Remove the ending period
+            domain = domain.Substring(0, domain.Length - 1);
 
-        public const int DistinguishedName = 25;
-        public const int CanoncialName = 26;
+            return string.Format("{0}/{1}", domain, canonicalName);
+        }
     }
 }

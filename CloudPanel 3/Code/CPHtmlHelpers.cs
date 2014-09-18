@@ -1,4 +1,5 @@
-﻿using CloudPanel.Base.Config;
+﻿using CloudPanel.Base.AD;
+using CloudPanel.Base.Config;
 using CloudPanel.Base.Enums;
 using CloudPanel.Database.EntityFramework;
 using log4net;
@@ -294,9 +295,11 @@ namespace CloudPanel
                 stringBuilder.Append("<optgroup label='Users'>");
                 users.ForEach(x =>
                 {
+                    string value = LdapConverters.ToCanonicalName(x.DistinguishedName);
+
                     stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
-                            x.sAMAccountName,
-                            (selectedValues != null && selectedValues.Contains(x.sAMAccountName)) ? "selected" : "",
+                            value,
+                            (selectedValues != null && selectedValues.Contains(value) ? "selected" : ""),
                             x.DisplayName
                         );
                 });
@@ -334,16 +337,37 @@ namespace CloudPanel
                              orderby u.DisplayName
                              select u).ToList();
 
-                logger.DebugFormat("Found a total of {0} mailbox users", users.Count());
-                users.ForEach(x =>
+                if (users != null)
                 {
-                    stringBuilder.AppendFormat("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td style='display: none'>{3}</td></tr>",
-                            ExchangeGroupType.User,
-                            x.DisplayName,
-                            x.Email,
-                            x.UserPrincipalName
-                        );
-                });
+                    logger.DebugFormat("Found a total of {0} mailbox users", users.Count());
+                    users.ForEach(x =>
+                        {
+                            stringBuilder.AppendFormat("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td style='display: none'>{3}</td></tr>",
+                                    ExchangeGroupType.User,
+                                    x.DisplayName,
+                                    x.Email,
+                                    x.DistinguishedName
+                                );
+                        });
+                }
+
+                logger.DebugFormat("Getting distribution groups for {0}", companyCode);
+                var groups = (from d in db.DistributionGroups
+                              where d.CompanyCode == companyCode
+                              select d).ToList();
+                if (groups != null)
+                {
+                    logger.DebugFormat("Found a total of {0} groups", groups.Count());
+                    groups.ForEach(x =>
+                        {
+                            stringBuilder.AppendFormat("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td style='display: none'>{3}</td></tr>",
+                                ExchangeGroupType.Group,
+                                x.DisplayName,
+                                x.Email,
+                                x.DistinguishedName
+                            );
+                        });
+                }
 
                 return new NonEncodedHtmlString(stringBuilder.ToString());
             }

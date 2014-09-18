@@ -10,6 +10,7 @@
     <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
     <link href="~/Content/plugins/form-toggle/toggles.css" rel="stylesheet" />
     <link href="~/Content/plugins/form-select2/select2.css" rel="stylesheet" />
+    <link href="~/Content/css/wait.css" rel="stylesheet" />
 }
 
 <div id="page-heading">
@@ -63,7 +64,7 @@
 
             <!-- Managed By-->
             <div class="col-md-6">
-                <div class="panel panel-primary">
+                <div id="managedbyPanel" class="panel panel-primary">
                     <div class="panel-heading">
                         Managed By
                         <div class="options">
@@ -72,8 +73,12 @@
                     </div>
                     <div class="panel-body scrollthis">
                         <div id="managedBy" class="list-group">
+                            @foreach (var i in Model.group.ManagedByOriginalObject)
+                            {
+                                <a href="#" class="list-group-item" onclick="RemoveItem(this);" data-id="@i.DistinguishedName"><span class="badge badge-danger">Delete</span><i class="fa fa-user"></i>@i.Name</a>
+                            }
                         </div>
-                        <input id="ManagedByAdded" name="ManagedByAdded" type="hidden" class="plus" />
+                        <input id="ManagedByAdded" name="ManagedByAdded" type="hidden" class="plus" value="@Model.group.ManagedByOriginal" />
                         <input id="ManagedByRemoved" name="ManagedByRemoved" type="hidden" class="minus" />
                     </div>
                 </div>
@@ -81,7 +86,7 @@
 
             <!-- Members -->
             <div class="col-md-6">
-                <div class="panel panel-primary">
+                <div id ="membersPanel" class="panel panel-primary">
                     <div class="panel-heading">
                         Members
                         <div class="options">
@@ -90,10 +95,6 @@
                     </div>
                     <div class="panel-body scrollthis">
                         <div id="members" class="list-group">
-                            @foreach (var i in Model.group.MembersOriginalObject)
-                            {
-                                <a href="#" class="list-group-item" onclick="RemoveItem(this);" data-id="@i.DistinguishedName"><span class="badge badge-danger">Delete</span><i class=""></i>@i.Name (@i.Email)</a>
-                            }
                         </div>
                         <input id="MembersAdded" name="MembersAdded" type="hidden" class="plus" />
                         <input id="MembersRemoved" name="MembersRemoved" type="hidden" class="minus" />
@@ -148,10 +149,10 @@
                                 <div class="col-sm-6">
                                     <p>By default, only senders inside your organization can send messages to this group. You can also allow people outside the organization to send to this group. Choose one of the options below:</p>
                                     <div class="radio">
-                                        <label><input type="radio" name="RequireSenderAuthenticationEnabled" value="15" checked> Only senders inside my organization can send to this group</label>
+                                        <label><input type="radio" name="RequireSenderAuthenticationEnabled" value="15" @(Model.group.RequireSenderAuthenticationEnabled == CloudPanel.Base.Enums.ExchangeValues.Inside ? "checked" : "")> Only senders inside my organization can send to this group</label>
                                     </div>
                                     <div class="radio">
-                                        <label><input type="radio" name="RequireSenderAuthenticationEnabled" value="16"> Senders inside and outside of my organization can send to this group</label>
+                                        <label><input type="radio" name="RequireSenderAuthenticationEnabled" value="16" @(Model.group.RequireSenderAuthenticationEnabled == CloudPanel.Base.Enums.ExchangeValues.Inside ? "" : "checked")> Senders inside and outside of my organization can send to this group</label>
                                     </div>
                                 </div>
                             </div>
@@ -179,7 +180,7 @@
                                 <div class="col-sm-6">
                                     <div class="checkbox">
                                         <label>
-                                            <input type="checkbox" id="ModerationEnabled" name="ModerationEnabled" value="false"> Messages sent to this group have to be approved by a moderator
+                                            <input type="checkbox" id="ModerationEnabled" name="ModerationEnabled" @(Model.group.ModerationEnabled ? "value=\"true\" checked" : "value=\"false\"")> Messages sent to this group have to be approved by a moderator
                                         </label>
                                     </div>
                                 </div>
@@ -187,13 +188,13 @@
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Group Moderators</label>
                                 <div class="col-sm-6">
-                                    @CloudPanel.CPHtmlHelpers.GetAllExchangeObjectsInSelectFormat(null, selectedCompanyCode, "ModeratedBy", "")
+                                    @CloudPanel.CPHtmlHelpers.GetAllExchangeObjectsInSelectFormat(Model.group.ModeratedBy, selectedCompanyCode, "ModeratedBy", "")
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Senders that don't require approval</label>
                                 <div class="col-sm-6">
-                                    @CloudPanel.CPHtmlHelpers.GetAllExchangeObjectsInSelectFormat(null, selectedCompanyCode, "BypassModerationFromSendersOrMembers", "")
+                                    @CloudPanel.CPHtmlHelpers.GetAllExchangeObjectsInSelectFormat(Model.group.BypassModerationFromSendersOrMembers, selectedCompanyCode, "BypassModerationFromSendersOrMembers", "")
                                 </div>
                             </div>
                             <div class="form-group">
@@ -265,6 +266,7 @@
     <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
     <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
     <script src="~/Content/plugins/form-select2/select2.min.js"></script>
+    <script src="~/Content/plugins/blockUI/jquery.blockUI.js"></script>
     <script type="text/javascript">
         var currentPopup;
         var table;
@@ -287,7 +289,37 @@
 
             $(".multiselect").select2({ width: 'resolve' });
 
+            GetMembers("@Model.group.DistinguishedName");
         });
+
+        function GetMembers(identity) {
+            $("#membersPanel").block({
+                message: $('#waitMessage')
+            });
+
+            var request = $.ajax({
+                url: "@Url.RenderContext.Context.Request.Url.Path/members",
+                type: "GET",
+                dataType: "json"
+            });
+
+            request.done(function (data) {
+                $.each(data.members, function (index, value) {
+                    AddItem("#members",
+                            data.members[index].name,
+                            data.members[index].distinguishedName,
+                            data.members[index].idValue);
+                });
+            });
+
+            request.fail(function (jqXHR, textStatus) {
+                alert(textStatus);
+            });
+
+            request.complete(function (jqXHR, textStatus) {
+                $("#membersPanel").unblock();
+            });
+        }
 
         function ShowPopup(div) {
             currentPopup = div;
@@ -299,12 +331,12 @@
 
             var plusField = $(item).parent().parent().find('.plus');
             if (plusField.val().indexOf(id) !== -1) {
-                Replace(plusField, id + ",", "");
+                Replace(plusField, id + "||", "");
             }
 
             var minusField = $(item).parent().parent().find('.minus');
             if (minusField.val().indexOf(id) == -1) {
-                Append(minusField, id + ",");
+                Append(minusField, id + "||");
             }
 
             item.remove();
@@ -316,10 +348,10 @@
                          '<i class="' + GetFontAwesome(valueType) + '"></i> ' + text + '</a>';
 
             var plusField = $(div).parent().find('.plus');
-            var addedToField = Append(plusField, value + ",");
+            var addedToField = Append(plusField, value + "||");
 
             var minusField = $(div).parent().find('.minus');
-            Replace(minusField, value + ",", "");
+            Replace(minusField, value + "||", "");
 
             if (addedToField) {
                 $(div).append(newRow);

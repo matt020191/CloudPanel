@@ -9,6 +9,10 @@ using System;
 using System.Linq;
 using System.Reflection;
 using CloudPanel.Exchange;
+using CloudPanel.Base.Exchange;
+using System.Collections.Generic;
+using CloudPanel.Base.AD;
+using CloudPanel.Base.Enums;
 
 namespace CloudPanel.Modules
 {
@@ -110,6 +114,8 @@ namespace CloudPanel.Modules
                     // Get group from database first
                     logger.DebugFormat("Retrieving distribution group {0} from the database", _.ID);
                     db = new CloudPanelContext(Settings.ConnectionString);
+                    db.Database.Connection.Open();
+
                     var dbGroup = (from d in db.DistributionGroups
                                    where d.CompanyCode == companyCode
                                    where d.ID == id
@@ -125,6 +131,39 @@ namespace CloudPanel.Modules
                         string[] emailSplit = group.Email.Split('@');
                         group.EmailFirst = emailSplit[0];
                         group.EmailLast = emailSplit[1];
+
+                        // Get managed but since Exchange gives the results to us in
+                        // canoncial format we must query our database for all users
+                        // and convert distinguished name to canoncial on the fly.
+                        // Thank you Microsoft!!
+                        var mailboxUsers = (from d in db.Users
+                                            where d.CompanyCode == companyCode
+                                            where d.MailboxPlan > 0
+                                            select d).ToList();
+
+                        var selectors = new List<ExchangeGroupSelectors>();
+                        if (mailboxUsers != null && group.ManagedByOriginal != null)
+                        {
+                            foreach (var s in group.ManagedByOriginal)
+                            {
+                                var m = mailboxUsers.FirstOrDefault(
+                                    x => LdapConverters.ToCanonicalName(x.DistinguishedName)
+                                        .Equals(s, StringComparison.InvariantCultureIgnoreCase));
+
+                                if (m != null)
+                                {
+                                    selectors.Add(new ExchangeGroupSelectors()
+                                    {
+                                        Name = m.DisplayName,
+                                        Email = m.Email,
+                                        DistinguishedName = m.DistinguishedName,
+                                        IdValue = ExchangeValues.User
+                                    });
+                                }
+                            }
+                            selectors = selectors.OrderBy(x => x.Name).ToList();
+                        }
+                        group.ManagedByOriginalObject = selectors;
 
                         return Negotiate.WithModel(new { group = group })
                                         .WithView("Company/Exchange/groups_edit.cshtml");
@@ -145,6 +184,49 @@ namespace CloudPanel.Modules
 
                     if (db != null)
                         db.Dispose();
+                }
+                #endregion
+            };
+
+            Get["/{ID:int}/members"] = _ =>
+            {
+                #region Gets members of a distribution group
+                CloudPanelContext db = null;
+                dynamic powershell = null;
+                try
+                {
+                    int id = _.ID;
+                    string companyCode = _.CompanyCode;
+
+                    logger.DebugFormat("Getting distribution group {0} from database for {1}", id, companyCode);
+                    db = new CloudPanelContext(Settings.ConnectionString);
+
+                    var group = (from d in db.DistributionGroups
+                                 where d.CompanyCode == companyCode
+                                 where d.ID == id
+                                 select d).FirstOrDefault();
+                    if (group == null)
+                        throw new Exception("Unable to find distribution group in the database");
+                    else
+                    {
+                        logger.DebugFormat("Retrieving members of distribution group {0}", group.DistinguishedName);
+                        powershell = ExchPowershell.GetClass();
+
+                        List<ExchangeGroupSelectors> members = powershell.Get_DistributionGroupMembers(group.DistinguishedName);
+                        members = members.OrderBy(x => x.Name).ToList();
+
+                        return Response.AsJson(new { members = members });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error getting members for group {0}: {1}", _.ID, ex.ToString());
+                    return Response.AsJson(new { error = ex.ToString() }, HttpStatusCode.InternalServerError);
+                }
+                finally
+                {
+                    if (powershell != null)
+                        powershell.Dispose();
                 }
                 #endregion
             };

@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AD\LdapConverters.cs" />
     <Compile Include="AD\OrganizationalUnit.cs" />
     <Compile Include="AD\SecurityGroup.cs" />
     <Compile Include="Branding\BrandingSettings.cs" />

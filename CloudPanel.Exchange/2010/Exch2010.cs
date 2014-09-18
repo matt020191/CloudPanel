@@ -615,8 +615,8 @@ namespace CloudPanel.Exchange
                 }
 
                 // Get members
-                returnGroup.MembersOriginalObject = Get_DistributionGroupMembers(identity);
-                returnGroup.MembersOriginal = returnGroup.MembersOriginalObject.Select(x => x.DistinguishedName).ToArray();
+                //returnGroup.MembersOriginalObject = Get_DistributionGroupMembers(identity);
+                //returnGroup.MembersOriginal = returnGroup.MembersOriginalObject.Select(x => x.DistinguishedName).ToArray();
 
                 return returnGroup;
             }
