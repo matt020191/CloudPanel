@@ -568,9 +568,9 @@ namespace CloudPanel.Exchange
                 returnGroup.Hidden = (bool)foundGroup.Properties["HiddenFromAddressListsEnabled"].Value;
                 
                 logger.DebugFormat("Checking if authentication is required to send to the group");
-                bool requireAuthenticatedSenders = false;
+                bool requireAuthenticatedSenders = true;
                 bool.TryParse(foundGroup.Properties["RequireSenderAuthenticationEnabled"].Value.ToString(), out requireAuthenticatedSenders);
-                returnGroup.RequireSenderAuthenticationEnabled = requireAuthenticatedSenders ? ExchangeValues.Inside : ExchangeValues.InsideAndOutside;
+                returnGroup.RequireSenderAuthenticationEnabled = requireAuthenticatedSenders;
 
                 logger.DebugFormat("Getting the join restriction");
                 int memberJoinRestriction = ExchangeValues.Open;
@@ -587,6 +587,14 @@ namespace CloudPanel.Exchange
                 else if (foundGroup.Properties["MemberDepartRestriction"].Value.ToString() == "ApprovalRequired")
                     memberDepartRestriction = ExchangeValues.ApprovalRequired;
                 returnGroup.MemberDepartRestriction = memberDepartRestriction;
+
+                logger.DebugFormat("Getting moderation notifications");
+                int sendModerationNotifications = ExchangeValues.Never;
+                if (foundGroup.Properties["SendModerationNotifications"].Value.ToString() == "Always")
+                    sendModerationNotifications = ExchangeValues.Always;
+                else if (foundGroup.Properties["SendModerationNotifications"].Value.ToString() == "Internal")
+                    sendModerationNotifications = ExchangeValues.Internal;
+                returnGroup.SendModerationNotifications = sendModerationNotifications;
 
                 logger.DebugFormat("Getting the ManagedBy list");
                 if (foundGroup.Properties["ManagedBy"] != null)
@@ -622,9 +630,9 @@ namespace CloudPanel.Exchange
             }
         }
 
-        public List<ExchangeGroupSelectors> Get_DistributionGroupMembers(string identity)
+        public List<GroupObjectSelector> Get_DistributionGroupMembers(string identity)
         {
-            var returnObject = new List<ExchangeGroupSelectors>();
+            var returnObject = new List<GroupObjectSelector>();
 
             logger.DebugFormat("Getting distribution group members for {0}", identity);
             PSCommand cmd = new PSCommand();
@@ -639,17 +647,17 @@ namespace CloudPanel.Exchange
             {
                 string recipientType = r.Properties["RecipientType"].Value.ToString().ToLower();
 
-                var newObject = new ExchangeGroupSelectors();
-                newObject.Name = r.Properties["DisplayName"].Value.ToString();
+                var newObject = new GroupObjectSelector();
+                newObject.DisplayName = r.Properties["DisplayName"].Value.ToString();
                 newObject.Email = r.Properties["PrimarySmtpAddress"].Value.ToString();
-                newObject.DistinguishedName = r.Properties["DistinguishedName"].Value.ToString();
+                newObject.Identifier = newObject.Email;
 
                 if (recipientType.Contains("distributiongroup"))
-                    newObject.IdValue = ExchangeValues.Group;
+                    newObject.ObjectType = ExchangeValues.Group;
                 else if (recipientType.Contains("contact"))
-                    newObject.IdValue = ExchangeValues.Contact;
+                    newObject.ObjectType = ExchangeValues.Contact;
                 else
-                    newObject.IdValue = ExchangeValues.User;
+                    newObject.ObjectType = ExchangeValues.User;
 
                 returnObject.Add(newObject);
             }

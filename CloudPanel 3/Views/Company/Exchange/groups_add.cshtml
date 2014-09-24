@@ -126,6 +126,9 @@
                                     <div class="radio">
                                         <label><input type="radio" name="MemberDepartRestriction" value="11"> CLOSED: Members can be removed only by the group owners. All requests to leave will be rejected automatically</label>
                                     </div>
+                                    <div class="radio">
+                                        <label><input type="radio" name="MemberDepartRestriction" value="12"> OWNER APPROVAL: All requests are approved or rejected by the group owners</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -144,10 +147,10 @@
                                 <div class="col-sm-6">
                                     <p>By default, only senders inside your organization can send messages to this group. You can also allow people outside the organization to send to this group. Choose one of the options below:</p>
                                     <div class="radio">
-                                        <label><input type="radio" name="RequireSendersAuthenticationEnabled" value="15" checked> Only senders inside my organization can send to this group</label>
+                                        <label><input type="radio" name="RequireSenderAuthenticationEnabled" value="true" checked> Only senders inside my organization can send to this group</label>
                                     </div>
                                     <div class="radio">
-                                        <label><input type="radio" name="RequireSendersAuthenticationEnabled" value="16"> Senders inside and outside of my organization can send to this group</label>
+                                        <label><input type="radio" name="RequireSenderAuthenticationEnabled" value="false"> Senders inside and outside of my organization can send to this group</label>
                                     </div>
                                 </div>
                             </div>
@@ -237,14 +240,36 @@
                 <table cellpadding="0" cellspacing="0" border="0" class="table datatables" id="dataTable">
                     <thead>
                         <tr>
-                            <th>Type</th>
+                            <th></th>
                             <th>Name</th>
                             <th>Email</th>
-                            <th style="display: none">Hidden Value</th>
+                            <th style="display: none">Identifier</th>
+                            <th style="display: none">Type</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @CloudPanel.CPHtmlHelpers.GetAllExchangeObjectsInTableFormat(selectedCompanyCode)
+                        @foreach (var obj in CloudPanel.Modules.GroupsModule.GetAll(selectedCompanyCode))
+                        {
+                            <tr>
+                                <td>
+                                    @if (obj.ObjectType == CloudPanel.Base.Enums.ExchangeValues.Group) { 
+                                        <i class="fa fa-group"></i>
+                                    }
+                                    else if (obj.ObjectType == CloudPanel.Base.Enums.ExchangeValues.Contact)
+                                    {
+                                        <i class="fa-envelope-o"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa fa-user"></i>
+                                    }
+                                </td>
+                                <td>@obj.DisplayName</td>
+                                <td>@obj.Email</td>
+                                <td style="display: none">@obj.Identifier</td>
+                                <td style="display: none">@obj.ObjectType</td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
@@ -277,12 +302,11 @@
                     AddItem(currentPopup,
                             table.cell(idx, 1).data(),
                             table.cell(idx, 3).data(),
-                            table.cell(idx, 0).data());
+                            table.cell(idx, 4).data());
                 });
             });
 
             $(".multiselect").select2({ width: 'resolve' });
-
         });
 
         function ShowPopup(div) {
@@ -294,14 +318,10 @@
             var id = $(item).data("id");
 
             var plusField = $(item).parent().parent().find('.plus');
-            if (plusField.val().indexOf(id) !== -1) {
-                Replace(plusField, id + ",", "");
-            }
+            Remove(plusField, id);
 
             var minusField = $(item).parent().parent().find('.minus');
-            if (minusField.val().indexOf(id) == -1) {
-                Append(minusField, id + ",");
-            }
+            Append(minusField, id);
 
             item.remove();
         }
@@ -311,37 +331,62 @@
                          '<span class="badge badge-danger">Delete</span>' +
                          '<i class="' + GetFontAwesome(valueType) + '"></i> ' + text + '</a>';
 
-            var plusField = $(div).parent().find('.plus');
-            var addedToField = Append(plusField, value + ",");
+            if (div == "#managedBy" && valueType > 0) {
+                alert("You can only add users to the managed by section");
+            } else {
+                var plusField = $(div).parent().find('.plus');
+                var addedToField = Append(plusField, value);
 
-            var minusField = $(div).parent().find('.minus');
-            Replace(minusField, value + ",", "");
+                var minusField = $(div).parent().find('.minus');
+                Remove(minusField, value);
 
-            if (addedToField) {
-                $(div).append(newRow);
+                if (addedToField) {
+                    $(div).append(newRow);
+                }
             }
         }
 
         function GetFontAwesome(valueType) {
             if (valueType == "1")
-                return "fa fa-users";
+                return "fa fa-group";
             else if (valueType == "2")
-                return "fa fa-user";
+                return "fa-envelope-o";
             else
                 return "fa fa-user";
         }
 
         function Append(input, value) {
-            if ($(input).val().indexOf(value) == -1) {
-                $(input).val($(input).val() + value);
+            var i = $(input);
+
+            if (i.val() == "") {
+                i.val(value);
                 return true;
             } else {
-                return false;
+                var split = i.val().split(",");
+                var index = $.inArray(value, split);
+
+                if (index == -1) {
+                    split.push(value);
+                    i.val(split);
+                    return true;
+                } else {
+                    return false;
+                }
             }
         }
 
-        function Replace(input, findValue, replaceValue) {
-            $(input).val( $(input).val().replace(findValue, replaceValue) );
+        function Remove(input, findValue) {
+            var i = $(input);
+
+            if (i.val() !== "") {
+                var split = i.val().split(",");
+                var index = $.inArray(findValue, split);
+
+                if (index >= 0) {
+                    split.splice(index, 1);
+                    i.val(split);
+                }
+            }
         }
     </script>
 }

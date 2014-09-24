@@ -81,11 +81,12 @@
     <Compile Include="Database\Models\UserPlansCitrix.cs" />
     <Compile Include="Database\Models\Users.cs" />
     <Compile Include="Enums\DomainType.cs" />
-    <Compile Include="Enums\ExchangeGroupClasses.cs" />
+    <Compile Include="Enums\ExchangeValues.cs" />
     <Compile Include="Exceptions\MatchFoundException.cs" />
     <Compile Include="Exceptions\MissingDataException.cs" />
     <Compile Include="Exchange\EmailInfo.cs" />
     <Compile Include="Exchange\ExchangeGroupSelectors.cs" />
+    <Compile Include="Exchange\GroupObjectSelector.cs" />
     <Compile Include="Other\Error.cs" />
     <Compile Include="Other\UsersEditPage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

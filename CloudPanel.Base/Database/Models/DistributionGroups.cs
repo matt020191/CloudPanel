@@ -74,7 +74,7 @@ namespace CloudPanel.Base.Database.Models
         public string[] ManagedByOriginal { get; set; }
 
         [NotMapped]
-        public List<ExchangeGroupSelectors> ManagedByOriginalObject { get; set; }
+        public List<GroupObjectSelector> ManagedByOriginalObject { get; set; }
 
         [NotMapped]
         public string[] ManagedByAdded { get; set; }
@@ -86,7 +86,7 @@ namespace CloudPanel.Base.Database.Models
         public string[] MembersOriginal { get; set; }
 
         [NotMapped]
-        public List<ExchangeGroupSelectors> MembersOriginalObject { get; set; }
+        public List<GroupObjectSelector> MembersOriginalObject { get; set; }
 
         [NotMapped]
         public string[] MembersAdded { get; set; }
@@ -101,7 +101,7 @@ namespace CloudPanel.Base.Database.Models
         public int MemberDepartRestriction { get; set; }
 
         [NotMapped]
-        public int RequireSenderAuthenticationEnabled { get; set; }
+        public bool RequireSenderAuthenticationEnabled { get; set; }
 
         [NotMapped]
         public string[] AcceptMessagesOnlyFromSendersOrMembers { get; set; }

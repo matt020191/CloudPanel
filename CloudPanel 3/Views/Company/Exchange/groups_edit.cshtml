@@ -75,10 +75,10 @@
                         <div id="managedBy" class="list-group">
                             @foreach (var i in Model.group.ManagedByOriginalObject)
                             {
-                                <a href="#" class="list-group-item" onclick="RemoveItem(this);" data-id="@i.DistinguishedName"><span class="badge badge-danger">Delete</span><i class="fa fa-user"></i>@i.Name</a>
+                                <a href="#" class="list-group-item" onclick="RemoveItem(this);" data-id="@i.Identifier"><span class="badge badge-danger">Delete</span><i class="fa fa-user"></i>@i.DisplayName</a>
                             }
                         </div>
-                        <input id="ManagedByAdded" name="ManagedByAdded" type="hidden" class="plus" value="@Model.group.ManagedByOriginal" />
+                        <input id="ManagedByAdded" name="ManagedByAdded" type="hidden" class="plus" value="@(Model.group.ManagedByOriginal != null ? String.Concat(String.Join(",", Model.group.ManagedByOriginal), ",") : "")" />
                         <input id="ManagedByRemoved" name="ManagedByRemoved" type="hidden" class="minus" />
                     </div>
                 </div>
@@ -126,10 +126,13 @@
                                 <label class="col-sm-3 control-label">Can users leave?</label>
                                 <div class="col-sm-6">
                                     <div class="radio">
-                                        <label><input type="radio" name="MemberDepartRestriction" value="10" @(Model.group.MemberJoinRestriction == CloudPanel.Base.Enums.ExchangeValues.Open ? "checked" : "")> OPEN: Anyone can leave this group without being approved by the group owners</label>
+                                        <label><input type="radio" name="MemberDepartRestriction" value="10" @(Model.group.MemberDepartRestriction == CloudPanel.Base.Enums.ExchangeValues.Open ? "checked" : "")> OPEN: Anyone can leave this group without being approved by the group owners</label>
                                     </div>
                                     <div class="radio">
-                                        <label><input type="radio" name="MemberDepartRestriction" value="11" @(Model.group.MemberJoinRestriction == CloudPanel.Base.Enums.ExchangeValues.Closed ? "checked" : "")> CLOSED: Members can be removed only by the group owners. All requests to leave will be rejected automatically</label>
+                                        <label><input type="radio" name="MemberDepartRestriction" value="11" @(Model.group.MemberDepartRestriction == CloudPanel.Base.Enums.ExchangeValues.Closed ? "checked" : "")> CLOSED: Members can be removed only by the group owners. All requests to leave will be rejected automatically</label>
+                                    </div>
+                                    <div class="radio">
+                                        <label><input type="radio" name="MemberDepartRestriction" value="12" @(Model.group.MemberDepartRestriction == CloudPanel.Base.Enums.ExchangeValues.ApprovalRequired ? "checked" : "")> OWNER APPROVAL: All requests are approved or rejected by the group owners</label>
                                     </div>
                                 </div>
                             </div>
@@ -149,10 +152,10 @@
                                 <div class="col-sm-6">
                                     <p>By default, only senders inside your organization can send messages to this group. You can also allow people outside the organization to send to this group. Choose one of the options below:</p>
                                     <div class="radio">
-                                        <label><input type="radio" name="RequireSenderAuthenticationEnabled" value="15" @(Model.group.RequireSenderAuthenticationEnabled == CloudPanel.Base.Enums.ExchangeValues.Inside ? "checked" : "")> Only senders inside my organization can send to this group</label>
+                                        <label><input type="radio" name="RequireSenderAuthenticationEnabled" @(Model.group.RequireSenderAuthenticationEnabled == true ? "value=\"true\" checked" : "value=\"false\"")> Only senders inside my organization can send to this group</label>
                                     </div>
                                     <div class="radio">
-                                        <label><input type="radio" name="RequireSenderAuthenticationEnabled" value="16" @(Model.group.RequireSenderAuthenticationEnabled == CloudPanel.Base.Enums.ExchangeValues.Inside ? "" : "checked")> Senders inside and outside of my organization can send to this group</label>
+                                        <label><input type="radio" name="RequireSenderAuthenticationEnabled" @(Model.group.RequireSenderAuthenticationEnabled == false ? "value=\"true\" checked" : "value=\"false\"")> Senders inside and outside of my organization can send to this group</label>
                                     </div>
                                 </div>
                             </div>
@@ -202,17 +205,17 @@
                                 <div class="col-sm-6">
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" name="SendModerationNotifications" value="20"> Notify all senders when their messages aren't approved
+                                            <input type="radio" name="SendModerationNotifications" value="20" @(Model.group.SendModerationNotifications == CloudPanel.Base.Enums.ExchangeValues.Always ? "checked" : "")> Notify all senders when their messages aren't approved
                                         </label>
                                     </div>
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" name="SendModerationNotifications" value="21"> Notify senders in your organization when their messages aren't approved
+                                            <input type="radio" name="SendModerationNotifications" value="21" @(Model.group.SendModerationNotifications == CloudPanel.Base.Enums.ExchangeValues.Internal ? "checked" : "")> Notify senders in your organization when their messages aren't approved
                                         </label>
                                     </div>
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" name="SendModerationNotifications" value="22" checked> Don't notify anyone when a message isn't approved
+                                            <input type="radio" name="SendModerationNotifications" value="22" @(Model.group.SendModerationNotifications == CloudPanel.Base.Enums.ExchangeValues.Never ? "checked" : "")> Don't notify anyone when a message isn't approved
                                         </label>
                                     </div>
                                 </div>
@@ -245,11 +248,34 @@
                             <th>Type</th>
                             <th>Name</th>
                             <th>Email</th>
-                            <th style="display: none">Hidden Value</th>
+                            <th style="display: none">Identifier</th>
+                            <th style="display: none">Type</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @CloudPanel.CPHtmlHelpers.GetAllExchangeObjectsInTableFormat(selectedCompanyCode)
+                        @foreach (var obj in CloudPanel.Modules.GroupsModule.GetAll(selectedCompanyCode))
+                        {
+                            <tr>
+                                <td>
+                                    @if (obj.ObjectType == CloudPanel.Base.Enums.ExchangeValues.Group)
+                                    {
+                                        <i class="fa fa-group"></i>
+                                    }
+                                    else if (obj.ObjectType == CloudPanel.Base.Enums.ExchangeValues.Contact)
+                                    {
+                                        <i class="fa-envelope-o"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa fa-user"></i>
+                                    }
+                                </td>
+                                <td>@obj.DisplayName</td>
+                                <td>@obj.Email</td>
+                                <td style="display: none">@obj.Identifier</td>
+                                <td style="display: none">@obj.ObjectType</td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
@@ -283,7 +309,7 @@
                     AddItem(currentPopup,
                             table.cell(idx, 1).data(),
                             table.cell(idx, 3).data(),
-                            table.cell(idx, 0).data());
+                            table.cell(idx, 4).data());
                 });
             });
 
@@ -306,9 +332,9 @@
             request.done(function (data) {
                 $.each(data.members, function (index, value) {
                     AddItem("#members",
-                            data.members[index].name,
-                            data.members[index].distinguishedName,
-                            data.members[index].idValue);
+                            data.members[index].displayName,
+                            data.members[index].email,
+                            data.members[index].objectValue);
                 });
             });
 
@@ -331,12 +357,12 @@
 
             var plusField = $(item).parent().parent().find('.plus');
             if (plusField.val().indexOf(id) !== -1) {
-                Replace(plusField, id + "||", "");
+                Replace(plusField, id + ",", "");
             }
 
             var minusField = $(item).parent().parent().find('.minus');
             if (minusField.val().indexOf(id) == -1) {
-                Append(minusField, id + "||");
+                Append(minusField, id + ",");
             }
 
             item.remove();
@@ -347,28 +373,33 @@
                          '<span class="badge badge-danger">Delete</span>' +
                          '<i class="' + GetFontAwesome(valueType) + '"></i> ' + text + '</a>';
 
-            var plusField = $(div).parent().find('.plus');
-            var addedToField = Append(plusField, value + "||");
+            if (div == "#managedBy" && valueType > 0) {
+                alert("You can only add users to the managed by section");
+            } else {
+                var plusField = $(div).parent().find('.plus');
+                var addedToField = Append(plusField, value + ",");
 
-            var minusField = $(div).parent().find('.minus');
-            Replace(minusField, value + "||", "");
+                var minusField = $(div).parent().find('.minus');
+                Replace(minusField, value + ",", "");
 
-            if (addedToField) {
-                $(div).append(newRow);
+                if (addedToField) {
+                    $(div).append(newRow);
+                }
             }
         }
 
         function GetFontAwesome(valueType) {
             if (valueType == "1")
-                return "fa fa-users";
+                return "fa fa-group";
             else if (valueType == "2")
-                return "fa fa-user";
+                return "fa-envelope-o";
             else
                 return "fa fa-user";
         }
 
         function Append(input, value) {
-            if ($(input).val().indexOf(value) == -1) {
+            var split = $(input).val().split(",");
+            if ($.inArray(value, split) == -1) {
                 $(input).val($(input).val() + value);
                 return true;
             } else {

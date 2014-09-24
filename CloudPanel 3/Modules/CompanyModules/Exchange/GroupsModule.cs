@@ -13,6 +13,8 @@ using CloudPanel.Base.Exchange;
 using System.Collections.Generic;
 using CloudPanel.Base.AD;
 using CloudPanel.Base.Enums;
+using Nancy.ViewEngines.Razor;
+using System.Text;
 
 namespace CloudPanel.Modules
 {
@@ -141,7 +143,8 @@ namespace CloudPanel.Modules
                                             where d.MailboxPlan > 0
                                             select d).ToList();
 
-                        var selectors = new List<ExchangeGroupSelectors>();
+                        var managedByOriginal = new List<string>();
+                        var selectors = new List<GroupObjectSelector>();
                         if (mailboxUsers != null && group.ManagedByOriginal != null)
                         {
                             foreach (var s in group.ManagedByOriginal)
@@ -152,18 +155,20 @@ namespace CloudPanel.Modules
 
                                 if (m != null)
                                 {
-                                    selectors.Add(new ExchangeGroupSelectors()
+                                    selectors.Add(new GroupObjectSelector()
                                     {
-                                        Name = m.DisplayName,
+                                        DisplayName = m.DisplayName,
                                         Email = m.Email,
-                                        DistinguishedName = m.DistinguishedName,
-                                        IdValue = ExchangeValues.User
+                                        Identifier = m.Email,
+                                        ObjectType = ExchangeValues.User
                                     });
+                                    managedByOriginal.Add(m.Email);
                                 }
                             }
-                            selectors = selectors.OrderBy(x => x.Name).ToList();
+                            selectors = selectors.OrderBy(x => x.DisplayName).ToList();
                         }
                         group.ManagedByOriginalObject = selectors;
+                        group.ManagedByOriginal = managedByOriginal.ToArray(); // This contains the converted canoncial name to email address from the database
 
                         return Negotiate.WithModel(new { group = group })
                                         .WithView("Company/Exchange/groups_edit.cshtml");
@@ -212,8 +217,8 @@ namespace CloudPanel.Modules
                         logger.DebugFormat("Retrieving members of distribution group {0}", group.DistinguishedName);
                         powershell = ExchPowershell.GetClass();
 
-                        List<ExchangeGroupSelectors> members = powershell.Get_DistributionGroupMembers(group.DistinguishedName);
-                        members = members.OrderBy(x => x.Name).ToList();
+                        List<GroupObjectSelector> members = powershell.Get_DistributionGroupMembers(group.DistinguishedName);
+                        members = members.OrderBy(x => x.DisplayName).ToList();
 
                         return Response.AsJson(new { members = members });
                     }
@@ -281,6 +286,8 @@ namespace CloudPanel.Modules
                         else
                         {
                             // Format the attributes
+
+
                             logger.DebugFormat("Formatting the email and other attributes..");
                             newGroup.Email = string.Format("{0}@{1}", newGroup.EmailFirst.Replace(" ", string.Empty), domain.Domain);
                             newGroup.CompanyCode = companyCode;
@@ -321,6 +328,72 @@ namespace CloudPanel.Modules
                 }
                 #endregion
             };
+        }
+
+        public static List<GroupObjectSelector> GetAll(string companyCode)
+        {
+            var returnObject = new List<GroupObjectSelector>();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                logger.DebugFormat("Getting mailbox users for {0}", companyCode);
+                var users = (from u in db.Users where u.CompanyCode == companyCode 
+                             where u.MailboxPlan > 0
+                             where !string.IsNullOrEmpty(u.Email)
+                             orderby u.DisplayName select u).ToList();
+
+                if (users != null)
+                {
+                    logger.DebugFormat("Found a total of {0} mailbox users", users.Count());
+                    users.ForEach(x =>
+                        {
+                            returnObject.Add(new GroupObjectSelector()
+                                {
+                                    ObjectType = ExchangeValues.User,
+                                    DisplayName = x.DisplayName,
+                                    Email = x.Email,
+                                    Identifier = x.Email
+                                });
+                        });
+                }
+
+                logger.DebugFormat("Getting distribution groups for {0}", companyCode);
+                var groups = (from d in db.DistributionGroups 
+                              where d.CompanyCode == companyCode
+                              where !string.IsNullOrEmpty(d.Email)
+                              orderby d.DisplayName select d).ToList();
+
+                if (groups != null)
+                {
+                    logger.DebugFormat("Found a total of {0} groups", groups.Count());
+                    groups.ForEach(x =>
+                        {
+                            returnObject.Add(new GroupObjectSelector()
+                                {
+                                    ObjectType = ExchangeValues.Group,
+                                    DisplayName = x.DisplayName,
+                                    Email = x.Email,
+                                    Identifier = x.Email
+                                });
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting mailbox users for permissions: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+
+            return returnObject;
         }
     }
 }
