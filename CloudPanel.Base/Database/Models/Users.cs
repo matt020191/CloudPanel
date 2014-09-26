@@ -93,7 +93,7 @@ namespace CloudPanel.Base.Database.Models
 
         public int? ActiveSyncPlan { get; set; }
 
-        #region Additional Details
+        #region Not Mapped AD Settings
 
         /// <summary>
         /// Property: description
@@ -281,6 +281,10 @@ namespace CloudPanel.Base.Database.Models
             get { return (LyncPlan != null && LyncPlan > 0) ? true : false; }
         }
 
+        #endregion
+
+        #region Not Mapped Exchange Settings
+
         [NotMapped]
         public bool IsEmailEnabled
         {
@@ -310,6 +314,23 @@ namespace CloudPanel.Base.Database.Models
                     return Email.Split('@')[0];
             }
         }
+
+        [NotMapped]
+        public int SizeInMB { get; set; }
+
+        [NotMapped]
+        public string[] EmailAliases { get; set; }
+
+        [NotMapped]
+        public string[] EmailFullAccess { get; set; }
+
+        [NotMapped]
+        public string[] EmailSendAs { get; set; }
+
+        [NotMapped]
+        public string[] EmailSendOnBehalf { get; set; }
+
+
 
         #endregion
     }

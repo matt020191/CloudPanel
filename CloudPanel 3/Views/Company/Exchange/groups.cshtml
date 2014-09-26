@@ -84,14 +84,15 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    <h4 class="modal-title">Edit Reseller</h4>
+                    <h4 class="modal-title">Delete Group</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to delete this reseller?</p>
+                    <p>Are you sure you want to delete this group?</p>
+                    <input id="ID" name="ID" type="hidden" />
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-danger">Delete</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
                 </div>
             </div>
         </div>
@@ -131,11 +132,10 @@
             });
         });
 
-        function SetForm(element)
+        function SetForm(element, form)
         {
-            var companyCode = $(element).data("id");
-            var href = $(element).attr('href');
-            $(href).closest("form").attr("action", "@Url.Content("~/resellers/")" + companyCode);
+            var id = $(element).data("id");
+            $(form).find("input[id='ID']").val(id);
         }
 
         function GetButton(id, companyCode) {
@@ -145,7 +145,7 @@
                             </button> \
                             <ul class="dropdown-menu" role="menu"> \
                                 <li><a href="@Url.Content("~/company/")' + companyCode + '/exchange/groups/' + id + '">Edit</a></li> \
-                                <li><a href="#deleteModal" data-toggle="modal" data-id="' + id + '" onclick="SetForm(this);">Delete</a></li> \
+                                <li><a href="#deleteModal" data-toggle="modal" data-id="' + id + '" onclick="SetForm(this, \'#deleteForm\');">Delete</a></li> \
                             </ul> \
                     </div>';
         }

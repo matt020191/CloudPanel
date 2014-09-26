@@ -28,6 +28,7 @@
 <div class="container">
     <div class="row">
         <form id="addGroup" action="" method="post" data-parsley-validate>
+            <input type="hidden" name="_method" value="PUT" />
             <div class="col-md-12">
                 <div class="panel panel-primary">
                     <div class="panel-heading">Details</div>
@@ -75,7 +76,7 @@
                         <div id="managedBy" class="list-group">
                             @foreach (var i in Model.group.ManagedByOriginalObject)
                             {
-                                <a href="#" class="list-group-item" onclick="RemoveItem(this);" data-id="@i.Identifier"><span class="badge badge-danger">Delete</span><i class="fa fa-user"></i>@i.DisplayName</a>
+                                <a href="javascript:;" class="list-group-item" onclick="RemoveItem(this);" data-id="@i.Identifier"><span class="badge badge-danger">Delete</span><i class="fa fa-user"></i>@i.DisplayName</a>
                             }
                         </div>
                         <input id="ManagedByAdded" name="ManagedByAdded" type="hidden" class="plus" value="@(Model.group.ManagedByOriginal != null ? String.Concat(String.Join(",", Model.group.ManagedByOriginal), ",") : "")" />
@@ -152,10 +153,10 @@
                                 <div class="col-sm-6">
                                     <p>By default, only senders inside your organization can send messages to this group. You can also allow people outside the organization to send to this group. Choose one of the options below:</p>
                                     <div class="radio">
-                                        <label><input type="radio" name="RequireSenderAuthenticationEnabled" @(Model.group.RequireSenderAuthenticationEnabled == true ? "value=\"true\" checked" : "value=\"false\"")> Only senders inside my organization can send to this group</label>
+                                        <label><input type="radio" name="RequireSenderAuthenticationEnabled" value="15" @(Model.group.RequireSenderAuthenticationEnabled == CloudPanel.Base.Enums.ExchangeValues.Inside ? "checked" : "")> Only senders inside my organization can send to this group</label>
                                     </div>
                                     <div class="radio">
-                                        <label><input type="radio" name="RequireSenderAuthenticationEnabled" @(Model.group.RequireSenderAuthenticationEnabled == false ? "value=\"true\" checked" : "value=\"false\"")> Senders inside and outside of my organization can send to this group</label>
+                                        <label><input type="radio" name="RequireSenderAuthenticationEnabled" value="16" @(Model.group.RequireSenderAuthenticationEnabled == CloudPanel.Base.Enums.ExchangeValues.InsideAndOutside ? "checked" : "")> Senders inside and outside of my organization can send to this group</label>
                                     </div>
                                 </div>
                             </div>
@@ -334,7 +335,7 @@
                     AddItem("#members",
                             data.members[index].displayName,
                             data.members[index].email,
-                            data.members[index].objectValue);
+                            data.members[index].objectType);
                 });
             });
 
@@ -356,20 +357,16 @@
             var id = $(item).data("id");
 
             var plusField = $(item).parent().parent().find('.plus');
-            if (plusField.val().indexOf(id) !== -1) {
-                Replace(plusField, id + ",", "");
-            }
+            Remove(plusField, id);
 
             var minusField = $(item).parent().parent().find('.minus');
-            if (minusField.val().indexOf(id) == -1) {
-                Append(minusField, id + ",");
-            }
+            Append(minusField, id);
 
             item.remove();
         }
 
         function AddItem(div, text, value, valueType) {
-            var newRow = '<a href="#" class="list-group-item" onclick="RemoveItem(this);" data-id="' + value + '">' +
+            var newRow = '<a href="javascript:;" class="list-group-item" onclick="RemoveItem(this);" data-id="' + value + '">' +
                          '<span class="badge badge-danger">Delete</span>' +
                          '<i class="' + GetFontAwesome(valueType) + '"></i> ' + text + '</a>';
 
@@ -377,10 +374,10 @@
                 alert("You can only add users to the managed by section");
             } else {
                 var plusField = $(div).parent().find('.plus');
-                var addedToField = Append(plusField, value + ",");
+                var addedToField = Append(plusField, value);
 
                 var minusField = $(div).parent().find('.minus');
-                Replace(minusField, value + ",", "");
+                Remove(minusField, value);
 
                 if (addedToField) {
                     $(div).append(newRow);
@@ -398,17 +395,37 @@
         }
 
         function Append(input, value) {
-            var split = $(input).val().split(",");
-            if ($.inArray(value, split) == -1) {
-                $(input).val($(input).val() + value);
+            var i = $(input);
+
+            if (i.val() == "") {
+                i.val(value);
                 return true;
             } else {
-                return false;
+                var split = i.val().split(",");
+                var index = $.inArray(value, split);
+
+                if (index == -1) {
+                    split.push(value);
+                    i.val(split);
+                    return true;
+                } else {
+                    return false;
+                }
             }
         }
 
-        function Replace(input, findValue, replaceValue) {
-            $(input).val( $(input).val().replace(findValue, replaceValue) );
+        function Remove(input, findValue) {
+            var i = $(input);
+
+            if (i.val() !== "") {
+                var split = i.val().split(",");
+                var index = $.inArray(findValue, split);
+
+                if (index >= 0) {
+                    split.splice(index, 1);
+                    i.val(split);
+                }
+            }
         }
     </script>
 }

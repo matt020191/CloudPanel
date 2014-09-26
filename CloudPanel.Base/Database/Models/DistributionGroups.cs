@@ -39,10 +39,10 @@ namespace CloudPanel.Base.Database.Models
 
     public partial class DistributionGroups
     {
+        [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
 
-        [Key]
         [StringLength(255)]
         public string DistinguishedName { get; set; }
 
@@ -101,7 +101,7 @@ namespace CloudPanel.Base.Database.Models
         public int MemberDepartRestriction { get; set; }
 
         [NotMapped]
-        public bool RequireSenderAuthenticationEnabled { get; set; }
+        public int RequireSenderAuthenticationEnabled { get; set; }
 
         [NotMapped]
         public string[] AcceptMessagesOnlyFromSendersOrMembers { get; set; }

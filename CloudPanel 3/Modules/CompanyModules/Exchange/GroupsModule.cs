@@ -103,6 +103,58 @@ namespace CloudPanel.Modules
                 #endregion
             };
 
+            Delete["/"] = _ =>
+            {
+                #region Updates existing group
+                CloudPanelContext db = null;
+                dynamic powershell = null;
+                try
+                {
+                    int id = Request.Form.ID;
+                    string companyCode = _.CompanyCode;
+
+                    // Get the group from the database
+                    logger.DebugFormat("Getting the group from the database");
+                    db = new CloudPanelContext(Settings.ConnectionString);
+                    var dbGroup = (from d in db.DistributionGroups
+                                   where d.CompanyCode == companyCode
+                                   where d.ID == id
+                                   select d).FirstOrDefault();
+                    if (dbGroup == null)
+                        throw new Exception("Unable to find distribution group in the dabase.");
+                    else
+                    {
+                        logger.DebugFormat("Removing group {0} from Exchange", dbGroup.Email);
+                        powershell = ExchPowershell.GetClass();
+                        powershell.Remove_DistributionGroup(dbGroup.Email);
+
+                        logger.DebugFormat("Removing group {0} from the database", dbGroup.Email);
+                        db.DistributionGroups.Remove(dbGroup);
+                        db.SaveChanges();
+
+                        return Negotiate.WithModel(new { success = "Successfully deleted group" })
+                                        .WithView("Company/Exchange/groups.cshtml");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error removing group for {0}: {1}", _.CompanyCode, ex.ToString());
+
+                    ViewBag.error = ex.ToString();
+                    return Negotiate.WithMediaRangeModel("application/json", new { error = ex.Message })
+                                    .WithView("error.cshtml");
+                }
+                finally
+                {
+                    if (powershell != null)
+                        powershell.Dispose();
+
+                    if (db != null)
+                        db.Dispose();
+                }
+                #endregion
+            };
+
             Get["/{ID:int}"] = _ =>
             {
                 #region Gets an existing group for editing
@@ -236,14 +288,84 @@ namespace CloudPanel.Modules
                 #endregion
             };
 
-            Put["/{CompanyCode}"] = _ =>
+            Put["/{ID:int}"] = _ =>
             {
-                return HttpStatusCode.InternalServerError;
-            };
+                #region Updates existing group
+                CloudPanelContext db = null;
+                dynamic powershell = null;
+                try
+                {
+                    int id = _.ID;
+                    string companyCode = _.CompanyCode;
 
-            Delete["/{CompanyCode}"] = _ =>
-            {
-                return HttpStatusCode.InternalServerError;
+                    // Bind our class to the form
+                    logger.DebugFormat("Binding class for updating group for {0}", companyCode);
+                    DistributionGroups updateGroup = this.Bind<DistributionGroups>();
+
+                    // Get the group from the database
+                    logger.DebugFormat("Getting the group from the database");
+                    db = new CloudPanelContext(Settings.ConnectionString);
+                    var dbGroup = (from d in db.DistributionGroups
+                                   where d.CompanyCode == companyCode
+                                   where d.ID == id
+                                   select d).FirstOrDefault();
+                    if (dbGroup == null)
+                        throw new Exception("Unable to find distribution group in the dabase.");
+                    else
+                    {
+                        // Get the domain from the database
+                        logger.DebugFormat("Getting selected domain");
+                        var domain = (from d in db.Domains
+                                      where d.CompanyCode == companyCode
+                                      where d.DomainID == updateGroup.DomainID
+                                      select d).FirstOrDefault();
+                        if (domain == null)
+                            throw new Exception("Unable to find domain in the database");
+                        else
+                        {
+                            // Format the attributes
+                            logger.DebugFormat("Formatting the email and other attributes..");
+                            updateGroup.Email = string.Format("{0}@{1}", updateGroup.EmailFirst.Replace(" ", string.Empty), domain.Domain);
+                            updateGroup.CompanyCode = companyCode;
+                            updateGroup.ManagedByAdded = updateGroup.ManagedByAdded.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                            updateGroup.MembersAdded = updateGroup.MembersAdded.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                            updateGroup.MembersRemoved = updateGroup.MembersRemoved == null ? updateGroup.MembersRemoved : updateGroup.MembersRemoved.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+
+                            logger.DebugFormat("Initializing Exchange powershell");
+                            powershell = ExchPowershell.GetClass();
+
+                            logger.DebugFormat("Updating group in Exchange");
+                            var createdGroup = powershell.Update_DistributionGroup(updateGroup, dbGroup.Email);
+
+                            logger.DebugFormat("Updating group in database");
+                            dbGroup.Hidden = updateGroup.Hidden;
+                            dbGroup.DisplayName = updateGroup.DisplayName;
+                            dbGroup.Email = updateGroup.Email;
+                            db.SaveChanges();
+                        }
+                    }
+
+                    string redirectUrl = string.Format("/company/{0}/exchange/groups", companyCode);
+                    return Negotiate.WithModel(new { success = "Successfully updated group" })
+                                    .WithMediaRangeResponse("text/html", this.Response.AsRedirect(redirectUrl));
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error updating group for {0}: {1}", _.CompanyCode, ex.ToString());
+
+                    ViewBag.error = ex.ToString();
+                    return Negotiate.WithMediaRangeModel("application/json", new { error = ex.Message })
+                                    .WithView("error.cshtml");
+                }
+                finally
+                {
+                    if (powershell != null)
+                        powershell.Dispose();
+
+                    if (db != null)
+                        db.Dispose();
+                }
+                #endregion
             };
 
             Get["/new"] = _ =>

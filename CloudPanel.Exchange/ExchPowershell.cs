@@ -63,7 +63,7 @@ namespace CloudPanel.Exchange
             _powershell.Runspace = _runspace;
         }
 
-        internal void HandleErrors(bool ignoredNotFound = false)
+        internal void HandleErrors(bool ignoredNotFound = false, bool ignoreAlreadyExist = false)
         {
             if (_powershell != null && _powershell.HadErrors)
             {
@@ -94,9 +94,14 @@ namespace CloudPanel.Exchange
                     // Get first reason
                     var reason = _powershell.Streams.Error[0].CategoryInfo.Reason;
                     if (reason.Equals("ManagementObjectNotFoundException") && ignoredNotFound)
-                        logger.InfoFormat("PSHANDLE: Error was found in exception but was ignored due to setting. Continuing...");
+                        logger.InfoFormat("PSHANDLE: Error was found in exception but was ignored due to setting: {0}. Continuing...", reason);
+                    else if (reason.Equals("MemberAlreadyExistsException") && ignoreAlreadyExist)
+                        logger.InfoFormat("PSHANDLE: Error was found in exception but was ignored due to setting: {0}. Continuing...", reason);
                     else
+                    {
+                        logger.ErrorFormat("PSERROR Reason: {0}", reason);
                         throw _powershell.Streams.Error[0].Exception;
+                    }
                 }
 
                

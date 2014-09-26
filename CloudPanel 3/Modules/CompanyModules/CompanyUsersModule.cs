@@ -12,6 +12,7 @@ using CloudPanel.ActiveDirectory;
 using CloudPanel.Rollback;
 using CloudPanel.Base.Exchange;
 using CloudPanel.Exchange;
+using System.Collections.Generic;
 
 namespace CloudPanel.Modules
 {
@@ -21,7 +22,7 @@ namespace CloudPanel.Modules
 
         public CompanyUsersModule() : base("/company/{CompanyCode}/users")
         {
-            //this.RequiresAuthentication();
+            this.RequiresAuthentication();
 
             Get["/"] = _ =>
             {
@@ -129,6 +130,8 @@ namespace CloudPanel.Modules
                 try
                 {
                     logger.DebugFormat("Creating a new user... validating parameters");
+                    int domainID = Request.Form.DomainID;
+                    string companyCode = _.CompanyCode;
 
                     if (!Request.Form.Firstname.HasValue)
                         throw new Exception("First name is a required field");
@@ -149,9 +152,6 @@ namespace CloudPanel.Modules
                         throw new Exception("Password is a required field");
 
                     logger.DebugFormat("Getting selected domain from the database");
-                    int domainID = Request.Form.DomainID;
-                    string companyCode = _.CompanyCode;
-
                     db = new CloudPanelContext(Settings.ConnectionString);
                     db.Database.Connection.Open();
 
@@ -343,6 +343,7 @@ namespace CloudPanel.Modules
             {
                 #region Gets a specific user
                 CloudPanelContext db = null;
+                dynamic powershell = null;
                 try
                 {
                     db = new CloudPanelContext(Settings.ConnectionString);
@@ -362,8 +363,24 @@ namespace CloudPanel.Modules
                         throw new Exception("Unable to find user in database");
                     else
                     {
-                        var emailSettings = new EmailInfo();
-                        return Negotiate.WithModel(new { user = user, mailbox = emailSettings })
+                        logger.DebugFormat("Querying Exchange information for {0}", upn);
+                        if (user.MailboxPlan > 0)
+                        {
+                            logger.DebugFormat("User {0} has a mailbox. Getting the mailbox plan", upn);
+                            var plan = (from d in db.Plans_ExchangeMailbox
+                                        where d.MailboxPlanID == user.ID
+                                        select d).FirstOrDefault();
+
+                            logger.DebugFormat("Setting user Exchange attributes");
+                            user.SizeInMB = plan.MailboxSizeMB + (user.AdditionalMB == null ? 0 : (int)user.AdditionalMB); // Add the default plan size to the additional
+
+                            logger.DebugFormat("Opening connection to Exchange");
+                            powershell = ExchPowershell.GetClass();
+                        }
+                        else
+                            logger.DebugFormat("User is not enabled for Exchange... skip connecting...");
+
+                        return Negotiate.WithModel(new { user = user })
                                         .WithView("Company/users_edit.cshtml");
                     }
                 }
@@ -511,6 +528,11 @@ namespace CloudPanel.Modules
             oldObject.Country = newObject.Country;
         }
 
+        /// <summary>
+        /// Updates the Active Directory attributes of the user
+        /// </summary>
+        /// <param name="updatedUser"></param>
+        /// <param name="userPrincipalName"></param>
         private void UpdateAdUser(ref Users updatedUser, string userPrincipalName)
         {
             ADUsers adUsers = null;
@@ -526,7 +548,7 @@ namespace CloudPanel.Modules
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error updating user {0} in Active Directory");
+                logger.ErrorFormat("Error updating user {0} in Active Directory: {1}", ex.ToString());
                 throw;
             }
             finally
@@ -548,7 +570,7 @@ namespace CloudPanel.Modules
             {
                 if (userObject.MailboxPlan > 0 && !boundInfo.IsEmailEnabled)
                 {
-                    // We are disabling
+                    // We are disabling the mailbox
                     powershell = ExchPowershell.GetClass();
                     powershell.Disable_Mailbox(userObject.UserPrincipalName);
 
@@ -557,7 +579,7 @@ namespace CloudPanel.Modules
                 }
                 else if (userObject.MailboxPlan <= 0 && boundInfo.IsEmailEnabled)
                 {
-                    // We are enabling
+                    // We are enabling the mailbox
                     powershell = ExchPowershell.GetClass();
                     powershell.Enable_Mailbox(userObject.UserPrincipalName, userObject.CompanyCode, boundInfo, mailboxPlan);
 
@@ -567,7 +589,7 @@ namespace CloudPanel.Modules
                 }
                 else if (userObject.MailboxPlan > 0 && boundInfo.IsEmailEnabled)
                 {
-                    // We are updating
+                    // We are updating the mailbox
                     powershell = ExchPowershell.GetClass();
                 }
                 else
@@ -582,7 +604,43 @@ namespace CloudPanel.Modules
             }
             finally
             {
+                if (powershell != null)
+                    powershell.Dispose();
+            }
+        }
+        
+        /// <summary>
+        /// Gets a list of mailbox users
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <returns></returns>
+        public static List<Users> GetMailboxUsers(string companyCode)
+        {
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
 
+                logger.DebugFormat("Getting mailbox users for {0}", companyCode);
+                var users = (from u in db.Users
+                             where u.CompanyCode == companyCode
+                             where u.MailboxPlan > 0
+                             orderby u.DisplayName
+                             select u).ToList();
+
+                logger.DebugFormat("Found a total of {0} mailbox users", users.Count());
+                return users;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting mailbox users: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
             }
         }
     }

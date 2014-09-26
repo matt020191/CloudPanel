@@ -1,5 +1,6 @@
 ﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
 @{string selectedCompanyCode = CloudPanel.NancyContextHelpers.GetSelectedCompanyCode(this.RenderContext.Context);}
+@{var mailboxUsers = CloudPanel.Modules.CompanyUsersModule.GetMailboxUsers(selectedCompanyCode); }
 
 @{
     Layout = "__master.cshtml";
@@ -181,7 +182,7 @@
                                                                 <div id="defaultswitch"></div>
                                                             </div>
                                                             <div class="col-sm-6">
-                                                                <input id="IsEmailEnabled" name="IsEmailEnabled" type="checkbox" value="@(Model.mailbox.IsEmailEnabled)" @(Model.mailbox.IsEmailEnabled == true ? "checked" : "") hidden/>
+                                                                <input id="IsEmailEnabled" name="IsEmailEnabled" type="checkbox" value="@(Model.user.IsEmailEnabled)" @(Model.user.IsEmailEnabled == true ? "checked" : "") hidden/>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -195,7 +196,7 @@
                                                             <div class="form-group">
                                                                 <label class="col-sm-3 control-label">Plan</label>
                                                                 <div class="col-sm-6">
-                                                                    @CloudPanel.CPHtmlHelpers.GetMailboxPlans(Model.mailbox.MailboxPlanID, selectedCompanyCode, string.Empty)
+                                                                    @CloudPanel.CPHtmlHelpers.GetMailboxPlans(Model.user.MailboxPlan, selectedCompanyCode, string.Empty)
                                                                     <p id="mailboxPlanDescription"></p>
                                                                 </div>
                                                             </div>
@@ -203,9 +204,9 @@
                                                                 <label class="col-sm-3 control-label">Email</label>
                                                                 <div class="col-sm-6">
                                                                     <div class="input-group">
-                                                                        <input type="text" class="form-control" id="EmailFirst" name="EmailFirst" value="@Model.mailbox.EmailFirst">
+                                                                        <input type="text" class="form-control" id="EmailFirst" name="EmailFirst" value="@Model.user.EmailFirst">
                                                                         <span class="input-group-addon">@@</span>
-                                                                        @CloudPanel.CPHtmlHelpers.GetCompanyEmailDomains(selectedCompanyCode, Model.mailbox.EmailDomain, string.Empty)
+                                                                        @CloudPanel.CPHtmlHelpers.GetCompanyEmailDomains(selectedCompanyCode, Model.user.EmailDomain, string.Empty)
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -231,7 +232,7 @@
                                                                 <label class="col-sm-3 control-label">Email Aliases</label>
                                                                 <div class="col-sm-6">
                                                                     <div class="input-group">
-                                                                        <input type="text" class="form-control" id="EmailAliases" name="EmailAliases" value="@Model.mailbox.EmailAliases" data-limit="10" />
+                                                                        <input type="text" class="form-control" id="EmailAliases" name="EmailAliases" value="@Model.user.EmailAliases" data-limit="10" />
                                                                         <span class="input-group-addon"><span class="fa fa-envelope"></span></span>
                                                                     </div>
                                                                 </div>
@@ -243,26 +244,60 @@
                                                             <div class="form-group">
                                                                 <label class="col-sm-3 control-label">Full Access</label>
                                                                 <div class="col-sm-6">
-                                                                    @CloudPanel.CPHtmlHelpers.GetMailboxUsersForPermissions(Model.mailbox.FullAccess, selectedCompanyCode, "FullAccess", "")
+                                                                    <select id="EmailFullAccess" name="EmailFullAccess" style="width: 100%" class="populate" multiple>
+                                                                        @foreach (var u in mailboxUsers)
+                                                                        {
+                                                                            if (Model.user.EmailFullAccess != null && Model.user.EmailFullAccess.Contains(u.sAMAccountName))
+                                                                            {
+                                                                                <option value="@u.sAMAccountName" selected>@u.DisplayName</option>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <option value="@u.sAMAccountName">@u.DisplayName</option>
+                                                                            }
+                                                                        }
+                                                                    </select>
                                                                 </div>
                                                             </div>
                                                             <div class="form-group">
                                                                 <label class="col-sm-3 control-label">Send As</label>
                                                                 <div class="col-sm-6">
-                                                                    @CloudPanel.CPHtmlHelpers.GetMailboxUsersForPermissions(Model.mailbox.SendAs, selectedCompanyCode, "SendAs", "")
+                                                                    <select id="EmailSendAs" name="EmailSendAs" style="width: 100%" class="populate" multiple>
+                                                                        @foreach (var u in mailboxUsers)
+                                                                        {
+                                                                            if (Model.user.EmailSendAs != null && Model.user.EmailSendAs.Contains(u.sAMAccountName))
+                                                                            {
+                                                                                <option value="@u.sAMAccountName" selected>@u.DisplayName</option>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <option value="@u.sAMAccountName">@u.DisplayName</option>
+                                                                            }
+                                                                        }
+                                                                    </select>
                                                                 </div>
                                                             </div>
                                                             <div class="form-group">
                                                                 <label class="col-sm-3 control-label">Send on Behalf</label>
                                                                 <div class="col-sm-6">
-                                                                    @CloudPanel.CPHtmlHelpers.GetMailboxUsersForPermissions(Model.mailbox.SendOnBehalf, selectedCompanyCode, "SendOnBehalf", "")
+                                                                    <select id="EmailSendOnBehalf" name="EmailSendOnBehalf" style="width: 100%" class="populate" multiple>
+                                                                        @foreach (var u in mailboxUsers)
+                                                                        {
+                                                                            if (Model.user.EmailSendOnBehalf != null && Model.user.EmailSendOnBehalf.Contains(u.sAMAccountName))
+                                                                            {
+                                                                                <option value="@u.sAMAccountName" selected>@u.DisplayName</option>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <option value="@u.sAMAccountName">@u.DisplayName</option>
+                                                                            }
+                                                                        }
+                                                                    </select>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
@@ -270,6 +305,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="panel-footer">
                         <div class="btn-toolbar text-right">
                             <button class="btn-default btn" type="button" onclick="javascript: history.back()">Cancel</button>

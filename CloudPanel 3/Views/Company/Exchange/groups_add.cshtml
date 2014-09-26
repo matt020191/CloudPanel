@@ -327,7 +327,7 @@
         }
 
         function AddItem(div, text, value, valueType) {
-            var newRow = '<a href="#" class="list-group-item" onclick="RemoveItem(this);" data-id="' + value + '">' +
+            var newRow = '<a href="javascript:;" class="list-group-item" onclick="RemoveItem(this);" data-id="' + value + '">' +
                          '<span class="badge badge-danger">Delete</span>' +
                          '<i class="' + GetFontAwesome(valueType) + '"></i> ' + text + '</a>';
 

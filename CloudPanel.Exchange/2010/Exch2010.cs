@@ -464,11 +464,15 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("DisplayName", group.DisplayName);
             cmd.AddParameter("ManagedBy", group.ManagedByAdded);
             cmd.AddParameter("Members", group.MembersAdded);
-            cmd.AddParameter("ModeratedBy", group.ModeratedBy);
             cmd.AddParameter("ModerationEnabled", group.ModerationEnabled);
             cmd.AddParameter("OrganizationalUnit", organizationalUnit);
             cmd.AddParameter("PrimarySmtpAddress", group.Email);
             cmd.AddParameter("DomainController", this._domainController);
+
+            if (group.ModerationEnabled)
+            {
+                cmd.AddParameter("ModeratedBy", group.ModeratedBy);
+            }
 
             switch (group.MemberDepartRestriction)
             {
@@ -530,11 +534,124 @@ namespace CloudPanel.Exchange
                 cmd.AddParameter("Identity", group.DistinguishedName);
                 cmd.AddParameter("CustomAttribute1", group.CompanyCode);
                 cmd.AddParameter("HiddenFromAddressListsEnabled", group.Hidden);
+                cmd.AddParameter("RequireSenderAuthenticationEnabled", group.RequireSenderAuthenticationEnabled);
                 cmd.AddParameter("DomainController", this._domainController);
+
+                bool requireSenderAuth = true;
+                if (group.RequireSenderAuthenticationEnabled == ExchangeValues.InsideAndOutside)
+                    requireSenderAuth = false;
+                cmd.AddParameter("RequireSenderAuthenticationEnabled", requireSenderAuth);
+
+                if (group.ModerationEnabled)
+                {
+                    if (group.BypassModerationFromSendersOrMembers != null && group.BypassModerationFromSendersOrMembers.Length > 0)
+                    {
+                        cmd.AddParameter("BypassModerationFromSendersOrMembers", group.BypassModerationFromSendersOrMembers);
+                    }
+                }
+
+                if (group.AcceptMessagesOnlyFromSendersOrMembers != null && group.AcceptMessagesOnlyFromSendersOrMembers.Length > 0)
+                {
+                    cmd.AddParameter("AcceptMessagesOnlyFromSendersOrMembers", group.AcceptMessagesOnlyFromSendersOrMembers);
+                }
+
                 _powershell.Commands = cmd;
                 _powershell.Invoke();
 
                 HandleErrors();
+            }
+
+            return group;
+        }
+
+        public DistributionGroups Update_DistributionGroup(DistributionGroups group, string originalIdentity)
+        {
+            logger.DebugFormat("Updating distribution group {0} for {1}", group.DisplayName, group.CompanyCode);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Set-DistributionGroup");
+            cmd.AddParameter("Identity", originalIdentity);
+            cmd.AddParameter("DisplayName", group.DisplayName);
+            cmd.AddParameter("ManagedBy", group.ManagedByAdded);
+            cmd.AddParameter("ModeratedBy", group.ModeratedBy);
+            cmd.AddParameter("ModerationEnabled", group.ModerationEnabled);
+            cmd.AddParameter("PrimarySmtpAddress", group.Email);
+            cmd.AddParameter("HiddenFromAddressListsEnabled", group.Hidden);
+            cmd.AddParameter("AcceptMessagesOnlyFromSendersOrMembers", group.AcceptMessagesOnlyFromSendersOrMembers);
+            cmd.AddParameter("DomainController", this._domainController);
+            cmd.AddParameter("BypassSecurityGroupManagerCheck");
+
+            bool requireSenderAuth = true;
+            if (group.RequireSenderAuthenticationEnabled == ExchangeValues.InsideAndOutside)
+                requireSenderAuth = false;
+            cmd.AddParameter("RequireSenderAuthenticationEnabled", requireSenderAuth);
+
+            if (group.BypassModerationFromSendersOrMembers != null && group.BypassModerationFromSendersOrMembers.Length > 0)
+            {
+                cmd.AddParameter("BypassModerationFromSendersOrMembers", group.BypassModerationFromSendersOrMembers);
+            }
+            else
+                cmd.AddParameter("BypassModerationFromSendersOrMembers", null);
+
+            switch (group.MemberDepartRestriction)
+            {
+                case ExchangeValues.Closed:
+                    cmd.AddParameter("MemberDepartRestriction", "Closed");
+                    break;
+                case ExchangeValues.ApprovalRequired:
+                    cmd.AddParameter("MemberDepartRestriction", "ApprovalRequired");
+                    break;
+                default:
+                    cmd.AddParameter("MemberDepartRestriction", "Open");
+                    break;
+            }
+
+            switch (group.MemberJoinRestriction)
+            {
+                case ExchangeValues.Closed:
+                    cmd.AddParameter("MemberJoinRestriction", "Closed");
+                    break;
+                case ExchangeValues.ApprovalRequired:
+                    cmd.AddParameter("MemberJoinRestriction", "ApprovalRequired");
+                    break;
+                default:
+                    cmd.AddParameter("MemberJoinRestriction", "Open");
+                    break;
+            }
+
+            switch (group.SendModerationNotifications)
+            {
+                case ExchangeValues.Always:
+                    cmd.AddParameter("SendModerationNotifications", "Always");
+                    break;
+                case ExchangeValues.Internal:
+                    cmd.AddParameter("SendModerationNotifications", "Internal");
+                    break;
+                default:
+                    cmd.AddParameter("SendModerationNotifications", "Never");
+                    break;
+            }
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+
+            logger.DebugFormat("Processing members to add");
+            if (group.MembersAdded != null && group.MembersAdded.Length > 0)
+            {
+                foreach (var i in group.MembersAdded)
+                {
+                    Add_DistributionGroupMembers(group.Email, i);
+                }
+            }
+
+            logger.DebugFormat("Processing members to remove");
+            if (group.MembersRemoved != null && group.MembersRemoved.Length > 0)
+            {
+                foreach (var i in group.MembersRemoved)
+                {
+                    Remove_DistributionGroupMembers(group.Email, i);
+                }
             }
 
             return group;
@@ -568,9 +685,7 @@ namespace CloudPanel.Exchange
                 returnGroup.Hidden = (bool)foundGroup.Properties["HiddenFromAddressListsEnabled"].Value;
                 
                 logger.DebugFormat("Checking if authentication is required to send to the group");
-                bool requireAuthenticatedSenders = true;
-                bool.TryParse(foundGroup.Properties["RequireSenderAuthenticationEnabled"].Value.ToString(), out requireAuthenticatedSenders);
-                returnGroup.RequireSenderAuthenticationEnabled = requireAuthenticatedSenders;
+                returnGroup.RequireSenderAuthenticationEnabled = foundGroup.Properties["RequireSenderAuthenticationEnabled"].Value.Equals(true) ? ExchangeValues.Inside : ExchangeValues.InsideAndOutside;
 
                 logger.DebugFormat("Getting the join restriction");
                 int memberJoinRestriction = ExchangeValues.Open;
@@ -630,6 +745,21 @@ namespace CloudPanel.Exchange
             }
         }
 
+        public void Remove_DistributionGroup(string identity)
+        {
+            logger.InfoFormat("Removing group {0}", identity);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Remove-DistributionGroup");
+            cmd.AddParameter("Identity", identity);
+            cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors(true, false);
+        }
+
         public List<GroupObjectSelector> Get_DistributionGroupMembers(string identity)
         {
             var returnObject = new List<GroupObjectSelector>();
@@ -665,6 +795,39 @@ namespace CloudPanel.Exchange
             HandleErrors();
 
             return returnObject;
+        }
+
+        public void Add_DistributionGroupMembers(string groupIdentity, string addIdentity)
+        {
+            logger.DebugFormat("Adding {0} to group {1}", addIdentity, groupIdentity);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Add-DistributionGroupMember");
+            cmd.AddParameter("Identity", groupIdentity);
+            cmd.AddParameter("Member", addIdentity);
+            cmd.AddParameter("BypassSecurityGroupManagerCheck");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors(false, true);
+        }
+
+        public void Remove_DistributionGroupMembers(string groupIdentity, string removeIdentity)
+        {
+            logger.DebugFormat("Removing {0} from group {1}", removeIdentity, groupIdentity);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Remove-DistributionGroupMember");
+            cmd.AddParameter("Identity", groupIdentity);
+            cmd.AddParameter("Member", removeIdentity);
+            cmd.AddParameter("BypassSecurityGroupManagerCheck");
+            cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors(true);
         }
 
         public void Remove_AllGroups(string companyCode)
@@ -781,6 +944,47 @@ namespace CloudPanel.Exchange
             _powershell.Invoke();
 
             HandleErrors();
+        }
+
+        public Users Get_Mailbox(Users user)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-Mailbox");
+            cmd.AddParameter("Identity", user.UserPrincipalName);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                logger.DebugFormat("Found mailbox {0}", user.UserPrincipalName);
+
+                var foundUser = psObjects[0];
+                user.Email = foundUser.Properties["PrimarySmtpAddress"].Value.ToString();
+                user.DistinguishedName = foundUser.Properties["DistinguishedName"].Value.ToString();
+
+                logger.DebugFormat("Parsing email aliases...");
+                var parsedAliases = new List<string>();
+                var emailAliasesValue = foundUser.Properties["EmailAddresses"].Value as PSObject;
+                var emailAliases = emailAliasesValue.BaseObject as ArrayList;
+                foreach (var i in emailAliases)
+                {
+                    string e = i.ToString();
+                    if (!e.StartsWith("SMTP:")) // Skip primary email
+                    {
+                        parsedAliases.Add(e.Replace("smtp:", "")); 
+                    }
+                }
+                user.EmailAliases = parsedAliases.ToArray();
+                
+
+
+                
+            }
+
+            return user;
         }
 
         #endregion

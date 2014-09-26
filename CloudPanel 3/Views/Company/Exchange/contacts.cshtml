@@ -3,6 +3,7 @@
 @{
     Layout = "__master.cshtml";
 }
+
 @section HEAD{
     <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
     <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
@@ -130,50 +131,50 @@
     <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
     <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
     <script type="text/javascript">
-    $(document).ready(function () {
-        $("#dataTable").DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
-                type: 'GET',
-                dataType: 'json'
-            },
-            "columns": [
-                { "data": "displayName" },
-                { "data": "email" },
-                {
-                    "data": "hidden", "width": "10%", "class": "text-center", "render": function (data, type, full, meta) {
-                        if (data == true)
-                            return '<i class="fa fa-check-square"></i>';
-                        else
-                            return '';
-                    }
+        $(document).ready(function () {
+            $("#dataTable").DataTable({
+                "serverSide": true,
+                "processing": true,
+                "ajax": {
+                    type: 'GET',
+                    dataType: 'json'
                 },
-                {
-                    "data": "iD", "orderable": false, "className": "text-right", "render": function (data, type, full, meta) {
-                        return GetButton(data, full["companyCode"]);
-                    }
-                },
-            ]
+                "columns": [
+                    { "data": "displayName" },
+                    { "data": "email" },
+                    {
+                        "data": "hidden", "width": "10%", "class": "text-center", "render": function (data, type, full, meta) {
+                            if (data == true)
+                                return '<i class="fa fa-check-square"></i>';
+                            else
+                                return '';
+                        }
+                    },
+                    {
+                        "data": "iD", "orderable": false, "className": "text-right", "render": function (data, type, full, meta) {
+                            return GetButton(data, full["companyCode"]);
+                        }
+                    },
+                ]
+            });
         });
-    });
 
-    function SetForm(element) {
-        var id = $(element).data("id");
-        var href = $(element).attr('href');
-        $(href).find("#ContactID").val(id);
-    }
+        function SetForm(element) {
+            var id = $(element).data("id");
+            var href = $(element).attr('href');
+            $(href).find("#ContactID").val(id);
+        }
 
-    function GetButton(id, companyCode) {
-        return '<div class="btn-group"> \
-                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"> \
-                                Modify <span class="caret"></span> \
-                            </button> \
-                            <ul class="dropdown-menu" role="menu"> \
-                                <li><a href="@Url.Content("~/company/")' + companyCode + '/exchange/contacts/' + id + '">Edit</a></li> \
-                                <li><a href="#deleteModal" data-toggle="modal" data-id="' + id + '" onclick="SetForm(this);">Delete</a></li> \
-                            </ul> \
-                    </div>';
-    }
+        function GetButton(id, companyCode) {
+            return '<div class="btn-group"> \
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"> \
+                                    Modify <span class="caret"></span> \
+                                </button> \
+                                <ul class="dropdown-menu" role="menu"> \
+                                    <li><a href="@Url.Content("~/company/")' + companyCode + '/exchange/contacts/' + id + '">Edit</a></li> \
+                                    <li><a href="#deleteModal" data-toggle="modal" data-id="' + id + '" onclick="SetForm(this);">Delete</a></li> \
+                                </ul> \
+                        </div>';
+        }
     </script>
 }
