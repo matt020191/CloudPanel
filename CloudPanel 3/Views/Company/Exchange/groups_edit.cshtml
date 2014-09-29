@@ -325,7 +325,7 @@
             });
 
             var request = $.ajax({
-                url: "@Url.RenderContext.Context.Request.Url.Path/members",
+                url: "@Url.RenderContext.Context.Request.Url/members",
                 type: "GET",
                 dataType: "json"
             });

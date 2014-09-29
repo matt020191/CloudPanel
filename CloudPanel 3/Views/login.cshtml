@@ -1,4 +1,5 @@
 ﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@{var branding = CloudPanel.Modules.BrandingModule.GetBranding(Url.RenderContext.Context.Request.Url.HostName);}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -19,7 +20,7 @@
 <body class="focusedform">
     <form id="loginForm" action="@Url.Content("~/login")" method="post">
         <div class="verticalcenter">
-            <a href="index.htm"><img src="~/content/img/logo-big.png" alt="Logo" class="brand" /></a>
+            <a href="index.htm"><img src="@Url.Content(branding.LoginLogo)" alt="Logo" class="brand" /></a>
             <div class="panel panel-primary">
                 <div class="panel-body">
                     <h4 class="text-center" style="margin-bottom: 25px;">Log in to get started</h4>

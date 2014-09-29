@@ -71,3 +71,44 @@ fieldset[disabled] .btn-primary.active {
     background-color: #76c4ed;
     border-color: #76c4ed;
 }
+
+.social-list {
+    margin-top: 10px;
+    margin-bottom: 0;
+    list-style: none;
+    padding: 0;
+}
+
+.social-list::after {
+    clear: both;
+    display: block;
+    content: '';
+}
+
+.social-list li {
+    float: left;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.social-list li a {
+    font-size: 16px;
+    border: 1px solid #ddd;
+    padding: 3px 5px;
+    width: 30px;
+    display: block;
+    text-align: center;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    color: #666;
+}
+
+.social-list li a:hover {
+    background-color: #eee;
+    color: #333;
+}
+
+.social-list li a .fa {
+    margin-right: 0;
+}

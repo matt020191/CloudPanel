@@ -269,7 +269,7 @@
             "columns": [
                 {
                     "data": "companyName", "render": function (data, type, full, meta) {
-                        return '<a href="' + @Url.Content("~/companies/") +full["companyCode"] + '">' + data + '</a>';
+                        return '<a href="@Url.Content("~/companies/")' + full["companyCode"] + '">' + data + '</a>';
                     }
                 },
                 { "data": "companyCode" },

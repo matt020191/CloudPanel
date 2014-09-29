@@ -4,6 +4,7 @@
     using CloudPanel.Base.Config;
     using CloudPanel.Code;
     using CloudPanel.Database.EntityFramework;
+    using CloudPanel.Modules;
     using log4net.Config;
     using Nancy;
     using Nancy.Authentication.Forms;
@@ -22,6 +23,9 @@
 
             // Load the settings
             SettingsReader.RetrieveSettings();
+
+            // Load brandings
+            BrandingModule.LoadBrandings();
 
             // Enable cookie based sessions
             CookieBasedSessions.Enable(pipelines);

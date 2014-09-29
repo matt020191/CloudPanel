@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<Brandings>
+  <knowmoreit.com>
+    <Name>Know More IT</Name>
+    <Phone>1 (501) 733-4126</Phone>
+    <SupportEmail>jdixon@knowmoreit.com</SupportEmail>
+    <LoginLogo>~/Content/img/logo-big.png</LoginLogo>
+    <TopLogo>~/Content/img/logo.png</TopLogo>
+    <Theme>theme-default.css</Theme>
+  </knowmoreit.com>
+</Brandings>

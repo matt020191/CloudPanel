@@ -34,22 +34,22 @@ using System.Text;
 
 namespace CloudPanel.Base.Branding
 {
-    public static class Brandings
+    public class CompanyBranding
     {
-        public static List<BrandingSettings> _staticBrandings = new List<BrandingSettings>();
-    }
+        public string Name { get; set; }
+        public string Phone { get; set; }
+        public string SupportEmail { get; set; }
+        public string Header { get; set; }
+        public string Theme { get; set; }
 
-    public class BrandingSettings
-    {
-        public string DisplayName { get; set; }
-        public string CopyrightNotice { get; set; }
-        public string LoginTitle { get; set; }
-        public string LoginMessage { get; set; }
-        public string SupportNumber { get; set; }
-        public string LogoIconPath { get; set; }
-        public string LogoPath { get; set; }
-        public string BaseURL { get; set; }
+        /// <summary>
+        /// 224px x 70px
+        /// </summary>
+        public string LoginLogo { get; set; }
 
-        public bool IsDefault { get; set; }
+        /// <summary>
+        /// 76px x 10px
+        /// </summary>
+        public string TopLogo { get; set; }
     }
 }

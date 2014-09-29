@@ -88,24 +88,27 @@
 
     <!-- Graphs -->
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12">
             <div class="panel panel-info">
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-12 clearfix">
-                            <h4 class="pull-left" style="margin: 0 0 20px;">User Report <small>(weekly)</small></h4>
+                            <h4 class="pull-left" style="margin: 0 0 20px;">System History</h4>
                             <div class="btn-group pull-right">
-                                <a href="javascript:;" class="btn btn-default btn-sm active">this week</a>
-                                <a href="javascript:;" class="btn btn-default btn-sm ">previous week</a>
+                                <a href="javascript:GetHistoryOverview(6);" class="btn btn-default btn-sm">6 Months</a>
+                                <a href="javascript:GetHistoryOverview(12);" class="btn btn-default btn-sm">12 Months</a>
+                                <a href="javascript:GetHistoryOverview(24);" class="btn btn-default btn-sm">24 Months</a>
                             </div>
                         </div>
                         <div class="col-md-12">
-                            <div id="site-statistics" style="height:250px;"></div>
+                            <div id="historyOverview" style="height:250px;"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="row">
         <div class="col-md-6">
             <div class="panel panel-grape">
                 <div class="panel-body">
@@ -132,13 +135,63 @@
     <script src="~/Content/plugins/charts-flot/jquery.flot.min.js"></script>
     <script src="~/Content/plugins/charts-flot/jquery.flot.resize.min.js"></script>
     <script src="~/Content/plugins/charts-flot/jquery.flot.orderBars.min.js"></script>
+    <script src="~/Content/plugins/charts-highcharts/js/highcharts.js"></script>
     <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
     <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
     <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             GetTopCustomers(3);
+
+            GetHistoryOverview(6);
         });
+
+        function randValue() {
+            return (Math.floor(Math.random() * (2)));
+        }
+
+        function GetHistoryOverview(pastMonths) {
+
+            var request = $.ajax({
+                url: "@Url.Content("~/charts/super/history/months/")" + pastMonths,
+                type: "GET",
+                dataType: "json"
+            });
+
+            request.done(function (data) {
+                var areaChart = new Highcharts.Chart({
+                    chart: {
+                        renderTo: 'historyOverview',
+                        backgroundColor: 'transparent'
+                    },
+                    title: { text: '' },
+                    credits: { enabled: false },
+                    xAxis: { categories: data.months },
+                    yAxis: { min: 0, title: { text: '' } },
+                    plotOptions: {
+                        series: { connectNulls: true },
+                        area: { fillOpacity: 0.2 }
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name} <b>{point.y:,.0f}</b>',
+                    },
+                });
+
+                areaChart.addSeries({ name: "Users", data: data.users });
+
+                if (data.exchange.length)
+                    areaChart.addSeries({ name: "Mailboxes", data: data.exchange });
+
+                if (data.citrix.length)
+                    areaChart.addSeries({ name: "Citrix", data: data.citrix });
+
+                areaChart.redraw();
+            });
+
+            request.fail(function (jqXHR, textStatus) {
+                alert(textStatus);
+            });
+        }
 
         function GetTopCustomers(x)
         {
