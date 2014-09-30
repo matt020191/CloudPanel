@@ -368,14 +368,19 @@ namespace CloudPanel.Modules
                         {
                             logger.DebugFormat("User {0} has a mailbox. Getting the mailbox plan", upn);
                             var plan = (from d in db.Plans_ExchangeMailbox
-                                        where d.MailboxPlanID == user.ID
+                                        where d.MailboxPlanID == user.MailboxPlan
                                         select d).FirstOrDefault();
 
-                            logger.DebugFormat("Setting user Exchange attributes");
-                            user.SizeInMB = plan.MailboxSizeMB + (user.AdditionalMB == null ? 0 : (int)user.AdditionalMB); // Add the default plan size to the additional
+                            if (plan == null)
+                                throw new Exception("Unable to find mailbox plan " + user.MailboxPlan + " in the database");
+                            else
+                            {
+                                logger.DebugFormat("Setting user Exchange attributes");
+                                user.SizeInMB = plan.MailboxSizeMB + (user.AdditionalMB == null ? 0 : (int)user.AdditionalMB); // Add the default plan size to the additional
 
-                            logger.DebugFormat("Opening connection to Exchange");
-                            powershell = ExchPowershell.GetClass();
+                                logger.DebugFormat("Opening connection to Exchange");
+                                powershell = ExchPowershell.GetClass();
+                            }
                         }
                         else
                             logger.DebugFormat("User is not enabled for Exchange... skip connecting...");
@@ -386,6 +391,7 @@ namespace CloudPanel.Modules
                 }
                 catch (Exception ex)
                 {
+                    logger.ErrorFormat("Error getting user {0}: {1}", _.UserPrincipalName, ex.ToString());
                     return Negotiate.WithModel(new { error = ex.Message })
                                     .WithView("error.cshtml");
                 }
