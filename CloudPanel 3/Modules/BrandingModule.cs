@@ -1,4 +1,6 @@
 ﻿using CloudPanel.Base.Branding;
+using CloudPanel.Base.Config;
+using CloudPanel.Database.EntityFramework;
 using log4net;
 using Nancy;
 using System;
@@ -16,9 +18,73 @@ namespace CloudPanel.Modules
 
         public static List<CompanyBranding> AllBrandings = null;
 
-        public BrandingModule()
+        public BrandingModule() : base("/admin")
         {
+            Get["/brandings"] = _ =>
+            {
+                try
+                {
+                    logger.DebugFormat("Retrieving brandings from configuration file...");
+                    var brandingsOrdered = AllBrandings.OrderBy(x => x.Header);
 
+                    return Negotiate.WithModel(new { brandings = brandingsOrdered, branding = new CompanyBranding() })
+                                    .WithMediaRangeModel("application/json", new { brandings = brandingsOrdered })
+                                    .WithView("Admin/brandings.cshtml");
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error loading the brandings page: {0}", ex.ToString());
+                    throw;
+                }
+            };
+
+            Get["/brandings/{BrandingHeader}"] = _ =>
+            {
+                try
+                {
+                    logger.DebugFormat("Retrieving brandings from configuration file...");
+                    var brandingsOrdered = AllBrandings.OrderBy(x => x.Header);
+
+                    logger.DebugFormat("Retrieving branding {0} from settings...", _.BrandingHeader);
+                    string header = _.BrandingHeader;
+                    var branding = (from b in AllBrandings
+                                    where b.Header.Equals(header, StringComparison.InvariantCultureIgnoreCase)
+                                    select b).FirstOrDefault();
+
+                    return Negotiate.WithModel(new { brandings = brandingsOrdered, branding = branding })
+                                    .WithMediaRangeModel("application/json", new { brandings = brandingsOrdered, branding = branding })
+                                    .WithView("Admin/brandings.cshtml");
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error loading branding {0}: {1}", _.BrandingHeader, ex.ToString());
+                    throw;
+                }
+            };
+
+            Post["/brandings/{BrandingHeader}"] = _ =>
+            {
+                try
+                {
+                    logger.DebugFormat("Retrieving brandings from configuration file...");
+                    var brandingsOrdered = AllBrandings.OrderBy(x => x.Header);
+
+                    logger.DebugFormat("Retrieving branding {0} from settings...", _.BrandingHeader);
+                    string header = _.BrandingHeader;
+                    var branding = (from b in AllBrandings
+                                    where b.Header.Equals(header, StringComparison.InvariantCultureIgnoreCase)
+                                    select b).FirstOrDefault();
+
+                    return Negotiate.WithModel(new { brandings = brandingsOrdered, branding = branding })
+                                    .WithMediaRangeModel("application/json", new { brandings = brandingsOrdered, branding = branding })
+                                    .WithView("Admin/brandings.cshtml");
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error loading branding {0}: {1}", _.BrandingHeader, ex.ToString());
+                    throw;
+                }
+            };
         }
 
         public static void LoadBrandings()
@@ -37,7 +103,7 @@ namespace CloudPanel.Modules
                 foreach (var b in brandings)
                 {
                     var newBranding = new CompanyBranding();
-                    newBranding.Header = b.Value;
+                    newBranding.Header = b.Name.LocalName;
                     newBranding.Name = b.Element("Name").Value;
                     newBranding.Phone = b.Element("Phone").Value;
                     newBranding.SupportEmail = b.Element("SupportEmail").Value;
@@ -48,7 +114,6 @@ namespace CloudPanel.Modules
                     AllBrandings.Add(newBranding);
                     logger.DebugFormat("Completed loaded branding for {0}", newBranding.Header);
                 }
-
             }
             catch (Exception ex)
             {
@@ -64,7 +129,7 @@ namespace CloudPanel.Modules
             if (AllBrandings != null)
             {
                 var brandingExist = (from b in AllBrandings
-                                     where b.Header == httpHeader
+                                     where b.Header.Equals(httpHeader, StringComparison.InvariantCultureIgnoreCase)
                                      select b).FirstOrDefault();
 
                 if (brandingExist != null)

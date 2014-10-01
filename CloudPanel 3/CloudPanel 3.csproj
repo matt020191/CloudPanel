@@ -144,6 +144,11 @@
     <Content Include="Content\plugins\blockUI\jquery.blockUI.js" />
     <Content Include="Content\plugins\bootbox\bootbox.min.js" />
     <Content Include="Content\plugins\bootbox\readme.txt" />
+    <Content Include="Content\plugins\bootstrap-fileinput\css\fileinput.css" />
+    <Content Include="Content\plugins\bootstrap-fileinput\css\fileinput.min.css" />
+    <Content Include="Content\plugins\bootstrap-fileinput\img\loading.gif" />
+    <Content Include="Content\plugins\bootstrap-fileinput\js\fileinput.js" />
+    <Content Include="Content\plugins\bootstrap-fileinput\js\fileinput.min.js" />
     <Content Include="Content\plugins\bootstrap-multiselect\css\bootstrap-3.1.1.min.css" />
     <Content Include="Content\plugins\bootstrap-multiselect\css\bootstrap-multiselect.css" />
     <Content Include="Content\plugins\bootstrap-multiselect\css\prettify.css" />
@@ -1348,6 +1353,8 @@
     <Content Include="Content\plugins\bootstrap-multiselect\fonts\glyphicons-halflings-regular.woff" />
     <Content Include="Content\plugins\bootstrap-multiselect\less\bootstrap-multiselect.less" />
     <Content Include="Content\plugins\bootstrap-multiselect\README.md" />
+    <Content Include="Content\plugins\bootstrap-fileinput\bower.json" />
+    <Content Include="Content\plugins\bootstrap-fileinput\composer.json" />
     <None Include="Properties\PublishProfiles\LAB DC.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -1362,6 +1369,7 @@
     <Content Include="Views\Company\Exchange\groups_edit.cshtml" />
     <Content Include="Views\Company\Exchange\groups_add.cshtml" />
     <Content Include="Views\Plans\plans_citrix.cshtml" />
+    <Content Include="Views\Admin\brandings.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

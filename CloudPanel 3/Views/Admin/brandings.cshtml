@@ -1,0 +1,135 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+@{
+    Layout = "__master.cshtml";
+}
+@section HEAD{
+    <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-select2/select2.css" rel="stylesheet" />
+    <link href="~/Content/plugins/bootstrap-fileinput/css/fileinput.min.css" rel="stylesheet" />
+}
+
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li>Admin</li>
+        <li class="active">Brandings</li>
+    </ol>
+
+    <h1>Brandings</h1>
+    <div class="options">
+        <div class="btn-toolbar">
+            <a href="~/admin/brandings/new" class="btn btn-primary hidden-xs">Add New</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Choose a Branding</div>
+                <div class="panel-body">
+                    <div class="list-group">
+                        @foreach (var branding in Model.brandings)
+                        {
+                            <a href="~/admin/brandings/@branding.Header" class="list-group-item"><i class="fa fa-envelope"></i> @branding.Header [@branding.Name] </a>
+                        }
+                    </div>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+
+        <form action="" method="post" enctype="multipart/form-data">
+            <div class="col-md-9">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Create / Modify Branding</div>
+                    <div class="panel-body">
+                        <div class="form-horizontal">
+                            <div class="form-group">
+                                <label for="focusedinput" class="col-sm-2 control-label">Name</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="Name" name="Name" value="@Model.branding.Name" data-parsley-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="focusedinput" class="col-sm-2 control-label">Phone</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="Phone" name="Phone" value="@Model.branding.Phone">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="focusedinput" class="col-sm-2 control-label">Email</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="SupportEmail" name="SupportEmail" value="@Model.branding.SupportEmail" data-parsley-required="true" data-parsley-type="email">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="focusedinput" class="col-sm-2 control-label">Theme</label>
+                                <div class="col-sm-10">
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="focusedinput" class="col-sm-2 control-label">Login Logo</label>
+                                <div class="col-sm-10">
+                                    <input id="LoginLogo" name="LoginLogo" type="file" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="focusedinput" class="col-sm-2 control-label">Header Logo</label>
+                                <div class="col-sm-10">
+                                    <input id="TopLogo" name="TopLogo" type="file" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer text-right">
+                        <button type="button" class="btn btn-danger">Delete</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section JAVASCRIPT {
+    <script src="~/Content/plugins/bootstrap-fileinput/js/fileinput.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#LoginLogo").fileinput({
+                initialPreview: [
+                    "<img src='@Url.Content(Model.branding.LoginLogo)' class='file-preview-image' alt='@Model.branding.Name' title='@Model.branding.Name'>"
+                ],
+                previewFileType: "image",
+                showUpload: false,
+                browseClass: "btn btn-success",
+                browseLabel: "Pick Image",
+                browseIcon: '<i class="glyphicon glyphicon-picture"></i>',
+                removeClass: "btn btn-danger",
+                removeLabel: "Delete",
+                removeIcon: '<i class="glyphicon glyphicon-trash"></i>'
+            });
+
+            $("#LoginLogo").on("filecleared", function (event) {
+                alert("file cleared");
+            });
+
+            $("#TopLogo").fileinput({
+                initialPreview: [
+                    "<img src='@Url.Content(Model.branding.TopLogo)' class='file-preview-image' alt='@Model.branding.Name' title='@Model.branding.Name'>"
+                ],
+                previewFileType: "image",
+                showUpload: false,
+                browseClass: "btn btn-success",
+                browseLabel: "Pick Image",
+                browseIcon: '<i class="glyphicon glyphicon-picture"></i>',
+                removeClass: "btn btn-danger",
+                removeLabel: "Delete",
+                removeIcon: '<i class="glyphicon glyphicon-trash"></i>'
+            });
+        });
+    </script>
+}
