@@ -82,7 +82,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Config\brandings.xml" />
+    <Content Include="Config\reserved.xml" />
     <Content Include="Config\settings.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
