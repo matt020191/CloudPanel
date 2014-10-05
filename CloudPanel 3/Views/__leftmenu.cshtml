@@ -4,7 +4,7 @@
 @{string selectedResellerCode = CloudPanel.NancyContextHelpers.GetSelectedResellerCode(this.RenderContext.Context);}
 @{string selectedCompanyCode = CloudPanel.NancyContextHelpers.GetSelectedCompanyCode(this.RenderContext.Context);}
 
-<nav id="page-leftbar" role="navigation">
+<nav id="page-leftbar" role="navigation" class="hidden-print">
     <ul class="acc-menu" id="sidebar">
         <li><a href="~/dashboard"><i class="fa fa-home"></i> <span>Dashboard</span></a></li>
         @if (isSuperAdmin) {
@@ -35,10 +35,11 @@
         @if (isSuperAdmin || isResellerAdmin)
         {
             <li>
-                <a href="javascript:;"><i class="fa fa-gears"></i> <span>Settings</span> </a>
+                <a href="javascript:;"><i class="fa fa-gears"></i> <span>Admin Area</span> </a>
                 <ul class="acc-menu">
-                    <li><a href="~/settings">Modify Settings</a></li>
-                    <li><a href="~/settings/brandings/new">Company Branding</a></li>
+                    <li><a href="~/admin/brandings/new">Company Branding</a></li>
+                    <li><a href="~/admin/email">Mass Email</a></li>
+                    <li><a href="~/admin/settings">Settings</a></li>
                 </ul>
             </li>
         }

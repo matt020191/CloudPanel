@@ -33,7 +33,7 @@
 </head>
 
 <body class="">
-    <header class="navbar navbar-inverse navbar-fixed-top" role="banner">
+    <header class="navbar navbar-inverse navbar-fixed-top hidden-print" role="banner">
         <a id="leftmenu-trigger" class="tooltips" data-toggle="tooltip" data-placement="right" title="Toggle Sidebar"></a>
         <a id="rightmenu-trigger" class="tooltips" data-toggle="tooltip" data-placement="left" title="Toggle Infobar"></a>
 
@@ -70,7 +70,7 @@
         @Html.Partial("__leftmenu.cshtml")
 
         <div id="page-content">
-            <div id='wrap'>
+            <div id="wrap">
                 @if (Model != null)
                 {
                     var dict = ((System.Collections.Generic.IDictionary<string, object>)Model);
@@ -92,7 +92,7 @@
             </div>
         </div>
 
-        <footer role="contentinfo">
+        <footer role="contentinfo" class="hidden-print">
             <div class="clearfix">
                 <ul class="list-unstyled list-inline pull-left">
                     <li><a href="http://www.knowmoreit.com/">KnowMoreIT &copy; 2014</a></li>

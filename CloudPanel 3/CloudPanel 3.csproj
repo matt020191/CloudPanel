@@ -1081,7 +1081,8 @@
     <Compile Include="Code\NancyContextHelpers.cs" />
     <Compile Include="Code\SettingsReader.cs" />
     <Compile Include="IndexModule.cs" />
-    <Compile Include="Modules\BrandingModule.cs" />
+    <Compile Include="Modules\Admin\BrandingModule.cs" />
+    <Compile Include="Modules\Admin\MassEmailModule.cs" />
     <Compile Include="Modules\ChartsModules\SuperChartsModule.cs" />
     <Compile Include="Modules\CompanyModules\CompaniesModule.cs" />
     <Compile Include="Modules\CompanyModules\CompanyDomainsModule.cs" />
@@ -1371,6 +1372,7 @@
     <Content Include="Views\Company\Exchange\groups_add.cshtml" />
     <Content Include="Views\Plans\plans_citrix.cshtml" />
     <Content Include="Views\Admin\brandings.cshtml" />
+    <Content Include="Views\Admin\massemail.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

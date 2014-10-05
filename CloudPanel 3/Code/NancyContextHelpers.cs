@@ -58,5 +58,14 @@ namespace CloudPanel
             var user = context.CurrentUser as AuthenticatedUser;
             return user.Claims.Any(x => x.Contains("SuperAdmin"));
         }
+
+        public static bool IsResellerAdmin(NancyContext context)
+        {
+            if (context.CurrentUser == null)
+                return false;
+
+            var user = context.CurrentUser as AuthenticatedUser;
+            return user.Claims.Any(x => x.Contains("ResellerAdmin"));
+        }
     }
 }

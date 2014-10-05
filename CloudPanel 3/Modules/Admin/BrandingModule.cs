@@ -20,17 +20,17 @@ namespace CloudPanel.Modules
 
         public static List<Branding> AllBrandings;
 
-        public BrandingModule() : base("/settings")
+        public BrandingModule() : base("/admin/brandings")
         {
             //this.RequiresAuthentication();
             //this.RequiresAnyClaim(new[] { "SuperAdmin", "ResellerAdmin" });
 
-            Get["/brandings/new"] = _ =>
+            Get["/new"] = _ =>
             {
                 try
                 {
                     return Negotiate.WithModel(new { brandings = AllBrandings, branding = new Branding() })
-                                    .WithView("ADmin/brandings.cshtml")
+                                    .WithView("Admin/brandings.cshtml")
                                     .WithStatusCode(HttpStatusCode.OK);
                 }
                 catch (Exception ex)
@@ -44,7 +44,7 @@ namespace CloudPanel.Modules
                 }
             };
 
-            Post["/brandings/new"] = _ =>
+            Post["/new"] = _ =>
             {
                 CloudPanelContext db = null;
                 try
@@ -104,7 +104,7 @@ namespace CloudPanel.Modules
                 }
             };
 
-            Get["/brandings/{BrandingID:int}"] = _ =>
+            Get["/{BrandingID:int}"] = _ =>
             {
                 CloudPanelContext db = null;
                 try
@@ -137,7 +137,7 @@ namespace CloudPanel.Modules
                 }
             };
 
-            Post["/brandings/{BrandingID:int}"] = _ =>
+            Post["/{BrandingID:int}"] = _ =>
             {
                 CloudPanelContext db = null;
                 try
@@ -210,7 +210,7 @@ namespace CloudPanel.Modules
                 }
             };
 
-            Delete["/brandings/{BrandingID:int}"] = _ =>
+            Delete["/{BrandingID:int}"] = _ =>
             {
                 CloudPanelContext db = null;
                 try
