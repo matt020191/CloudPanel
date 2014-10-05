@@ -13,7 +13,7 @@ namespace CloudPanel.Modules
     {
         public DashboardModule() : base("/dashboard")
         {
-            //this.RequiresAuthentication();
+            this.RequiresAuthentication();
 
             Get["/"] = _ =>
                 {

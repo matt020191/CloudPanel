@@ -72,6 +72,10 @@
     <Compile Include="Migrations\201409251831005_ChangeKeyInGroupsTable.Designer.cs">
       <DependentUpon>201409251831005_ChangeKeyInGroupsTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201410030337322_AddBrandingsTable.cs" />
+    <Compile Include="Migrations\201410030337322_AddBrandingsTable.Designer.cs">
+      <DependentUpon>201410030337322_AddBrandingsTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -100,6 +104,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201409251831005_ChangeKeyInGroupsTable.resx">
       <DependentUpon>201409251831005_ChangeKeyInGroupsTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201410030337322_AddBrandingsTable.resx">
+      <DependentUpon>201410030337322_AddBrandingsTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

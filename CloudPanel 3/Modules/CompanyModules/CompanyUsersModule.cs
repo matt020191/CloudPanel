@@ -24,7 +24,12 @@ namespace CloudPanel.Modules
         {
             this.RequiresAuthentication();
 
-            Get["/"] = _ =>
+            Get["/", c => c.Request.Accept("text/html")] = _ =>
+            {
+                return View["Company/company_users.cshtml"];
+            };
+
+            Get["/", c => c.Request.Accept("application/json")] = _ =>
             {
                 #region Returns the users view with model or json data based on the request
                 CloudPanelContext db = null;
@@ -95,20 +100,19 @@ namespace CloudPanel.Modules
                                                     .ToList();
                     }
 
-                    return Negotiate.WithModel(new { users = users })
-                                    .WithMediaRangeModel("application/json", new
+                    return Negotiate.WithModel(new
                                     {
                                         draw = draw,
                                         recordsTotal = recordsTotal,
                                         recordsFiltered = recordsFiltered,
                                         data = users
                                     })
-                                    .WithView("Company/company_users.cshtml");
+                                    .WithStatusCode(HttpStatusCode.OK);
                 }
                 catch (Exception ex)
                 {
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("Company/company_users.cshtml");
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally
                 {

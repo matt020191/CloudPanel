@@ -236,7 +236,7 @@ namespace CloudPanel.Database.EntityFramework
         public virtual DbSet<Plans_TerminalServices> Plans_TerminalServices { get; set; }
         public virtual DbSet<PriceOverride> PriceOverride { get; set; }
         public virtual DbSet<UserPlans> UserPlans { get; set; }
-
+        public virtual DbSet<Branding> Brandings { get; set; }
         #endregion
     }
 }

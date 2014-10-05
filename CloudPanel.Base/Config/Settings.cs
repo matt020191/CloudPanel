@@ -1,5 +1,4 @@
-﻿using CloudPanel.Base.Branding;
-using CloudPanel.Base.Security;
+﻿using CloudPanel.Base.Security;
 //
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.

@@ -25,7 +25,7 @@
             SettingsReader.RetrieveSettings();
 
             // Load brandings
-            BrandingModule.LoadBrandings();
+            BrandingModule.LoadAllBrandings();
 
             // Enable cookie based sessions
             CookieBasedSessions.Enable(pipelines);

@@ -23,7 +23,12 @@ namespace CloudPanel.Modules
             this.RequiresAuthentication();
             this.RequiresAnyClaim(new[] { "SuperAdmin" });
 
-            Get["/"] = _ =>
+            Get["/", c => c.Request.Accept("text/html")] = _ =>
+            {
+                return View["resellers.cshtml"];
+            };
+
+            Get["/", c => c.Request.Accept("application/json")] = _ =>
                 {
                     #region Returns the resellers view with model or json data based on the request
                     CloudPanelContext db = null;
@@ -57,62 +62,57 @@ namespace CloudPanel.Modules
                         string searchValue = "", orderColumnName = "";
                         bool isAscendingOrder = true;
 
-                        // Check for dataTables and process the values
-                        if (Request.Query.draw.HasValue)
+                        draw = Request.Query.draw;
+                        start = Request.Query.start;
+                        length = Request.Query.length;
+                        orderColumn = Request.Query["order[0][column]"];
+                        searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
+                        isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
+                        orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
+
+                        // See if we are using dataTables to search
+                        if (!string.IsNullOrEmpty(searchValue))
                         {
-                            draw = Request.Query.draw;
-                            start = Request.Query.start;
-                            length = Request.Query.length;
-                            orderColumn = Request.Query["order[0][column]"];
-                            searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
-                            isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
-                            orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
-
-                            // See if we are using dataTables to search
-                            if (!string.IsNullOrEmpty(searchValue))
-                            {
-                                logger.DebugFormat("Search value of '{0}' has been provided", searchValue);
-                                resellers = (from d in resellers
-                                             where d.CompanyCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                                   d.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                                   d.City.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                                   d.State.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                                   d.ZipCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                                   d.Country.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
-                                             select d).ToList();
-                                recordsFiltered = resellers.Count;
-                            }
-
-                            logger.DebugFormat("Total resellers returned after filtering is {0}. Sorting acsending? {1}", recordsFiltered, isAscendingOrder);
-                            if (isAscendingOrder)
-                                resellers = resellers.OrderBy(x => x.GetType()
-                                                        .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                        .Skip(start)
-                                                        .Take(length)
-                                                        .ToList();
-                            else
-                                resellers = resellers.OrderByDescending(x => x.GetType()
-                                                        .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                        .Skip(start)
-                                                        .Take(length)
-                                                        .ToList();
+                            logger.DebugFormat("Search value of '{0}' has been provided", searchValue);
+                            resellers = (from d in resellers
+                                         where d.CompanyCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                               d.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                               d.City.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                               d.State.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                               d.ZipCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                               d.Country.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
+                                         select d).ToList();
+                            recordsFiltered = resellers.Count;
                         }
 
-                        return Negotiate.WithModel(new { resellers = resellers })
-                                        .WithMediaRangeModel("application/json", new
+                        logger.DebugFormat("Total resellers returned after filtering is {0}. Sorting acsending? {1}", recordsFiltered, isAscendingOrder);
+                        if (isAscendingOrder)
+                            resellers = resellers.OrderBy(x => x.GetType()
+                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                    .Skip(start)
+                                                    .Take(length)
+                                                    .ToList();
+                        else
+                            resellers = resellers.OrderByDescending(x => x.GetType()
+                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                    .Skip(start)
+                                                    .Take(length)
+                                                    .ToList();
+
+
+                        return Negotiate.WithModel(new
                                         {
                                             draw = draw,
                                             recordsTotal = recordsTotal,
                                             recordsFiltered = recordsFiltered,
                                             data = resellers
                                         })
-                                        .WithView("resellers.cshtml");
+                                        .WithStatusCode(HttpStatusCode.OK);
                     }
                     catch (Exception ex)
                     {
                         logger.ErrorFormat("Failed to retrieve all resellers: {0}", ex.ToString());
                         return Negotiate.WithModel(new { error = ex.Message })
-                                        .WithView("resellers.cshtml")
                                         .WithStatusCode(HttpStatusCode.InternalServerError);
                     }
                     finally
@@ -393,7 +393,7 @@ namespace CloudPanel.Modules
                     #endregion
                 };
 
-            Get["/{ResellerCode}"] = _ =>
+            Get["/{ResellerCode}", c => c.Request.Accept("application/json")] = _ =>
                 {
                     #region Gets a specific reseller
                     CloudPanelContext db = null;

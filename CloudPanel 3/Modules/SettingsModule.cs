@@ -1,4 +1,6 @@
 ﻿using Nancy;
+using Nancy.Authentication.Forms;
+using Nancy.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +10,10 @@ namespace CloudPanel.Modules
 {
     public class SettingsModule : NancyModule
     {
-        public SettingsModule()
+        public SettingsModule() : base("/settings")
         {
-
+            this.RequiresAuthentication();
+            this.RequiresAnyClaim(new[] { "SuperAdmin", "ResellerAdmin" });
         }
     }
 }

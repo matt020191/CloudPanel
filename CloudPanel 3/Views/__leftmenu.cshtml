@@ -1,5 +1,6 @@
 ﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
 @{bool isSuperAdmin = CloudPanel.NancyContextHelpers.IsSuperAdmin(this.RenderContext.Context);}
+@{bool isResellerAdmin = CloudPanel.NancyContextHelpers.IsSuperAdmin(this.RenderContext.Context);}
 @{string selectedResellerCode = CloudPanel.NancyContextHelpers.GetSelectedResellerCode(this.RenderContext.Context);}
 @{string selectedCompanyCode = CloudPanel.NancyContextHelpers.GetSelectedCompanyCode(this.RenderContext.Context);}
 
@@ -30,6 +31,16 @@
                 </ul>
             </li>
             <li><a href="~/reports"><i class="fa fa-bar-chart-o"></i> <span>Reports</span></a></li>
+        }
+        @if (isSuperAdmin || isResellerAdmin)
+        {
+            <li>
+                <a href="javascript:;"><i class="fa fa-gears"></i> <span>Settings</span> </a>
+                <ul class="acc-menu">
+                    <li><a href="~/settings">Modify Settings</a></li>
+                    <li><a href="~/settings/brandings/new">Company Branding</a></li>
+                </ul>
+            </li>
         }
         <li class="divider"></li>
         @if (!string.IsNullOrEmpty(selectedCompanyCode)) { 

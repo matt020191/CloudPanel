@@ -1077,6 +1077,7 @@
     <Compile Include="Code\CPHtmlHelpers.cs" />
     <Compile Include="Code\CPLimitsChecks.cs" />
     <Compile Include="Code\CPStaticHelpers.cs" />
+    <Compile Include="Code\Extensions.cs" />
     <Compile Include="Code\NancyContextHelpers.cs" />
     <Compile Include="Code\SettingsReader.cs" />
     <Compile Include="IndexModule.cs" />

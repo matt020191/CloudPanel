@@ -27,29 +27,37 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace CloudPanel.Base.Branding
+namespace CloudPanel.Base.Database.Models
 {
-    public class CompanyBranding
-    {
-        public string Name { get; set; }
-        public string Phone { get; set; }
-        public string SupportEmail { get; set; }
-        public string Header { get; set; }
-        public string Theme { get; set; }
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+    using System.Data.Entity.Spatial;
 
-        /// <summary>
-        /// 224px x 70px
-        /// </summary>
+    public partial class Branding
+    {
+        [Key]
+        public int BrandingID { get; set; }
+
+        [Required]
+        public string Name { get; set; }
+
+        [Required]
+        public string Phone { get; set; }
+
+        [Required]
+        public string HostName { get; set; }
+
+        [Required]
+        public string Email { get; set; }
+
+        [Required]
         public string LoginLogo { get; set; }
 
-        /// <summary>
-        /// 76px x 10px
-        /// </summary>
-        public string TopLogo { get; set; }
+        [Required]
+        public string HeaderLogo { get; set; }
+
+        public string Theme { get; set; }
     }
 }
