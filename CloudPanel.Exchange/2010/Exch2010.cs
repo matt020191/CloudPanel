@@ -978,13 +978,110 @@ namespace CloudPanel.Exchange
                     }
                 }
                 user.EmailAliases = parsedAliases.ToArray();
-                
 
+                logger.DebugFormat("Parsing send on behalf permissions...");
+                PSObject multiValue = (PSObject)foundUser.Properties["GrantSendOnBehalfTo"].Value;
+                ArrayList accessRights = (ArrayList)multiValue.BaseObject;
+                user.EmailSendOnBehalf = (string[])accessRights.ToArray(typeof(string));
 
-                
+                // Get full access permissions
+                logger.DebugFormat("Retrieving full access permissions");
+                user.EmailFullAccess = Get_FullAccessPermissions(user.UserPrincipalName);
+
+                // Get send as permissions
+                logger.DebugFormat("Retrieving send as permissions");
+                user.EmailSendAs = Get_SendAsPermissions(user.DistinguishedName);
             }
 
             return user;
+        }
+
+        public string[] Get_FullAccessPermissions(string userPrincipalName)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-MailboxPermission");
+            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                logger.DebugFormat("Found mailbox {0}... retrieving full access permissions", userPrincipalName);
+                var listAccounts = new List<string>();
+                foreach (PSObject ps in _powershell.Invoke())
+                {
+                    if (ps.Members["AccessRights"].Value != null)
+                    {
+                        string inheritanceType = ps.Members["InheritanceType"].Value.ToString();
+                        bool deny = bool.Parse(ps.Members["Deny"].Value.ToString());
+                        bool isInherited = bool.Parse(ps.Members["IsInherited"].Value.ToString());
+
+                        if (ps.Members["User"].Value.ToString().IndexOf("\\") != -1)
+                        {
+                            // Need to make sure the value contains a black slash because if not then it is not a valid sAMAccountName (Could be like S-1-5-32-554)
+                            string samAccountName = ps.Members["User"].Value.ToString().Split('\\')[1];
+
+                            // Get the permissions that this user has
+                            PSObject multiValue = (PSObject)ps.Members["AccessRights"].Value;
+                            ArrayList accessRights = (ArrayList)multiValue.BaseObject;
+                            string[] strAccessRights = (string[])accessRights.ToArray(typeof(string));
+
+                            // Only add if it contains "FullAccess"
+                            if (strAccessRights.Contains("FullAccess"))
+                                listAccounts.Add(samAccountName);
+                        }
+                    }
+                }
+
+                return listAccounts.ToArray();
+            }
+        }
+
+        public string[] Get_SendAsPermissions(string userPrincipalName)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-ADPermission");
+            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                logger.DebugFormat("Found mailbox {0}... retrieving send-as permissions", userPrincipalName);
+                var listAccounts = new List<string>();
+                foreach (PSObject ps in _powershell.Invoke())
+                {
+                    if (ps.Members["ExtendedRights"].Value != null)
+                    {
+                        string inheritanceType = ps.Members["InheritanceType"].Value.ToString();
+                        bool deny = bool.Parse(ps.Members["Deny"].Value.ToString());
+                        bool isInherited = bool.Parse(ps.Members["IsInherited"].Value.ToString());
+
+                        if (ps.Members["User"].Value.ToString().IndexOf("\\") != -1)
+                        {
+                            // Need to make sure the value contains a black slash because if not then it is not a valid sAMAccountName (Could be like S-1-5-32-554)
+                            string samAccountName = ps.Members["User"].Value.ToString().Split('\\')[1];
+
+                            // Get the permissions that this user has
+                            PSObject multiValue = (PSObject)ps.Members["ExtendedRights"].Value;
+                            ArrayList accessRights = (ArrayList)multiValue.BaseObject;
+                            string[] strAccessRights = (string[])accessRights.ToArray(typeof(string));
+
+                            // Only add if it contains "FullAccess"
+                            if (strAccessRights.Contains("Send-As"))
+                                listAccounts.Add(samAccountName);
+                        }
+                    }
+                }
+
+                return listAccounts.ToArray();
+            }
         }
 
         #endregion

@@ -52,7 +52,7 @@
                                                 <li class="dropdown">
                                                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">Email <span class="caret"></span></a>
                                                     <ul class="dropdown-menu">
-                                                        <li><a href="#mailbox" data-toggle="tab">Edit</a></li>
+                                                        <li><a href="#mailbox" data-toggle="tab" onclick="javascript: GetMailbox('@Model.UserPrincipalName');">Edit</a></li>
                                                         <li><a href="#">Litigation Hold</a></li>
                                                         <li><a href="#">Archiving</a></li>
                                                     </ul>
@@ -177,12 +177,11 @@
                                                     <!-- Enable or Disable Email Toggle Switch -->
                                                     <div id="EmailDisabled" class="form-horizontal">
                                                         <div class="form-group">
-                                                            <label class="col-sm-3 control-label">Email Enabled</label>
-                                                            <div class="col-sm-3 control-label">
-                                                                <div id="defaultswitch"></div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <input id="IsEmailEnabled" name="IsEmailEnabled" type="checkbox"  hidden />
+                                                            <label class="col-sm-3 control-label"></label>
+                                                            <div class="col-sm-3">
+                                                                <label class="checkbox-inline">
+                                                                    <input id="IsEmailEnabled" name="IsEmailEnabled" type="checkbox" value="false" /> Email Enabled
+                                                                </label>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -196,6 +195,7 @@
                                                             <div class="form-group">
                                                                 <label class="col-sm-3 control-label">Plan</label>
                                                                 <div class="col-sm-6">
+                                                                    @CloudPanel.CPHtmlHelpers.GetMailboxPlans(0, selectedCompanyCode, "")
                                                                     <p id="mailboxPlanDescription"></p>
                                                                 </div>
                                                             </div>
@@ -205,6 +205,7 @@
                                                                     <div class="input-group">
                                                                         <input type="text" class="form-control" id="EmailFirst" name="EmailFirst">
                                                                         <span class="input-group-addon">@@</span>
+                                                                        @CloudPanel.CPHtmlHelpers.GetCompanyEmailDomains(selectedCompanyCode, "", "")
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -243,6 +244,12 @@
                                                                 <label class="col-sm-3 control-label">Full Access</label>
                                                                 <div class="col-sm-6">
                                                                     <select id="EmailFullAccess" name="EmailFullAccess" style="width: 100%" class="populate" multiple>
+                                                                        @if (Model.MailboxUsers != null) { 
+                                                                            foreach (var u in Model.MailboxUsers)
+                                                                            {
+                                                                                <option value="@u.sAMAccountName">@u.DisplayName</option>
+                                                                            }
+                                                                        }
                                                                     </select>
                                                                 </div>
                                                             </div>
@@ -250,6 +257,13 @@
                                                                 <label class="col-sm-3 control-label">Send As</label>
                                                                 <div class="col-sm-6">
                                                                     <select id="EmailSendAs" name="EmailSendAs" style="width: 100%" class="populate" multiple>
+                                                                        @if (Model.MailboxUsers != null)
+                                                                        {
+                                                                            foreach (var u in Model.MailboxUsers)
+                                                                            {
+                                                                                <option value="@u.sAMAccountName">@u.DisplayName</option>
+                                                                            }
+                                                                        }
                                                                     </select>
                                                                 </div>
                                                             </div>
@@ -257,6 +271,13 @@
                                                                 <label class="col-sm-3 control-label">Send on Behalf</label>
                                                                 <div class="col-sm-6">
                                                                     <select id="EmailSendOnBehalf" name="EmailSendOnBehalf" style="width: 100%" class="populate" multiple>
+                                                                        @if (Model.MailboxUsers != null)
+                                                                        {
+                                                                            foreach (var u in Model.MailboxUsers)
+                                                                            {
+                                                                                <option value="@CloudPanel.Base.AD.LdapConverters.ToCanonicalName(u.DistinguishedName)">@u.DisplayName</option>
+                                                                            }
+                                                                        }
                                                                     </select>
                                                                 </div>
                                                             </div>
@@ -294,9 +315,9 @@
     <script src="~/Content/plugins/form-toggle/toggle.min.js"></script>
     <script src="~/Content/plugins/blockUI/jquery.blockUI.js"></script>
     <script type="text/javascript">
-        $(document).ready(function () {
+        var slider;
 
-            GetUser('@Model.UserPrincipalName');
+        $(document).ready(function () {
 
             $("#MailboxPlanID").change(function () {
                 var option = $("#MailboxPlanID option:selected");
@@ -312,28 +333,22 @@
             /* Multiple fields */
             $(".populate").select2({ width: 'resolve' });
 
-            /* Email enabled or disabled */
-            $('#defaultswitch').toggles({
-                text: { on: 'Yes', off: 'No' },
-                checkbox: $('#IsEmailEnabled'),
-                on: $('#IsEmailEnabled').is(':checked')
-            });
+            $("#IsEmailEnabled").change(function () {
+                var chkBox = $("#IsEmailEnabled");
 
-            $('#defaultswitch').on('toggle', function (e, active) {
-                if (active) {
-                    $('#IsEmailEnabled').val(true);
-                    $('#DivEmailEnabled').show();
+                if (chkBox.is(":checked")) {
+                    $("#DivEmailEnabled").show();
                 } else {
-                    $('#IsEmailEnabled').val(false);
-                    $('#DivEmailEnabled').hide();
+                    $("#DivEmailEnabled").hide();
                 }
             });
+
+            GetUser('@Model.UserPrincipalName');
         });
 
         function GetUser(upn) {
             $("#domtabs").block({message: $('#waitMessage')});
             $.getJSON("", function (data) {
-                    console.log(data.user);
                     $("#Firstname").val(data.user.firstname);
                     $("#Middlename").val(data.user.middlename);
                     $("#Lastname").val(data.user.lastname);
@@ -350,6 +365,42 @@
                     $("#State").val(data.user.state);
                     $("#PostalCode").val(data.user.postalCode);
                     $("#Country").select2("val", data.user.country);
+
+                    if (data.user.mailboxPlan > 0) {
+                        $("#IsEmailEnabled").click();
+                        $("#MailboxPlanID").val(data.user.mailboxPlan);
+
+                        if (data.user.additionalMB > 0) {
+                            var value = $("#slider-range-min").slider("option", "value");
+                            $("#slider-range-min").slider("option", "value", value + data.user.additionalMB);
+                        }
+                    }
+
+                    $('input[type="submit"]').removeAttr('disabled');
+                })
+                .done(function (data) {
+                    console.log("done");
+                })
+                .fail(function (data) {
+                    $('input[type="submit"]').attr('disabled', 'disabled');
+                })
+                .always(function (data) {
+                    $("#domtabs").unblock();
+                });
+        }
+
+        function GetMailbox(upn) {
+            $("#domtabs").block({ message: $('#waitMessage') });
+            $.getJSON(window.location.href + "/mailbox", function (data) {
+                    $("#EmailFirst").val(data.mailbox.emailFirst);
+                    $("#EmailAliases").tokenfield("setTokens", data.mailbox.emailAliases);
+                    $("#EmailFullAccess").select2("val", data.mailbox.emailFullAccess);
+                    $("#EmailSendAs").select2("val", data.mailbox.emailSendAs);
+                    $("#EmailSendOnBehalf").select2("val", data.mailbox.emailSendOnBehalf);
+
+                    $("#DomainID option").filter(function () {
+                        return $(this).text() == data.mailbox.emailDomain;
+                    }).prop('selected', true);
 
                     $('input[type="submit"]').removeAttr('disabled');
                 })
@@ -376,15 +427,15 @@
                     value: selectedValue,
                     step: 256,
                     min: min,
-                    max: max,
-                    slide: function (event, ui) {
+                    max: max
+                });
+
+                $("#slider-range-min").slider({
+                    change: function (event, ui) {
                         $("#slider-range-min-amount").text(ui.value + "MB");
                         $("#SizeInMB").val(ui.value);
                     }
                 });
-
-                $("#slider-range-min-amount").text(selectedValue + "MB");
-                $("#SizeInMB").val(selectedValue);
             }
 
             $("#mailboxPlanDescription").text(description)
@@ -411,12 +462,6 @@
                       var label = e.token.label.split(' (');
                       e.token.value = label[0] + '|' + e.token.value;
                   }
-              })
-              .on('removeToken', function (e) {
-                  alert('Token removed! Token value was: ' + e.token.value);
-              })
-              .on('preventDuplicateToken', function (e) {
-                  alert('Duplicate detected! Token value is: ' + e.token.value);
               })
               .tokenfield();
         }
