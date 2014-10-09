@@ -979,6 +979,22 @@ namespace CloudPanel.Exchange
                 }
                 user.EmailAliases = parsedAliases.ToArray();
 
+                logger.DebugFormat("Retrieving litigation hold information");
+                if (foundUser.Properties["LitigationHoldEnabled"].Value != null)
+                    user.LitigationHoldEnabled = bool.Parse(foundUser.Properties["LitigationHoldEnabled"].Value.ToString());
+                
+                if (foundUser.Properties["LitigationHoldDate"].Value != null)
+                    user.LitigationHoldDate = foundUser.Properties["LitigationHoldDate"].Value.ToString();
+
+                if (foundUser.Properties["LitigationHoldOwner"].Value != null)
+                    user.LitigationHoldOwner = foundUser.Properties["LitigationHoldOwner"].Value.ToString();
+
+                if (foundUser.Properties["RetentionComment"].Value != null)
+                    user.RetentionComment = foundUser.Properties["RetentionComment"].Value.ToString();
+
+                if (foundUser.Properties["RetentionUrl"].Value != null)
+                    user.RetentionUrl = foundUser.Properties["RetentionUrl"].Value.ToString();
+
                 logger.DebugFormat("Parsing send on behalf permissions...");
                 PSObject multiValue = (PSObject)foundUser.Properties["GrantSendOnBehalfTo"].Value;
                 ArrayList accessRights = (ArrayList)multiValue.BaseObject;
@@ -991,6 +1007,7 @@ namespace CloudPanel.Exchange
                 // Get send as permissions
                 logger.DebugFormat("Retrieving send as permissions");
                 user.EmailSendAs = Get_SendAsPermissions(user.DistinguishedName);
+
             }
 
             return user;

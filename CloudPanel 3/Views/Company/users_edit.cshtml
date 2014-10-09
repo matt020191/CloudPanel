@@ -6,13 +6,12 @@
 }
 
 @section HEAD{
-    <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
     <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
-    <link href="~/Content/js/jqueryui.min.css" rel="stylesheet" />
     <link href="~/Content/plugins/form-tokenfield/bootstrap-tokenfield.css" rel="stylesheet" />
     <link href="~/Content/plugins/form-select2/select2.css" rel="stylesheet" />
-    <link href="~/Content/plugins/form-toggle/toggles.css" rel="stylesheet" />
+    <link href="~/Content/js/jqueryui.min.css" rel="stylesheet" />
     <link href="~/Content/css/wait.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-datepicker/css/datepicker3.css" rel="stylesheet" />
     <style type="text/css">
         span.tab-space {
             padding-left: 0.5em;
@@ -53,7 +52,7 @@
                                                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">Email <span class="caret"></span></a>
                                                     <ul class="dropdown-menu">
                                                         <li><a href="#mailbox" data-toggle="tab" onclick="javascript: GetMailbox('@Model.UserPrincipalName');">Edit</a></li>
-                                                        <li><a href="#">Litigation Hold</a></li>
+                                                        <li><a href="#litigationhold" data-toggle="tab" onclick="javascript: GetLitigationHold('@Model.UserPrincipalName');">Litigation Hold</a></li>
                                                         <li><a href="#">Archiving</a></li>
                                                     </ul>
                                                 </li>
@@ -284,6 +283,42 @@
                                                         </div>
                                                     </div>
                                                 </div>
+
+                                                <!-- Litigation Hold -->
+                                                <div id="litigationhold" class="tab-pane">
+                                                    <h3>Litigation Hold</h3><br />
+                                                    <div class="form-horizontal">
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label"></label>
+                                                            <div class="col-sm-6">
+                                                                <label class="checkbox-inline">
+                                                                    <input id="LitigationHoldEnabled" name="LitigationHoldEnabled" type="checkbox" value="false" /> Litigation Hold Enabled
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label">URL</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" class="form-control" id="RetentionUrl" name="RetentionUrl" data-parsley-type="url">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label">Date</label>
+                                                            <div class="col-sm-6">
+                                                                <div class="input-group date">
+                                                                    <input type="text" class="form-control" id="LitigationHoldDate" name="LitigationHoldDate">
+                                                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label">Notes</label>
+                                                            <div class="col-sm-6">
+                                                                <textarea name="RetentionComment" id="RetentionComment" cols="50" rows="4" class="form-control"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -314,8 +349,9 @@
     <script src="~/Content/plugins/form-select2/select2.min.js"></script>
     <script src="~/Content/plugins/form-toggle/toggle.min.js"></script>
     <script src="~/Content/plugins/blockUI/jquery.blockUI.js"></script>
+    <script src="~/Content/plugins/form-datepicker/js/bootstrap-datepicker.js"></script>
     <script type="text/javascript">
-        var slider;
+        var mailboxRetrieved = false;
 
         $(document).ready(function () {
 
@@ -324,8 +360,8 @@
                 SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
             });
 
-            var option = $("#MailboxPlanID option:selected");
-            SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
+            //var option = $("#MailboxPlanID option:selected");
+            //SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
 
             /* Email Aliases token field */
             SetupEmailTokenField();
@@ -370,9 +406,11 @@
                         $("#IsEmailEnabled").click();
                         $("#MailboxPlanID").val(data.user.mailboxPlan);
 
+                        var option = $("#MailboxPlanID option:selected");
                         if (data.user.additionalMB > 0) {
-                            var value = $("#slider-range-min").slider("option", "value");
-                            $("#slider-range-min").slider("option", "value", value + data.user.additionalMB);
+                            SetSlider(option.data("size"), option.data("maxsize"), option.data("size") + data.user.additionalMB, option.data("description"));                            
+                        } else {
+                            SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
                         }
                     }
 
@@ -390,29 +428,49 @@
         }
 
         function GetMailbox(upn) {
-            $("#domtabs").block({ message: $('#waitMessage') });
-            $.getJSON(window.location.href + "/mailbox", function (data) {
+            if (mailboxRetrieved == false) {
+                $("#domtabs").block({ message: $('#waitMessage') });
+                $.getJSON(window.location.href + "/mailbox", function (data) {
                     $("#EmailFirst").val(data.mailbox.emailFirst);
                     $("#EmailAliases").tokenfield("setTokens", data.mailbox.emailAliases);
                     $("#EmailFullAccess").select2("val", data.mailbox.emailFullAccess);
                     $("#EmailSendAs").select2("val", data.mailbox.emailSendAs);
                     $("#EmailSendOnBehalf").select2("val", data.mailbox.emailSendOnBehalf);
 
+                    if (data.mailbox.litigationHoldEnabled == true) {
+                        $("#LitigationHoldEnabled").click();
+                    }
+                    $("#LitigationHoldDate").val(data.mailbox.litigationHoldDate);
+                    $("#RetentionComment").val(data.mailbox.retentionComment);
+                    $("#RetentionUrl").val(data.mailbox.retentionUrl);
+
                     $("#DomainID option").filter(function () {
                         return $(this).text() == data.mailbox.emailDomain;
                     }).prop('selected', true);
 
+                    mailboxRetrieved = true;
+
                     $('input[type="submit"]').removeAttr('disabled');
                 })
-                .done(function (data) {
-                    console.log("done");
-                })
-                .fail(function (data) {
-                    $('input[type="submit"]').attr('disabled', 'disabled');
-                })
-                .always(function (data) {
-                    $("#domtabs").unblock();
-                });
+                    .done(function (data) {
+                        console.log("done");
+                    })
+                    .fail(function (data) {
+                        $('input[type="submit"]').attr('disabled', 'disabled');
+                    })
+                    .always(function (data) {
+                        $("#domtabs").unblock();
+                    });
+            }
+        }
+
+        function GetLitigationHold(upn)
+        {
+            $("#LitigationHoldDate").datepicker({ startDate: "today" });
+
+            if (mailboxRetrieved == false) {
+                GetMailbox(upn);
+            }
         }
 
         function SetSlider(min, max, selectedValue, description) {
@@ -427,15 +485,15 @@
                     value: selectedValue,
                     step: 256,
                     min: min,
-                    max: max
-                });
-
-                $("#slider-range-min").slider({
+                    max: max,
                     change: function (event, ui) {
                         $("#slider-range-min-amount").text(ui.value + "MB");
                         $("#SizeInMB").val(ui.value);
                     }
                 });
+
+                $("#slider-range-min-amount").text(selectedValue + "MB");
+                $("#SizeInMB").val(selectedValue);
             }
 
             $("#mailboxPlanDescription").text(description)

@@ -103,6 +103,83 @@ namespace CloudPanel.Modules.CompanyModules
                 }
                 #endregion
             };
+
+            Put["/"] = _ =>
+            {
+                #region Creates a new user
+
+                CloudPanelContext db = null;
+                dynamic powershell = null;
+                try
+                {
+                    string companyCode = _.CompanyCode;
+                    string userPrincipalName = _.UserPrincipalName;
+
+                    logger.DebugFormat("Retrieving user from database");
+                    var sqlUser = (from d in db.Users
+                                   where d.CompanyCode == companyCode
+                                   where d.UserPrincipalName == userPrincipalName
+                                   select d).FirstOrDefault();
+
+                    if (sqlUser == null)
+                        throw new Exception("Unable to find user in the database: " + userPrincipalName);
+                    else
+                    {
+                        logger.DebugFormat("Binding form to class...");
+                        var boundUser = this.Bind<Users>();
+                        boundUser.UserPrincipalName = userPrincipalName;
+                        boundUser.CompanyCode = companyCode;
+
+                        logger.DebugFormat("Checking for mailbox changes");
+                        bool newEmailStatus = Request.Form.IsEmailEnabled;
+
+                        if (newEmailStatus && (sqlUser.MailboxPlan == null || sqlUser.MailboxPlan < 1)) // Old value disabled but new value enabled [Create]
+                            EnableMailbox(ref powershell, ref boundUser);
+                        else if (newEmailStatus && sqlUser.MailboxPlan > 0) // Old value enabled and new value enabled [Update]
+                            UpdateMailbox(ref powershell, ref boundUser);
+                        else if (!newEmailStatus && sqlUser.MailboxPlan > 0) // Old value enabled and new value disabled [Disable]
+                            DisableMailbox(ref powershell, ref boundUser);
+
+
+                    }                    
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error creating new user for company {0}: {1}", _.CompanyCode, ex.ToString());
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithView("Company/company_users.cshtml");
+                }
+                finally
+                {
+                    if (powershell != null)
+                        powershell.Dispose();
+
+                    if (db != null)
+                        db.Dispose();
+                }
+
+                #endregion
+            };
         }
+
+        #region Exchange Methods
+
+        private void EnableMailbox(ref dynamic powershell, ref Users user)
+        {
+            powershell = ExchPowershell.GetClass();
+        }
+
+        private void DisableMailbox(ref dynamic powershell, ref Users user)
+        {
+            powershell = ExchPowershell.GetClass();
+            powershell.Disable_Mailbox(user.UserPrincipalName);
+        }
+
+        private void UpdateMailbox(ref dynamic powershell, ref Users user)
+        {
+            powershell = ExchPowershell.GetClass();
+        }
+
+        #endregion
     }
 }

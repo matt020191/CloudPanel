@@ -330,7 +330,20 @@ namespace CloudPanel.Base.Database.Models
         [NotMapped]
         public string[] EmailSendOnBehalf { get; set; }
 
+        [NotMapped]
+        public bool LitigationHoldEnabled { get; set; }
 
+        [NotMapped]
+        public string LitigationHoldDate { get; set; }
+
+        [NotMapped]
+        public string LitigationHoldOwner { get; set; }
+
+        [NotMapped]
+        public string RetentionComment { get; set; }
+
+        [NotMapped]
+        public string RetentionUrl { get; set; }
 
         #endregion
     }
