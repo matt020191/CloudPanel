@@ -10,14 +10,32 @@
     <link href="~/Content/plugins/form-tokenfield/bootstrap-tokenfield.css" rel="stylesheet" />
     <link href="~/Content/plugins/form-select2/select2.css" rel="stylesheet" />
     <link href="~/Content/js/jqueryui.min.css" rel="stylesheet" />
-    <link href="~/Content/css/wait.css" rel="stylesheet" />
     <link href="~/Content/plugins/form-datepicker/css/datepicker3.css" rel="stylesheet" />
     <style type="text/css">
         span.tab-space {
             padding-left: 0.5em;
         }
-        .dropdown-menu {
+        ul .dropdown-menu {
             left: 0 !important;
+        }
+        div.blockMsg {
+            width:  40%;
+            top:    10% !important;
+            left:   30%;
+            text-align: center;
+            background-color: #000;
+            border: 1px solid #ddd;
+            -moz-border-radius: 10px;
+            -webkit-border-radius: 10px;
+	        -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)"; 
+            filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50); 
+            -moz-opacity:.70;
+            opacity:.70;
+            padding: 15px;
+            color: #ddd;
+        }
+        div.blockMsg h1 {
+            color: #ddd;
         }
     </style>
 }
@@ -38,7 +56,7 @@
         <div class="col-md-12">
             <form id="editUser" action="" method="post" data-parsley-validate>
                 <input type="hidden" name="_method" value="PUT" />
-                <div class="panel panel-primary">
+                <div id="blockui" class="panel panel-primary">
                     <div class="panel-heading">Edit User</div>
                     <div class="panel-body">
                         <div class="tab-content">
@@ -51,8 +69,8 @@
                                                 <li class="dropdown">
                                                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">Email <span class="caret"></span></a>
                                                     <ul class="dropdown-menu">
-                                                        <li><a href="#mailbox" data-toggle="tab" onclick="javascript: GetMailbox('@Model.UserPrincipalName');">Edit</a></li>
-                                                        <li><a href="#litigationhold" data-toggle="tab" onclick="javascript: GetLitigationHold('@Model.UserPrincipalName');">Litigation Hold</a></li>
+                                                        <li><a href="#mailbox" data-toggle="tab" onclick="javascript:Mailbox('@Model.UserPrincipalName');">Edit</a></li>
+                                                        <li><a href="#litigationhold" data-toggle="tab" onclick="javascript:LitigationHold('@Model.UserPrincipalName');">Litigation Hold</a></li>
                                                         <li><a href="#">Archiving</a></li>
                                                     </ul>
                                                 </li>
@@ -179,7 +197,7 @@
                                                             <label class="col-sm-3 control-label"></label>
                                                             <div class="col-sm-3">
                                                                 <label class="checkbox-inline">
-                                                                    <input id="IsEmailEnabled" name="IsEmailEnabled" type="checkbox" value="false" /> Email Enabled
+                                                                    <input id="EmailEnabledCheck" name="EmailEnabledCheck" type="checkbox" value="false" /> Email Enabled
                                                                 </label>
                                                             </div>
                                                         </div>
@@ -194,7 +212,7 @@
                                                             <div class="form-group">
                                                                 <label class="col-sm-3 control-label">Plan</label>
                                                                 <div class="col-sm-6">
-                                                                    @CloudPanel.CPHtmlHelpers.GetMailboxPlans(0, selectedCompanyCode, "")
+                                                                    @CloudPanel.CPHtmlHelpers.GetMailboxPlans(0, selectedCompanyCode, "", "MailboxPlan")
                                                                     <p id="mailboxPlanDescription"></p>
                                                                 </div>
                                                             </div>
@@ -204,7 +222,7 @@
                                                                     <div class="input-group">
                                                                         <input type="text" class="form-control" id="EmailFirst" name="EmailFirst">
                                                                         <span class="input-group-addon">@@</span>
-                                                                        @CloudPanel.CPHtmlHelpers.GetCompanyEmailDomains(selectedCompanyCode, "", "")
+                                                                        @CloudPanel.CPHtmlHelpers.GetAcceptedDomains(selectedCompanyCode, "EmailDomain")
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -250,6 +268,7 @@
                                                                             }
                                                                         }
                                                                     </select>
+                                                                    <input id="EmailFullAccessOriginal" name="EmailFullAccessOriginal" type="hidden" />
                                                                 </div>
                                                             </div>
                                                             <div class="form-group">
@@ -264,6 +283,7 @@
                                                                             }
                                                                         }
                                                                     </select>
+                                                                    <input id="EmailSendAsOriginal" name="EmailSendAsOriginal" type="hidden" />
                                                                 </div>
                                                             </div>
                                                             <div class="form-group">
@@ -330,18 +350,18 @@
                     <div class="panel-footer">
                         <div class="btn-toolbar text-right">
                             <button class="btn-default btn" type="button" onclick="javascript: history.back()">Cancel</button>
-                            <button class="btn-primary btn" type="submit">Submit</button>
+                            <button id="submit" name="submit" class="btn-primary btn" type="submit">Submit</button>
                         </div>
                     </div>
                 </div>
+
+                <input id="IsEmailModified" name="IsEmailModified" type="checkbox" value="false" hidden />
+                <input id="IsLitigationHoldModified" name="IsLitigationHoldModified" type="checkbox" value="false" hidden />
+                <input id="IsArchivingModified" name="IsArchivingModified" type="checkbox" value="false" hidden />
             </form>
         </div>
     </div>
 </div>
-
-<input id="EmailChanged" name="EmailChanged" type="checkbox" value="false" hidden />
-<input id="EmailLitHoldChanged" name="EmailLitHoldChanged" type="checkbox" value="false" hidden />
-<input id="EmailArchivingChanged" name="EmailArchivingChanged" type="checkbox" value="false" hidden />
 
 @section JAVASCRIPT{
     <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
@@ -352,25 +372,29 @@
     <script src="~/Content/plugins/form-datepicker/js/bootstrap-datepicker.js"></script>
     <script type="text/javascript">
         var mailboxRetrieved = false;
+        var litigationRetrieved = false;
+        var originalEmailEnabled = false;
 
         $(document).ready(function () {
-
-            $("#MailboxPlanID").change(function () {
-                var option = $("#MailboxPlanID option:selected");
+            $.blockUI.defaults.css = {};
+            $("#MailboxPlan").change(function () {
+                var option = $("#MailboxPlan option:selected");
                 SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
             });
 
-            //var option = $("#MailboxPlanID option:selected");
-            //SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
+            var option = $("#MailboxPlan option:selected");
+            SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
 
             /* Email Aliases token field */
             SetupEmailTokenField();
 
             /* Multiple fields */
-            $(".populate").select2({ width: 'resolve' });
+            $(".populate").select2({
+                width: 'resolve'
+            });
 
-            $("#IsEmailEnabled").change(function () {
-                var chkBox = $("#IsEmailEnabled");
+            $("#EmailEnabledCheck").change(function () {
+                var chkBox = $("#EmailEnabledCheck");
 
                 if (chkBox.is(":checked")) {
                     $("#DivEmailEnabled").show();
@@ -383,7 +407,7 @@
         });
 
         function GetUser(upn) {
-            $("#domtabs").block({message: $('#waitMessage')});
+            $("#blockui").block();
             $.getJSON("", function (data) {
                     $("#Firstname").val(data.user.firstname);
                     $("#Middlename").val(data.user.middlename);
@@ -403,39 +427,78 @@
                     $("#Country").select2("val", data.user.country);
 
                     if (data.user.mailboxPlan > 0) {
-                        $("#IsEmailEnabled").click();
-                        $("#MailboxPlanID").val(data.user.mailboxPlan);
+                        originalEmailEnabled = true;
 
-                        var option = $("#MailboxPlanID option:selected");
+                        $("#EmailEnabledCheck").click();
+                        $("#MailboxPlan").val(data.user.mailboxPlan);
+
+                        var option = $("#MailboxPlan option:selected");
                         if (data.user.additionalMB > 0) {
                             SetSlider(option.data("size"), option.data("maxsize"), option.data("size") + data.user.additionalMB, option.data("description"));                            
                         } else {
                             SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
                         }
+                    } else {
+                        originalMailboxPlan = 0;
                     }
 
                     $('input[type="submit"]').removeAttr('disabled');
                 })
                 .done(function (data) {
-                    console.log("done");
                 })
                 .fail(function (data) {
-                    $('input[type="submit"]').attr('disabled', 'disabled');
+                    $('#submit').attr('disabled', 'disabled');
                 })
                 .always(function (data) {
-                    $("#domtabs").unblock();
+                    $("#blockui").unblock();
                 });
         }
 
-        function GetMailbox(upn) {
+        function Mailbox(upn) {
+            $("#IsEmailModified").prop('checked', true);
+            $("#IsEmailModified").val(true);
+
+            if (originalEmailEnabled) {
+                GetMailboxValues(upn);
+            }
+        }
+
+        function LitigationHold(upn) {
+            $("#IsLitigationHoldModified").prop('checked', true);
+            $("#IsLitigationHoldModified").val(true);
+
+            $("#LitigationHoldDate").datepicker({ startDate: "today" });
+
             if (mailboxRetrieved == false) {
-                $("#domtabs").block({ message: $('#waitMessage') });
+                GetMailboxValues(upn);
+            }
+        }
+
+        function GetMailboxValues(upn) {
+            if (mailboxRetrieved == false) {
+                $("#blockui").block();
                 $.getJSON(window.location.href + "/mailbox", function (data) {
                     $("#EmailFirst").val(data.mailbox.emailFirst);
+                    $("#EmailDomain option").filter(function () {
+                        return $(this).text() == data.mailbox.emailDomain;
+                    }).prop('selected', true);
+
                     $("#EmailAliases").tokenfield("setTokens", data.mailbox.emailAliases);
-                    $("#EmailFullAccess").select2("val", data.mailbox.emailFullAccess);
-                    $("#EmailSendAs").select2("val", data.mailbox.emailSendAs);
                     $("#EmailSendOnBehalf").select2("val", data.mailbox.emailSendOnBehalf);
+
+                    $("#EmailFullAccess").select2("val", data.mailbox.emailFullAccess);
+                    $.each(data.mailbox.emailFullAccess, function (i, val) {
+                        if ($("#EmailFullAccess option[value='" + val + "']").length > 0) {
+                            $("#EmailFullAccessOriginal").val($("#EmailFullAccessOriginal").val() + val + ",");
+                        }
+                    });
+
+                    $("#EmailSendAs").select2("val", data.mailbox.emailSendAs);
+                    $.each(data.mailbox.emailSendAs, function (i, val) {
+                        if ($("#EmailSendAs option[value='" + val + "']").length > 0) {
+                            $("#EmailSendAsOriginal").val($("#EmailSendAsOriginal").val() + val + ",");
+                        }
+                    });
 
                     if (data.mailbox.litigationHoldEnabled == true) {
                         $("#LitigationHoldEnabled").click();
@@ -444,32 +507,17 @@
                     $("#RetentionComment").val(data.mailbox.retentionComment);
                     $("#RetentionUrl").val(data.mailbox.retentionUrl);
 
-                    $("#DomainID option").filter(function () {
-                        return $(this).text() == data.mailbox.emailDomain;
-                    }).prop('selected', true);
-
                     mailboxRetrieved = true;
-
-                    $('input[type="submit"]').removeAttr('disabled');
                 })
                     .done(function (data) {
                         console.log("done");
                     })
                     .fail(function (data) {
-                        $('input[type="submit"]').attr('disabled', 'disabled');
+                        $('#submit').attr('disabled', 'disabled');
                     })
                     .always(function (data) {
-                        $("#domtabs").unblock();
+                        $("#blockui").unblock();
                     });
-            }
-        }
-
-        function GetLitigationHold(upn)
-        {
-            $("#LitigationHoldDate").datepicker({ startDate: "today" });
-
-            if (mailboxRetrieved == false) {
-                GetMailbox(upn);
             }
         }
 
@@ -508,7 +556,6 @@
                   e.token.label = token[1] ? token[0] + ' (' + token[1] + ')' : token[0];
               })
               .on('afterCreateToken', function (e) {
-                  // Über-simplistic e-mail validation
                   var re = /\S+@@\S+\.\S+/
                   var valid = re.test(e.token.value);
                   if (!valid) {

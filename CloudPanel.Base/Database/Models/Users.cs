@@ -319,13 +319,25 @@ namespace CloudPanel.Base.Database.Models
         public int SizeInMB { get; set; }
 
         [NotMapped]
+        public int DomainID { get; set; }
+
+        [NotMapped]
+        public string[] EmailAddressesProcessed { get; set; }
+
+        [NotMapped]
         public string[] EmailAliases { get; set; }
 
         [NotMapped]
         public string[] EmailFullAccess { get; set; }
 
         [NotMapped]
+        public string[] EmailFullAccessOriginal { get; set; }
+
+        [NotMapped]
         public string[] EmailSendAs { get; set; }
+
+        [NotMapped]
+        public string[] EmailSendAsOriginal { get; set; }
 
         [NotMapped]
         public string[] EmailSendOnBehalf { get; set; }
@@ -344,6 +356,22 @@ namespace CloudPanel.Base.Database.Models
 
         [NotMapped]
         public string RetentionUrl { get; set; }
+
+        #endregion
+
+        #region Modified notifications
+
+        [NotMapped]
+        public bool EmailEnabledCheck { get; set; }
+
+        [NotMapped]
+        public bool IsEmailModified { get; set; }
+
+        [NotMapped]
+        public bool IsLitigationHoldModified { get; set; }
+
+        [NotMapped]
+        public bool IsArchivingModified { get; set; }
 
         #endregion
     }

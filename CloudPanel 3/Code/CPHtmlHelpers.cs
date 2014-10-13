@@ -127,7 +127,7 @@ namespace CloudPanel
             }
         }
 
-        public static IHtmlString GetCompanyEmailDomains(string companyCode, string selectedDomain, string insertBefore)
+        public static IHtmlString GetCompanyEmailDomains(string companyCode, string selectedDomain, string insertBefore, string controlId = "DomainID")
         {
             var stringBuilder = new StringBuilder();
 
@@ -164,7 +164,7 @@ namespace CloudPanel
                     }
                 });
 
-                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}\" class=\"form-control\">{1}</select>", "DomainID", stringBuilder.ToString());
+                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}\" class=\"form-control\">{1}</select>", controlId, stringBuilder.ToString());
                 return new NonEncodedHtmlString(returnValue);
             }
             catch (Exception ex)
@@ -178,7 +178,7 @@ namespace CloudPanel
             }
         }
 
-        public static IHtmlString GetMailboxPlans(int selectedId, string companyCode, string insertBefore)
+        public static IHtmlString GetMailboxPlans(int selectedId, string companyCode, string insertBefore, string controlId = "MailboxPlanID")
         {
             var stringBuilder = new StringBuilder();
 
@@ -210,7 +210,7 @@ namespace CloudPanel
                         );
                 });
 
-                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}\" class=\"form-control\">{1}</select>", "MailboxPlanID", stringBuilder.ToString());
+                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}\" class=\"form-control\">{1}</select>", controlId, stringBuilder.ToString());
                 return new NonEncodedHtmlString(returnValue);
             }
             catch (Exception ex)
@@ -742,5 +742,46 @@ namespace CloudPanel
 
             return new NonEncodedHtmlString(sb.ToString());
         }
+
+        #region Accepted Domains
+
+        public static IHtmlString GetAcceptedDomains(string companyCode, string controlId)
+        {
+            var stringBuilder = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var companyDomains = (from d in db.Domains
+                                      where d.CompanyCode == companyCode
+                                      where d.IsAcceptedDomain
+                                      select d).ToList();
+
+                companyDomains.ForEach(x =>
+                {
+                    stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                                x.Domain,
+                                x.IsDefault ? "selected" : "",
+                                x.Domain
+                           );
+                });
+
+                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}\" class=\"form-control\">{1}</select>", controlId, stringBuilder.ToString());
+                return new NonEncodedHtmlString(returnValue);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        #endregion
     }
 }

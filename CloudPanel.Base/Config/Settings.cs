@@ -81,6 +81,8 @@ namespace CloudPanel.Base.Config
 
         #region Exchange Settings
 
+        public static string ExchangeRoleAssignment { get; set; }
+
         public static string ExchangeServer { get; set; }
 
         public static string ExchangePFServer { get; set; }

@@ -1058,6 +1058,21 @@
     <Content Include="Content\plugins\quicksearch\examples\super_table.html" />
     <Content Include="Content\plugins\quicksearch\jquery.quicksearch.min.js" />
     <Content Include="Content\plugins\sparklines\jquery.sparklines.min.js" />
+    <Content Include="Content\plugins\sweetalert\example\example.css" />
+    <Content Include="Content\plugins\sweetalert\example\images\logo_big%402x.png" />
+    <Content Include="Content\plugins\sweetalert\example\images\logo_big.png" />
+    <Content Include="Content\plugins\sweetalert\example\images\logo_small%402x.png" />
+    <Content Include="Content\plugins\sweetalert\example\images\logo_small.png" />
+    <Content Include="Content\plugins\sweetalert\example\images\te-logo-small.svg" />
+    <Content Include="Content\plugins\sweetalert\example\images\thumbs-up.jpg" />
+    <Content Include="Content\plugins\sweetalert\example\images\vs_icon%402x.png" />
+    <Content Include="Content\plugins\sweetalert\example\images\vs_icon.png" />
+    <Content Include="Content\plugins\sweetalert\example\index.html" />
+    <Content Include="Content\plugins\sweetalert\lib\sweet-alert.css" />
+    <Content Include="Content\plugins\sweetalert\lib\sweet-alert.html" />
+    <Content Include="Content\plugins\sweetalert\lib\sweet-alert.js" />
+    <Content Include="Content\plugins\sweetalert\lib\sweet-alert.min.js" />
+    <Content Include="Content\plugins\sweetalert\sweetalert.gif" />
     <Content Include="Content\variations\theme-default.css" />
     <Content Include="Content\variations\default.css" />
     <Content Include="Content\variations\theme-girly.css" />
@@ -1358,6 +1373,11 @@
     <Content Include="Content\plugins\bootstrap-multiselect\README.md" />
     <Content Include="Content\plugins\bootstrap-fileinput\bower.json" />
     <Content Include="Content\plugins\bootstrap-fileinput\composer.json" />
+    <Content Include="Content\plugins\sweetalert\bower.json" />
+    <Content Include="Content\plugins\sweetalert\example\example.scss" />
+    <Content Include="Content\plugins\sweetalert\lib\sweet-alert.scss" />
+    <Content Include="Content\plugins\sweetalert\LICENSE" />
+    <Content Include="Content\plugins\sweetalert\README.md" />
     <None Include="Properties\PublishProfiles\LAB DC.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

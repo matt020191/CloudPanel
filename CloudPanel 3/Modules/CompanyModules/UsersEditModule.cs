@@ -10,6 +10,7 @@ using Nancy.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Web;
 
 namespace CloudPanel.Modules.CompanyModules
@@ -106,7 +107,7 @@ namespace CloudPanel.Modules.CompanyModules
 
             Put["/"] = _ =>
             {
-                #region Creates a new user
+                #region Updates a user
 
                 CloudPanelContext db = null;
                 dynamic powershell = null;
@@ -116,6 +117,9 @@ namespace CloudPanel.Modules.CompanyModules
                     string userPrincipalName = _.UserPrincipalName;
 
                     logger.DebugFormat("Retrieving user from database");
+                    db = new CloudPanelContext(Settings.ConnectionString);
+                    db.Database.Connection.Open();
+
                     var sqlUser = (from d in db.Users
                                    where d.CompanyCode == companyCode
                                    where d.UserPrincipalName == userPrincipalName
@@ -125,29 +129,49 @@ namespace CloudPanel.Modules.CompanyModules
                         throw new Exception("Unable to find user in the database: " + userPrincipalName);
                     else
                     {
+                        // Model bind
                         logger.DebugFormat("Binding form to class...");
                         var boundUser = this.Bind<Users>();
                         boundUser.UserPrincipalName = userPrincipalName;
                         boundUser.CompanyCode = companyCode;
 
+                        // Combine the old values in sql with the new values in sql
+                        logger.DebugFormat("Updating database values");
+                        Combine(ref sqlUser, ref boundUser);
+
+                        #region Mailbox Changes
+
+                        // Check and process any mailbox changes
                         logger.DebugFormat("Checking for mailbox changes");
-                        bool newEmailStatus = Request.Form.IsEmailEnabled;
+                        if (boundUser.IsEmailModified)
+                        {
+                            logger.DebugFormat("It appears the user loaded the email settings for {0} or set it to change.", userPrincipalName);
+                            boundUser.Email = string.Format("{0}@{1}", Request.Form.EmailFirst.Value, Request.Form.EmailDomain.Value);
 
-                        if (newEmailStatus && (sqlUser.MailboxPlan == null || sqlUser.MailboxPlan < 1)) // Old value disabled but new value enabled [Create]
-                            EnableMailbox(ref powershell, ref boundUser);
-                        else if (newEmailStatus && sqlUser.MailboxPlan > 0) // Old value enabled and new value enabled [Update]
-                            UpdateMailbox(ref powershell, ref boundUser);
-                        else if (!newEmailStatus && sqlUser.MailboxPlan > 0) // Old value enabled and new value disabled [Disable]
-                            DisableMailbox(ref powershell, ref boundUser);
+                            ProcessMailbox(ref sqlUser, ref boundUser, ref db);                            
+                        }
+                        else
+                            logger.DebugFormat("Email was not changed for {0}", userPrincipalName);
 
+                        #endregion
 
-                    }                    
+                        #endregion
+                    }
+
+                    logger.DebugFormat("Saving database...");
+                    db.SaveChanges();
+
+                    string redirectUrl = string.Format("~/company/{0}/users", companyCode);
+                    return Negotiate.WithModel(new { success = "Successfully updated user " + userPrincipalName })
+                                    .WithMediaRangeResponse("text/html", this.Response.AsRedirect(redirectUrl));
                 }
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error creating new user for company {0}: {1}", _.CompanyCode, ex.ToString());
+
+                    ViewBag.error = ex.Message;
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("Company/company_users.cshtml");
+                                    .WithView("error.cshtml");
                 }
                 finally
                 {
@@ -157,27 +181,258 @@ namespace CloudPanel.Modules.CompanyModules
                     if (db != null)
                         db.Dispose();
                 }
-
-                #endregion
             };
         }
 
         #region Exchange Methods
 
-        private void EnableMailbox(ref dynamic powershell, ref Users user)
+        /// <summary>
+        /// Processes the mailbox for the user
+        /// </summary>
+        /// <param name="sqlUser"></param>
+        /// <param name="boundUser"></param>
+        /// <param name="db"></param>
+        private void ProcessMailbox(ref Users sqlUser, ref Users boundUser, ref CloudPanelContext db)
         {
-            powershell = ExchPowershell.GetClass();
+            bool wasEnabled = sqlUser.MailboxPlan > 0 ? true : false;
+            bool nowEnabled = boundUser.EmailEnabledCheck;
+
+            dynamic powershell = null;
+            try
+            {
+                powershell = ExchPowershell.GetClass();
+
+                if ((!wasEnabled && nowEnabled) || (wasEnabled && nowEnabled))
+                {
+                    logger.DebugFormat("We are either enabling or updating the mailbox for {0}", boundUser.UserPrincipalName);
+                    int mailboxPlan = (int)boundUser.MailboxPlan;
+                    var plan = (from d in db.Plans_ExchangeMailbox
+                                where d.MailboxPlanID == mailboxPlan
+                                select d).FirstOrDefault();
+
+                    if (plan == null)
+                        throw new Exception("Unable to find mailbox plan " + boundUser.MailboxPlan);
+
+                    logger.DebugFormat("Processing email addresses...");
+                    var acceptedDomains = GetAcceptedDomains(boundUser.CompanyCode, ref db);
+                    var emailAddresses = ValidateEmails(ref boundUser, acceptedDomains);
+
+                    if (!wasEnabled && nowEnabled)
+                        powershell.Enable_Mailbox(boundUser, plan, emailAddresses.ToArray());
+                    else
+                        powershell.Set_Mailbox(boundUser, plan, emailAddresses.ToArray());
+
+                    logger.DebugFormat("Processing full access permissions for {0}", boundUser.UserPrincipalName);
+                    ProcessFullAccess(boundUser.UserPrincipalName, ref powershell, boundUser.EmailFullAccessOriginal, boundUser.EmailFullAccess, true);
+
+                    logger.DebugFormat("Processing send as permissions for {0}", boundUser.UserPrincipalName);
+                    ProcessSendAs(sqlUser.DistinguishedName, ref powershell, boundUser.EmailSendAsOriginal, boundUser.EmailSendAs);
+
+                    logger.DebugFormat("Updating sql data");
+                    sqlUser.Email = boundUser.Email;
+                    sqlUser.MailboxPlan = plan.MailboxPlanID;
+
+                    if (plan.MailboxSizeMB > 0)
+                        sqlUser.AdditionalMB = (boundUser.SizeInMB - plan.MailboxSizeMB);
+                    else
+                        sqlUser.AdditionalMB = 0;
+                }
+                else if (wasEnabled && !nowEnabled)
+                {
+                    #region Disable Mailbox
+                    // Disable mailbox
+                    powershell.Disable_Mailbox(boundUser.UserPrincipalName);
+
+                    // Update sql values
+                    logger.DebugFormat("Updating SQL values for disabling mailbox {0}", boundUser.UserPrincipalName);
+                    sqlUser.MailboxPlan = 0;
+                    sqlUser.AdditionalMB = 0;
+                    sqlUser.ActiveSyncPlan = 0;
+                    sqlUser.Email = string.Empty;
+                    sqlUser.LitigationHoldDate = string.Empty;
+                    sqlUser.LitigationHoldEnabled = false;
+                    sqlUser.LitigationHoldOwner = string.Empty;
+                    #endregion
+                }
+                else
+                    logger.InfoFormat("Processing mailbox returned an unknown result.");
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error processing mailbox for {0}: {1}", sqlUser.UserPrincipalName, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (powershell != null)
+                    powershell.Dispose();
+            }
         }
 
-        private void DisableMailbox(ref dynamic powershell, ref Users user)
+        /// <summary>
+        /// Adds or removes full access permissions
+        /// </summary>
+        /// <param name="upn"></param>
+        /// <param name="powershell"></param>
+        /// <param name="original"></param>
+        /// <param name="current"></param>
+        /// <param name="autoMapping"></param>
+        private void ProcessFullAccess(string upn, ref dynamic powershell, string[] original, string[] current, bool autoMapping = true)
         {
-            powershell = ExchPowershell.GetClass();
-            powershell.Disable_Mailbox(user.UserPrincipalName);
+            var toAdd = new List<string>();
+            var toRemove = new List<string>();
+
+            logger.DebugFormat("Processing full access permissions");
+            if (original != null && current != null)
+            {
+                logger.DebugFormat("Both original and current were not null");
+                toAdd = (from c in current
+                         where !original.Contains(c)
+                         select c).ToList();
+
+                toRemove = (from c in original
+                            where !current.Contains(c)
+                            select c).ToList();
+            }
+
+            logger.DebugFormat("Checking if all values were removed");
+            if (original != null && current == null)
+                toRemove.AddRange(original);
+
+            logger.DebugFormat("Checking is original was null");
+            if (original == null && current != null)
+                toAdd.AddRange(current);
+
+            logger.DebugFormat("Continuing...");
+            if (toAdd != null && toAdd.Count() > 0)
+                powershell.Add_FullAccessPermissions(upn, toAdd.ToArray(), autoMapping);
+
+            if (toRemove != null && toRemove.Count() > 0)
+                powershell.Remove_FullAccessPermissions(upn, toRemove.ToArray());
         }
 
-        private void UpdateMailbox(ref dynamic powershell, ref Users user)
+        /// <summary>
+        /// Adds or removes send as permissions
+        /// </summary>
+        /// <param name="distinguishedName"></param>
+        /// <param name="powershell"></param>
+        /// <param name="original"></param>
+        /// <param name="current"></param>
+        private void ProcessSendAs(string distinguishedName, ref dynamic powershell, string[] original, string[] current)
         {
-            powershell = ExchPowershell.GetClass();
+            var toAdd = new List<string>();
+            var toRemove = new List<string>();
+
+            logger.DebugFormat("Processing send as permissions");
+            if (original != null && current != null)
+            {
+                logger.DebugFormat("Both original and current were not null");
+                toAdd = (from c in current
+                         where !original.Contains(c)
+                         select c).ToList();
+
+                toRemove = (from c in original
+                            where !current.Contains(c)
+                            select c).ToList();
+            }
+
+            logger.DebugFormat("Checking if all values were removed");
+            if (original != null && current == null)
+                toRemove.AddRange(original);
+
+            logger.DebugFormat("Checking is original was null");
+            if (original == null && current != null)
+                toAdd.AddRange(current);
+
+            logger.DebugFormat("Continuing...");
+            if (toAdd != null && toAdd.Count() > 0)
+                powershell.Add_SendAsPermissions(distinguishedName, toAdd.ToArray());
+
+            if (toRemove != null && toRemove.Count() > 0)
+                powershell.Remove_SendAsPermissions(distinguishedName, toRemove.ToArray());
+        }
+
+        /// <summary>
+        /// Validates that the emails end with a domain the company has access to
+        /// </summary>
+        /// <param name="boundUser"></param>
+        /// <param name="validDomains"></param>
+        /// <returns></returns>
+        private List<string> ValidateEmails(ref Users boundUser, List<Domains> validDomains)
+        {
+            var validatedList = new List<string>() { "SMTP:" + boundUser.Email };
+
+            if (boundUser.EmailAliases != null)
+            {
+                foreach (var email in boundUser.EmailAliases)
+                {
+                    logger.DebugFormat("Validating alias {0} but removing spaces first", email);
+                    var e = email.Replace(" ", string.Empty);
+
+                    string[] split = e.Split('@');
+                    var findDomain = (from d in validDomains
+                                      where d.Domain.Equals(split[1], StringComparison.CurrentCultureIgnoreCase)
+                                      select d).FirstOrDefault();
+
+                    if (findDomain == null)
+                        throw new Exception("Domain " + split[1] + " is not a valid domain for this company");
+                    else
+                    {
+                        if (!e.StartsWith("sip:") && !e.StartsWith("X500") && !e.StartsWith("X400"))
+                            validatedList.Add("smtp:" + e);
+                        else
+                            validatedList.Add(e);
+                    }
+                }
+            }
+
+            return validatedList;
+        }
+
+        /// <summary>
+        /// Gets a list of accepted domains for the company
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <param name="db"></param>
+        /// <returns></returns>
+        public static List<Domains> GetAcceptedDomains(string companyCode, ref CloudPanelContext db)
+        {
+            logger.DebugFormat("Retrieving accepted domains for {0}", companyCode);
+            var domains = (from d in db.Domains
+                           where d.CompanyCode == companyCode
+                           where d.IsAcceptedDomain
+                           select d).ToList();
+
+            return domains;
+        }
+
+        #endregion
+
+        #region Combine Values
+
+        /// <summary>
+        /// Combines the second parameter into the first parameter (Users object)
+        /// </summary>
+        /// <param name="sqlUser"></param>
+        /// <param name="updatedUser"></param>
+        private void Combine(ref Users sqlUser, ref Users updatedUser)
+        {
+            sqlUser.Firstname = updatedUser.Firstname;
+            sqlUser.Middlename = updatedUser.Middlename;
+            sqlUser.Lastname = updatedUser.Lastname;
+            sqlUser.DisplayName = updatedUser.DisplayName;
+            sqlUser.Company = updatedUser.Company;
+            sqlUser.Department = updatedUser.Department;
+            sqlUser.JobTitle = updatedUser.JobTitle;
+            sqlUser.TelephoneNumber = updatedUser.TelephoneNumber;
+            sqlUser.Fax = updatedUser.Fax;
+            sqlUser.HomePhone = updatedUser.HomePhone;
+            sqlUser.MobilePhone = updatedUser.MobilePhone;
+            sqlUser.Street = updatedUser.Street;
+            sqlUser.City = updatedUser.City;
+            sqlUser.State = updatedUser.State;
+            sqlUser.PostalCode = updatedUser.PostalCode;
+            sqlUser.Country = updatedUser.Country;
         }
 
         #endregion

@@ -123,27 +123,30 @@
 			// these and use an external stylesheet then do this in your code:
 			// $.blockUI.defaults.css = {};
 			css: {
-				padding:	0,
-				margin:		0,
-				width:		'30%',
-				top:		'40%',
-				left:		'35%',
-				textAlign:	'center',
-				cursor:		'wait'
+			    padding: 0,
+			    margin: 0,
+			    width: '30%',
+			    top: '40%',
+			    left: '35%',
+			    textAlign: 'center',
+			    color: '#000',
+			    border: '3px solid #aaa',
+			    backgroundColor: '#fff',
+			    cursor: 'wait'
 			},
 
 			// minimal style set used when themes are used
 			themedCSS: {
-				width:	'30%',
-				top:	'40%',
-				left:	'35%'
+			    width: '30%',
+			    top: '40%',
+			    left: '35%'
 			},
 
 			// styles for the overlay
-			overlayCSS:  {
-				backgroundColor:	'#000',
-				opacity:			0.6,
-				cursor:				'wait'
+			overlayCSS: {
+			    backgroundColor: '#000',
+			    opacity: 0.6,
+			    cursor: 'wait'
 			},
 
 			// style to replace wait cursor before unblocking to correct issue

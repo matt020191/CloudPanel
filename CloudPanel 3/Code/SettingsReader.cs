@@ -51,6 +51,7 @@ namespace CloudPanel.Code
                 {
                     Settings.ExchangeServer = s.Element("ExchangeServer").Value;
                     Settings.ExchangePFServer = s.Element("ExchangePFServer").Value;
+                    Settings.ExchangeRoleAssignment = s.Element("ExchangeRoleAssignment").Value;
 
                     int defaultVersion = 2013;
                     int.TryParse(s.Element("ExchangeVersion").Value, out defaultVersion);
