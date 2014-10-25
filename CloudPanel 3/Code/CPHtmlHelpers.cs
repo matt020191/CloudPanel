@@ -5,7 +5,6 @@ using CloudPanel.Database.EntityFramework;
 using log4net;
 using Nancy.ViewEngines.Razor;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 

@@ -89,7 +89,7 @@ namespace CloudPanel.Modules.CompanyModules
 
                     var mailbox = powershell.Get_Mailbox(new Users() { UserPrincipalName = upn });
                     return Negotiate.WithModel(new { mailbox = mailbox })
-                                        .WithStatusCode(HttpStatusCode.OK);
+                                    .WithStatusCode(HttpStatusCode.OK);
                 }
                 catch (Exception ex)
                 {
@@ -141,9 +141,11 @@ namespace CloudPanel.Modules.CompanyModules
 
                         #region Mailbox Changes
 
+                        bool isExchangeEnabled = CPStaticHelpers.IsExchangeEnabled(companyCode);
+
                         // Check and process any mailbox changes
                         logger.DebugFormat("Checking for mailbox changes");
-                        if (boundUser.IsEmailModified)
+                        if (boundUser.IsEmailModified && isExchangeEnabled)
                         {
                             logger.DebugFormat("It appears the user loaded the email settings for {0} or set it to change.", userPrincipalName);
                             boundUser.Email = string.Format("{0}@{1}", Request.Form.EmailFirst.Value, Request.Form.EmailDomain.Value);
@@ -151,14 +153,20 @@ namespace CloudPanel.Modules.CompanyModules
                             ProcessMailbox(ref sqlUser, ref boundUser, ref db);                            
                         }
                         else
-                            logger.DebugFormat("Email was not changed for {0}", userPrincipalName);
+                            logger.DebugFormat("Email was not changed or was not enabled in Exchange for {0}", userPrincipalName);
 
-                        #endregion
+                        logger.DebugFormat("Checking for litigation hold changes");
+                        if (boundUser.IsLitigationHoldModified && isExchangeEnabled && sqlUser.MailboxPlan > 0)
+                        {
+                            ProcessLitigationHold(ref boundUser);
+                        }
+                        else
+                            logger.DebugFormat("Litigation hold was not changed or was not enabled in Exchange for {0}", userPrincipalName);
 
                         #endregion
                     }
 
-                    logger.DebugFormat("Saving database...");
+                    logger.DebugFormat("Saving database changes...");
                     db.SaveChanges();
 
                     string redirectUrl = string.Format("~/company/{0}/users", companyCode);
@@ -181,6 +189,8 @@ namespace CloudPanel.Modules.CompanyModules
                     if (db != null)
                         db.Dispose();
                 }
+
+                #endregion
             };
         }
 
@@ -260,6 +270,35 @@ namespace CloudPanel.Modules.CompanyModules
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error processing mailbox for {0}: {1}", sqlUser.UserPrincipalName, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (powershell != null)
+                    powershell.Dispose();
+            }
+        }
+
+        private void ProcessLitigationHold(ref Users boundUser)
+        {
+            logger.DebugFormat("Processing litigation hold section...");
+            dynamic powershell = null;
+            try
+            {
+                powershell = ExchPowershell.GetClass();
+
+                logger.DebugFormat("Now checking litigation hold");
+                if (boundUser.IsLitigationHoldModified)
+                {
+                    logger.DebugFormat("Litigation hold page was loaded. Updating values");
+                    powershell.Set_LitigationHold(boundUser.UserPrincipalName, boundUser.LitigationHoldEnabled, boundUser.RetentionUrl, boundUser.RetentionComment);
+                }
+                else
+                    logger.DebugFormat("Litigation hold was not modified");
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error processing litigation hold for {0}: {1}", boundUser.UserPrincipalName, ex.ToString());
                 throw;
             }
             finally

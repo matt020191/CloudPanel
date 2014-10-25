@@ -37,10 +37,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
-using System.Management.Automation.Runspaces;
-using System.Security;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace CloudPanel.Exchange
 {
@@ -851,6 +847,12 @@ namespace CloudPanel.Exchange
 
         #region Mailboxes
 
+        /// <summary>
+        /// Enable an Exchange mailbox
+        /// </summary>
+        /// <param name="user">User object containing all the required variables</param>
+        /// <param name="p">The plans object containing the plan to apply to the user</param>
+        /// <param name="emailAddresses">List of email addresses including the primary and aliases</param>
         public void Enable_Mailbox(Users user, Plans_ExchangeMailbox p, string[] emailAddresses)
         {
             logger.DebugFormat("Enabling mailbox for {0}", user.UserPrincipalName);
@@ -911,7 +913,6 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("RoleAssignmentPolicy", Settings.ExchangeRoleAssignment);
             cmd.AddParameter("DomainController", this._domainController);
 
-
             // CAS Mailbox
             logger.DebugFormat("Continuing to Set-CASMailbox...");
             cmd.AddStatement();
@@ -933,6 +934,12 @@ namespace CloudPanel.Exchange
             HandleErrors();
         }
 
+        /// <summary>
+        /// Updates an Exchange mailbox
+        /// </summary>
+        /// <param name="user">User object containing all the required variables</param>
+        /// <param name="p">The plans object containing the plan to apply to the user</param>
+        /// <param name="emailAddresses">List of email addresses including the primary and aliases</param>
         public void Set_Mailbox(Users user, Plans_ExchangeMailbox p, string[] emailAddresses)
         {
             logger.DebugFormat("Updating mailbox for {0}", user.UserPrincipalName);
@@ -1003,6 +1010,47 @@ namespace CloudPanel.Exchange
             HandleErrors();
         }
 
+        /// <summary>
+        /// Updates an Exchange mailbox litigation hold information
+        /// </summary>
+        /// <param name="userPrincipalName">UPN of the user to update</param>
+        /// <param name="litigationHoldEnabled">If litigation hold is enabled or not</param>
+        /// <param name="retentionUrl">The URL for information on the hold (Displayed to user)</param>
+        /// <param name="retentionComment">The comment for the information on the hold (Displayed to user)</param>
+        public void Set_LitigationHold(string userPrincipalName, bool litigationHoldEnabled, string retentionUrl = "", string retentionComment = "")
+        {
+            logger.DebugFormat("Updating litigation hold information for {0}", userPrincipalName);
+            logger.DebugFormat("Litigation hold values are {0}, {1}, {2}, {3}", userPrincipalName, litigationHoldEnabled, retentionUrl, retentionComment);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Set-Mailbox");
+            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("LitigationHoldEnabled", litigationHoldEnabled);
+
+            if (litigationHoldEnabled)
+            {
+                if (!string.IsNullOrEmpty(retentionComment))
+                    cmd.AddParameter("RetentionComment", retentionComment);
+
+                if (!string.IsNullOrEmpty(retentionUrl))
+                    cmd.AddParameter("RetentionUrl",retentionUrl);
+            }
+            else
+            {
+                cmd.AddParameter("RetentionComment", null);
+                cmd.AddParameter("RetentionUrl", null);
+            }
+
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        /// <summary>
+        /// Disables an Exchange mailbox
+        /// </summary>
+        /// <param name="userPrincipalName">UserPrincipalName of the user to disable</param>
         public void Disable_Mailbox(string userPrincipalName)
         {
             logger.DebugFormat("Removing mailbox {0}", userPrincipalName);
@@ -1018,6 +1066,10 @@ namespace CloudPanel.Exchange
             HandleErrors();
         }
 
+        /// <summary>
+        /// Disables all Exchange mailboxes for a specific company
+        /// </summary>
+        /// <param name="companyCode"></param>
         public void Remove_AllMailboxes(string companyCode)
         {
             logger.DebugFormat("Removing all mailboxes where CustomAttribute1 equals {0}", companyCode);
@@ -1103,6 +1155,12 @@ namespace CloudPanel.Exchange
             return user;
         }
 
+        /// <summary>
+        /// Adds full access permissions to a mailbox
+        /// </summary>
+        /// <param name="userPrincipalName">UPN of the user to add permissions to</param>
+        /// <param name="toAdd">string array of who we are adding to have full access permissions</param>
+        /// <param name="autoMapping">If we are automapping for who is added</param>
         public void Add_FullAccessPermissions(string userPrincipalName, string[] toAdd, bool autoMapping = true)
         {
             if (toAdd != null && toAdd.Length > 0)
@@ -1129,6 +1187,11 @@ namespace CloudPanel.Exchange
                 logger.DebugFormat("Adding full access permissions method was called but toAdd parameter was null or empty");
         }
 
+        /// <summary>
+        /// Adds send as permissions to a mailbox
+        /// </summary>
+        /// <param name="distinguishedName">DistinguishedName of the user we are adding send as permission to</param>
+        /// <param name="toAdd">string array of who we are adding to have full access permissions</param>
         public void Add_SendAsPermissions(string distinguishedName, string[] toAdd)
         {
             if (toAdd != null && toAdd.Length > 0)
@@ -1210,6 +1273,11 @@ namespace CloudPanel.Exchange
                 logger.DebugFormat("Removing send as access permissions method was called but toAdd parameter was null or empty");
         }
 
+        /// <summary>
+        /// Retrieves a string array of who currently has full access permissions
+        /// </summary>
+        /// <param name="userPrincipalName">UPN of the user to retrieve permissions</param>
+        /// <returns></returns>
         public string[] Get_FullAccessPermissions(string userPrincipalName)
         {
             PSCommand cmd = new PSCommand();
@@ -1254,6 +1322,11 @@ namespace CloudPanel.Exchange
             }
         }
 
+        /// <summary>
+        /// Retrieves a string array of who currently has send as permissions
+        /// </summary>
+        /// <param name="userPrincipalName"></param>
+        /// <returns></returns>
         public string[] Get_SendAsPermissions(string userPrincipalName)
         {
             PSCommand cmd = new PSCommand();
@@ -1299,6 +1372,42 @@ namespace CloudPanel.Exchange
         }
 
         #endregion
+
+        #region Databases
+
+        public List<MailboxDatabase> Get_MailboxDatabases()
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-MailboxDatabase");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                logger.DebugFormat("Found Exchange databases");
+
+                var listDatabases = new List<MailboxDatabase>();
+                foreach (PSObject ps in _powershell.Invoke())
+                {
+                    listDatabases.Add(new MailboxDatabase()
+                        {
+                            Identity = ps.Members["Identity"].Value.ToString(),
+                            Guid = Guid.Parse(ps.Members["Guid"].Value.ToString()),
+                            IsMailboxDatabase = bool.Parse(ps.Members["IsMailboxDatabase"].Value.ToString()),
+                            LogFilePrefix = ps.Members["LogFilePrefix"].Value.ToString(),
+                            LogFolderPath = ps.Members["LogFolderPath"].Value.ToString()
+                        });
+                }
+
+                return listDatabases;
+            }
+        }
+
+        #endregion
+
 
         #region Private methods
 

@@ -61,7 +61,29 @@ namespace CloudPanel.Base.Config
 
         public static string[] SuperAdmins { get; set; }
 
+        public static string SuperAdminsAsString
+        {
+            get
+            {
+                if (SuperAdmins == null || SuperAdmins.Length < 1)
+                    return "";
+                else
+                    return String.Join(",", SuperAdmins);
+            }
+        }
+
         public static string[] BillingAdmins { get; set; }
+
+        public static string BillingAdminsAsString
+        {
+            get
+            {
+                if (BillingAdmins == null || BillingAdmins.Length < 1)
+                    return "";
+                else
+                    return String.Join(",", BillingAdmins);
+            }
+        }
 
         public static string CompanyName { get; set; }
 
@@ -89,38 +111,27 @@ namespace CloudPanel.Base.Config
 
         public static int ExchangeVersion { get; set; }
 
-        public static bool ExchangeSSL { get; set; }
-
         public static bool ExchangePFEnabled { get; set; }
 
         public static string ExchangeConnection { get; set; }
 
         public static string[] ExchangeDatabases { get; set; }
 
-        #endregion
-
-        #region Modules
-
-        public static bool ExchangeModule { get; set; }
-
-        public static bool CitrixModule { get; set; }
-
-        public static bool LyncModule { get; set; }
-
-        #endregion
-
-        #region Security
-
-        public static string SaltKey { get; set; }
-
-        #endregion
-
-        #region Advanced Customization
+        public static string ExchangeDatabasesAsString
+        {
+            get
+            {
+                if (ExchangeDatabases == null || ExchangeDatabases.Length < 1)
+                    return "";
+                else
+                    return String.Join(",", ExchangeDatabases);
+            }
+        }
 
         private static string _exchangegalname;
         public static string ExchangeGALName
         {
-            get { return string.IsNullOrEmpty(_exchangegalname) ? "{0} GAL" : _exchangegalname;  }
+            get { return string.IsNullOrEmpty(_exchangegalname) ? "{0} GAL" : _exchangegalname; }
             set { _exchangegalname = value; }
         }
 
@@ -208,6 +219,72 @@ namespace CloudPanel.Base.Config
             set { _exchangeouname = value; }
         }
 
+        private static string _exchangegroupsou;
+        public static string ExchangeGroupsOU
+        {
+            get { return string.IsNullOrEmpty(_exchangegroupsou) ? "Exchange" : _exchangegroupsou; }
+            set { _exchangegroupsou = value; }
+        }
+
+        private static string _exchangecontactsou;
+        public static string ExchangeContactsOU
+        {
+            get { return string.IsNullOrEmpty(_exchangecontactsou) ? "Exchange" : _exchangecontactsou; }
+            set { _exchangecontactsou = value; }
+        }
+
+        private static string _exchangeroomsou;
+        public static string ExchangeRoomsOU
+        {
+            get { return string.IsNullOrEmpty(_exchangeroomsou) ? "Exchange" : _exchangeroomsou; }
+            set { _exchangeroomsou = value; }
+        }
+
+        private static string _exchangeresourceou;
+        public static string ExchangeResourceOU
+        {
+            get { return string.IsNullOrEmpty(_exchangeresourceou) ? "Exchange" : _exchangeresourceou; }
+            set { _exchangeresourceou = value; }
+        }
+
+        #endregion
+
+        #region Modules
+
+        public static bool ExchangeModule { get; set; }
+
+        public static bool CitrixModule { get; set; }
+
+        public static bool LyncModule { get; set; }
+
+        #endregion
+
+        #region Security
+
+        public static string SaltKey { get; set; }
+
+        #endregion
+
+        #region Support Notifications
+
+        public static bool SNEnabled { get; set; }
+
+        public static string SNFrom { get; set; }
+
+        public static string SNTo { get; set; }
+
+        public static string SNServer { get; set; }
+
+        public static int SNPort { get; set; }
+
+        public static string SNUsername { get; set; }
+
+        public static string SNEncryptedPassword { get; set; }
+
+        #endregion
+
+        #region Advanced Customization
+
         private static string _applicationsouname;
         public static string ApplicationsOUName
         {
@@ -223,8 +300,13 @@ namespace CloudPanel.Base.Config
         {
             get
             {
-                return string.Format("{0}://{1}/powershell", ExchangeSSL ? "https" : "http", ExchangeServer);
+                return string.Format("https://{0}/powershell", ExchangeServer);
             }
+        }
+
+        public static string OUPath(string childOUName, string parentOu)
+        {
+            return string.Format("OU={0},{1}",childOUName, parentOu);
         }
 
         public static string ExchangeOuPath(string parentOu)

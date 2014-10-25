@@ -24,9 +24,9 @@ namespace CloudPanel.Modules
             this.RequiresAnyClaim(new[] { "SuperAdmin" });
 
             Get["/", c => c.Request.Accept("text/html")] = _ =>
-            {
-                return View["resellers.cshtml"];
-            };
+                {
+                    return View["resellers.cshtml"];
+                };
 
             Get["/", c => c.Request.Accept("application/json")] = _ =>
                 {

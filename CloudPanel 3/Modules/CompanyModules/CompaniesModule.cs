@@ -25,7 +25,7 @@ namespace CloudPanel.Modules
             Get["/"] = _ =>
             {
                 string resellerCode = _.ResellerCode;
-                NancyContextHelpers.SetSelectedResellerCode(this.Context, _.ResellerCode);
+                this.Context.SetResellerCode(resellerCode);
 
                 #region Returns the companies view with model or json data based on the request
                 CloudPanelContext db = null;
@@ -189,9 +189,21 @@ namespace CloudPanel.Modules
                         var appOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.ApplicationsOUName, UPNSuffixes = createdOrg.UPNSuffixes });
                         org.RemoveRights(appOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
 
-                        logger.DebugFormat("Creating Exchange organizational unit in Active Directory");
-                        var exchOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.ExchangeOUName, UPNSuffixes = createdOrg.UPNSuffixes });
-                        org.RemoveRights(exchOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
+                        logger.DebugFormat("Creating groups organizational unit in Active Directory");
+                        var grpOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.ExchangeGroupsOU, UPNSuffixes = createdOrg.UPNSuffixes });
+                        org.RemoveRights(grpOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
+
+                        logger.DebugFormat("Creating contacts organizational unit in Active Directory");
+                        var contactOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.ExchangeContactsOU, UPNSuffixes = createdOrg.UPNSuffixes });
+                        org.RemoveRights(contactOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
+
+                        logger.DebugFormat("Creating rooms organizational unit in Active Directory");
+                        var roomOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.ExchangeRoomsOU, UPNSuffixes = createdOrg.UPNSuffixes });
+                        org.RemoveRights(roomOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
+
+                        logger.DebugFormat("Creating resource organizational unit in Active Directory");
+                        var resourceOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.ExchangeResourceOU, UPNSuffixes = createdOrg.UPNSuffixes });
+                        org.RemoveRights(resourceOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
 
                         if (!string.IsNullOrEmpty(Settings.UsersOU))
                         {

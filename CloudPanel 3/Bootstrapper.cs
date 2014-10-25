@@ -1,6 +1,5 @@
 ﻿namespace CloudPanel
 {
-    using CloudPanel;
     using CloudPanel.Base.Config;
     using CloudPanel.Code;
     using CloudPanel.Database.EntityFramework;
@@ -22,7 +21,7 @@
             XmlConfigurator.Configure();
 
             // Load the settings
-            SettingsReader.RetrieveSettings();
+            StaticSettings.LoadSettings();
 
             // Load brandings
             BrandingModule.LoadAllBrandings();

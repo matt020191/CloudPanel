@@ -1,5 +1,5 @@
 ﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
-@{string selectedCompanyCode = CloudPanel.NancyContextHelpers.GetSelectedCompanyCode(this.RenderContext.Context);}
+@using CloudPanel;
 
 @{
     Layout = "__master.cshtml";
@@ -18,7 +18,7 @@
 <div id="page-heading">
     <ol class="breadcrumb">
         <li><a href="~/dashboard">Dashboard</a></li>
-        <li><a href="~/company/@selectedCompanyCode/overview">{Company Name}</a></li>
+        <li><a href="~/company/@this.RenderContext.Context.GetCompanyCode()/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
         <li class="active">Users</li>
     </ol>
 
@@ -107,7 +107,7 @@
                         <div class="form-group">
                             <label for="focusedinput" class="col-sm-3 control-label">Domain</label>
                             <div class="col-sm-9">
-                                @CloudPanel.CPHtmlHelpers.GetCompanyDomains(selectedCompanyCode, 0, string.Empty)
+                                @CloudPanel.CPHtmlHelpers.GetCompanyDomains(this.RenderContext.Context.GetCompanyCode(), 0, string.Empty)
                             </div>
                         </div>
                         <div class="form-group">
@@ -277,7 +277,7 @@
                                 Modify <span class="caret"></span> \
                             </button> \
                             <ul class="dropdown-menu" role="menu"> \
-                                <li><a href="@Url.Content("~/company/"+ selectedCompanyCode +"/users/")' + upn + '">Edit</a></li> \
+                                <li><a href="@Url.Content("~/company/" + this.RenderContext.Context.GetCompanyCode() + "/users/")' + upn + '">Edit</a></li> \
                                 <li><a href="javascript:;" onclick="ShowDelete(\''+upn+'\');">Delete</a></li> \
                                 <li class="divider"></li> \
                                 <li><a href="javascript:;" onclick="ShowReset(\''+upn+'\');">Reset Password</a></li> \

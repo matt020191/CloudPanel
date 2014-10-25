@@ -21,7 +21,7 @@ namespace CloudPanel.Modules
             Get["/"] = _ =>
             {
                 string companyCode = _.CompanyCode;
-                NancyContextHelpers.SetSelectedCompanyCode(this.Context, _.CompanyCode);
+                this.Context.SetCompanyCode(companyCode);
                 logger.DebugFormat("Setting selected company code for {0} to {1}", this.Context.CurrentUser.UserName, _.CompanyCode);
 
                 CloudPanelContext db = null;

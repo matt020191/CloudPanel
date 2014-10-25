@@ -420,7 +420,7 @@ namespace CloudPanel.Modules
                             powershell = ExchPowershell.GetClass();
 
                             logger.DebugFormat("Creating new group in Exchange");
-                            var createdGroup = powershell.New_DistributionGroup(newGroup, Settings.ExchangeOuPath(company.DistinguishedName));
+                            var createdGroup = powershell.New_DistributionGroup(newGroup, Settings.OUPath(Settings.ExchangeGroupsOU, company.DistinguishedName));
 
                             logger.DebugFormat("Adding group to database");
                             db.DistributionGroups.Add(createdGroup);

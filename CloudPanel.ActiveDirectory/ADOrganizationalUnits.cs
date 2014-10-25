@@ -69,52 +69,70 @@ namespace CloudPanel.ActiveDirectory
         public OrganizationalUnit Create(string parent, OrganizationalUnit newOU)
         {
             DirectoryEntry child = null;
-
+            DirectorySearcher ds = null;
             try
             {
+                log.DebugFormat("Creating new organizational unit {0} in {1}", newOU.Name, parent);
+
                 if (string.IsNullOrEmpty(newOU.Name))
                     throw new MissingFieldException("OrganizationalUnit", "Name");
 
-                log.DebugFormat("Creating new organizational unit {0} in {1}", newOU.Name, parent);
-
                 de = GetDirectoryEntry(parent);
-                child = de.Children.Add("OU=" + newOU.Name, "OrganizationalUnit");
 
-                // Add available properties
-                log.Debug("Iterating through all the properties to add to the new organizational unit.");
-                if (!string.IsNullOrEmpty(newOU.Description))
-                    child.Properties["Description"].Value = newOU.Description;
+                // Lets see if the OU already exists
+                ds = new DirectorySearcher(de);
+                ds.Filter = string.Format("(&(objectClass=organizationalUnit)(OU={0}))", newOU.Name);
+                ds.SearchScope = SearchScope.OneLevel;
 
-                if (!string.IsNullOrEmpty(newOU.DisplayName))
-                    child.Properties["displayName"].Value = newOU.DisplayName;
+                var searchResult = ds.FindOne();
+                if (searchResult != null)
+                {
+                    log.DebugFormat("Skipping creating OU {0} because it already exists", newOU.Name);
 
-                if (!string.IsNullOrEmpty(newOU.Street))
-                    child.Properties["street"].Value = newOU.Street;
+                    // Set the values to send back
+                    newOU.DistinguishedName = searchResult.GetDirectoryEntry().Properties["DistinguishedName"].Value.ToString();
+                    return newOU;
+                }
+                else
+                {
+                    child = de.Children.Add("OU=" + newOU.Name, "OrganizationalUnit");
 
-                if (!string.IsNullOrEmpty(newOU.City))
-                    child.Properties["l"].Value = newOU.City;
+                    // Add available properties
+                    log.Debug("Iterating through all the properties to add to the new organizational unit.");
+                    if (!string.IsNullOrEmpty(newOU.Description))
+                        child.Properties["Description"].Value = newOU.Description;
 
-                if (!string.IsNullOrEmpty(newOU.State))
-                    child.Properties["st"].Value = newOU.State;
+                    if (!string.IsNullOrEmpty(newOU.DisplayName))
+                        child.Properties["displayName"].Value = newOU.DisplayName;
 
-                if (!string.IsNullOrEmpty(newOU.Country))
-                    child.Properties["co"].Value = newOU.Country;
+                    if (!string.IsNullOrEmpty(newOU.Street))
+                        child.Properties["street"].Value = newOU.Street;
 
-                if (!string.IsNullOrEmpty(newOU.CountryCode))
-                    child.Properties["c"].Value = newOU.CountryCode;
+                    if (!string.IsNullOrEmpty(newOU.City))
+                        child.Properties["l"].Value = newOU.City;
 
-                if (newOU.UPNSuffixes != null && newOU.UPNSuffixes.Length > 0)
-                    foreach (var u in newOU.UPNSuffixes)
-                        child.Properties["uPNSuffixes"].Add(u);
+                    if (!string.IsNullOrEmpty(newOU.State))
+                        child.Properties["st"].Value = newOU.State;
 
-                log.Debug("Done going through all the properties. Now saving the organizational unit...");
-                child.CommitChanges();
-                log.DebugFormat("Successfully saved new organizational unit {0} in {1}... Retrieving new values...", newOU.Name, parent);
+                    if (!string.IsNullOrEmpty(newOU.Country))
+                        child.Properties["co"].Value = newOU.Country;
 
-                // Set the values to send back
-                newOU.DistinguishedName = child.Properties["distinguishedName"].Value.ToString();
+                    if (!string.IsNullOrEmpty(newOU.CountryCode))
+                        child.Properties["c"].Value = newOU.CountryCode;
 
-                return newOU;
+                    if (newOU.UPNSuffixes != null && newOU.UPNSuffixes.Length > 0)
+                        foreach (var u in newOU.UPNSuffixes)
+                            child.Properties["uPNSuffixes"].Add(u);
+
+                    log.Debug("Done going through all the properties. Now saving the organizational unit...");
+                    child.CommitChanges();
+                    log.DebugFormat("Successfully saved new organizational unit {0} in {1}... Retrieving new values...", newOU.Name, parent);
+
+                    // Set the values to send back
+                    newOU.DistinguishedName = child.Properties["distinguishedName"].Value.ToString();
+
+                    return newOU;
+                }
             }
             catch (Exception ex)
             {

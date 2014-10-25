@@ -149,7 +149,7 @@ namespace CloudPanel.Modules
                         powershell = ExchPowershell.GetClass();
 
                         reverse = new ReverseActions();
-                        var createdContact = powershell.New_MailContact(newContact, defaultDomain, Settings.ExchangeOuPath(company.DistinguishedName));
+                        var createdContact = powershell.New_MailContact(newContact, defaultDomain, Settings.OUPath(Settings.ExchangeContactsOU, company.DistinguishedName));
                         reverse.AddAction(Actions.CreateMailContact, createdContact.DistinguishedName);
 
                         logger.DebugFormat("Contact was created. Adding to database");

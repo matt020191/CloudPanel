@@ -88,6 +88,7 @@
     <Compile Include="Exchange\EmailInfo.cs" />
     <Compile Include="Exchange\ExchangeGroupSelectors.cs" />
     <Compile Include="Exchange\GroupObjectSelector.cs" />
+    <Compile Include="Exchange\MailboxDatabase.cs" />
     <Compile Include="Other\Error.cs" />
     <Compile Include="Other\UsersEditPage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,5 +1,5 @@
 ﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
-@{string selectedCompanyCode = CloudPanel.NancyContextHelpers.GetSelectedCompanyCode(this.RenderContext.Context);}
+@using CloudPanel
 
 @{
     Layout = "__master.cshtml";
@@ -16,9 +16,9 @@
 <div id="page-heading">
     <ol class="breadcrumb">
         <li><a href="~/dashboard">Dashboard</a></li>
-        <li><a href="~/company/{CompanyCode}/overview">{Company Name}</a></li>
+        <li><a href="~/company/@this.RenderContext.Context.GetCompanyCode()/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
         <li>Exchange</li>
-        <li><a href="~/company/{CompanyCode}/exchange/groups">Distribution Groups</a></li>
+        <li><a href="~/company/@this.RenderContext.Context.GetCompanyCode()/exchange/groups">Distribution Groups</a></li>
         <li class="active">Add Group</li>
     </ol>
 

@@ -88,6 +88,34 @@ namespace CloudPanel
             return new string(arr);
         }
 
+        public static string GetCompanyName(string companyCode)
+        {
+            CloudPanelContext db = null;
+            try
+            {
+                logger.DebugFormat("Getting company name for {0}", companyCode);
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                // Generate code
+                var companyName = (from d in db.Companies
+                                   where d.CompanyCode == companyCode
+                                   select d.CompanyName).FirstOrDefault();
+
+                logger.DebugFormat("Found company name {0} for {1}", companyName, companyCode);
+                return companyName;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting");
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
         public static string RandomCharacters()
         {
             var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";

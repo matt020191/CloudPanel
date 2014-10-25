@@ -16,7 +16,7 @@
     <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
 
     <link href="~/Content/variations/@branding.Theme" rel="stylesheet" />
-    <link href="~/Content/css/wait.css" rel="stylesheet" />
+    <link href="~/Content/plugins/pines-notify/jquery.pnotify.default.css" rel="stylesheet" />
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries. Placeholdr.js enables the placeholder attribute -->
     <!--[if lt IE 9]>
@@ -71,22 +71,24 @@
 
         <div id="page-content">
             <div id="wrap">
-                @if (Model != null)
-                {
-                    var dict = ((System.Collections.Generic.IDictionary<string, object>)Model);
-                    if (dict.ContainsKey("success")) { 
-                        <div class="alert alert-dismissable alert-success"><strong>SUCCESS</strong> @Model.success <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button></div>
+                <div id="messages">
+                    @if (Model != null)
+                    {
+                        var dict = ((System.Collections.Generic.IDictionary<string, object>)Model);
+                        if (dict.ContainsKey("success")) { 
+                            <div class="alert alert-dismissable alert-success"><strong>SUCCESS</strong> @Model.success <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button></div>
+                        }
+                        if (dict.ContainsKey("info")) { 
+                            <div class="alert alert-dismissable alert-info"><strong>IFO</strong> @Model.success <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button></div>
+                        }
+                        if (dict.ContainsKey("warning")) { 
+                            <div class="alert alert-dismissable alert-warning"><strong>WARNING</strong> @Model.warning <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button></div>
+                        }
+                        if (dict.ContainsKey("error")) { 
+                            <div class="alert alert-dismissable alert-danger"><strong>ERROR</strong> @Model.error <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button></div>
+                        }
                     }
-                    if (dict.ContainsKey("info")) { 
-                        <div class="alert alert-dismissable alert-info"><strong>IFO</strong> @Model.success <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button></div>
-                    }
-                    if (dict.ContainsKey("warning")) { 
-                        <div class="alert alert-dismissable alert-warning"><strong>WARNING</strong> @Model.warning <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button></div>
-                    }
-                    if (dict.ContainsKey("error")) { 
-                        <div class="alert alert-dismissable alert-danger"><strong>ERROR</strong> @Model.error <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button></div>
-                    }
-                }
+                </div>
 
                 @RenderBody()
             </div>
@@ -119,6 +121,7 @@
     <script type="text/​javascript" src="~/content/​js/​placeholdr.js">​</script>​
     <script type="text/javascript" src="~/content/js/jquery.nicescroll.min.js"></script>
     <script type="text/javascript" src="~/content/js/application.js"></script>
+    <script src="~/Content/plugins/pines-notify/jquery.pnotify.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             $(".tooltip-ex").tooltip();
@@ -131,23 +134,24 @@
                 }
             });
         });
+
+        function AppendError(message) {
+            $.pnotify({
+                title: 'Error!',
+                text: message,
+                type: 'error'
+            });
+        }
+
+        function AppendSuccess(message) {
+            $.pnotify({
+                title: 'Success!',
+                text: message,
+                type: 'success'
+            });
+        }
     </script>
 
     @RenderSection("JAVASCRIPT", false)
-
-    <div id="waitMessage" style="display: none">
-        <section id="global">
-            <div id="top" class="mask">
-                <div class="plane"></div>
-            </div>
-            <div id="middle" class="mask">
-                <div class="plane"></div>
-            </div>
-            <div id="bottom" class="mask">
-                <div class="plane"></div>
-            </div>
-            <p class="p"><i>LOADING...</i></p>
-        </section>
-    </div>
 </body>
 </html>
