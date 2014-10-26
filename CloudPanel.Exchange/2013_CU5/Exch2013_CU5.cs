@@ -35,7 +35,7 @@ using System.Text;
 
 namespace CloudPanel.Exchange._2013_CU5
 {
-    public class Exch2013_CU5 : Exch2010
+    public class Exch2013_CU5 : Exch2013
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(Exch2013_CU5));
 

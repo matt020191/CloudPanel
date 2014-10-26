@@ -680,7 +680,7 @@ namespace CloudPanel.Exchange
                 returnGroup.Email = foundGroup.Properties["PrimarySmtpAddress"].Value.ToString();
                 returnGroup.ModerationEnabled = (bool)foundGroup.Properties["ModerationEnabled"].Value;
                 returnGroup.Hidden = (bool)foundGroup.Properties["HiddenFromAddressListsEnabled"].Value;
-                
+
                 logger.DebugFormat("Checking if authentication is required to send to the group");
                 returnGroup.RequireSenderAuthenticationEnabled = foundGroup.Properties["RequireSenderAuthenticationEnabled"].Value.Equals(true) ? ExchangeValues.Inside : ExchangeValues.InsideAndOutside;
 
@@ -908,7 +908,7 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("UseDatabaseQuotaDefaults", false);
             cmd.AddParameter("UseDatabaseRetentionDefaults", false);
             cmd.AddParameter("RetainDeletedItemsUntilBackup", true);
-            cmd.AddParameter("CustomAttribute1",  user.CompanyCode);
+            cmd.AddParameter("CustomAttribute1", user.CompanyCode);
             cmd.AddParameter("GrantSendOnBehalfTo", (user.EmailSendOnBehalf == null || user.EmailSendOnBehalf.Length == 0) ? null : user.EmailSendOnBehalf);
             cmd.AddParameter("RoleAssignmentPolicy", Settings.ExchangeRoleAssignment);
             cmd.AddParameter("DomainController", this._domainController);
@@ -1033,7 +1033,7 @@ namespace CloudPanel.Exchange
                     cmd.AddParameter("RetentionComment", retentionComment);
 
                 if (!string.IsNullOrEmpty(retentionUrl))
-                    cmd.AddParameter("RetentionUrl",retentionUrl);
+                    cmd.AddParameter("RetentionUrl", retentionUrl);
             }
             else
             {
@@ -1116,7 +1116,7 @@ namespace CloudPanel.Exchange
                     string e = i.ToString();
                     if (!e.StartsWith("SMTP:")) // Skip primary email
                     {
-                        parsedAliases.Add(e.Replace("smtp:", "")); 
+                        parsedAliases.Add(e.Replace("smtp:", ""));
                     }
                 }
                 user.EmailAliases = parsedAliases.ToArray();
@@ -1124,7 +1124,7 @@ namespace CloudPanel.Exchange
                 logger.DebugFormat("Retrieving litigation hold information");
                 if (foundUser.Properties["LitigationHoldEnabled"].Value != null)
                     user.LitigationHoldEnabled = bool.Parse(foundUser.Properties["LitigationHoldEnabled"].Value.ToString());
-                
+
                 if (foundUser.Properties["LitigationHoldDate"].Value != null)
                     user.LitigationHoldDate = foundUser.Properties["LitigationHoldDate"].Value.ToString();
 
@@ -1390,7 +1390,7 @@ namespace CloudPanel.Exchange
                 logger.DebugFormat("Found Exchange databases");
 
                 var listDatabases = new List<MailboxDatabase>();
-                foreach (PSObject ps in _powershell.Invoke())
+                foreach (PSObject ps in psObjects)
                 {
                     listDatabases.Add(new MailboxDatabase()
                         {
@@ -1408,10 +1408,391 @@ namespace CloudPanel.Exchange
 
         #endregion
 
+        #region Activesync
+
+        /// <summary>
+        /// Creates a new activesync policy in Exchange
+        /// </summary>
+        /// <param name="policy"></param>
+        /// <param name="companyCode"></param>
+        public virtual void New_ActiveSyncPolicy(Plans_ExchangeActiveSync policy)
+        {
+            logger.DebugFormat("Creating new activesync policy named {0}", policy.DisplayName);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("New-ActiveSyncMailboxPolicy");
+            cmd.AddParameter("Name", policy.DisplayName);
+            cmd.AddParameter("AllowBluetooth", policy.AllowBluetooth);
+            cmd.AddParameter("AllowBrowser", policy.AllowBrowser);
+            cmd.AddParameter("AllowCamera", policy.AllowCamera);
+            cmd.AddParameter("AllowConsumerEmail", policy.AllowConsumerMail);
+            cmd.AddParameter("AllowDesktopSync", policy.AllowDesktopSync);
+            cmd.AddParameter("AllowHTMLEmail", policy.AllowHTMLEmail);
+            cmd.AddParameter("AllowInternetSharing", policy.AllowInternetSharing);
+            cmd.AddParameter("AllowIrDA", policy.AllowInfrared);
+            cmd.AddParameter("AllowNonProvisionableDevices", policy.AllowNonProvisionableDevices);
+            cmd.AddParameter("AllowRemoteDesktop", policy.AllowRemoteDesktop);
+            cmd.AddParameter("AllowSimpleDevicePassword", policy.AllowSimplePassword);
+            cmd.AddParameter("AllowStorageCard", policy.AllowRemovableStorage);
+            cmd.AddParameter("AllowTextMessaging", policy.AllowTextMessaging);
+            cmd.AddParameter("AllowUnsignedApplications", policy.AllowUnsignedApplications);
+            cmd.AddParameter("AllowUnsignedInstallationPackages", policy.AllowUnsignedInstallationPackages);
+            cmd.AddParameter("AllowWiFi", policy.AllowWiFi);
+            cmd.AddParameter("AlphanumericDevicePasswordRequired", policy.RequireAlphanumericPassword);
+            cmd.AddParameter("AttachmentsEnabled", policy.AllowAttachmentsDownload);
+            cmd.AddParameter("DeviceEncryptionEnabled", policy.RequireEncryptionOnDevice);
+            cmd.AddParameter("DevicePasswordEnabled", policy.RequirePassword);
+            cmd.AddParameter("MaxCalendarAgeFilter", policy.IncludePastCalendarItems);
+            cmd.AddParameter("MaxEmailAgeFilter", policy.IncludePastEmailItems);
+            cmd.AddParameter("PasswordRecoveryEnabled", policy.EnablePasswordRecovery);
+            cmd.AddParameter("RequireStorageCardEncryption", policy.RequireEncryptionOnStorageCard);
+            cmd.AddParameter("RequireManualSyncWhenRoaming", policy.AllowDirectPushWhenRoaming);
+
+            if (policy.RefreshIntervalInHours > 0)
+                cmd.AddParameter("DevicePolicyRefreshInterval", new TimeSpan((int)policy.RefreshIntervalInHours, 0, 0).ToString());
+            else
+                cmd.AddParameter("DevicePolicyRefreshInterval", "Unlimited");
+
+            if (policy.MaximumAttachmentSizeInKB > 0)
+                cmd.AddParameter("MaxAttachmentSize", policy.MaximumAttachmentSizeInKB + "KB");
+            else
+                cmd.AddParameter("MaxAttachmentSize", "Unlimited");
+
+            if (policy.NumberOfFailedAttempted > 0)
+                cmd.AddParameter("MaxDevicePasswordFailedAttempts", policy.NumberOfFailedAttempted);
+            else
+                cmd.AddParameter("MaxDevicePasswordFailedAttempts", "Unlimited");
+
+            if (policy.LimitEmailSizeInKB > 0)
+                cmd.AddParameter("MaxEmailBodyTruncationSize", policy.LimitEmailSizeInKB + "KB");
+            else
+                cmd.AddParameter("MaxEmailBodyTruncationSize", "Unlimited");
+
+            if (policy.InactivityTimeoutInMinutes > 0)
+                cmd.AddParameter("MaxInactivityTimeDeviceLock", new TimeSpan(0, (int)policy.InactivityTimeoutInMinutes, 0).ToString());
+            else
+                cmd.AddParameter("MaxInactivityTimeDeviceLock", "Unlimited");
+
+            if (policy.MinDevicePasswordComplexCharacters > 0)
+                cmd.AddParameter("MinDevicePasswordComplexCharacters", policy.MinDevicePasswordComplexCharacters);
+            else
+                cmd.AddParameter("MinDevicePasswordComplexCharacters", 1);
+
+            if (policy.MinimumPasswordLength > 0)
+                cmd.AddParameter("MinDevicePasswordLength", policy.MinimumPasswordLength);
+            else
+                cmd.AddParameter("MinDevicePasswordLength", null);
+
+            cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
+
+            logger.DebugFormat("Completed adding paramters.. executing powershell..");
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            // Check for errors
+            HandleErrors();
+        }
+
+        /// <summary>
+        /// Updates an existing activesync policy in Exchange
+        /// </summary>
+        /// <param name="oldDisplayName"></param>
+        /// <param name="policy"></param>
+        public virtual void Set_ActiveSyncPolicy(string oldDisplayName, Plans_ExchangeActiveSync policy)
+        {
+            logger.DebugFormat("Updating activeysnc policy with old name {0} and new name is {1}", oldDisplayName, policy.DisplayName);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Set-ActiveSyncMailboxPolicy");
+            cmd.AddParameter("Identity", oldDisplayName);
+            cmd.AddParameter("Name", policy.DisplayName);
+            cmd.AddParameter("AllowBluetooth", policy.AllowBluetooth);
+            cmd.AddParameter("AllowBrowser", policy.AllowBrowser);
+            cmd.AddParameter("AllowCamera", policy.AllowCamera);
+            cmd.AddParameter("AllowConsumerEmail", policy.AllowConsumerMail);
+            cmd.AddParameter("AllowDesktopSync", policy.AllowDesktopSync);
+            cmd.AddParameter("AllowHTMLEmail", policy.AllowHTMLEmail);
+            cmd.AddParameter("AllowInternetSharing", policy.AllowInternetSharing);
+            cmd.AddParameter("AllowIrDA", policy.AllowInfrared);
+            cmd.AddParameter("AllowNonProvisionableDevices", policy.AllowNonProvisionableDevices);
+            cmd.AddParameter("AllowRemoteDesktop", policy.AllowRemoteDesktop);
+            cmd.AddParameter("AllowSimpleDevicePassword", policy.AllowSimplePassword);
+            cmd.AddParameter("AllowStorageCard", policy.AllowRemovableStorage);
+            cmd.AddParameter("AllowTextMessaging", policy.AllowTextMessaging);
+            cmd.AddParameter("AllowUnsignedApplications", policy.AllowUnsignedApplications);
+            cmd.AddParameter("AllowUnsignedInstallationPackages", policy.AllowUnsignedInstallationPackages);
+            cmd.AddParameter("AllowWiFi", policy.AllowWiFi);
+            cmd.AddParameter("AlphanumericDevicePasswordRequired", policy.RequireAlphanumericPassword);
+            cmd.AddParameter("AttachmentsEnabled", policy.AllowAttachmentsDownload);
+            cmd.AddParameter("DeviceEncryptionEnabled", policy.RequireEncryptionOnDevice);
+            cmd.AddParameter("DevicePasswordEnabled", policy.RequirePassword);
+            cmd.AddParameter("MaxCalendarAgeFilter", policy.IncludePastCalendarItems);
+            cmd.AddParameter("MaxEmailAgeFilter", policy.IncludePastEmailItems);
+            cmd.AddParameter("PasswordRecoveryEnabled", policy.EnablePasswordRecovery);
+            cmd.AddParameter("RequireStorageCardEncryption", policy.RequireEncryptionOnStorageCard);
+            cmd.AddParameter("RequireManualSyncWhenRoaming", policy.AllowDirectPushWhenRoaming);
+
+            if (policy.RefreshIntervalInHours > 0)
+                cmd.AddParameter("DevicePolicyRefreshInterval", new TimeSpan((int)policy.RefreshIntervalInHours, 0, 0).ToString());
+            else
+                cmd.AddParameter("DevicePolicyRefreshInterval", "Unlimited");
+
+            if (policy.MaximumAttachmentSizeInKB > 0)
+                cmd.AddParameter("MaxAttachmentSize", policy.MaximumAttachmentSizeInKB + "KB");
+            else
+                cmd.AddParameter("MaxAttachmentSize", "Unlimited");
+
+            if (policy.NumberOfFailedAttempted > 0)
+                cmd.AddParameter("MaxDevicePasswordFailedAttempts", policy.NumberOfFailedAttempted);
+            else
+                cmd.AddParameter("MaxDevicePasswordFailedAttempts", "Unlimited");
+
+            if (policy.LimitEmailSizeInKB > 0)
+                cmd.AddParameter("MaxEmailBodyTruncationSize", policy.LimitEmailSizeInKB + "KB");
+            else
+                cmd.AddParameter("MaxEmailBodyTruncationSize", "Unlimited");
+
+            if (policy.InactivityTimeoutInMinutes > 0)
+                cmd.AddParameter("MaxInactivityTimeDeviceLock", new TimeSpan(0, (int)policy.InactivityTimeoutInMinutes, 0).ToString());
+            else
+                cmd.AddParameter("MaxInactivityTimeDeviceLock", "Unlimited");
+
+            if (policy.MinDevicePasswordComplexCharacters > 0)
+                cmd.AddParameter("MinDevicePasswordComplexCharacters", policy.MinDevicePasswordComplexCharacters);
+            else
+                cmd.AddParameter("MinDevicePasswordComplexCharacters", 1);
+
+            if (policy.MinimumPasswordLength > 0)
+                cmd.AddParameter("MinDevicePasswordLength", policy.MinimumPasswordLength);
+            else
+                cmd.AddParameter("MinDevicePasswordLength", null);
+
+            cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
+
+            logger.DebugFormat("Completed adding paramters.. executing powershell..");
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            // Check for errors
+            HandleErrors();
+        }
+
+        /// <summary>
+        /// Removes an ActiveSync mailbox policy from Exchange
+        /// </summary>
+        /// <param name="identity"></param>
+        public virtual void Remove_ActiveSyncPolicy(string identity)
+        {
+            logger.DebugFormat("Removing activesync policy {0}", identity);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Remove-ActiveSyncMailboxPolicy");
+            cmd.AddParameter("Identity", identity);
+            cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
+
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors(true);
+        }
+
+        /// <summary>
+        /// Gets a list of activesync policies
+        /// </summary>
+        /// <returns></returns>
+        public virtual List<Plans_ExchangeActiveSync> Get_ActiveSyncPolicies()
+        {
+            var foundList = new List<Plans_ExchangeActiveSync>();
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-ActiveSyncMailboxPolicy");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                logger.DebugFormat("Found ActiveSync policies");
+
+                foreach (PSObject ps in psObjects)
+                {
+                    var newItem = new Plans_ExchangeActiveSync();
+                    newItem.DisplayName = ps.Members["Identity"].Value.ToString();
+                    logger.DebugFormat("Found policy {0} in Exchange", newItem.DisplayName);
+
+                    newItem.RefreshIntervalInHours = GetHours(ps.Members["DevicePolicyRefreshInterval"].Value.ToString());
+                    logger.DebugFormat("Refresh interval is {0}", newItem.RefreshIntervalInHours);
+
+                    newItem.RequirePassword = (bool)ps.Members["DevicePasswordEnabled"].Value;
+                    logger.DebugFormat("Device password required {0}", newItem.RequirePassword);
+
+                    newItem.RequireAlphanumericPassword = (bool)ps.Members["AlphanumericDevicePasswordRequired"].Value;
+                    logger.DebugFormat("Require alphanumeric password required {0}", newItem.RequireAlphanumericPassword);
+
+                    newItem.EnablePasswordRecovery = (bool)ps.Members["PasswordRecoveryEnabled"].Value;
+                    logger.DebugFormat("Password Recovery", newItem.EnablePasswordRecovery);
+
+                    newItem.RequireEncryptionOnDevice = (bool)ps.Members["DeviceEncryptionEnabled"].Value;
+                    logger.DebugFormat("Encryption required {0}", newItem.RequireEncryptionOnDevice);
+
+                    newItem.RequireEncryptionOnStorageCard = (bool)ps.Members["RequireStorageCardEncryption"].Value;
+                    logger.DebugFormat("Encryption on storage card required {0}", newItem.RequireEncryptionOnStorageCard);
+
+                    newItem.AllowSimplePassword = (bool)ps.Members["AllowSimpleDevicePassword"].Value;
+                    logger.DebugFormat("Simple password allowed {0}", newItem.AllowSimplePassword);
+
+                    newItem.MinDevicePasswordComplexCharacters = (int)ps.Members["MinDevicePasswordComplexCharacters"].Value;
+                    logger.DebugFormat("Minimum character sets {0}", newItem.MinDevicePasswordComplexCharacters);
+
+                    newItem.NumberOfFailedAttempted = GetNumber(ps.Members["MaxDevicePasswordFailedAttempts"].Value.ToString());
+                    logger.DebugFormat("Failed password attempts {0}", newItem.NumberOfFailedAttempted);
+
+                    newItem.MinimumPasswordLength = GetNumber(ps.Members["MinDevicePasswordLength"].Value);
+                    logger.DebugFormat("Minimum password length {0}", newItem.MinimumPasswordLength);
+
+                    newItem.InactivityTimeoutInMinutes = GetMinutes(ps.Members["MaxInactivityTimeDeviceLock"].Value.ToString());
+                    logger.DebugFormat("Inactivity device lock in minutes {0}", newItem.InactivityTimeoutInMinutes);
+
+                    newItem.PasswordExpirationInDays = GetDays(ps.Members["DevicePasswordExpiration"].Value.ToString());
+                    logger.DebugFormat("Password expiration in days {0}", newItem.PasswordExpirationInDays);
+
+                    newItem.EnforcePasswordHistory = GetNumber(ps.Members["DevicePasswordHistory"].Value.ToString());
+                    logger.DebugFormat("Password history {0}", newItem.EnforcePasswordHistory);
+
+                    newItem.IncludePastCalendarItems = ps.Members["MaxCalendarAgeFilter"].Value.ToString();
+                    logger.DebugFormat("Calendar items {0}", newItem.IncludePastCalendarItems);
+
+                    newItem.IncludePastEmailItems = ps.Members["MaxEmailAgeFilter"].Value.ToString();
+                    logger.DebugFormat("Email items {0}", newItem.IncludePastEmailItems);
+
+                    newItem.LimitEmailSizeInKB = GetKiloBytes(ps.Members["MaxEmailBodyTruncationSize"].Value.ToString());
+                    logger.DebugFormat("Limit email size in KB {0}", newItem.LimitEmailSizeInKB);
+
+                    newItem.MaximumAttachmentSizeInKB = GetKiloBytes(ps.Members["MaxAttachmentSize"].Value.ToString());
+                    logger.DebugFormat("Max attachment size in KB {0}", newItem.MaximumAttachmentSizeInKB);
+
+                    newItem.AllowDirectPushWhenRoaming = (bool)ps.Members["RequireManualSyncWhenRoaming"].Value;
+                    logger.DebugFormat("Allow direct push {0}", newItem.AllowDirectPushWhenRoaming);
+
+                    newItem.AllowHTMLEmail = (bool)ps.Members["AllowHTMLEmail"].Value;
+                    logger.DebugFormat("Allow HTML email {0}", newItem.AllowHTMLEmail);
+
+                    newItem.AllowAttachmentsDownload = (bool)ps.Members["AttachmentsEnabled"].Value;
+                    logger.DebugFormat("Allow attachment download {0}", newItem.AllowAttachmentsDownload);
+
+                    newItem.AllowRemovableStorage = (bool)ps.Members["AllowStorageCard"].Value;
+                    logger.DebugFormat("Allow removable storage {0}", newItem.AllowRemovableStorage);
+
+                    newItem.AllowCamera = (bool)ps.Members["AllowCamera"].Value;
+                    logger.DebugFormat("Allow camera {0}", newItem.AllowCamera);
+
+                    newItem.AllowWiFi = (bool)ps.Members["AllowWiFi"].Value;
+                    logger.DebugFormat("Allow wifi {0}", newItem.AllowWiFi);
+
+                    newItem.AllowInfrared = (bool)ps.Members["AllowIrDA"].Value;
+                    logger.DebugFormat("Allow infrared {0}", newItem.AllowInfrared);
+
+                    newItem.AllowInternetSharing = (bool)ps.Members["AllowInternetSharing"].Value;
+                    logger.DebugFormat("Allow internet sharing {0}", newItem.AllowInternetSharing);
+
+                    newItem.AllowRemoteDesktop = (bool)ps.Members["AllowRemoteDesktop"].Value;
+                    logger.DebugFormat("Allow remote desktop {0}", newItem.AllowRemoteDesktop);
+
+                    newItem.AllowDesktopSync = (bool)ps.Members["AllowDesktopSync"].Value;
+                    logger.DebugFormat("Allow desktop sync {0}", newItem.AllowDesktopSync);
+
+                    newItem.AllowTextMessaging = (bool)ps.Members["AllowTextMessaging"].Value;
+                    logger.DebugFormat("Allow text messaging {0}", newItem.AllowTextMessaging);
+
+                    newItem.AllowBluetooth = ps.Members["AllowBluetooth"].Value.ToString();
+                    logger.DebugFormat("Allow bluetooth {0}", newItem.AllowBluetooth);
+
+                    newItem.AllowBrowser = (bool)ps.Members["AllowBrowser"].Value;
+                    logger.DebugFormat("Allow browser {0}", newItem.AllowBrowser);
+
+                    newItem.AllowConsumerMail = (bool)ps.Members["AllowConsumerEmail"].Value;
+                    logger.DebugFormat("Allow consumer email {0}", newItem.AllowConsumerMail);
+
+                    newItem.AllowUnsignedApplications = (bool)ps.Members["AllowUnsignedApplications"].Value;
+                    logger.DebugFormat("Unsigned apps {0}", newItem.AllowUnsignedApplications);
+
+                    newItem.AllowUnsignedInstallationPackages = (bool)ps.Members["AllowUnsignedInstallationPackages"].Value;
+                    logger.DebugFormat("Unsigned installation packages {0}", newItem.AllowUnsignedInstallationPackages);
+
+                    logger.DebugFormat("Completed {0}", newItem.DisplayName);
+                    foundList.Add(newItem);
+                }
+            }
+
+            return foundList;
+        }
+
+        #endregion
 
         #region Private methods
 
+        internal int? GetNumber(object number)
+        {
+            logger.DebugFormat("Parsing number for string {0}", number);
+
+            if (number == null || number.Equals("Unlimited"))
+                return null;
+            else
+                return int.Parse(number.ToString());
+        }
+
+        internal int? GetHours(string time)
+        {
+            logger.DebugFormat("Parsing hours for string {0}", time);
+
+            if (string.IsNullOrEmpty(time) || time.Equals("Unlimited"))
+                return null;
+            else
+            {
+                return TimeSpan.Parse(time).Hours;
+            }
+        }
+
+        internal int? GetMinutes(string time)
+        {
+            logger.DebugFormat("Parsing minutes for string {0}", time);
+
+            if (string.IsNullOrEmpty(time) || time.Equals("Unlimited"))
+                return null;
+            else
+            {
+                return TimeSpan.Parse(time).Minutes;
+            }
+        }
+
+        internal int? GetDays(string time)
+        {
+            logger.DebugFormat("Parsing days for string {0}", time);
+
+            if (string.IsNullOrEmpty(time) || time.Equals("Unlimited"))
+                return null;
+            else
+            {
+                return TimeSpan.Parse(time).Days;
+            }
+        }
+
+        internal int? GetKiloBytes(string bytes)
+        {
+            logger.DebugFormat("Parsing kilobytes for string {0}", bytes);
+
+            if (string.IsNullOrEmpty(bytes) || bytes.Equals("Unlimited"))
+                return null;
+            else
+                return int.Parse(bytes) / 1024;
+        }
 
         #endregion
+
     }
 }

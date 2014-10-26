@@ -129,5 +129,42 @@ namespace CloudPanel
                 }
             }
         }
+
+        /// <summary>
+        /// Checks if the logged in user is a super admin or not
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static bool IsSuperAdmin(this NancyContext context)
+        {
+            if (context.CurrentUser == null)
+                return false;
+
+            var user = context.CurrentUser as AuthenticatedUser;
+            return user.Claims.Any(x => x.Contains("SuperAdmin"));
+        }
+
+        /// <summary>
+        /// Checks if the logged in user is a reseller admin or not
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static bool IsResellerAdmin(this NancyContext context)
+        {
+            if (context.CurrentUser == null)
+                return false;
+
+            var user = context.CurrentUser as AuthenticatedUser;
+            return user.Claims.Any(x => x.Contains("ResellerAdmin"));
+        }
+
+        public static bool IsSuperOrResellerAdmin(this NancyContext context)
+        {
+            if (context.CurrentUser == null)
+                return false;
+
+            var user = context.CurrentUser as AuthenticatedUser;
+            return user.Claims.Any(x => (x.Contains("SuperAdmin") || x.Contains("ResellerAdmin")));
+        }
     }
 }

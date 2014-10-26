@@ -70,6 +70,8 @@ namespace CloudPanel.Base.Database.Models
 
         public bool? AllowSimplePassword { get; set; }
 
+        public int? MinDevicePasswordComplexCharacters { get; set; }
+
         public int? NumberOfFailedAttempted { get; set; }
 
         public int? MinimumPasswordLength { get; set; }

@@ -1111,6 +1111,7 @@
     <Compile Include="Modules\CompanyModules\Exchange\GroupsModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\ResourceModule.cs" />
     <Compile Include="Modules\DashboardModule.cs" />
+    <Compile Include="Modules\PlansModules\ActiveSyncPlanModule.cs" />
     <Compile Include="Modules\PlansModules\CitrixPlanModule.cs" />
     <Compile Include="Modules\ResellersModule.cs" />
     <Compile Include="Modules\LoginModule.cs" />
@@ -1395,6 +1396,7 @@
     <Content Include="Views\Admin\brandings.cshtml" />
     <Content Include="Views\Admin\massemail.cshtml" />
     <Content Include="Views\Admin\settings.cshtml" />
+    <Content Include="Views\Plans\activesync.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

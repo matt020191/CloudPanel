@@ -3,10 +3,8 @@ using CloudPanel.Code;
 using CloudPanel.Exchange;
 using log4net;
 using Nancy;
+using Nancy.Security;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace CloudPanel.Modules.Admin
 {
@@ -16,6 +14,9 @@ namespace CloudPanel.Modules.Admin
 
         public SettingsModule() : base("/admin")
         {
+            this.RequiresAuthentication();
+            this.RequiresAnyClaim(new[] { "SuperAdmin" });
+
             Get["/settings"] = _ =>
                 {
                     return View["Admin/settings.cshtml"];

@@ -58,12 +58,14 @@
                                 <input type="text" class="form-control" id="Website" name="Website" value="@Model.company.Website" data-parsley-type="url">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="focusedinput" class="col-sm-3 control-label">Company Plan</label>
-                            <div class="col-sm-6">
-                                @CloudPanel.CPHtmlHelpers.GetCompanyPlans(Model.company.OrgPlanID, "")
+                        @if (this.RenderContext.Context.IsSuperOrResellerAdmin()) { 
+                            <div class="form-group">
+                                <label for="focusedinput" class="col-sm-3 control-label">Company Plan</label>
+                                <div class="col-sm-6">
+                                    @CloudPanel.CPHtmlHelpers.GetCompanyPlans(Model.company.OrgPlanID, "")
+                                </div>
                             </div>
-                        </div>
+                        }
                     </div>
                     <div class="panel-footer">
                         <div class="col-sm-12 text-right">

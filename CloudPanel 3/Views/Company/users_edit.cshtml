@@ -438,7 +438,7 @@
                 })
                 .fail(function (data) {
                     $('#submit').attr('disabled', 'disabled');
-                    alert("There was an error processing your request. Please contact support.");
+                    AppendError("There was an error processing your request. Please contact support.");
                 })
                 .always(function (data) {
                     $("#blockui").unblock();
@@ -499,15 +499,14 @@
                     $("#RetentionUrl").val(data.mailbox.retentionUrl);
                 })
                     .done(function (data) {
-                        console.log("done");
+                        mailboxRetrieved = true;
                     })
                     .fail(function (data) {
                         $('#submit').attr('disabled', 'disabled');
-                        alert("There was an error processing your request. Please contact support.");
+                        AppendError(data.responseJSON.error);
                     })
                     .always(function (data) {
                         $("#blockui").unblock();
-                        mailboxRetrieved = true;
                     });
             }
         }
