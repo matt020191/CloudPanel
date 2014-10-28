@@ -1,12 +1,12 @@
 ﻿using CloudPanel.Base.Config;
+using CloudPanel.Base.Database.Models;
 using CloudPanel.Database.EntityFramework;
+using log4net;
 using Nancy;
-using Nancy.Security;
 using Nancy.ModelBinding;
+using Nancy.Security;
 using System;
 using System.Linq;
-using CloudPanel.Base.Database.Models;
-using log4net;
 
 namespace CloudPanel.Modules
 {

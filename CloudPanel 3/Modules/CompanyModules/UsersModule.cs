@@ -1,18 +1,17 @@
-﻿using CloudPanel.Base.Config;
+﻿using CloudPanel.ActiveDirectory;
+using CloudPanel.Base.Config;
+using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Exchange;
 using CloudPanel.Database.EntityFramework;
+using CloudPanel.Exchange;
+using CloudPanel.Rollback;
 using log4net;
 using Nancy;
 using Nancy.Security;
-using Nancy.ModelBinding;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CloudPanel.Base.Database.Models;
-using CloudPanel.ActiveDirectory;
-using CloudPanel.Rollback;
-using CloudPanel.Base.Exchange;
-using CloudPanel.Exchange;
-using System.Collections.Generic;
 
 namespace CloudPanel.Modules
 {

@@ -2,12 +2,9 @@
 using CloudPanel.Database.EntityFramework;
 using log4net;
 using Nancy;
-using Nancy.Authentication;
 using Nancy.Security;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 
 namespace CloudPanel.Modules.Admin
 {
