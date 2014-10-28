@@ -40,7 +40,6 @@ namespace CloudPanel.Base.Database.Models
         [Key]
         public int ASID { get; set; }
 
-        [Required]
         [StringLength(255)]
         public string CompanyCode { get; set; }
 

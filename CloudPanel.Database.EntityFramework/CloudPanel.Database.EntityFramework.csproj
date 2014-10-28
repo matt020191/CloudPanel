@@ -76,6 +76,14 @@
     <Compile Include="Migrations\201410030337322_AddBrandingsTable.Designer.cs">
       <DependentUpon>201410030337322_AddBrandingsTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201410270051083_UpdateActiveSync.cs" />
+    <Compile Include="Migrations\201410270051083_UpdateActiveSync.Designer.cs">
+      <DependentUpon>201410270051083_UpdateActiveSync.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201410270059430_UpdateActiveSyncCompanyCodeNull.cs" />
+    <Compile Include="Migrations\201410270059430_UpdateActiveSyncCompanyCodeNull.Designer.cs">
+      <DependentUpon>201410270059430_UpdateActiveSyncCompanyCodeNull.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -107,6 +115,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201410030337322_AddBrandingsTable.resx">
       <DependentUpon>201410030337322_AddBrandingsTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201410270051083_UpdateActiveSync.resx">
+      <DependentUpon>201410270051083_UpdateActiveSync.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201410270059430_UpdateActiveSyncCompanyCodeNull.resx">
+      <DependentUpon>201410270059430_UpdateActiveSyncCompanyCodeNull.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
