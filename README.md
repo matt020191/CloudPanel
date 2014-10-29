@@ -38,4 +38,6 @@ I would love to see multiple programmers help out with the project. There are ma
 * Jacob Dixon (Creator)
 * Kaleb Lape
 
+## License
 
+Copyright [2014] [KnowMoreIT]
