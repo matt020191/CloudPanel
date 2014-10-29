@@ -1,231 +1,351 @@
 ﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
 
 @{
-    Layout = "_master.cshtml";
+    Layout = "__master.cshtml";
+}
+@section HEAD{
+    <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-select2/select2.css" rel="stylesheet" />
+    <link href="~/Content/css/wait.css" rel="stylesheet" />
 }
 
-@section PAGEHEADER{
-    <div class="pageheader">
-        <h2><i class="fa fa-university"></i> @Text.words.Resellers <span>@Text.phrases.Resellers_Title</span></h2>
-    </div>
-}
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li class="active">Resellers</li>
+    </ol>
 
-<div class="row">
-    <a href="#" class="btn btn-success mr5 pull-right" data-toggle="modal" data-target=".new-reseller-modal">@Text.words.Add</a>
-</div>
-
-<div class="mb30"></div>
-
-<!-- Table -->
-<div class="row">
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <table id="resellerDataTable" class="table table-dark table-hover mb30">
-                <thead>
-                    <tr>
-                        <th>@Text.words.Name</th>
-                        <th>@Text.words.Address</th>
-                        <th>@Text.words.Created</th>
-                        <th>@Text.words.Companies</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Loading data...</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                </tbody>
-            </table>
+    <h1>Resellers</h1>
+    <div class="options">
+        <div class="btn-toolbar">
+            <a href="#" class="btn btn-primary hidden-xs" data-toggle="modal" data-target="#addModal">Add New</a>
         </div>
     </div>
 </div>
 
-<!-- New or Update Reseller -->
-<form id="resellerForm" method="post" action="" data-parsley-validate>
-    <input type="hidden" name="_method" value="" />
-    <div class="modal fade new-reseller-modal" id="modifyModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" data-backdrop="static" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
-                    <h4 class="modal-title">Reseller</h4>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Select a Reseller</div>
+                <div class="panel-body">
+                    <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered datatables" id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>Company Name</th>
+                                <th>Company Code</th>
+                                <th>Created</th>
+                                <th>Total Companies</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Loading...</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="modal-body">
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <label class="control-label">Name <span class="asterisk">*</span></label>
-                            <input type="text" name="CompanyName" class="form-control" data-parsley-required>
-                        </div>
-                    </div>
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <label class="control-label">Contact's Name</label>
-                            <input type="text" name="AdminName" class="form-control" data-parsley-required>
-                        </div>
-                    </div>
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <label class="control-label">Contact's Email</label>
-                            <input type="text" name="AdminEmail" class="form-control" data-parsley-type="email" data-parsley-required>
-                        </div>
-                    </div>
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <label class="control-label">Telephone</label>
-                            <input type="text" name="PhoneNumber" class="form-control">
-                        </div>
-                    </div>
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <label class="control-label">Street</label>
-                            <input type="text" name="Street" class="form-control">
-                        </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            <label class="control-label">City</label>
-                            <input type="text" name="City" class="form-control">
-                        </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            <label class="control-label">State</label>
-                            <input type="text" name="State" class="form-control">
-                        </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            <label class="control-label">Postal Code</label>
-                            <input type="text" name="ZipCode" class="form-control">
-                        </div>
-                    </div>
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <label class="control-label">Country</label>
-                            @CloudPanel.CustomHtmlHelpers.GetCountries("")
-                        </div>
-                    </div>
-                    <div style="text-align: right" class="clearfix">
-                        <br />
-                        <input id="btnSave" type="submit" value="Save" class="btn btn-success" />
-                    </div>
-                </div>
+                <div class="panel-footer"></div>
             </div>
         </div>
     </div>
-</form>
+</div>
 
-<!-- Delete Reseller -->
-<form id="deleteResellerForm" method="post" action="~/Resellers">
-    <input type="hidden" name="_method" value="DELETE" />
-    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+<!-- Add Modal -->
+<form id="addForm" action="" method="post" data-parsley-validate>
+    <div id="addModal" class="modal fade">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="myModalLabel">Delete Reseller</h4>
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Add Reseller</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to delete this reseller?</p>
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Company Name</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="CompanyName" name="CompanyName" data-parsley-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Contact Name</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="AdminName" name="AdminName" data-parsley-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Contact Email</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="AdminEmail" name="AdminEmail" data-parsley-required="true" data-parsley-type="email">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Telephone</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="PhoneNumber" name="PhoneNumber" data-parsley-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Street</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="Street" name="Street" data-parsley-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">City</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="City" name="City" data-parsley-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">State</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="State" name="State" data-parsley-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Postal Code</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="ZipCode" name="ZipCode" data-parsley-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Country</label>
+                            <div class="col-sm-9">
+                                @CloudPanel.CPHtmlHelpers.GetCountries("")
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Website</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="Website" name="Website" data-parsley-type="url">
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <input id="btnDelete" type="submit" value="Delete" class="btn btn-danger" />
+                    <button type="submit" class="btn btn-primary">Add</button>
                 </div>
             </div>
         </div>
     </div>
 </form>
 
+<!-- Edit Modal -->
+<form id="editForm" action="" method="post">
+    <input type="hidden" name="_method" value="PUT" />
+    <div id="editModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Edit Reseller</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Company Name</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="CompanyName" name="CompanyName" data-parsley-required="true">
+                                <input id="CompanyCode" name="CompanyCode" type="hidden" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Contact Name</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="AdminName" name="AdminName" data-parsley-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Contact Email</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="AdminEmail" name="AdminEmail" data-parsley-required="true" data-parsley-type="email">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Telephone</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="PhoneNumber" name="PhoneNumber" data-parsley-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Street</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="Street" name="Street">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">City</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="City" name="City">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">State</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="State" name="State">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Postal Code</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="ZipCode" name="ZipCode">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Country</label>
+                            <div class="col-sm-9">
+                                @CloudPanel.CPHtmlHelpers.GetCountries("")
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Website</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="Website" name="Website" data-parsley-type="url">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 
-@section CUSTOMJAVASCRIPT{
-<script src="~/content/js/jquery.validate.min.js"></script>
-<script src="~/Content/js/jquery.datatables.min.js"></script>
-<script src="~/content/js/moment-with-locales.js"></script>
-<script type="text/javascript">
+<!-- Delete Modal -->
+<form id="deleteForm" action="" method="post">
+    <input type="hidden" name="_method" value="DELETE" />
+    <div id="deleteModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Delete Reseller</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this reseller?</p>
+                    <input id="ResellerCode" name="ResellerCode" type="hidden" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section JAVASCRIPT{
+    <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
+    <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
+    <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
+    <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
+    <script src="~/Content/plugins/form-select2/select2.min.js"></script>
+    <script src="~/Content/plugins/blockUI/jquery.blockUI.js"></script>
+    <script type="text/javascript">
     $(document).ready(function () {
 
-        $("#resellerDataTable").dataTable({
-            "processing": true,
+        // unblock when ajax activity stops
+        $(document).ajaxStop($.unblockUI);
+
+        $("#dataTable").DataTable({
             "serverSide": true,
-            "ajax": "@Url.Content("~/resellers/json/dt")",
-            "pagingType": "full_numbers",
+            "processing": true,
+            "ajax": {
+                type: 'GET',
+                dataType: 'json'
+            },
             "columns": [
                 {
-                    "data": "companyCode", "render": function (data, type, full, meta) {
-                        return '<a href="../companies/' + data + '">' + full["companyName"] + '</a>';
+                    "data": "companyName", "render": function (data, type, full, meta) {
+                        return '<a href="@Url.Content("~/companies/")' + full["companyCode"] + '">' + data + '</a>';
                     }
                 },
-                { "data": "fullAddressFormatted" },
+                { "data": "companyCode" },
                 {
                     "data": "created", "render": function (data, type, full, meta) {
-                        var formattedDate = moment(data).format('MMMM Do YYYY, h:mm:ss a');
-                        return formattedDate.toString();
+                        return moment(data).format('LLLL');
                     }
                 },
                 { "data": "totalCompanies" },
                 {
-                    "data": "companyCode", "render": function (data, type, full, meta) {
-                        return GenerateButton(data);
+                    "data": "companyCode", "orderable": false, "className": "text-right", "render": function (data, type, full, meta) {
+                        return GetButton(data);
                     }
-                },
+                }
             ]
         });
 
-        $(document).on("click", "#deleteResellerLink", function () {
-            $("#deleteResellerForm").attr("action", "@Url.Content("~/Resellers/")" + $(this).data("id"));
-        });
-
-        $(document).on("click", "#updateResellerLink", function () {
-            $("#updateResellerForm").attr("")
-        });
+        $(".populate").select2({ width: 'resolve' });
     });
 
-    function GenerateButton(companyCode)
-    {
-        return "<div class='btn-group mr5 pull-right'> \
-                <button type='button' class='btn btn-xs btn-warning dropdown-toggle' data-toggle='dropdown'> \
-                  Modify <span class='caret'></span> \
-                </button> \
-                <ul class='dropdown-menu' role='menu'> \
-                  <li><a href='javascript:;' data-toggle='editModal' data-id='"+companyCode+"'>Edit</a></li> \
-                  <li class='divider'></li> \
-                  <li><a href='javascript:void(0);' id='deleteResellerLink' data-toggle='modal' data-target='#deleteModal' data-id='"+companyCode+"'>Delete</a></li> \
-                </ul> \
-              </div>";
-    }
+    function GetReseller(element) {
 
-    function GetReseller(resellerCode)
-    {
-        $.ajax({
-            url: "@Url.Content("~/Resellers/")" + resellerCode,
-            dataType: "JSON",
+        // Show wait message
+        $.blockUI({ message: $('#waitMessage') });
+
+        var resellerCode = $(element).data("id");
+        var request = $.ajax({
+            url: "@Url.Content("~/resellers/")" + resellerCode,
             type: "GET",
-            cache: false,
-            success: function (data) {
-                $.each(data, function (k, v) {
-                    var field = $("#updateResellerForm #" + k);
+            dataType: "json"
+        });
 
-                    if (field.length) {
-                        if (field.is("input:text") || field.is(":hidden")) {
-                            field.val(v);
-                        } else if (field.is("select")) {
-                            field.val(v);
-                            field.trigger("chosen:updated");
-                        }
-                    }
-                });
+        request.done(function (data) {
+            $('#editForm input[name="CompanyCode"]').val(resellerCode);
+            $('#editForm input[name="CompanyName"]').val(data.reseller.companyName);
+            $('#editForm input[name="AdminName"]').val(data.reseller.adminName);
+            $('#editForm input[name="AdminEmail"]').val(data.reseller.adminEmail);
+            $('#editForm input[name="PhoneNumber"]').val(data.reseller.phoneNumber);
+            $('#editForm input[name="Street"]').val(data.reseller.street);
+            $('#editForm input[name="City"]').val(data.reseller.city);
+            $('#editForm input[name="State"]').val(data.reseller.state);
+            $('#editForm input[name="ZipCode"]').val(data.reseller.zipCode);
+            $('#editForm input[name="Website"]').val(data.reseller.website);
 
-                $("#updateModal").modal();
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError);
+            var country = data.reseller.country;
+            if (!country) {
+                $('#editForm select[name="Country"]').select2("val", "US");
+            } else {
+                $('#editForm select[name="Country"]').select2("val", data.reseller.country.toUpperCase());
             }
+
+            // Only show modal if successful
+            $("#editModal").modal();
+        });
+
+        request.fail(function (jqXHR, textStatus) {
+            alert(textStatus);
         });
     }
-</script>
+
+    function SetCompanyCode(element, form) {
+        var companyCode = $(element).data("id");
+        $(form).find("input[id='ResellerCode']").val(companyCode);
+    }
+
+    function GetButton(companyCode) {
+        return '<div class="btn-group"> \
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"> \
+                                Modify <span class="caret"></span> \
+                            </button> \
+                            <ul class="dropdown-menu" role="menu"> \
+                                <li><a href="#" data-id="' + companyCode + '" onclick="javascript:GetReseller(this);">Edit</a></li> \
+                                <li class="divider"></li> \
+                                <li><a href="#deleteModal" data-toggle="modal" data-id="' + companyCode + '" onclick="javascript:SetCompanyCode(this, \'#deleteForm\');">Delete</a></li> \
+                            </ul> \
+                    </div>';
+    }
+    </script>
 }

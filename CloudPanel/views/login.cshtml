@@ -1,70 +1,58 @@
 ﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@{var branding = CloudPanel.Modules.BrandingModule.GetBranding(Url.RenderContext.Context.Request.Url.HostName);}
 
 <!DOCTYPE html>
-
-<html>
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width" />
-    <title></title>
+    <meta charset="utf-8">
+    <title>CloudPanel</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CloudPanel">
+    <meta name="author" content="KnowMoreIT - Jacob Dixon">
 
-    <link href="~/content/css/style.default.css" rel="stylesheet" />
+    <!-- <link href="~/content/less/styles.less" rel="stylesheet/less" media="all"> -->
+    <link rel="stylesheet" href="~/content/css/styles.css">
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
 
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-    <script src="~/content/js/html5shiv.js"></script>
-    <script src="~/content/js/respond.min.js"></script>
-    <![endif]-->
+    <!-- <script type="text/javascript" src="~/content/js/less.js"></script> -->
 </head>
-
-<body class="signin">
-    <section>
-        <div class="signinpanel">
-            <div class="row">
-                <div class="col-md-7">
-                    <div class="signin-info">
-                        <div class="logopanel">
-                            <h1><span>[</span> @CloudPanel.BrandingsRequest.RetrieveBranding(Url).DisplayName <span>]</span></h1>
+<body class="focusedform">
+    <form id="loginForm" action="@Url.Content("~/login")" method="post">
+        <div class="verticalcenter">
+            <a href="index.htm"><img src="@Url.Content(branding.LoginLogo)" alt="Logo" class="brand" /></a>
+            <div class="panel panel-primary">
+                <div class="panel-body">
+                    <h4 class="text-center" style="margin-bottom: 25px;">Log in to get started</h4>
+                    <div class="form-horizontal" style="margin-bottom: 0px !important;">
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                                    <input type="text" class="form-control" id="username" name="username" placeholder="Username">
+                                </div>
+                            </div>
                         </div>
-
-                        <div class="mb20"></div>
-
-                        <h5><strong>@CloudPanel.BrandingsRequest.RetrieveBranding(Url).LoginTitle</strong></h5>
-                        <div>
-                            @CloudPanel.BrandingsRequest.RetrieveBranding(Url).LoginMessage
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                                    <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb20"></div>
+                        <div class="clearfix">
+                            <div class="pull-right"><label><input type="checkbox" style="margin-bottom: 20px" checked=""> Remember Me</label></div>
+                        </div>
                     </div>
                 </div>
-
-                <div class="col-md-5">
-                    <form method="post" action="/login">
-                        <h4 class="nomargin">@Text.words.SignIn</h4>
-                        <p class="mt5 mb20">@Text.words.SignInMsg</p>
-
-                        <input type="text" id="username" name="username" class="form-control uname" placeholder="@Text.words.Username" />
-                        <input type="password" id="password" name="password" class="form-control pword" placeholder="@Text.words.Password" />
-                        <a href=""><small>&nbsp;</small></a>
-                        <button class="btn btn-success btn-block" type="submit">@Text.words.SignIn</button>
-                    </form>
-                </div>
-            </div>
-
-            <div class="signup-footer">
-                <div class="pull-left">
-                    @CloudPanel.BrandingsRequest.RetrieveBranding(Url).CopyrightNotice
-                </div>
-                <div class="pull-right">
-                    @CloudPanel.BrandingsRequest.RetrieveBranding(Url).SupportNumber
+                <div class="panel-footer">
+                    <div class="pull-right">
+                        <input id="btnLogin" type="submit" value="Log In" class="btn btn-primary" />
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
-
-    <script src="~/content/js/jquery-1.10.2.min.js"></script>
-    <script src="~/content/js/jquery-migrate-1.2.1.min.js"></script>
-    <script src="~/content/js/bootstrap.js"></script>
-    <script src="~/content/js/modernizr.min.js"></script>
-    <script src="~/content/js/retina.min.js"></script>
-
+    </form>
 </body>
 </html>

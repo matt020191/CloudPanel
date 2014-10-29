@@ -1,63 +1,36 @@
 ﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
+@{
+    Layout = "__master.cshtml";
+}
+@section HEAD{
+}
 
-    <link rel="shortcut icon" href="images/favicon.png" type="image/png">
+<div id="page-heading">
+</div>
 
-    <title>@Text.words.Error</title>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-danger">
+                <div class="panel-heading">Error</div>
+                <div class="panel-body">
+                    <p class="text-center">
+                        <span class="text-danger" style="font-size:4em;">Oops!</span>
+                    </p>
+                    <p class="text-center">Something went terribly wrong.</p>
+                    <p class="text-center">We are fixing it. Please try again later.</p>
 
-    <link href="~/content/css/style.default.css" rel="stylesheet" />
-    <link href="~/content/css/codemirror/codemirror.css" rel="stylesheet" />
-    <link href="~/content/css/codemirror/theme/ambiance.css" rel="stylesheet" />
+                    <br />
+                    <br />
 
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-    <script src="~/content/js/html5shiv.js"></script>
-    <script src="~/content/js/respond.min.js"></script>
-    <![endif]-->
-</head>
-<body class="notfound">
-    <section>
-        <div class="notfoundpanel">
-            <h1>@Text.words.Error</h1>
-            <h3>@Text.phrases.Error_Title</h3>
-            <h4 style="text-align: left;">
-                @if (Model != null)
-                {
-                    <textarea id="codeError" name="codeError">@Model</textarea>
-                }
-                else
-                {
-                    <span>@Text.phrases.Error_ErrorUnknown</span>
-                }
-            </h4>
+                    <pre>@ViewBag.error</pre>
 
+                    <br />
+                    <br />
+                </div>
+                <div class="panel-footer"></div>
+            </div>
         </div>
-    </section>
-
-    <script src="~/content/js/jquery-1.10.2.min.js"></script>
-    <script src="~/content/js/jquery-migrate-1.2.1.min.js"></script>
-    <script src="~/content/js/bootstrap.min.js"></script>
-    <script src="~/content/js/modernizr.min.js"></script>
-    <script src="~/content/js/retina.min.js"></script>
-    <script src="~/content/js/custom.js"></script>
-    <script src="~/content/js/codemirror/codemirror.js"></script>
-    <script src="~/content/js/codemirror/formatting.js"></script>
-    <script src="~/content/js/codemirror/mode/xml.js"></script>
-    <script src="~/content/js/codemirror/mode/javascript.js"></script>
-    <script type="text/javascript">
-        jQuery(document).ready(function () {
-            CodeMirror.fromTextArea(document.getElementById("codeError"), {
-                mode: { name: "javascript" },
-                lineNumbers: false
-            });
-        });
-    </script>
-</body>
-</html>
+    </div>
+</div>

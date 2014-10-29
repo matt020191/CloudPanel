@@ -1,413 +1,786 @@
-﻿//
-// Copyright (c) 2014, Jacob Dixon
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-// 1. Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-// 3. All advertising materials mentioning features or use of this software
-//    must display the following acknowledgement:
-//    This product includes software developed by KnowMoreIT and Compsys.
-// 4. Neither the name of KnowMoreIT and Compsys nor the
-//    names of its contributors may be used to endorse or promote products
-//    derived from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY Jacob Dixon ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL Jacob Dixon BE LIABLE FOR ANY
-// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Nancy;
-using Nancy.ViewEngines.Razor;
-using System.Text;
-using CloudPanel.Database.EntityFramework;
+﻿using CloudPanel.Base.AD;
 using CloudPanel.Base.Config;
+using CloudPanel.Base.Enums;
+using CloudPanel.Database.EntityFramework;
 using log4net;
-using CloudPanel.Base.Database.Models;
+using Nancy.ViewEngines.Razor;
+using System;
+using System.Linq;
+using System.Text;
 
-namespace CloudPanel.code
+namespace CloudPanel
 {
     public class CPHtmlHelpers
     {
-        private static readonly ILog log = log4net.LogManager.GetLogger(typeof(CPHtmlHelpers));
+        private static readonly ILog logger = log4net.LogManager.GetLogger(typeof(CPHtmlHelpers));
 
-        public static IHtmlString GetEmailDomains(string companyCode)
+        public static IHtmlString GetDomainTypes(int? selectedId, string insertBefore)
         {
-            var sb = new StringBuilder();
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendFormat("<select id='DomainType' name='DomainType' class='form-control'>");
+
+            if (!string.IsNullOrEmpty(insertBefore))
+                stringBuilder.Append(insertBefore);
+
+            stringBuilder.Append("<option value='0'>Regular Domain</option>");
+            stringBuilder.Append("<optgroup id='exchange-domains' label='Email'>");
+            stringBuilder.Append("<option value='1'>Authoritative</option>");
+            stringBuilder.Append("<option value='2'>Internal Relay</option>");
+            stringBuilder.Append("<option value='3'>External Relay</option>");
+            stringBuilder.Append("</optgroup>");
+            stringBuilder.Append("</select>");
+
+            string returnString = stringBuilder.ToString();
+            if (selectedId != null)
+                returnString = returnString.Replace( string.Format("value='{0}'", selectedId), string.Format("value='{0}' selected", selectedId) );
+
+            return new NonEncodedHtmlString(returnString);
+        }
+
+        public static IHtmlString GetCompanyPlans(int selectedId, string insertBefore)
+        {
+            var stringBuilder = new StringBuilder();
 
             CloudPanelContext db = null;
             try
             {
                 db = new CloudPanelContext(Settings.ConnectionString);
 
-                var domains = from d in db.Domains
-                              where d.CompanyCode == companyCode
-                              orderby d.Domain1
-                              select d;
+                var companyPlans = (from d in db.Plans_Organization
+                                    orderby d.OrgPlanName
+                                    select d).ToList();
 
-                foreach (var d in domains)
+                if (!string.IsNullOrEmpty(insertBefore))
+                    stringBuilder.Append(insertBefore);
+
+                companyPlans.ForEach(x =>
                 {
-                    sb.AppendFormat("<option value='{0}' {1}>{2}</option>",
-                        d.DomainID,
-                        d.IsDefault ? "selected" : "",
-                        d.Domain1);
-                }
+                    stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>", 
+                            x.OrgPlanID,
+                            x.OrgPlanID == selectedId ? "selected" : "",
+                            x.OrgPlanName
+                        );
+                });
+
+                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}\" class=\"form-control\">{1}</select>", "OrgPlanID", stringBuilder.ToString());
+                return new NonEncodedHtmlString(returnValue);
             }
             catch (Exception ex)
             {
-                sb.AppendFormat("<option value='0' selected>{1}: {2}</option>",
-                    "ERROR",
-                    ex.Message);
-
-                log.ErrorFormat("Error getting domains for {0}. Error: {1}", companyCode, ex.ToString());
+                throw;
             }
             finally
             {
                 if (db != null)
                     db.Dispose();
             }
-
-            var htmlSelectBox = string.Format("<select id='{0}' name='{1}' class='form-control'>{2}</select>",
-                "DomainName",
-                "DomainName",
-                sb.ToString());
-
-            return new NonEncodedHtmlString(htmlSelectBox);
         }
 
-        public static IHtmlString GetEmailDomains(string companyCode, List<Domain> domains, string emailDomain)
+        public static IHtmlString GetCompanyDomains(string companyCode, int selectedId, string insertBefore)
         {
-            var sb = new StringBuilder();
+            var stringBuilder = new StringBuilder();
 
             CloudPanelContext db = null;
             try
             {
                 db = new CloudPanelContext(Settings.ConnectionString);
 
-                foreach (var d in domains)
+                var companyDomains = (from d in db.Domains
+                                    where d.CompanyCode == companyCode
+                                    select d).ToList();
+
+                if (!string.IsNullOrEmpty(insertBefore))
+                    stringBuilder.Append(insertBefore);
+
+                companyDomains.ForEach(x =>
                 {
-                    sb.AppendFormat("<option value='{0}' {1}>{2}</option>",
-                        d.DomainID,
-                        d.Domain1.Equals(emailDomain, StringComparison.CurrentCultureIgnoreCase) ? "selected" : "",
-                        d.Domain1);
-                }
-            }
-            catch (Exception ex)
-            {
-                sb.AppendFormat("<option value='0' selected>{1}: {2}</option>",
-                    "ERROR",
-                    ex.Message);
-
-                log.ErrorFormat("Error getting domains for {0}. Error: {1}", companyCode, ex.ToString());
-            }
-            finally
-            {
-                if (db != null)
-                    db.Dispose();
-            }
-
-            var htmlSelectBox = string.Format("<select id='{0}' name='{1}' class='form-control'>{2}</select>",
-                "DomainName",
-                "DomainName",
-                sb.ToString());
-
-            return new NonEncodedHtmlString(htmlSelectBox);
-        }
-
-        public static IHtmlString GetCompanyPlans(string companyCode, int? orgID)
-        {
-            var sb = new StringBuilder();
-
-            CloudPanelContext db = null;
-            try
-            {
-                db = new CloudPanelContext(Settings.ConnectionString);
-
-                var plans = from p in db.Plans_Organization
-                            orderby p.OrgPlanName
-                            select p;
-
-                foreach (var p in plans)
-                {
-                    sb.AppendFormat("<option value='{0}' {1}>{2}</option>",
-                        p.OrgPlanID,
-                        p.OrgPlanID == orgID ? "selected" : "",
-                        p.OrgPlanName);
-                }
-            }
-            catch (Exception ex)
-            {
-                sb.AppendFormat("<option value='0' selected>{1}: {2}</option>",
-                    "ERROR",
-                    ex.Message);
-
-                log.ErrorFormat("Error getting company plans for {0}. Error: {1}", companyCode, ex.ToString());
-            }
-            finally
-            {
-                if (db != null)
-                    db.Dispose();
-            }
-
-            var htmlSelectBox = string.Format("<select id='{0}' name='{1}' class='form-control'>{2}{3}</select>",
-                "OrgPlanID",
-                "OrgPlanID",
-                "<option value='0'> --- Select Plan --- </option>",
-                sb.ToString());
-
-            return new NonEncodedHtmlString(htmlSelectBox);
-        }
-
-        public static IHtmlString GetCompanyPlans()
-        {
-            var sb = new StringBuilder();
-
-            CloudPanelContext db = null;
-            try
-            {
-                db = new CloudPanelContext(Settings.ConnectionString);
-
-                var plans = (from p in db.Plans_Organization
-                             orderby p.OrgPlanName
-                             select p).ToList();
-
-                foreach (var p in plans)
-                {
-                    sb.AppendFormat("<option value='{0}'>{1}</option>",
-                        p.OrgPlanID,
-                        p.OrgPlanName);
-                }
-            }
-            catch (Exception ex)
-            {
-                sb.AppendFormat("<option value='0' selected>{1}: {2}</option>",
-                    "ERROR",
-                    ex.Message);
-
-                log.ErrorFormat("Error getting company plans. Error: {0}", ex.ToString());
-            }
-            finally
-            {
-                if (db != null)
-                    db.Dispose();
-            }
-
-            var htmlSelectBox = string.Format("<select id='{0}' name='{1}' class='form-control'>{2}{3}</select>",
-                "OrgPlanID",
-                "OrgPlanID",
-                "<option value='0'> --- Create New --- </option>",
-                sb.ToString());
-
-            return new NonEncodedHtmlString(htmlSelectBox);
-        }
-
-        /// <summary>
-        /// Gets the mailbox plans used for when super admin is editing / creating mailbox plans
-        /// </summary>
-        /// <returns></returns>
-        public static IHtmlString GetMailboxPlans()
-        {
-            var sb = new StringBuilder();
-
-            CloudPanelContext db = null;
-            try
-            {
-                db = new CloudPanelContext(Settings.ConnectionString);
-
-                var plans = (from p in db.Plans_ExchangeMailbox
-                             orderby p.MailboxPlanName
-                             select p).ToList();
-
-                foreach (var p in plans)
-                {
-                    sb.AppendFormat("<option value='{0}' {1}>{2}</option>",
-                        p.MailboxPlanID,
-                        "",
-                        p.MailboxPlanName);
-                }
-            }
-            catch (Exception ex)
-            {
-                sb.AppendFormat("<option value='0' selected>{1}: {2}</option>",
-                    "ERROR",
-                    ex.Message);
-
-                log.ErrorFormat("Error getting mailbox plans. Error: {0}", ex.ToString());
-            }
-            finally
-            {
-                if (db != null)
-                    db.Dispose();
-            }
-
-            var htmlSelectBox = string.Format("<select id='{0}' name='{1}' class='form-control'>{2}{3}</select>",
-                "MailboxPlanID",
-                "MailboxPlanID",
-                "<option value='0'> --- Create New --- </option>",
-                sb.ToString());
-
-            return new NonEncodedHtmlString(htmlSelectBox);
-        }
-
-        public static IHtmlString GetMailboxPlans(string companyCode, List<Plans_ExchangeMailbox> plans, int selectedID)
-        {
-            var sb = new StringBuilder();
-
-            CloudPanelContext db = null;
-            try
-            {
-                db = new CloudPanelContext(Settings.ConnectionString);
-
-                foreach (var p in plans)
-                {
-                    sb.AppendFormat("<option value='{0}' {1}>{2}</option>",
-                        p.MailboxPlanID,
-                        p.MailboxPlanID == selectedID ? "selected" : "",
-                        p.MailboxPlanName);
-                }
-            }
-            catch (Exception ex)
-            {
-                sb.AppendFormat("<option value='0' selected>{1}: {2}</option>",
-                    "ERROR",
-                    ex.Message);
-
-                log.ErrorFormat("Error getting mailbox plans for {0}. Error: {1}", companyCode, ex.ToString());
-            }
-            finally
-            {
-                if (db != null)
-                    db.Dispose();
-            }
-
-            var htmlSelectBox = string.Format("<select id='{0}' name='{1}' class='form-control'>{2}{3}</select>",
-                "MailboxPlan",
-                "MailboxPlan",
-                "<option value='0'> --- Select Plan --- </option>",
-                sb.ToString());
-
-            return new NonEncodedHtmlString(htmlSelectBox);
-        }
-
-        public static IHtmlString GetActiveSyncPlans(string companyCode, List<Plans_ExchangeActiveSync> plans, int selectedID)
-        {
-            var sb = new StringBuilder();
-
-            CloudPanelContext db = null;
-            try
-            {
-                db = new CloudPanelContext(Settings.ConnectionString);
-
-                foreach (var p in plans)
-                {
-                    sb.AppendFormat("<option value='{0}' {1}>{2}</option>",
-                        p.ASID,
-                        p.ASID == selectedID ? "selected" : "",
-                        p.DisplayName);
-                }
-            }
-            catch (Exception ex)
-            {
-                sb.AppendFormat("<option value='0' selected>{1}: {2}</option>",
-                    "ERROR",
-                    ex.Message);
-
-                log.ErrorFormat("Error getting activesync plans for {0}. Error: {1}", companyCode, ex.ToString());
-            }
-            finally
-            {
-                if (db != null)
-                    db.Dispose();
-            }
-
-            var htmlSelectBox = string.Format("<select id='{0}' name='{1}' class='form-control'>{2}{3}</select>",
-                "ActiveSyncPlan",
-                "ActiveSyncPlan",
-                "<option value='0'> --- None --- </option>",
-                sb.ToString());
-
-            return new NonEncodedHtmlString(htmlSelectBox);
-        }
-
-        public static IHtmlString GetMultiSelectBox(string selectName, Dictionary<string, string> keyValuePair, List<string> selectedKeys)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            foreach (var a in keyValuePair)
-            {
-                if (selectedKeys == null)
-                    sb.AppendFormat("<option value='{0}' {1}>{2}</option>", a.Key, "", a.Value);
-                else
-                {
-                    var match = selectedKeys.FirstOrDefault(s => s.Equals(a.Key, StringComparison.CurrentCultureIgnoreCase));
-                    if (match == null)
-                        sb.AppendFormat("<option value='{0}' {1}>{2}</option>", a.Key, "", a.Value);
+                    if (selectedId > 0)
+                    {
+                        stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                                x.DomainID,
+                                x.DomainID == selectedId ? "selected" : "",
+                                x.Domain
+                            );
+                    }
                     else
-                        sb.AppendFormat("<option value='{0}' {1}>{2}</option>", a.Key, "selected", a.Value);
+                    {
+                        stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                                x.DomainID,
+                                x.IsDefault ? "selected" : "",
+                                x.Domain
+                            );
+                    }
+                });
+
+                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}\" class=\"form-control\">{1}</select>", "DomainID", stringBuilder.ToString());
+                return new NonEncodedHtmlString(returnValue);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static IHtmlString GetCompanyEmailDomains(string companyCode, string selectedDomain, string insertBefore, string controlId = "DomainID")
+        {
+            var stringBuilder = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var companyDomains = (from d in db.Domains
+                                      where d.CompanyCode == companyCode
+                                      where d.IsAcceptedDomain
+                                      select d).ToList();
+
+                if (!string.IsNullOrEmpty(insertBefore))
+                    stringBuilder.Append(insertBefore);
+
+                companyDomains.ForEach(x =>
+                {
+                    if (!string.IsNullOrEmpty(selectedDomain))
+                    {
+                        stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                                x.DomainID,
+                                x.Domain == selectedDomain ? "selected" : "",
+                                x.Domain
+                            );
+                    }
+                    else
+                    {
+                        stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                                x.DomainID,
+                                x.IsDefault ? "selected" : "",
+                                x.Domain
+                            );
+                    }
+                });
+
+                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}\" class=\"form-control\">{1}</select>", controlId, stringBuilder.ToString());
+                return new NonEncodedHtmlString(returnValue);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static IHtmlString GetMailboxPlans(int selectedId, string companyCode, string insertBefore, string controlId = "MailboxPlanID")
+        {
+            var stringBuilder = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var mailboxPlans = (from d in db.Plans_ExchangeMailbox
+                                    where string.IsNullOrEmpty(d.CompanyCode) || d.CompanyCode == companyCode
+                                    orderby d.MailboxPlanName
+                                    select d).ToList();
+
+                logger.DebugFormat("Found a total of {0} mailbox plans", mailboxPlans.Count());
+                if (!string.IsNullOrEmpty(insertBefore))
+                    stringBuilder.Append(insertBefore);
+
+                mailboxPlans.ForEach(x =>
+                {
+                    stringBuilder.AppendFormat("<option value=\"{0}\" data-size=\"{1}\" data-maxsize=\"{2}\" data-description=\"{3}\" data-price=\"{4}\" data-additionalprice=\"{5}\"  {6}>{7}</option>",
+                            x.MailboxPlanID,
+                            x.MailboxSizeMB,
+                            x.MaxMailboxSizeMB,
+                            x.MailboxPlanDesc.Replace("\"", "'"),
+                            x.Price,
+                            x.AdditionalGBPrice,
+                            x.MailboxPlanID == selectedId ? "selected" : "",
+                            x.MailboxPlanName
+                        );
+                });
+
+                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}\" class=\"form-control\">{1}</select>", controlId, stringBuilder.ToString());
+                return new NonEncodedHtmlString(returnValue);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting mailbox plans: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static IHtmlString GetMailboxUsersForPermissions(string[] selectedValues, string companyCode, string controlId, string insertBefore)
+        {
+            var stringBuilder = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                logger.DebugFormat("Getting mailbox permission select boxes");
+                var users = (from u in db.Users
+                             where u.CompanyCode == companyCode
+                             where u.MailboxPlan > 0
+                             orderby u.DisplayName
+                             select u).ToList();
+
+                logger.DebugFormat("Found a total of {0} users that can be given permission", users.Count());
+
+                if (!string.IsNullOrEmpty(insertBefore))
+                    stringBuilder.Append(insertBefore);
+
+                users.ForEach(x =>
+                {
+                    stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                            x.sAMAccountName,
+                            (selectedValues != null && selectedValues.Contains(x.sAMAccountName)) ? "selected" : "",
+                            x.DisplayName
+                        );
+                });
+
+                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}\" multiple style=\"width:100%\" class=\"populate\">{1}</select>", controlId, stringBuilder.ToString());
+                return new NonEncodedHtmlString(returnValue);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting mailbox users for permissions: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static IHtmlString GetAllExchangeObjectsInSelectFormat(string[] selectedValues, string companyCode, string controlId, string insertBefore)
+        {
+            var stringBuilder = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                logger.DebugFormat("Getting mailbox users for {0}", companyCode);
+                var users = (from u in db.Users
+                             where u.CompanyCode == companyCode
+                             where u.MailboxPlan > 0
+                             orderby u.DisplayName
+                             select u).ToList();
+
+                logger.DebugFormat("Found a total of {0} mailbox users", users.Count());
+                if (!string.IsNullOrEmpty(insertBefore))
+                    stringBuilder.Append(insertBefore);
+
+                stringBuilder.Append("<optgroup label='Users'>");
+                users.ForEach(x =>
+                {
+                    string value = LdapConverters.ToCanonicalName(x.DistinguishedName);
+
+                    stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                            value,
+                            (selectedValues != null && selectedValues.Contains(value) ? "selected" : ""),
+                            x.DisplayName
+                        );
+                });
+                stringBuilder.Append("</optgroup>");
+
+                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}\" multiple style=\"width:100%\" class=\"multiselect\">{1}</select>", controlId, stringBuilder.ToString());
+                return new NonEncodedHtmlString(returnValue);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting mailbox users for permissions: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static IHtmlString GetAllExchangeObjectsInTableFormat(string companyCode)
+        {
+            var stringBuilder = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                logger.DebugFormat("Getting mailbox users for {0}", companyCode);
+                var users = (from u in db.Users
+                             where u.CompanyCode == companyCode
+                             where u.MailboxPlan > 0
+                             orderby u.DisplayName
+                             select u).ToList();
+
+                if (users != null)
+                {
+                    logger.DebugFormat("Found a total of {0} mailbox users", users.Count());
+                    users.ForEach(x =>
+                        {
+                            stringBuilder.AppendFormat("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td style='display: none'>{3}</td></tr>",
+                                    ExchangeGroupType.User,
+                                    x.DisplayName,
+                                    x.Email,
+                                    x.DistinguishedName
+                                );
+                        });
                 }
+
+                logger.DebugFormat("Getting distribution groups for {0}", companyCode);
+                var groups = (from d in db.DistributionGroups
+                              where d.CompanyCode == companyCode
+                              select d).ToList();
+                if (groups != null)
+                {
+                    logger.DebugFormat("Found a total of {0} groups", groups.Count());
+                    groups.ForEach(x =>
+                        {
+                            stringBuilder.AppendFormat("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td style='display: none'>{3}</td></tr>",
+                                ExchangeGroupType.Group,
+                                x.DisplayName,
+                                x.Email,
+                                x.DistinguishedName
+                            );
+                        });
+                }
+
+                return new NonEncodedHtmlString(stringBuilder.ToString());
             }
-
-            var htmlSelectBox = string.Format("<select id='{0}' name='{1}' class='chosen-select' multiple>{2}</select>",
-                selectName,
-                selectName,
-                sb.ToString());
-
-            return new NonEncodedHtmlString(htmlSelectBox);
-        }
-
-        public static IHtmlString IsChecked(object objValue)
-        {
-            NonEncodedHtmlString blank = new NonEncodedHtmlString("");
-
-            if (objValue == null)
-                return blank;
-            else
+            catch (Exception ex)
             {
-                if (objValue is Boolean && (bool)objValue == true)
-                    return new NonEncodedHtmlString("checked");
-                else
-                    return blank;
+                logger.ErrorFormat("Error getting mailbox users for permissions: {0}", ex.ToString());
+                throw;
             }
-        }
-
-        public static IHtmlString IsChecked(object objValue, int compareValue)
-        {
-            NonEncodedHtmlString blank = new NonEncodedHtmlString("");
-
-            if (objValue == null)
-                return blank;
-            else
+            finally
             {
-                if (objValue is int && (int)objValue == compareValue)
-                    return new NonEncodedHtmlString("checked");
-                else
-                    return blank;
+                if (db != null)
+                    db.Dispose();
             }
         }
 
-        public static IHtmlString RandomCharacters()
+        public static IHtmlString GetMailboxUsers(string[] selectedValues, string companyCode)
         {
-            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            var random = new Random();
-            var result = new string(
-                Enumerable.Repeat(chars, 8)
-                          .Select(s => s[random.Next(s.Length)])
-                          .ToArray());
+            var stringBuilder = new StringBuilder();
 
-            return new NonEncodedHtmlString(result);
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                logger.DebugFormat("Getting mailbox users for {0}", companyCode);
+                var users = (from u in db.Users
+                             where u.CompanyCode == companyCode
+                             where u.MailboxPlan > 0
+                             orderby u.DisplayName
+                             select u).ToList();
+
+                logger.DebugFormat("Found a total of {0} mailbox users", users.Count());
+                users.ForEach(x =>
+                {
+                    stringBuilder.AppendFormat("<div class='checkbpx'><label>");
+                    stringBuilder.AppendFormat("<input type='checkbox' id='{0}' name='mailboxUsers[]' value='{1}' {2} /> {3} </label></div>",
+                            x.sAMAccountName,
+                            (selectedValues != null && selectedValues.Contains(x.sAMAccountName)) ? "true" : "false",
+                            (selectedValues != null && selectedValues.Contains(x.sAMAccountName)) ? "checked" : "",
+                            x.DisplayName
+                        );
+                });
+
+                return new NonEncodedHtmlString(stringBuilder.ToString());
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting mailbox users for permissions: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
         }
+
+        public static IHtmlString GetCompanies(string companyCode, string insertBefore)
+        {
+            var stringBuilder = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var companies = (from d in db.Companies
+                                 orderby d.CompanyName
+                                 select d).ToList();
+
+                if (!string.IsNullOrEmpty(insertBefore))
+                    stringBuilder.Append(insertBefore);
+
+                companies.ForEach(x =>
+                {
+                    stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                            x.CompanyCode,
+                            x.CompanyCode.Equals(companyCode, StringComparison.InvariantCultureIgnoreCase) ? "selected" : "",
+                            x.CompanyName
+                        );
+                });
+
+                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}\" class=\"form-control\">{1}</select>", "CompanyCode", stringBuilder.ToString());
+                return new NonEncodedHtmlString(returnValue);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static IHtmlString GetCountries(string selectedCountry)
+        {
+            var sb = new StringBuilder();
+            sb.Append(@"<select name='Country' id='Country' class='populate' style='width: 100%'>
+                    <optgroup id='country-optgroup-Africa' label='Africa'>
+                    <option value='DZ' label='Algeria'>Algeria</option>
+                    <option value='AO' label='Angola'>Angola</option>
+                    <option value='BJ' label='Benin'>Benin</option>
+                    <option value='BW' label='Botswana'>Botswana</option>
+                    <option value='BF' label='Burkina Faso'>Burkina Faso</option>
+                    <option value='BI' label='Burundi'>Burundi</option>
+                    <option value='CM' label='Cameroon'>Cameroon</option>
+                    <option value='CV' label='Cape Verde'>Cape Verde</option>
+                    <option value='CF' label='Central African Republic'>Central African Republic</option>
+                    <option value='TD' label='Chad'>Chad</option>
+                    <option value='KM' label='Comoros'>Comoros</option>
+                    <option value='CG' label='Congo - Brazzaville'>Congo - Brazzaville</option>
+                    <option value='CD' label='Congo - Kinshasa'>Congo - Kinshasa</option>
+                    <option value='CI' label='Côte d’Ivoire'>Côte d’Ivoire</option>
+                    <option value='DJ' label='Djibouti'>Djibouti</option>
+                    <option value='EG' label='Egypt'>Egypt</option>
+                    <option value='GQ' label='Equatorial Guinea'>Equatorial Guinea</option>
+                    <option value='ER' label='Eritrea'>Eritrea</option>
+                    <option value='ET' label='Ethiopia'>Ethiopia</option>
+                    <option value='GA' label='Gabon'>Gabon</option>
+                    <option value='GM' label='Gambia'>Gambia</option>
+                    <option value='GH' label='Ghana'>Ghana</option>
+                    <option value='GN' label='Guinea'>Guinea</option>
+                    <option value='GW' label='Guinea-Bissau'>Guinea-Bissau</option>
+                    <option value='KE' label='Kenya'>Kenya</option>
+                    <option value='LS' label='Lesotho'>Lesotho</option>
+                    <option value='LR' label='Liberia'>Liberia</option>
+                    <option value='LY' label='Libya'>Libya</option>
+                    <option value='MG' label='Madagascar'>Madagascar</option>
+                    <option value='MW' label='Malawi'>Malawi</option>
+                    <option value='ML' label='Mali'>Mali</option>
+                    <option value='MR' label='Mauritania'>Mauritania</option>
+                    <option value='MU' label='Mauritius'>Mauritius</option>
+                    <option value='YT' label='Mayotte'>Mayotte</option>
+                    <option value='MA' label='Morocco'>Morocco</option>
+                    <option value='MZ' label='Mozambique'>Mozambique</option>
+                    <option value='NA' label='Namibia'>Namibia</option>
+                    <option value='NE' label='Niger'>Niger</option>
+                    <option value='NG' label='Nigeria'>Nigeria</option>
+                    <option value='RW' label='Rwanda'>Rwanda</option>
+                    <option value='RE' label='Réunion'>Réunion</option>
+                    <option value='SH' label='Saint Helena'>Saint Helena</option>
+                    <option value='SN' label='Senegal'>Senegal</option>
+                    <option value='SC' label='Seychelles'>Seychelles</option>
+                    <option value='SL' label='Sierra Leone'>Sierra Leone</option>
+                    <option value='SO' label='Somalia'>Somalia</option>
+                    <option value='ZA' label='South Africa'>South Africa</option>
+                    <option value='SD' label='Sudan'>Sudan</option>
+                    <option value='SZ' label='Swaziland'>Swaziland</option>
+                    <option value='ST' label='São Tomé and Príncipe'>São Tomé and Príncipe</option>
+                    <option value='TZ' label='Tanzania'>Tanzania</option>
+                    <option value='TG' label='Togo'>Togo</option>
+                    <option value='TN' label='Tunisia'>Tunisia</option>
+                    <option value='UG' label='Uganda'>Uganda</option>
+                    <option value='EH' label='Western Sahara'>Western Sahara</option>
+                    <option value='ZM' label='Zambia'>Zambia</option>
+                    <option value='ZW' label='Zimbabwe'>Zimbabwe</option>
+                </optgroup>
+                <optgroup id='country-optgroup-Americas' label='Americas'>
+                    <option value='AI' label='Anguilla'>Anguilla</option>
+                    <option value='AG' label='Antigua and Barbuda'>Antigua and Barbuda</option>
+                    <option value='AR' label='Argentina'>Argentina</option>
+                    <option value='AW' label='Aruba'>Aruba</option>
+                    <option value='BS' label='Bahamas'>Bahamas</option>
+                    <option value='BB' label='Barbados'>Barbados</option>
+                    <option value='BZ' label='Belize'>Belize</option>
+                    <option value='BM' label='Bermuda'>Bermuda</option>
+                    <option value='BO' label='Bolivia'>Bolivia</option>
+                    <option value='BR' label='Brazil'>Brazil</option>
+                    <option value='VG' label='British Virgin Islands'>British Virgin Islands</option>
+                    <option value='CA' label='Canada'>Canada</option>
+                    <option value='KY' label='Cayman Islands'>Cayman Islands</option>
+                    <option value='CL' label='Chile'>Chile</option>
+                    <option value='CO' label='Colombia'>Colombia</option>
+                    <option value='CR' label='Costa Rica'>Costa Rica</option>
+                    <option value='CU' label='Cuba'>Cuba</option>
+                    <option value='DM' label='Dominica'>Dominica</option>
+                    <option value='DO' label='Dominican Republic'>Dominican Republic</option>
+                    <option value='EC' label='Ecuador'>Ecuador</option>
+                    <option value='SV' label='El Salvador'>El Salvador</option>
+                    <option value='FK' label='Falkland Islands'>Falkland Islands</option>
+                    <option value='GF' label='French Guiana'>French Guiana</option>
+                    <option value='GL' label='Greenland'>Greenland</option>
+                    <option value='GD' label='Grenada'>Grenada</option>
+                    <option value='GP' label='Guadeloupe'>Guadeloupe</option>
+                    <option value='GT' label='Guatemala'>Guatemala</option>
+                    <option value='GY' label='Guyana'>Guyana</option>
+                    <option value='HT' label='Haiti'>Haiti</option>
+                    <option value='HN' label='Honduras'>Honduras</option>
+                    <option value='JM' label='Jamaica'>Jamaica</option>
+                    <option value='MQ' label='Martinique'>Martinique</option>
+                    <option value='MX' label='Mexico'>Mexico</option>
+                    <option value='MS' label='Montserrat'>Montserrat</option>
+                    <option value='AN' label='Netherlands Antilles'>Netherlands Antilles</option>
+                    <option value='NI' label='Nicaragua'>Nicaragua</option>
+                    <option value='PA' label='Panama'>Panama</option>
+                    <option value='PY' label='Paraguay'>Paraguay</option>
+                    <option value='PE' label='Peru'>Peru</option>
+                    <option value='PR' label='Puerto Rico'>Puerto Rico</option>
+                    <option value='BL' label='Saint Barthélemy'>Saint Barthélemy</option>
+                    <option value='KN' label='Saint Kitts and Nevis'>Saint Kitts and Nevis</option>
+                    <option value='LC' label='Saint Lucia'>Saint Lucia</option>
+                    <option value='MF' label='Saint Martin'>Saint Martin</option>
+                    <option value='PM' label='Saint Pierre and Miquelon'>Saint Pierre and Miquelon</option>
+                    <option value='VC' label='Saint Vincent and the Grenadines'>Saint Vincent and the Grenadines</option>
+                    <option value='SR' label='Suriname'>Suriname</option>
+                    <option value='TT' label='Trinidad and Tobago'>Trinidad and Tobago</option>
+                    <option value='TC' label='Turks and Caicos Islands'>Turks and Caicos Islands</option>
+                    <option value='VI' label='U.S. Virgin Islands'>U.S. Virgin Islands</option>
+                    <option value='US' label='United States'>United States</option>
+                    <option value='UY' label='Uruguay'>Uruguay</option>
+                    <option value='VE' label='Venezuela'>Venezuela</option>
+                </optgroup>
+                    <optgroup id='country-optgroup-Asia' label='Asia'>
+                    <option value='AF' label='Afghanistan'>Afghanistan</option>
+                    <option value='AM' label='Armenia'>Armenia</option>
+                    <option value='AZ' label='Azerbaijan'>Azerbaijan</option>
+                    <option value='BH' label='Bahrain'>Bahrain</option>
+                    <option value='BD' label='Bangladesh'>Bangladesh</option>
+                    <option value='BT' label='Bhutan'>Bhutan</option>
+                    <option value='BN' label='Brunei'>Brunei</option>
+                    <option value='KH' label='Cambodia'>Cambodia</option>
+                    <option value='CN' label='China'>China</option>
+                    <option value='CY' label='Cyprus'>Cyprus</option>
+                    <option value='GE' label='Georgia'>Georgia</option>
+                    <option value='HK' label='Hong Kong SAR China'>Hong Kong SAR China</option>
+                    <option value='IN' label='India'>India</option>
+                    <option value='ID' label='Indonesia'>Indonesia</option>
+                    <option value='IR' label='Iran'>Iran</option>
+                    <option value='IQ' label='Iraq'>Iraq</option>
+                    <option value='IL' label='Israel'>Israel</option>
+                    <option value='JP' label='Japan'>Japan</option>
+                    <option value='JO' label='Jordan'>Jordan</option>
+                    <option value='KZ' label='Kazakhstan'>Kazakhstan</option>
+                    <option value='KW' label='Kuwait'>Kuwait</option>
+                    <option value='KG' label='Kyrgyzstan'>Kyrgyzstan</option>
+                    <option value='LA' label='Laos'>Laos</option>
+                    <option value='LB' label='Lebanon'>Lebanon</option>
+                    <option value='MO' label='Macau SAR China'>Macau SAR China</option>
+                    <option value='MY' label='Malaysia'>Malaysia</option>
+                    <option value='MV' label='Maldives'>Maldives</option>
+                    <option value='MN' label='Mongolia'>Mongolia</option>
+                    <option value='MM' label='Myanmar [Burma]'>Myanmar [Burma]</option>
+                    <option value='NP' label='Nepal'>Nepal</option>
+                    <option value='NT' label='Neutral Zone'>Neutral Zone</option>
+                    <option value='KP' label='North Korea'>North Korea</option>
+                    <option value='OM' label='Oman'>Oman</option>
+                    <option value='PK' label='Pakistan'>Pakistan</option>
+                    <option value='PS' label='Palestinian Territories'>Palestinian Territories</option>
+                    <option value='YD' label='People's Democratic Republic of Yemen'>People's Democratic Republic of Yemen</option>
+                    <option value='PH' label='Philippines'>Philippines</option>
+                    <option value='QA' label='Qatar'>Qatar</option>
+                    <option value='SA' label='Saudi Arabia'>Saudi Arabia</option>
+                    <option value='SG' label='Singapore'>Singapore</option>
+                    <option value='KR' label='South Korea'>South Korea</option>
+                    <option value='LK' label='Sri Lanka'>Sri Lanka</option>
+                    <option value='SY' label='Syria'>Syria</option>
+                    <option value='TW' label='Taiwan'>Taiwan</option>
+                    <option value='TJ' label='Tajikistan'>Tajikistan</option>
+                    <option value='TH' label='Thailand'>Thailand</option>
+                    <option value='TL' label='Timor-Leste'>Timor-Leste</option>
+                    <option value='TR' label='Turkey'>Turkey</option>
+                    <option value='™' label='Turkmenistan'>Turkmenistan</option>
+                    <option value='AE' label='United Arab Emirates'>United Arab Emirates</option>
+                    <option value='UZ' label='Uzbekistan'>Uzbekistan</option>
+                    <option value='VN' label='Vietnam'>Vietnam</option>
+                    <option value='YE' label='Yemen'>Yemen</option>
+                </optgroup>
+                <optgroup id='country-optgroup-Europe' label='Europe'>
+                    <option value='AL' label='Albania'>Albania</option>
+                    <option value='AD' label='Andorra'>Andorra</option>
+                    <option value='AT' label='Austria'>Austria</option>
+                    <option value='BY' label='Belarus'>Belarus</option>
+                    <option value='BE' label='Belgium'>Belgium</option>
+                    <option value='BA' label='Bosnia and Herzegovina'>Bosnia and Herzegovina</option>
+                    <option value='BG' label='Bulgaria'>Bulgaria</option>
+                    <option value='HR' label='Croatia'>Croatia</option>
+                    <option value='CY' label='Cyprus'>Cyprus</option>
+                    <option value='CZ' label='Czech Republic'>Czech Republic</option>
+                    <option value='DK' label='Denmark'>Denmark</option>
+                    <option value='DD' label='East Germany'>East Germany</option>
+                    <option value='EE' label='Estonia'>Estonia</option>
+                    <option value='FO' label='Faroe Islands'>Faroe Islands</option>
+                    <option value='FI' label='Finland'>Finland</option>
+                    <option value='FR' label='France'>France</option>
+                    <option value='DE' label='Germany'>Germany</option>
+                    <option value='GI' label='Gibraltar'>Gibraltar</option>
+                    <option value='GR' label='Greece'>Greece</option>
+                    <option value='GG' label='Guernsey'>Guernsey</option>
+                    <option value='HU' label='Hungary'>Hungary</option>
+                    <option value='IS' label='Iceland'>Iceland</option>
+                    <option value='IE' label='Ireland'>Ireland</option>
+                    <option value='IM' label='Isle of Man'>Isle of Man</option>
+                    <option value='IT' label='Italy'>Italy</option>
+                    <option value='JE' label='Jersey'>Jersey</option>
+                    <option value='LV' label='Latvia'>Latvia</option>
+                    <option value='LI' label='Liechtenstein'>Liechtenstein</option>
+                    <option value='LT' label='Lithuania'>Lithuania</option>
+                    <option value='LU' label='Luxembourg'>Luxembourg</option>
+                    <option value='MK' label='Macedonia'>Macedonia</option>
+                    <option value='MT' label='Malta'>Malta</option>
+                    <option value='FX' label='Metropolitan France'>Metropolitan France</option>
+                    <option value='MD' label='Moldova'>Moldova</option>
+                    <option value='MC' label='Monaco'>Monaco</option>
+                    <option value='ME' label='Montenegro'>Montenegro</option>
+                    <option value='NL' label='Netherlands'>Netherlands</option>
+                    <option value='NO' label='Norway'>Norway</option>
+                    <option value='PL' label='Poland'>Poland</option>
+                    <option value='PT' label='Portugal'>Portugal</option>
+                    <option value='RO' label='Romania'>Romania</option>
+                    <option value='RU' label='Russia'>Russia</option>
+                    <option value='SM' label='San Marino'>San Marino</option>
+                    <option value='RS' label='Serbia'>Serbia</option>
+                    <option value='CS' label='Serbia and Montenegro'>Serbia and Montenegro</option>
+                    <option value='SK' label='Slovakia'>Slovakia</option>
+                    <option value='SI' label='Slovenia'>Slovenia</option>
+                    <option value='ES' label='Spain'>Spain</option>
+                    <option value='SJ' label='Svalbard and Jan Mayen'>Svalbard and Jan Mayen</option>
+                    <option value='SE' label='Sweden'>Sweden</option>
+                    <option value='CH' label='Switzerland'>Switzerland</option>
+                    <option value='UA' label='Ukraine'>Ukraine</option>
+                    <option value='SU' label='Union of Soviet Socialist Republics'>Union of Soviet Socialist Republics</option>
+                    <option value='GB' label='United Kingdom'>United Kingdom</option>
+                    <option value='VA' label='Vatican City'>Vatican City</option>
+                    <option value='AX' label='Åland Islands'>Åland Islands</option>
+                </optgroup>
+                <optgroup id='country-optgroup-Oceania' label='Oceania'>
+                    <option value='AS' label='American Samoa'>American Samoa</option>
+                    <option value='AQ' label='Antarctica'>Antarctica</option>
+                    <option value='AU' label='Australia'>Australia</option>
+                    <option value='BV' label='Bouvet Island'>Bouvet Island</option>
+                    <option value='IO' label='British Indian Ocean Territory'>British Indian Ocean Territory</option>
+                    <option value='CX' label='Christmas Island'>Christmas Island</option>
+                    <option value='CC' label='Cocos [Keeling] Islands'>Cocos [Keeling] Islands</option>
+                    <option value='CK' label='Cook Islands'>Cook Islands</option>
+                    <option value='FJ' label='Fiji'>Fiji</option>
+                    <option value='PF' label='French Polynesia'>French Polynesia</option>
+                    <option value='TF' label='French Southern Territories'>French Southern Territories</option>
+                    <option value='GU' label='Guam'>Guam</option>
+                    <option value='HM' label='Heard Island and McDonald Islands'>Heard Island and McDonald Islands</option>
+                    <option value='KI' label='Kiribati'>Kiribati</option>
+                    <option value='MH' label='Marshall Islands'>Marshall Islands</option>
+                    <option value='FM' label='Micronesia'>Micronesia</option>
+                    <option value='NR' label='Nauru'>Nauru</option>
+                    <option value='NC' label='New Caledonia'>New Caledonia</option>
+                    <option value='NZ' label='New Zealand'>New Zealand</option>
+                    <option value='NU' label='Niue'>Niue</option>
+                    <option value='NF' label='Norfolk Island'>Norfolk Island</option>
+                    <option value='MP' label='Northern Mariana Islands'>Northern Mariana Islands</option>
+                    <option value='PW' label='Palau'>Palau</option>
+                    <option value='PG' label='Papua New Guinea'>Papua New Guinea</option>
+                    <option value='PN' label='Pitcairn Islands'>Pitcairn Islands</option>
+                    <option value='WS' label='Samoa'>Samoa</option>
+                    <option value='SB' label='Solomon Islands'>Solomon Islands</option>
+                    <option value='GS' label='South Georgia and the South Sandwich Islands'>South Georgia and the South Sandwich Islands</option>
+                    <option value='TK' label='Tokelau'>Tokelau</option>
+                    <option value='TO' label='Tonga'>Tonga</option>
+                    <option value='TV' label='Tuvalu'>Tuvalu</option>
+                    <option value='UM' label='U.S. Minor Outlying Islands'>U.S. Minor Outlying Islands</option>
+                    <option value='VU' label='Vanuatu'>Vanuatu</option>
+                    <option value='WF' label='Wallis and Futuna'>Wallis and Futuna</option>
+                </optgroup>
+                </select>");
+
+            if (!string.IsNullOrEmpty(selectedCountry))
+                sb.Replace(
+                    string.Format("value='{0}'", selectedCountry), 
+                    string.Format("value='{0}' selected", selectedCountry)
+                );
+
+            return new NonEncodedHtmlString(sb.ToString());
+        }
+
+        #region Accepted Domains
+
+        public static IHtmlString GetAcceptedDomains(string companyCode, string controlId)
+        {
+            var stringBuilder = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var companyDomains = (from d in db.Domains
+                                      where d.CompanyCode == companyCode
+                                      where d.IsAcceptedDomain
+                                      select d).ToList();
+
+                companyDomains.ForEach(x =>
+                {
+                    stringBuilder.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                                x.Domain,
+                                x.IsDefault ? "selected" : "",
+                                x.Domain
+                           );
+                });
+
+                string returnValue = string.Format("<select id=\"{0}\" name=\"{0}\" class=\"form-control\">{1}</select>", controlId, stringBuilder.ToString());
+                return new NonEncodedHtmlString(returnValue);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        #endregion
     }
 }
