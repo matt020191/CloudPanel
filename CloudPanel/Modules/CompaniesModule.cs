@@ -1,16 +1,17 @@
 ﻿using CloudPanel.ActiveDirectory;
+using CloudPanel.Base.AD;
 using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Rollback;
 using log4net;
 using Nancy;
-using Nancy.Security;
 using Nancy.ModelBinding;
+using Nancy.Security;
 using System;
 using System.Linq;
 using System.Reflection;
-using CloudPanel.Base.AD;
+using CloudPanel.Code;
 
 namespace CloudPanel.Modules
 {
@@ -22,12 +23,20 @@ namespace CloudPanel.Modules
         {
             this.RequiresAuthentication();
 
-            Get["/"] = _ =>
+            Get["/", c => c.Request.Accept("text/html")] = _ =>
+                {
+                    string resellerCode = _.ResellerCode;
+                    this.Context.SetResellerCode(resellerCode);
+
+                    return View["companies.cshtml"];
+                };
+
+            Get["/", c => !c.Request.Accept("text/html")] = _ =>
             {
                 string resellerCode = _.ResellerCode;
                 this.Context.SetResellerCode(resellerCode);
 
-                #region Returns the companies view with model or json data based on the request
+                #region Returns the companies json data based on the request
                 CloudPanelContext db = null;
                 try
                 {
@@ -45,60 +54,53 @@ namespace CloudPanel.Modules
                     string searchValue = "", orderColumnName = "";
                     bool isAscendingOrder = true;
 
-                    // Check for dataTables and process the values
-                    if (Request.Query.draw.HasValue)
+                    draw = Request.Query.draw;
+                    start = Request.Query.start;
+                    length = Request.Query.length;
+                    orderColumn = Request.Query["order[0][column]"];
+                    searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
+                    isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
+                    orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
+
+                    // See if we are using dataTables to search
+                    if (!string.IsNullOrEmpty(searchValue))
                     {
-                        draw = Request.Query.draw;
-                        start = Request.Query.start;
-                        length = Request.Query.length;
-                        orderColumn = Request.Query["order[0][column]"];
-                        searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
-                        isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
-                        orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
-
-                        // See if we are using dataTables to search
-                        if (!string.IsNullOrEmpty(searchValue))
-                        {
-                            companies = (from d in companies
-                                         where d.CompanyCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.City.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.State.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.ZipCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.Country.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
-                                         select d).ToList();
-                            recordsFiltered = companies.Count;
-                        }
-
-                        if (isAscendingOrder)
-                            companies = companies.OrderBy(x => x.GetType()
-                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                    .Skip(start)
-                                                    .Take(length)
-                                                    .ToList();
-                        else
-                            companies = companies.OrderByDescending(x => x.GetType()
-                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                    .Skip(start)
-                                                    .Take(length)
-                                                    .ToList();
+                        companies = (from d in companies
+                                     where d.CompanyCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                           d.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                           d.City.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                           d.State.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                           d.ZipCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                           d.Country.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
+                                     select d).ToList();
+                        recordsFiltered = companies.Count;
                     }
 
-                    return Negotiate.WithModel(new { resellerCode = resellerCode })
-                                    .WithMediaRangeModel("application/json", new
+                    if (isAscendingOrder)
+                        companies = companies.OrderBy(x => x.GetType()
+                                                .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                .Skip(start)
+                                                .Take(length)
+                                                .ToList();
+                    else
+                        companies = companies.OrderByDescending(x => x.GetType()
+                                                .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                .Skip(start)
+                                                .Take(length)
+                                                .ToList();
+
+                    return Negotiate.WithModel(new
                                     {
                                         draw = draw,
                                         recordsTotal = recordsTotal,
                                         recordsFiltered = recordsFiltered,
                                         data = companies
-                                    })
-                                    .WithView("companies.cshtml");
+                                    });
                 }
                 catch (Exception ex)
                 {
-                    return Negotiate.WithModel(resellerCode)
-                                    .WithMediaRangeModel("application/json", new { error = ex.Message })
-                                    .WithView("comapnies.cshtml");
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally
                 {
@@ -353,6 +355,7 @@ namespace CloudPanel.Modules
                     existingCompany.State = updatedCompany.State;
                     existingCompany.ZipCode = updatedCompany.ZipCode;
                     existingCompany.Country = updatedCompany.Country;
+                    existingCompany.PhoneNumber = updatedCompany.PhoneNumber;
                     existingCompany.AdminName = updatedCompany.AdminName;
                     existingCompany.AdminEmail = updatedCompany.AdminEmail;
                     existingCompany.Website = updatedCompany.Website;
@@ -391,11 +394,12 @@ namespace CloudPanel.Modules
                 ADOrganizationalUnits org = null;
                 try
                 {
-                    logger.DebugFormat("Preparing to delete company");
+                    string companyCode = Request.Form.CompanyCode;
+
+                    logger.DebugFormat("Preparing to delete company {0}", Request.Form.CompanyCode);
                     db = new CloudPanelContext(Settings.ConnectionString);
                     db.Database.Connection.Open();
 
-                    string companyCode = Request.Form.CompanyCode;
                     var company = (from d in db.Companies
                                    where !d.IsReseller
                                    where d.CompanyCode == companyCode
@@ -404,6 +408,9 @@ namespace CloudPanel.Modules
                         throw new Exception("Unable to find company in database.");
                     else
                     {
+                        if (company.ExchEnabled)
+                            throw new Exception("It appears this company is enabled for Exchange. Before deleting please disable Exchange for this company.");
+
                         logger.DebugFormat("Initializing Active Directory class...");
                         org = new ADOrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
 
@@ -476,15 +483,15 @@ namespace CloudPanel.Modules
                         logger.DebugFormat("Saving changes to database...");
                         db.SaveChanges();
 
-                        return Negotiate.WithModel(new { success = "Company was deleted successfully", resellerCode = _.ResellerCode })
-                                .WithView("companies.cshtml")
-                                .WithStatusCode(HttpStatusCode.OK);
+                        return Negotiate.WithModel(new { success = "Company was deleted successfully" })
+                                        .WithView("companies.cshtml")
+                                        .WithStatusCode(HttpStatusCode.OK);
                     }
                 }
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error deleting company: {0}", ex.ToString());
-                    return Negotiate.WithModel(new { error = ex.Message, resellerCode = _.ResellerCode })
+                    return Negotiate.WithModel(new { error = ex.Message })
                                     .WithView("companies.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }

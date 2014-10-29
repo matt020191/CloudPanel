@@ -488,7 +488,7 @@
 
         function GetExchangeDatabases()
         {
-            $("#form").block();
+            $(".panel").block();
             $.getJSON("@ResolveUrl("~/admin/settings/exchange/databases")", function (data) {
                 var input = $("#ExchangeDatabases");
                 input.val("");
@@ -498,10 +498,10 @@
                 });
             })
             .fail(function (data) {
-                AppendError(data.responseJSON.error);
+                ShowError(data.responseJSON.error);
             })
             .always(function (data) {
-                $("#form").unblock();
+                $(".panel").unblock();
             });
         }
 
@@ -527,17 +527,17 @@
             {
                 var data = $("#form").serialize();
 
-                $("#form").block();
-                $.post("", data).done(function(returnData) {
-                    AppendSuccess(returnData.success);
+                $(".panel").block();
+                $.post("", data).done(function (returnData) {
+                    ShowSuccess(returnData.success);
                 }).fail(function (returnData) {
-                    AppendError(returnData.responseJSON.error);
+                    ShowError(returnData.responseJSON.error);
                 }).always(function () {
-                    $("#form").unblock();
+                    $(".panel").unblock();
                 });
             }
             else
-                AppendError("You are missing some required fields!");
+                ShowWarning("You are missing some required fields!");
         }
     </script>
 }

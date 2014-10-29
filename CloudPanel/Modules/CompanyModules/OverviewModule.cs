@@ -3,6 +3,7 @@ using CloudPanel.Database.EntityFramework;
 using Nancy;
 using Nancy.Security;
 using Nancy.ModelBinding;
+using CloudPanel.Code;
 using System;
 using System.Linq;
 using CloudPanel.Base.Database.Models;
@@ -10,17 +11,19 @@ using log4net;
 
 namespace CloudPanel.Modules
 {
-    public class CompanyOverviewModule : NancyModule
+    public class OverviewModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(CompanyOverviewModule));
+        private static readonly ILog logger = LogManager.GetLogger(typeof(OverviewModule));
 
-        public CompanyOverviewModule() : base("/company/{CompanyCode}/overview")
+        public OverviewModule() : base("/company/{CompanyCode}/overview")
         {
             this.RequiresAuthentication();
 
             Get["/"] = _ =>
             {
                 string companyCode = _.CompanyCode;
+                this.RequiresAnyClaim(new[] { "SuperAdmin", "ResellerAdmin", companyCode });
+
                 this.Context.SetCompanyCode(companyCode);
                 logger.DebugFormat("Setting selected company code for {0} to {1}", this.Context.CurrentUser.UserName, _.CompanyCode);
 
@@ -67,7 +70,7 @@ namespace CloudPanel.Modules
                                         totalContacts = totalContacts,
                                         totalGroups = totalGroups
                                     })
-                                    .WithView("Company/company_overview.cshtml");
+                                    .WithView("Company/overview.cshtml");
                 }
                 catch (Exception ex)
                 {
@@ -84,15 +87,17 @@ namespace CloudPanel.Modules
                 }
             };
 
-            Put["/"] = _ =>
+            Put["/", c => !c.Request.Accept("text/html")] = _ =>
             {
+                string companyCode = _.CompanyCode;
+                this.RequiresAnyClaim(new[] { "SuperAdmin", "ResellerAdmin", companyCode });
+
                 CloudPanelContext db = null;
                 try
                 {
                     db = new CloudPanelContext(Settings.ConnectionString);
                     db.Database.Connection.Open();
 
-                    string companyCode = _.CompanyCode;
                     var company = (from d in db.Companies
                                    where !d.IsReseller
                                    where d.CompanyCode == companyCode
@@ -114,23 +119,25 @@ namespace CloudPanel.Modules
                             company.AdminEmail = updatedCompany.AdminEmail;
 
                         if (updatedCompany.OrgPlanID > 0) // Do not update company if its equal to or less than zero
-                            company.OrgPlanID = updatedCompany.OrgPlanID;
+                        {
+                            if (this.Context.IsSuperOrResellerAdmin()) // Only update value if they are super or reseller admin
+                                company.OrgPlanID = updatedCompany.OrgPlanID;
+
+                        }
                         
                         company.PhoneNumber = updatedCompany.PhoneNumber;
                         company.Website = updatedCompany.Website;
                         db.SaveChanges();
 
-                        string returnLocation = string.Format("~/company/{0}/overview", companyCode);
-                        return this.Response.AsRedirect(returnLocation);
+                        return Negotiate.WithModel(new { success = "Successfully updated company values" })
+                                        .WithStatusCode(HttpStatusCode.OK);
                     }
                 }
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error updating company overview settings for {0}: {1}", _.CompanyCode, ex.ToString());
-
-                    ViewBag.error = ex.ToString();
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("error.cshtml");
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally
                 {

@@ -17,6 +17,7 @@
 
     <link href="~/Content/variations/@branding.Theme" rel="stylesheet" />
     <link href="~/Content/plugins/pines-notify/jquery.pnotify.default.css" rel="stylesheet" />
+    <link href="~/Content/plugins/sweetalert/lib/sweet-alert.css" rel="stylesheet" />
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries. Placeholdr.js enables the placeholder attribute -->
     <!--[if lt IE 9]>
@@ -43,7 +44,7 @@
 
         <ul class="nav navbar-nav pull-right toolbar">
             <li class="dropdown">
-                <a href="#" class="dropdown-toggle username" data-toggle="dropdown"><span class="hidden-xs">John McCartney <i class="fa fa-caret-down"></i></span><img src="~/content/demo/avatar/dangerfield.png" alt="Dangerfield" /></a>
+                <a href="#" class="dropdown-toggle username" data-toggle="dropdown"><span class="hidden-xs">John McCartney <i class="fa fa-caret-down"></i></span></a>
                 <ul class="dropdown-menu userinfo arrow">
                     <li class="username">
                         <a href="#">
@@ -75,17 +76,20 @@
                     @if (Model != null)
                     {
                         var dict = ((System.Collections.Generic.IDictionary<string, object>)Model);
-                        if (dict.ContainsKey("success")) { 
-                            <div class="alert alert-dismissable alert-success"><strong>SUCCESS</strong> @Model.success <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button></div>
+                        if (dict.ContainsKey("success")) {
+                            <script type="text/javascript">ShowSuccess("@Model.success");</script>
                         }
-                        if (dict.ContainsKey("info")) { 
-                            <div class="alert alert-dismissable alert-info"><strong>IFO</strong> @Model.success <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button></div>
+                        if (dict.ContainsKey("info"))
+                        {
+                            <script type="text/javascript">ShowAlert("Info!", "@Model.info", "info");</script>
                         }
-                        if (dict.ContainsKey("warning")) { 
-                            <div class="alert alert-dismissable alert-warning"><strong>WARNING</strong> @Model.warning <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button></div>
+                        if (dict.ContainsKey("warning"))
+                        {
+                            <script type="text/javascript">ShowWarning("@Model.warning");</script>
                         }
-                        if (dict.ContainsKey("error")) { 
-                            <div class="alert alert-dismissable alert-danger"><strong>ERROR</strong> @Model.error <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button></div>
+                        if (dict.ContainsKey("error"))
+                        {
+                            <script type="text/javascript">ShowError("@Model.error");</script>
                         }
                     }
                 </div>
@@ -122,6 +126,7 @@
     <script type="text/javascript" src="~/content/js/jquery.nicescroll.min.js"></script>
     <script type="text/javascript" src="~/content/js/application.js"></script>
     <script src="~/Content/plugins/pines-notify/jquery.pnotify.min.js"></script>
+    <script src="~/Content/plugins/sweetalert/lib/sweet-alert.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             $(".tooltip-ex").tooltip();
@@ -135,20 +140,24 @@
             });
         });
 
-        function AppendError(message) {
-            $.pnotify({
-                title: 'Error!',
-                text: message,
-                type: 'error'
-            });
-        }
-
-        function AppendSuccess(message) {
+        function ShowSuccess(message) {
             $.pnotify({
                 title: 'Success!',
                 text: message,
                 type: 'success'
             });
+        }
+
+        function ShowWarning(message) {
+            swal("Warning!", message, "warning");
+        }
+
+        function ShowError(message) {
+            swal("Error!", message, "error");
+        }
+
+        function ShowAlert(title, message, type) {
+            swal(title, message, type);
         }
     </script>
 

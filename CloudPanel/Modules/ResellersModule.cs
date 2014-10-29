@@ -28,7 +28,7 @@ namespace CloudPanel.Modules
                     return View["resellers.cshtml"];
                 };
 
-            Get["/", c => c.Request.Accept("application/json")] = _ =>
+            Get["/", c => !c.Request.Accept("text/html")] = _ =>
                 {
                     #region Returns the resellers view with model or json data based on the request
                     CloudPanelContext db = null;

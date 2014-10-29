@@ -87,7 +87,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\css\ie8.css" />
-    <Content Include="Content\css\wait.css" />
+    <Content Include="Content\css\cloudpanel.css" />
     <Content Include="Content\css\styles.css" />
     <Content Include="Content\css\styles.min.css" />
     <Content Include="Content\fonts\font-awesome\css\font-awesome.css" />
@@ -1095,14 +1095,13 @@
     <Compile Include="Code\Extensions.cs" />
     <Compile Include="Code\NancyContextHelpers.cs" />
     <Compile Include="Code\StaticSettings.cs" />
-    <Compile Include="IndexModule.cs" />
     <Compile Include="Modules\Admin\BrandingModule.cs" />
     <Compile Include="Modules\Admin\MassEmailModule.cs" />
     <Compile Include="Modules\Admin\SettingsModule.cs" />
     <Compile Include="Modules\ChartsModules\SuperChartsModule.cs" />
-    <Compile Include="Modules\CompanyModules\CompaniesModule.cs" />
+    <Compile Include="Modules\CompaniesModule.cs" />
     <Compile Include="Modules\CompanyModules\CompanyDomainsModule.cs" />
-    <Compile Include="Modules\CompanyModules\CompanyOverviewModule.cs" />
+    <Compile Include="Modules\CompanyModules\OverviewModule.cs" />
     <Compile Include="Modules\CompanyModules\UsersEditModule.cs" />
     <Compile Include="Modules\CompanyModules\UsersModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\ContactsModule.cs" />
@@ -1356,7 +1355,7 @@
     <Content Include="Content\plugins\datatables-1.10.2\package.json" />
     <Content Include="Content\plugins\datatables-1.10.2\Readme.md" />
     <Content Include="Views\companies.cshtml" />
-    <Content Include="Views\Company\company_overview.cshtml" />
+    <Content Include="Views\Company\overview.cshtml" />
     <Content Include="Views\Plans\plans_company.cshtml" />
     <Content Include="Views\Plans\plans_mailbox.cshtml" />
     <Content Include="Views\login.cshtml" />

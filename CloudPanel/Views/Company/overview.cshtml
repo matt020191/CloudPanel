@@ -21,7 +21,7 @@
     <div class="row">
 
         <!-- Company Info -->
-        <form class="form-horizontal" action="" method="post" data-parsley-validate>
+        <form id="overviewForm" class="form-horizontal" action="" method="post" data-parsley-validate>
             <input type="hidden" name="_method" value="PUT" />
             <div class="col-md-8">
                 <div class="panel panel-primary">
@@ -143,16 +143,24 @@
 </div>
 
 @section JAVASCRIPT{
-    <script src="~/Content/plugins/charts-morrisjs/morris.min.js"></script>
-    <script src="~/Content/plugins/charts-morrisjs/raphael.min.js"></script>
-    <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
+    <script src="~/Content/plugins/blockUI/jquery.blockUI.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            $.ajax({
-                dataType: "json",
-                success: function (data) {
-                    
-                }
+            $("#overviewForm").submit(function (event) {
+                event.preventDefault();
+                var data = $("#overviewForm").serialize();
+
+                $.blockUI();
+                $.ajax({
+                    type: "PUT",
+                    data: data
+                }).done(function () {
+                    ShowSuccess("Successfully updated company");
+                }).fail(function (returnData) {
+                    ShowError(returnData.responseJSON.error);
+                }).always(function () {
+                    $.unblockUI();
+                });;
             });
         });
     </script>

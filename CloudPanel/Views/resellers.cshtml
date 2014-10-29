@@ -3,11 +3,11 @@
 @{
     Layout = "__master.cshtml";
 }
+
 @section HEAD{
     <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
     <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
     <link href="~/Content/plugins/form-select2/select2.css" rel="stylesheet" />
-    <link href="~/Content/css/wait.css" rel="stylesheet" />
 }
 
 <div id="page-heading">
@@ -75,12 +75,6 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="focusedinput" class="col-sm-3 control-label">Contact Name</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="AdminName" name="AdminName" data-parsley-required="true">
-                            </div>
-                        </div>
-                        <div class="form-group">
                             <label for="focusedinput" class="col-sm-3 control-label">Contact Email</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="AdminEmail" name="AdminEmail" data-parsley-required="true" data-parsley-type="email">
@@ -95,25 +89,31 @@
                         <div class="form-group">
                             <label for="focusedinput" class="col-sm-3 control-label">Street</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" id="Street" name="Street">
+                                <input type="text" class="form-control" id="Street" name="Street" data-parsley-required="true">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="focusedinput" class="col-sm-3 control-label">City</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" id="City" name="City">
+                                <input type="text" class="form-control" id="City" name="City" data-parsley-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Contact Name</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="AdminName" name="AdminName" data-parsley-required="true">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="focusedinput" class="col-sm-3 control-label">State</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" id="State" name="State">
+                                <input type="text" class="form-control" id="State" name="State" data-parsley-required="true">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="focusedinput" class="col-sm-3 control-label">Postal Code</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" id="ZipCode" name="ZipCode">
+                                <input type="text" class="form-control" id="ZipCode" name="ZipCode" data-parsley-required="true">
                             </div>
                         </div>
                         <div class="form-group">
@@ -179,25 +179,25 @@
                         <div class="form-group">
                             <label for="focusedinput" class="col-sm-3 control-label">Street</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" id="Street" name="Street">
+                                <input type="text" class="form-control" id="Street" name="Street" data-parsley-required="true">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="focusedinput" class="col-sm-3 control-label">City</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" id="City" name="City">
+                                <input type="text" class="form-control" id="City" name="City" data-parsley-required="true">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="focusedinput" class="col-sm-3 control-label">State</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" id="State" name="State">
+                                <input type="text" class="form-control" id="State" name="State" data-parsley-required="true">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="focusedinput" class="col-sm-3 control-label">Postal Code</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" id="ZipCode" name="ZipCode">
+                                <input type="text" class="form-control" id="ZipCode" name="ZipCode" data-parsley-required="true">
                             </div>
                         </div>
                         <div class="form-group">
@@ -223,29 +223,6 @@
     </div>
 </form>
 
-<!-- Delete Modal -->
-<form id="deleteForm" action="" method="post">
-    <input type="hidden" name="_method" value="DELETE" />
-    <div id="deleteModal" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    <h4 class="modal-title">Delete Reseller</h4>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete this reseller?</p>
-                    <input id="ResellerCode" name="ResellerCode" type="hidden" />
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</form>
-
 @section JAVASCRIPT{
     <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
     <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
@@ -254,98 +231,140 @@
     <script src="~/Content/plugins/form-select2/select2.min.js"></script>
     <script src="~/Content/plugins/blockUI/jquery.blockUI.js"></script>
     <script type="text/javascript">
-    $(document).ready(function () {
+        $(document).ready(function () {
+            $(document).ajaxStop($.unblockUI);
+            $(".populate").select2({ width: 'resolve' });
+            AddFormHandlers();
 
-        // unblock when ajax activity stops
-        $(document).ajaxStop($.unblockUI);
+            $("#dataTable").DataTable({
+                "serverSide": true,
+                "processing": true,
+                "ajax": {
+                    type: 'GET',
+                    dataType: 'json',
+                    error: function (xhr) {
+                        ShowError(xhr.responseJSON.error);
+                    },
+                },
+                "columns": [
+                    { "data": "companyName", "render": function (data, type, full, meta) { return '<a href="@Url.Content("~/companies/")' + full["companyCode"] + '">' + data + '</a>'; } },
+                    { "data": "companyCode" },
+                    { "data": "created", "render": function (data, type, full, meta) { return moment(data).format('LLLL'); } },
+                    { "data": "totalCompanies" },
+                    { "data": "companyCode", "orderable": false, "className": "text-right", "render": function (data, type, full, meta) { return GetButton(data, full["companyName"]); } }
+                ]
+            });
+        });
 
-        $("#dataTable").DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
-                type: 'GET',
-                dataType: 'json'
-            },
-            "columns": [
-                {
-                    "data": "companyName", "render": function (data, type, full, meta) {
-                        return '<a href="@Url.Content("~/companies/")' + full["companyCode"] + '">' + data + '</a>';
-                    }
-                },
-                { "data": "companyCode" },
-                {
-                    "data": "created", "render": function (data, type, full, meta) {
-                        return moment(data).format('LLLL');
-                    }
-                },
-                { "data": "totalCompanies" },
-                {
-                    "data": "companyCode", "orderable": false, "className": "text-right", "render": function (data, type, full, meta) {
-                        return GetButton(data);
-                    }
+        function ReloadResellers() {
+            var table = $("#dataTable").DataTable();
+            table.ajax.reload();
+        }
+
+        function GetReseller(companyCode) {
+            $.blockUI();
+
+            var url = "@Url.Content("~/resellers/")" + companyCode;
+            $.getJSON(url, function (data) {
+                $('#editForm input[name="CompanyCode"]').val(companyCode);
+                $('#editForm input[name="CompanyName"]').val(data.reseller.companyName);
+                $('#editForm input[name="AdminName"]').val(data.reseller.adminName);
+                $('#editForm input[name="AdminEmail"]').val(data.reseller.adminEmail);
+                $('#editForm input[name="PhoneNumber"]').val(data.reseller.phoneNumber);
+                $('#editForm input[name="Street"]').val(data.reseller.street);
+                $('#editForm input[name="City"]').val(data.reseller.city);
+                $('#editForm input[name="State"]').val(data.reseller.state);
+                $('#editForm input[name="ZipCode"]').val(data.reseller.zipCode);
+                $('#editForm input[name="Website"]').val(data.reseller.website);
+
+                var country = data.reseller.country;
+                if (!country) {
+                    $('#editForm select[name="Country"]').select2("val", "US");
+                } else {
+                    $('#editForm select[name="Country"]').select2("val", data.reseller.country.toUpperCase());
                 }
-            ]
-        });
 
-        $(".populate").select2({ width: 'resolve' });
-    });
+                $("#editModal").modal();
+            }).fail(function (data) {
+                ShowError(data.responseJSON.error);
+            }).always(function (data) {
+                $(".panel").unblock();
+            });
+        }
 
-    function GetReseller(element) {
+        function AddFormHandlers() {
+            $("#addForm").submit(function (event) {
+                event.preventDefault();
+                var data = $("#addForm").serialize();
 
-        // Show wait message
-        $.blockUI({ message: $('#waitMessage') });
+                $.blockUI();
+                $.post("", data).done(function (returnData) {
+                    $("#addModal").modal("hide");
+                    ReloadResellers();
+                    ShowSuccess(returnData.success);
+                }).fail(function (returnData) {
+                    ShowError(returnData.responseJSON.error);
+                }).always(function () {
+                    $.unblockUI();
+                });
+            });
 
-        var resellerCode = $(element).data("id");
-        var request = $.ajax({
-            url: "@Url.Content("~/resellers/")" + resellerCode,
-            type: "GET",
-            dataType: "json"
-        });
+            $("#editForm").submit(function (event) {
+                event.preventDefault();
+                var data = $("#editForm").serialize();
 
-        request.done(function (data) {
-            $('#editForm input[name="CompanyCode"]').val(resellerCode);
-            $('#editForm input[name="CompanyName"]').val(data.reseller.companyName);
-            $('#editForm input[name="AdminName"]').val(data.reseller.adminName);
-            $('#editForm input[name="AdminEmail"]').val(data.reseller.adminEmail);
-            $('#editForm input[name="PhoneNumber"]').val(data.reseller.phoneNumber);
-            $('#editForm input[name="Street"]').val(data.reseller.street);
-            $('#editForm input[name="City"]').val(data.reseller.city);
-            $('#editForm input[name="State"]').val(data.reseller.state);
-            $('#editForm input[name="ZipCode"]').val(data.reseller.zipCode);
-            $('#editForm input[name="Website"]').val(data.reseller.website);
+                $.blockUI();
+                $.ajax({
+                    type: "PUT",
+                    data: data
+                }).done(function () {
+                    $("#editModal").modal("hide");
+                    ReloadResellers();
+                    ShowSuccess("Successfully updated reseller");
+                }).fail(function (returnData) {
+                    ShowError(returnData.responseJSON.error);
+                });
+            });
+        }
 
-            var country = data.reseller.country;
-            if (!country) {
-                $('#editForm select[name="Country"]').select2("val", "US");
-            } else {
-                $('#editForm select[name="Country"]').select2("val", data.reseller.country.toUpperCase());
-            }
+        function DeleteReseller(companyCode, companyName) {
+            swal({
+                title: "Delete "+companyName+"?",
+                text: "This action is not reversable",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                cancelButtonText: "No",
+                closeOnConfirm: false,
+                closeOnCancel: true
+            },
+            function (isconfirm){
+                if (isconfirm) {
+                    $.ajax({
+                        type: "DELETE",
+                        data: { ResellerCode: companyCode }
+                    }).done(function () {
+                        ReloadResellers();
+                        ShowAlert("Deleted!", "Reseller was successfully deleted", "success");
+                    }).fail(function (returnData) {
+                        ShowError(returnData.responseJSON.error);
+                    });
+                }
+            });
+        }
 
-            // Only show modal if successful
-            $("#editModal").modal();
-        });
-
-        request.fail(function (jqXHR, textStatus) {
-            alert(textStatus);
-        });
-    }
-
-    function SetCompanyCode(element, form) {
-        var companyCode = $(element).data("id");
-        $(form).find("input[id='ResellerCode']").val(companyCode);
-    }
-
-    function GetButton(companyCode) {
-        return '<div class="btn-group"> \
+        function GetButton(companyCode,companyName) {
+            return '<div class="btn-group"> \
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"> \
                                 Modify <span class="caret"></span> \
                             </button> \
                             <ul class="dropdown-menu" role="menu"> \
-                                <li><a href="#" data-id="' + companyCode + '" onclick="javascript:GetReseller(this);">Edit</a></li> \
+                                <li><a href="#" onclick="javascript:GetReseller(\''+companyCode+'\');">Edit</a></li> \
                                 <li class="divider"></li> \
-                                <li><a href="#deleteModal" data-toggle="modal" data-id="' + companyCode + '" onclick="javascript:SetCompanyCode(this, \'#deleteForm\');">Delete</a></li> \
+                                <li><a href="javascript:;" onclick="javascript:DeleteReseller(\''+companyCode+'\',\''+companyName+'\');">Delete</a></li> \
                             </ul> \
                     </div>';
-    }
-    </script>
+        }
+</script>
 }
