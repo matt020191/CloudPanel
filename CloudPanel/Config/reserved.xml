@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<ActiveDirectory>
+  <word>ANONYMOUS</word>
+  <word>AUTHENTICATED USER</word>
+  <word>BATCH</word>
+  <word>BUILTIN</word>
+  <word>CREATOR GROUP</word>
+  <word>CREATOR GROUP SERVER</word>
+  <word>CREATOR OWNER</word>
+  <word>CREATOR OWNER SERVER</word>
+  <word>DIALUP</word>
+  <word>DIGEST AUTH</word>
+  <word>INTERACTIVE</word>
+  <word>INTERNET</word>
+  <word>LOCAL</word>
+  <word>LOCAL SYSTEM</word>
+  <word>NETWORK</word>
+  <word>NETWORK SERVICE</word>
+  <word>NT AUTHORITY</word>
+  <word>NT DOMAIN</word>
+  <word>NTLM AUTH</word>
+  <word>NULL</word>
+  <word>PROXY</word>
+  <word>REMOTE INTERACTIVE</word>
+  <word>RESTRICTED</word>
+  <word>SCHANNEL AUTH</word>
+  <word>SELF</word>
+  <word>SERVER</word>
+  <word>SERVICE</word>
+  <word>SYSTEM</word>
+  <word>TERMINAL SERVER</word>
+  <word>THIS ORGANIZATION</word>
+  <word>USERS</word>
+  <word>WORLD</word>
+</ActiveDirectory>

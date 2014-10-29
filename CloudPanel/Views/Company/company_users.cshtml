@@ -1,0 +1,306 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@using CloudPanel;
+
+@{
+    Layout = "__master.cshtml";
+}
+
+@section HEAD{
+    <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
+    <style type="text/css">
+        span.tab-space {
+            padding-left: 0.5em;
+        }
+    </style>
+}
+
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li><a href="~/company/@this.RenderContext.Context.GetCompanyCode()/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
+        <li class="active">Users</li>
+    </ol>
+
+    <h1>Users</h1>
+    <div class="options">
+        <div class="btn-toolbar">
+            <a href="#" class="btn btn-primary hidden-xs" data-toggle="modal" data-target="#newModal">Add New</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Current Users</div>
+                <div class="panel-body">
+                    <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered datatables" id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>Display Name</th>
+                                <th>Usernames</th>
+                                <th>Department</th>
+                                <th>Features</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Loading...</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Modal -->
+<form id="newForm" action="" method="post" data-parsley-validate>
+    <div id="newModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">New User</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">First Name</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="Firstname" name="Firstname" data-parsley-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Last Name</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="Lastname" name="Lastname" data-parsley-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Display Name</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="DisplayName" name="DisplayName" data-parsley-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Department</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="Department" name="Department">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Username</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="Username" name="Username" data-parsley-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Domain</label>
+                            <div class="col-sm-9">
+                                @CloudPanel.CPHtmlHelpers.GetCompanyDomains(this.RenderContext.Context.GetCompanyCode(), 0, string.Empty)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Password</label>
+                            <div class="col-sm-9">
+                                <input type="password" class="form-control" id="Password" name="Password" data-parsley-required="true">
+                                <input id="GeneratePassword" name="GeneratePassword" type="checkbox" /> Generate Password
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Reset Password -->
+<form id="resetForm" action="" method="post" data-parsley-validate>
+    <input type="hidden" name="_method" value="PUT" />
+    <div id="resetModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Change Password</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">New Password</label>
+                            <div class="col-sm-9">
+                                <input type="password" class="form-control" id="Password" name="Password" data-parsley-required="true">
+                                <input id="GeneratePassword" name="GeneratePassword" type="checkbox" /> Generate Password
+                                <input id="UserPrincipalName" name="UserPrincipalName" type="hidden" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Delete Modal -->
+<form id="deleteForm" action="" method="post">
+    <input type="hidden" name="_method" value="DELETE" />
+    <div id="deleteModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Delete User</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this user?</p>
+                    <input id="UserPrincipalName" name="UserPrincipalName" type="hidden" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section JAVASCRIPT{
+    <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
+    <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
+    <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
+    <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
+    <script type="text/javascript">
+
+        // Special thanks: http://www.designchemical.com/blog/index.php/jquery/random-password-generator-using-jquery/
+        $.extend({
+            password: function (length, special) {
+                var iteration = 0;
+                var password = "";
+                var randomNumber;
+                if (special == undefined) {
+                    var special = false;
+                }
+                while (iteration < length) {
+                    randomNumber = (Math.floor((Math.random() * 100)) % 94) + 33;
+                    if (!special) {
+                        if ((randomNumber >= 33) && (randomNumber <= 47)) { continue; }
+                        if ((randomNumber >= 58) && (randomNumber <= 64)) { continue; }
+                        if ((randomNumber >= 91) && (randomNumber <= 96)) { continue; }
+                        if ((randomNumber >= 123) && (randomNumber <= 126)) { continue; }
+                    }
+                    iteration++;
+                    password += String.fromCharCode(randomNumber);
+                }
+                return password;
+            }
+        });
+
+        $(document).ready(function () {
+
+            var userTable = $("#dataTable").DataTable({
+                "serverSide": true,
+                "processing": true,
+                "ajax": {
+                    type: 'GET',
+                    dataType: 'json'
+                },
+                "columns": [
+                    { "data": "displayName" },
+                    {
+                        "data": "userPrincipalName", "render": function (data, type, full, meta) {
+                            return '<strong>' + data + '</strong><br/><small>' + full["samAccountName"] + '</small>';
+                        }
+                    },
+                    { "data": "department" },
+                    {
+                        "data": "userGuid", "orderable": false, "className": "text-center", "render": function (data, type, full, meta) {
+                            return GetFeatures(full["isEnabled"], full["isCompanyAdmin"], full["isResellerAdmin"], (full["mailboxPlan"] > 0));
+                        }
+                    },
+                    {
+                        "data": "userPrincipalName", "orderable": false, "className": "text-right", "render": function (data, type, full, meta) {
+                            return GetButton(data);
+                        }
+                    },
+                ],
+                "createdRow": function (row, data, index) {
+                    $(row).find(".tooltip-ex").tooltip();
+                }
+            });
+
+
+            $("input:checkbox[name=GeneratePassword]").change(function () {
+                var field = $(this).parent().find("#Password");
+                if (this.checked) {
+                    field.attr("type", "input");
+                    field.val($.password(8, false));
+                } else {
+                    field.attr("type", "password");
+                    field.val("");
+                }
+            });
+        });
+
+        function ShowDelete(upn)
+        {
+            $("#deleteModal").find("#UserPrincipalName").val(upn);
+            $("#deleteModal").modal("show");
+        }
+
+        function ShowReset(upn) 
+        {
+            $("#resetModal").find("#UserPrincipalName").val(upn);
+            $("#resetModal").modal("show");
+        }
+
+        function GetButton(upn) {
+            return '<div class="btn-group"> \
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"> \
+                                Modify <span class="caret"></span> \
+                            </button> \
+                            <ul class="dropdown-menu" role="menu"> \
+                                <li><a href="@Url.Content("~/company/" + this.RenderContext.Context.GetCompanyCode() + "/users/")' + upn + '">Edit</a></li> \
+                                <li><a href="javascript:;" onclick="ShowDelete(\''+upn+'\');">Delete</a></li> \
+                                <li class="divider"></li> \
+                                <li><a href="javascript:;" onclick="ShowReset(\''+upn+'\');">Reset Password</a></li> \
+                            </ul> \
+                    </div>';
+        }
+
+        function GetFeatures(isEnabled, isCompanyAdmin, isResellerAdmin, hasMailbox) {
+            var html = [];
+
+            if (!isEnabled)
+                html.push('<span class="badge badge-danger tooltip-ex" data-toggle="tooltip" data-original-title="User is Disabled"><i class="fa fa-frown-o"></i></span><span class="tab-space"></span>');
+
+            if (isCompanyAdmin)
+                html.push('<span class="badge badge-success tooltip-ex" data-toggle="tooltip" data-original-title="Company Administrator"><i class="fa fa-gear"></i></span><span class="tab-space"></span>');
+
+            if (isResellerAdmin)
+                html.push('<span class="badge badge-info tooltip-ex" data-toggle="tooltip" data-original-title="Reseller Administrator"><i class="fa fa-gears"></i></span><span class="tab-space"></span>');
+
+            if (hasMailbox)
+                html.push('<span class="badge badge-warning tooltip-ex" data-toggle="tooltip" data-original-title="Has a Mailbox"><i class="fa fa-envelope"></i></span><span class="tab-space"></span>');
+
+            return html.join("");
+        }
+    </script>
+}

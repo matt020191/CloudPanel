@@ -1,0 +1,77 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+@{
+    Layout = "__master.cshtml";
+}
+@section HEAD{
+    <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-select2/select2.css" rel="stylesheet" />
+    <link href="~/Content/plugins/bootstrap-fileinput/css/fileinput.min.css" rel="stylesheet" />
+}
+
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li>Admin</li>
+        <li class="active">Mass Email</li>
+    </ol>
+
+    <h1>Mass Email</h1>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Send E-Mail</div>
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-1 control-label">Email To</label>
+                            <div class="col-sm-6">
+                                <select id="To" name="To" class='populate' style='width: 100%'>
+                                    <optgroup id='country-optgroup-Africa' label='Global'>
+                                        <option value="All">Everyone</option>
+                                        <option value="Admins">Company Admins</option>
+                                    </optgroup>
+                                    <optgroup id='country-optgroup-Africa' label='Specific Company'>
+                                        @foreach (var c in Model.companies)
+                                        {
+                                            <option value="@c.CompanyCode">@c.CompanyName</option>
+                                        }
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-1 control-label">Subject</label>
+                            <div class="col-sm-11">
+                                <input type="text" class="form-control" id="Subject" name="Subject" data-parsley-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-1 control-label">Message</label>
+                            <div class="col-sm-11">
+                                <textarea name="ckeditor" id="" cols="80" rows="20" class="ckeditor"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer text-right">
+                    <button type="submit" class="btn btn-primary">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section JAVASCRIPT {
+    <script src="~/Content/plugins/form-select2/select2.min.js"></script>
+<script src="~/Content/plugins/form-ckeditor/ckeditor.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".populate").select2({ width: 'resolve' });
+
+        });
+    </script>
+}
