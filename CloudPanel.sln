@@ -1,13 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{D64FED88-8FF5-46A5-B8E9-31D132A099D6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Website", "Website", "{77C0EB4D-486D-48EC-9EB9-8554E7E79008}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPanel", "CloudPanel\CloudPanel.csproj", "{DB6757B4-B847-4060-902A-A3B995124C0D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPanel.ActiveDirectory", "CloudPanel.ActiveDirectory\CloudPanel.ActiveDirectory.csproj", "{4805B81D-C2A2-44BF-BAD9-FFB8D27A068D}"
 EndProject
@@ -19,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPanel.Database.EntityF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPanel.Exchange", "CloudPanel.Exchange\CloudPanel.Exchange.csproj", "{51C6EC47-98AB-49D1-B4CB-B48665D1725E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPanel 3", "CloudPanel 3\CloudPanel 3.csproj", "{B4F9C525-5C56-440E-B4C2-972A33D7C8CD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPanel", "CloudPanel\CloudPanel.csproj", "{B4F9C525-5C56-440E-B4C2-972A33D7C8CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,10 +25,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DB6757B4-B847-4060-902A-A3B995124C0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DB6757B4-B847-4060-902A-A3B995124C0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DB6757B4-B847-4060-902A-A3B995124C0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DB6757B4-B847-4060-902A-A3B995124C0D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4805B81D-C2A2-44BF-BAD9-FFB8D27A068D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4805B81D-C2A2-44BF-BAD9-FFB8D27A068D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4805B81D-C2A2-44BF-BAD9-FFB8D27A068D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -60,7 +54,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{DB6757B4-B847-4060-902A-A3B995124C0D} = {77C0EB4D-486D-48EC-9EB9-8554E7E79008}
 		{4805B81D-C2A2-44BF-BAD9-FFB8D27A068D} = {D64FED88-8FF5-46A5-B8E9-31D132A099D6}
 		{AF34D7D3-FF49-4C73-ACC0-DE631B4FA390} = {D64FED88-8FF5-46A5-B8E9-31D132A099D6}
 		{5C2B5FC4-0814-47C0-B371-0BC299E433E0} = {D64FED88-8FF5-46A5-B8E9-31D132A099D6}
