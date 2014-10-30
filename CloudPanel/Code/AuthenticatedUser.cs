@@ -10,6 +10,8 @@ namespace CloudPanel
 
         public string UserName { get; set; }
 
+        public string DisplayName { get; set; }
+
         public string SelectedResellerCode { get; set; }
 
         public string SelectedResellerName { get; set; }

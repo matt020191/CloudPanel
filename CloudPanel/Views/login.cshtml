@@ -14,11 +14,12 @@
     <!-- <link href="~/content/less/styles.less" rel="stylesheet/less" media="all"> -->
     <link rel="stylesheet" href="~/content/css/styles.css">
     <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
+    <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
 
     <!-- <script type="text/javascript" src="~/content/js/less.js"></script> -->
 </head>
 <body class="focusedform">
-    <form id="loginForm" action="@Url.Content("~/login")" method="post">
+    <form id="loginForm" action="@Url.Content("~/login")" method="post" data-parsley-validate>
         <div class="verticalcenter">
             <a href="index.htm"><img src="@Url.Content(branding.LoginLogo)" alt="Logo" class="brand" /></a>
             <div class="panel panel-primary">
@@ -29,7 +30,7 @@
                             <div class="col-sm-12">
                                 <div class="input-group">
                                     <span class="input-group-addon"><i class="fa fa-user"></i></span>
-                                    <input type="text" class="form-control" id="username" name="username" placeholder="Username">
+                                    <input type="text" class="form-control" id="username" name="username" placeholder="Username" data-parsley-required="true" data-parsley-type="email">
                                 </div>
                             </div>
                         </div>
@@ -37,12 +38,13 @@
                             <div class="col-sm-12">
                                 <div class="input-group">
                                     <span class="input-group-addon"><i class="fa fa-lock"></i></span>
-                                    <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+                                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" data-parsley-required="true">
                                 </div>
                             </div>
                         </div>
                         <div class="clearfix">
-                            <div class="pull-right"><label><input type="checkbox" style="margin-bottom: 20px" checked=""> Remember Me</label></div>
+                            <span class="text-danger">@ViewBag.LoginError</span>
+                            <div class="pull-right"><label><input id="RememberMe" name="RememberMe" type="checkbox" style="margin-bottom: 20px" checked=""> Remember Me</label></div>
                         </div>
                     </div>
                 </div>
@@ -54,5 +56,8 @@
             </div>
         </div>
     </form>
+
+    <script src="~/Content/js/jquery-1.10.2.min.js"></script>
+    <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
 </body>
 </html>

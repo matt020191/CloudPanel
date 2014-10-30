@@ -101,14 +101,18 @@ namespace CloudPanel.ActiveDirectory
                 logger.DebugFormat("Attempting to retrieve user {0}", username);
                 usr = UserPrincipal.FindByIdentity(pc, IdentityType.UserPrincipalName, username);
 
+                if (usr == null)
+                    throw new Exception("Unable to find user " + username);
+
+                logger.DebugFormat("Found user.. now retrieving property values...");
                 DirectoryEntry tmp = (DirectoryEntry)usr.GetUnderlyingObject();
-                foundUser.AccountExpires = GetPropertyValue(ref tmp, "accountExpires", "long");
-                foundUser.BadPasswordTime = GetPropertyValue(ref tmp, "badPasswordTime", "long");
+                foundUser.UserGuid = tmp.Guid;
+                //foundUser.AccountExpires = GetPropertyValue(ref tmp, "accountExpires", "long");
+                //foundUser.BadPasswordTime = GetPropertyValue(ref tmp, "badPasswordTime", "long");
                 foundUser.BadPwdCount = GetPropertyValue(ref tmp, "badPwdCount", "int");
                 foundUser.UserAccountControl = GetPropertyValue(ref tmp, "userAccountControl", "int");
-                foundUser.PwdLastSet = GetPropertyValue(ref tmp, "pwdLastSet", "long");
+                //foundUser.PwdLastSet = GetPropertyValue(ref tmp, "pwdLastSet", "long");
                 foundUser.SamAccountType = GetPropertyValue(ref tmp, "sAMAccountType", "int");
-                foundUser.UserGuid = GetPropertyValue(ref tmp, "objectGuid");
                 foundUser.Street = GetPropertyValue(ref tmp, "streetAddress");
                 foundUser.City = GetPropertyValue(ref tmp, "l");
                 foundUser.State = GetPropertyValue(ref tmp, "st");
@@ -136,16 +140,20 @@ namespace CloudPanel.ActiveDirectory
                 foundUser.ProfilePath = GetPropertyValue(ref tmp, "profilePath");
                 foundUser.Webpage = GetPropertyValue(ref tmp, "wWWHomePage");
 
+                logger.DebugFormat("Making sure the user is enabled");
                 int flags = (int)tmp.Properties["userAccountControl"].Value;
                 foundUser.IsEnabled = !Convert.ToBoolean(flags & 0x0002);
+                logger.DebugFormat("User Enabled: {0}", foundUser.IsEnabled);
 
                 // Get groups
+                logger.DebugFormat("Retrieving groups");
                 List<string> groups = new List<string>();
                 foreach (var g in usr.GetAuthorizationGroups())
                 {
                     groups.Add(g.Name);
                 }
                 foundUser.MemberOf = groups.ToArray();
+                logger.DebugFormat("Member of the following groups {0}", string.Join(",", foundUser.MemberOf));
 
                 return foundUser;
             }
@@ -781,6 +789,8 @@ namespace CloudPanel.ActiveDirectory
 
         private void SetPropertyValue(ref DirectoryEntry dEntry, string property, object newValue)
         {
+            logger.DebugFormat("Setting propery {0} to new value {1}", property, newValue);
+
             if (newValue == null)
                 dEntry.Properties[property].Clear();
             else if (newValue is string && string.IsNullOrEmpty(newValue.ToString()))
@@ -793,8 +803,12 @@ namespace CloudPanel.ActiveDirectory
 
         private dynamic GetPropertyValue(ref DirectoryEntry dEntry, string property, string expectedType = "string")
         {
+            logger.DebugFormat("Parsing property {0} with expected type {1}", property, expectedType);
+
             if (dEntry.Properties[property] != null)
+            {
                 return dEntry.Properties[property].Value;
+            }
             else
             {
                 switch (expectedType.ToLower())

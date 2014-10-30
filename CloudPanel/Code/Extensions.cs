@@ -131,6 +131,20 @@ namespace CloudPanel
         }
 
         /// <summary>
+        /// Returns the display name of the user
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static string DisplayName(this NancyContext context)
+        {
+            if (context.CurrentUser == null)
+                return string.Empty;
+
+            var user = context.CurrentUser as AuthenticatedUser;
+            return user.DisplayName;
+        }
+
+        /// <summary>
         /// Checks if the logged in user is a super admin or not
         /// </summary>
         /// <param name="context"></param>
@@ -158,6 +172,11 @@ namespace CloudPanel
             return user.Claims.Any(x => x.Contains("ResellerAdmin"));
         }
 
+        /// <summary>
+        /// Checks if the logged in user is a reseller admin OR a super admin
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public static bool IsSuperOrResellerAdmin(this NancyContext context)
         {
             if (context.CurrentUser == null)
