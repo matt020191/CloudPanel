@@ -27,7 +27,7 @@
             <div class="panel panel-primary">
                 <div class="panel-heading">Disable Exchange</div>
                 <div class="panel-body">
-                    <form id="enableExchange" action="" method="post" data-parsley-validate>
+                    <form id="disableExchange" data-parsley-validate>
                         <p class="text-center">
                             Disabling Exchange will delete all email data associated with your company. This action is NOT reversable.
                         </p>
@@ -59,11 +59,35 @@
 </div>
 
 @section JAVASCRIPT {
+    <script src="~/Content/plugins/blockUI/jquery.blockUI.js"></script>
     <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             $(".form-control").bind("cut copy paste", function (e) {
                 e.preventDefault();
+            });
+
+            $("#disableExchange").submit(function (event) {
+                event.preventDefault();
+
+                var data = $("#disableExchange").serialize();
+
+                $.blockUI();
+                $.post("", data).done(function (returnData) {
+                    swal({
+                        title: "Success!",
+                        text: returnData.success,
+                        type: "success",
+                        showCancelButton: false,
+                        closeOnConfirm: false
+                    }, function () {
+                        document.location.href = "@Url.Content("~/company/" + this.RenderContext.Context.GetCompanyCode() + "/exchange/enable")";
+                    });
+                }).fail(function (returnData) {
+                    ShowError(returnData.responseJSON.error);
+                }).always(function () {
+                    $.unblockUI();
+                });
             });
         });
     </script>

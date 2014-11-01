@@ -23,7 +23,7 @@
             <div class="panel panel-primary">
                 <div class="panel-heading">Enable Exchange</div>
                 <div class="panel-body">
-                    <form id="enableExchange" action="" method="post">
+                    <form id="enableExchange">
                         <p class="text-center">
                             Enabling Exchange will allow your company to create mailboxes and other Exchange objects. Are you sure you want to continue?
                             <br />
@@ -37,3 +37,31 @@
         </div>
     </div>
 </div>
+
+@section JAVASCRIPT{
+    <script src="~/Content/plugins/blockUI/jquery.blockUI.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#enableExchange").submit(function (event) {
+                event.preventDefault();
+
+                $.blockUI();
+                $.post("").done(function (returnData) {
+                    swal({
+                        title: "Success!",
+                        text: returnData.success,
+                        type: "success",
+                        showCancelButton: false,
+                        closeOnConfirm: false
+                    }, function () {
+                        document.location.href = "@Url.Content("~/company/"+this.RenderContext.Context.GetCompanyCode()+"/exchange/disable")";
+                    });
+                }).fail(function (returnData) {
+                    ShowError(returnData.responseJSON.error);
+                }).always(function () {
+                    $.unblockUI();
+                });
+            });
+        });
+    </script>
+}

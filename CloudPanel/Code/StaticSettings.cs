@@ -126,6 +126,7 @@ namespace CloudPanel.Code
         /// <returns></returns>
         private static string Read(ref IEnumerable<XElement> x, string node, string element)
         {
+            logger.DebugFormat("Reading node {0} and element {1} from the config file", node, element);
             return x.Descendants(node).Elements(element).FirstOrDefault().Value;
         }
     }

@@ -26,7 +26,7 @@ namespace CloudPanel.Modules
 
             Get["/", c => c.Request.Accept("text/html")] = _ =>
             {
-                return View["Company/company_users.cshtml"];
+                return View["Company/users.cshtml"];
             };
 
             Get["/", c => c.Request.Accept("application/json")] = _ =>
@@ -62,43 +62,40 @@ namespace CloudPanel.Modules
                     string searchValue = "", orderColumnName = "";
                     bool isAscendingOrder = true;
 
-                    // Check for dataTables and process the values
-                    if (Request.Query.draw.HasValue)
+                    draw = Request.Query.draw;
+                    start = Request.Query.start;
+                    length = Request.Query.length;
+                    orderColumn = Request.Query["order[0][column]"];
+                    searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
+                    isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
+                    orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
+
+                    // See if we are using dataTables to search
+                    if (!string.IsNullOrEmpty(searchValue))
                     {
-                        draw = Request.Query.draw;
-                        start = Request.Query.start;
-                        length = Request.Query.length;
-                        orderColumn = Request.Query["order[0][column]"];
-                        searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
-                        isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
-                        orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
-
-                        // See if we are using dataTables to search
-                        if (!string.IsNullOrEmpty(searchValue))
-                        {
-                            users = (from d in users
-                                     where d.DisplayName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                            d.UserPrincipalName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                            d.SamAccountName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                            d.Department.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                            d.Email.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
-                                     select d).ToList();
-                            recordsFiltered = users.Count;
-                        }
-
-                        if (isAscendingOrder)
-                            users = users.OrderBy(x => x.GetType()
-                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                    .Skip(start)
-                                                    .Take(length)
-                                                    .ToList();
-                        else
-                            users = users.OrderByDescending(x => x.GetType()
-                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                    .Skip(start)
-                                                    .Take(length)
-                                                    .ToList();
+                        users = (from d in users
+                                 where d.DisplayName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                        d.UserPrincipalName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                        d.SamAccountName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                        d.Department.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                        d.Email.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
+                                 select d).ToList();
+                        recordsFiltered = users.Count;
                     }
+
+                    if (isAscendingOrder)
+                        users = users.OrderBy(x => x.GetType()
+                                                .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                .Skip(start)
+                                                .Take(length)
+                                                .ToList();
+                    else
+                        users = users.OrderByDescending(x => x.GetType()
+                                                .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                .Skip(start)
+                                                .Take(length)
+                                                .ToList();
+
 
                     return Negotiate.WithModel(new
                                     {
@@ -134,26 +131,21 @@ namespace CloudPanel.Modules
                 try
                 {
                     logger.DebugFormat("Creating a new user... validating parameters");
-                    int domainID = Request.Form.DomainID;
-                    string companyCode = _.CompanyCode;
-
-                    if (!Request.Form.Firstname.HasValue)
-                        throw new Exception("First name is a required field");
-
-                    if (!Request.Form.Lastname.HasValue)
-                        throw new Exception("Last name is a required field");
 
                     if (!Request.Form.DisplayName.HasValue)
                         throw new Exception("Display name is a required field");
 
-                    if (!Request.Form.Department.HasValue)
-                        throw new Exception("Department is not a required field but it must be passed with a empty string or a value");
-
                     if (!Request.Form.Username.HasValue)
                         throw new Exception("Username is a required field");
 
+                    if (!Request.Form.DomainID.HasValue)
+                        throw new Exception("DomainID is a required field");
+
                     if (!Request.Form.Password.HasValue)
                         throw new Exception("Password is a required field");
+
+                    int domainID = Request.Form.DomainID;
+                    string companyCode = _.CompanyCode;
 
                     logger.DebugFormat("Getting selected domain from the database");
                     db = new CloudPanelContext(Settings.ConnectionString);
@@ -173,11 +165,12 @@ namespace CloudPanel.Modules
                         Users newUser = new Users();
                         newUser.CompanyCode = companyCode;
                         newUser.Name = Request.Form.DisplayName; // TODO: MAKE THIS USE EITHER DISPLAY NAME OR EMAIL BASED ON CONFIG FILE
-                        newUser.Firstname = Request.Form.Firstname;
-                        newUser.Middlename = string.Empty;
-                        newUser.Lastname = Request.Form.Lastname;
                         newUser.DisplayName = Request.Form.DisplayName;
-                        newUser.Department = Request.Form.Department;
+
+                        newUser.Firstname = Request.Form.Firstname.HasValue ? Request.Form.Firstname.Value : string.Empty;
+                        newUser.Middlename = Request.Form.Middlename.HasValue ? Request.Form.Middlename.Value : string.Empty;
+                        newUser.Lastname = Request.Form.Lastname.HasValue ? Request.Form.Lastname.Value : string.Empty;
+                        newUser.Department = Request.Form.Department.HasValue ? Request.Form.Department.Value : string.Empty;
                         newUser.Email = string.Empty;
                         newUser.IsResellerAdmin = false;
                         newUser.IsCompanyAdmin = false;
@@ -233,7 +226,7 @@ namespace CloudPanel.Modules
                                 db.SaveChanges();
 
                                 return Negotiate.WithModel(new { success = "Created new user " + upn })
-                                                .WithView("Company/company_users.cshtml");
+                                                .WithStatusCode(HttpStatusCode.OK);
                             }
                         }
                     }
@@ -244,7 +237,7 @@ namespace CloudPanel.Modules
 
                     reverse.RollbackNow();
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("Company/company_users.cshtml");
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally
                 {
@@ -323,14 +316,14 @@ namespace CloudPanel.Modules
                             db.SaveChanges();
 
                             return Negotiate.WithModel(new { success = "Deleted user " + upn })
-                                            .WithView("Company/company_users.cshtml");
+                                            .WithView("Company/users.cshtml");
                         }
                     }
                 }
                 catch (Exception ex)
                 {
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("Company/company_users.cshtml");
+                                    .WithView("Company/users.cshtml");
                 }
                 finally
                 {

@@ -98,6 +98,9 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                         logger.DebugFormat("Removing all users address list for {0} with format ({1})", companyCode, Settings.ExchangeUSERSName);
                         powershell.Remove_AddressList(string.Format(Settings.ExchangeUSERSName, companyCode));
 
+                        logger.DebugFormat("Removing global address list for {0} with format ({1})", companyCode, Settings.ExchangeGALName);
+                        powershell.Remove_GlobalAddressList(string.Format(Settings.ExchangeGALName, companyCode));
+
                         logger.DebugFormat("Updating database that Exchange is now disabled for company {0}", companyCode);
                         var company = (from d in db.Companies
                                        where !d.IsReseller

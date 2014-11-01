@@ -81,8 +81,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     db.SaveChanges();
 
                     logger.InfoFormat("Successfully enabled company {0} for Exchange", _.CompanyCode);
-                    return Negotiate.WithModel(new { success = "Exchange has been enabled" })
-                                    .WithMediaRangeResponse("text/html", this.Response.AsRedirect("disable"));
+                    return Negotiate.WithModel(new { success = "Exchange has been enabled" });
                 }
                 catch (Exception ex)
                 {
@@ -90,7 +89,6 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
 
                     reverse.RollbackNow();
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("Company/Exchange/enable.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally

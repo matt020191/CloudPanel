@@ -329,9 +329,6 @@ namespace CloudPanel.ActiveDirectory
                 if (string.IsNullOrEmpty(userObject.UserPrincipalName))
                     throw new MissingFieldException("User", "UserPrincipalName");
 
-                if (string.IsNullOrEmpty(userObject.Firstname))
-                    throw new MissingFieldException("User", "FirstName");
-
                 if (string.IsNullOrEmpty(userObject.DisplayName))
                     throw new MissingFieldException("User", "DisplayName");
 
@@ -348,11 +345,14 @@ namespace CloudPanel.ActiveDirectory
                 logger.DebugFormat("User doesn't exist. Continuing...");
                 userObject.sAMAccountName = GetAvailableSamAccountName(userObject.UserPrincipalName);
                 ctx = new PrincipalContext(ContextType.Domain, this._domainController, usersOU, this._username, this._password); // Used for creating new user
+                
                 usr = new UserPrincipalExt(ctx, userObject.sAMAccountName, clearTextPassword, true);
                 usr.UserPrincipalName = userObject.UserPrincipalName;
                 usr.DisplayName = userObject.DisplayName;
                 usr.Name = userObject.Name;
-                usr.GivenName = userObject.Firstname;
+
+                if (!string.IsNullOrEmpty(userObject.Firstname))
+                    usr.GivenName = userObject.Firstname;
 
                 if (!string.IsNullOrEmpty(userObject.Lastname))
                     usr.LastName = userObject.Lastname;

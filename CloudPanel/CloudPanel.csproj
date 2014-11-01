@@ -100,6 +100,8 @@
     <Content Include="Content\img\citrix\citrix_server.png" />
     <Content Include="Content\img\citrix\server.png" />
     <Content Include="Content\img\citrix\quickbooks.png" />
+    <Content Include="Content\img\details_close.png" />
+    <Content Include="Content\img\details_open.png" />
     <Content Include="Content\img\logo-big.png" />
     <Content Include="Content\img\logo.png" />
     <Content Include="Content\img\patterns\brickwall.png" />
@@ -1010,13 +1012,6 @@
     <Content Include="Content\plugins\jquery-fileupload\js\main.js" />
     <Content Include="Content\plugins\jquery-fileupload\js\tmpl.min.js" />
     <Content Include="Content\plugins\jquery-fileupload\js\vendor\jquery.ui.widget.js" />
-    <Content Include="Content\plugins\jquery-fileupload\server\gae-go\static\favicon.ico" />
-    <Content Include="Content\plugins\jquery-fileupload\server\gae-go\static\robots.txt" />
-    <Content Include="Content\plugins\jquery-fileupload\server\gae-python\static\favicon.ico" />
-    <Content Include="Content\plugins\jquery-fileupload\server\gae-python\static\robots.txt" />
-    <Content Include="Content\plugins\jquery-fileupload\server\node\server.js" />
-    <Content Include="Content\plugins\jquery-fileupload\server\php\index.php" />
-    <Content Include="Content\plugins\jquery-fileupload\server\php\UploadHandler.php" />
     <Content Include="Content\plugins\jquery-mousewheel\jquery.mousewheel.min.js" />
     <Content Include="Content\plugins\jqueryui-timepicker\jquery.ui.timepicker.css" />
     <Content Include="Content\plugins\jqueryui-timepicker\jquery.ui.timepicker.js" />
@@ -1307,17 +1302,6 @@
     <Content Include="Content\plugins\jquery-editable\README.md" />
     <Content Include="Content\plugins\jquery-fileupload\CONTRIBUTING.md" />
     <Content Include="Content\plugins\jquery-fileupload\README.md" />
-    <Content Include="Content\plugins\jquery-fileupload\server\gae-go\app.yaml" />
-    <Content Include="Content\plugins\jquery-fileupload\server\gae-go\app\main.go" />
-    <Content Include="Content\plugins\jquery-fileupload\server\gae-python\app.yaml" />
-    <Content Include="Content\plugins\jquery-fileupload\server\gae-python\main.py" />
-    <Content Include="Content\plugins\jquery-fileupload\server\node\.gitignore" />
-    <Content Include="Content\plugins\jquery-fileupload\server\node\package.json" />
-    <Content Include="Content\plugins\jquery-fileupload\server\node\public\files\.gitignore" />
-    <Content Include="Content\plugins\jquery-fileupload\server\node\public\files\thumbnail\.gitignore" />
-    <Content Include="Content\plugins\jquery-fileupload\server\node\tmp\.gitignore" />
-    <Content Include="Content\plugins\jquery-fileupload\server\php\files\.gitignore" />
-    <Content Include="Content\plugins\jquery-fileupload\server\php\files\.htaccess" />
     <Content Include="Content\plugins\jquery-mousewheel\README.markdown" />
     <Content Include="Content\plugins\jqueryui-timepicker\README.md" />
     <Content Include="Content\plugins\knob\README.md" />
@@ -1360,7 +1344,7 @@
     <Content Include="Views\Plans\plans_mailbox.cshtml" />
     <Content Include="Views\login.cshtml" />
     <Content Include="Views\Company\company_domains.cshtml" />
-    <Content Include="Views\Company\company_users.cshtml" />
+    <Content Include="Views\Company\users.cshtml" />
     <Content Include="Views\Company\Exchange\contacts.cshtml" />
     <Content Include="Views\Company\Exchange\groups.cshtml" />
     <Content Include="Views\Company\Exchange\resourcemailboxes.cshtml" />
@@ -1405,7 +1389,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\img\branding\" />
-    <Folder Include="Content\plugins\jquery-fileupload\server\php\files\thumbnail\" />
     <Folder Include="Log\" />
   </ItemGroup>
   <ItemGroup>

@@ -566,14 +566,13 @@
         function GetPolicies()
         {
             $("#form").block();
-            $.getJSON("@ResolveUrl("~/plans/exchange/activesync/all")", function (data) {
-                alert(data);
+            $.getJSON("@ResolveUrl("~/plans/exchange/activesync/all")", function (data) { 
                 $.each(data.policies, function (index) {
                     alert(data.policies[index].displayName);
                 });
             })
             .fail(function (data) {
-                AppendError(data.responseJSON.error);
+                ShowError(data.response.error);
             })
             .always(function (data) {
                 $("#form").unblock();
