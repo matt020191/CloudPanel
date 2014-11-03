@@ -42,8 +42,8 @@ namespace CloudPanel.Base.Config
             get 
             {
                 // Need ;Persist Security Info=True for EF6 connection open (when handling opening and closing connetions ourselves
-                //return "server=DXN-PC\\SQLEXPRESS;database=CloudPanel;uid=CloudPanel;password=password;";
-                return @"server=JDIXON-PC;database=CloudPanel;uid=CloudPanel;password=Password1";
+                return "server=DXN-PC\\SQLEXPRESS;database=CloudPanel;uid=CloudPanel;password=password;";
+                //return @"server=JDIXON-PC;database=CloudPanel;uid=CloudPanel;password=Password1";
             }
         }
 
@@ -110,6 +110,8 @@ namespace CloudPanel.Base.Config
         public static string ExchangePFServer { get; set; }
 
         public static int ExchangeVersion { get; set; }
+
+        public static int ExchangeMaxAliases { get; set; }
 
         public static bool ExchangePFEnabled { get; set; }
 

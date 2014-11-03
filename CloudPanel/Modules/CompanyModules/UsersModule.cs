@@ -40,6 +40,10 @@ namespace CloudPanel.Modules
 
                     string companyCode = _.CompanyCode;
                     var users = (from d in db.Users
+                                 join m in db.Plans_ExchangeMailbox on d.MailboxPlan equals m.MailboxPlanID into d1
+                                 from mailboxplan in d1.DefaultIfEmpty()
+                                 join s in db.SvcMailboxSizes on d.UserPrincipalName equals s.UserPrincipalName into d2
+                                 from mailboxinfo in d2.DefaultIfEmpty()
                                  where d.CompanyCode == companyCode
                                  select new
                                  {
@@ -50,10 +54,29 @@ namespace CloudPanel.Modules
                                      SamAccountName = d.sAMAccountName,
                                      DistinguishedName = d.DistinguishedName,
                                      Department = d.Department,
+                                     AdditionalMB = d.AdditionalMB == null ? 0 : d.AdditionalMB,
                                      IsCompanyAdmin = d.IsCompanyAdmin == null ? false : (bool)d.IsCompanyAdmin,
                                      IsResellerAdmin = d.IsResellerAdmin == null ? false : (bool)d.IsResellerAdmin,
                                      IsEnabled = d.IsEnabled == null ? true : (bool)d.IsEnabled,
                                      MailboxPlan = d.MailboxPlan == null ? 0 : (int)d.MailboxPlan,
+                                     MailboxPlanName = mailboxplan == null ? "" : mailboxplan.MailboxPlanName,
+                                     MailboxPlanSize = mailboxplan == null ? 0 : mailboxplan.MailboxSizeMB,
+                                     MailboxPlanMaxSize = mailboxplan == null ? 0 : mailboxplan.MaxMailboxSizeMB,
+                                     MailboxPlanMaxSendKB = mailboxplan == null ? 0 : mailboxplan.MaxSendKB,
+                                     MailboxPlanMaxReceiveKB = mailboxplan == null ? 0 : mailboxplan.MaxReceiveKB,
+                                     MailboxPlanMaxRecipients = mailboxplan == null ? 0 : mailboxplan.MaxRecipients,
+                                     MailboxPlanPOP3 = mailboxplan == null ? false : mailboxplan.EnablePOP3,
+                                     MailboxPlanIMAP = mailboxplan == null ? false: mailboxplan.EnableIMAP,
+                                     MailboxPlanOWA = mailboxplan == null ? false : mailboxplan.EnableOWA,
+                                     MailboxPlanMAPI = mailboxplan == null ? false : mailboxplan.EnableMAPI,
+                                     MailboxPlanAS = mailboxplan == null ? false : mailboxplan.EnableAS,
+                                     MailboxPlanECP = mailboxplan == null ? false : mailboxplan.EnableECP,
+                                     MailboxDatabase = mailboxinfo == null ? "" : mailboxinfo.MailboxDatabase,
+                                     MailboxSizeInKB = mailboxinfo == null ? "" : mailboxinfo.TotalItemSizeInKB,
+                                     MailboxDeletedSizeInKB = mailboxinfo == null ? "" : mailboxinfo.TotalDeletedItemSizeInKB,
+                                     MailboxItemCount = mailboxinfo == null ? 0 : mailboxinfo.ItemCount,
+                                     MailboxDeletedItemCount = mailboxinfo == null ? 0 : mailboxinfo.DeletedItemCount,
+                                     MailboxInfoRetrieved = mailboxinfo == null ? "" : mailboxinfo.Retrieved.ToString(),
                                      Created = d.Created,
                                      Email = d.Email
                                  }).ToList();

@@ -5,7 +5,7 @@
     <CompanyName>Know More IT</CompanyName>
     <HostingOU>OU=Hosting,DC=lab,DC=local</HostingOU>
     <UsersOU></UsersOU>
-    <PrimaryDC>LAB-DC.lab.local</PrimaryDC>
+    <PrimaryDC>DC.lab.local</PrimaryDC>
     <Username>LAB\Administrator</Username>
     <Password>Gep5xE+DLlRcbsjcg9u/Rw==</Password>
     <SuperAdmins>Domain Admins</SuperAdmins>
@@ -15,13 +15,14 @@
   </Settings>
   <Exchange>
     <ExchangeRoleAssignment>Alternate Assignment Policy</ExchangeRoleAssignment>
-    <ExchangeServer>LAB-EXCH2013.lab.local</ExchangeServer>
-    <ExchangePFServer>LAB-EXCH2013.lab.local</ExchangePFServer>
+    <ExchangeServer>EXCH2013.lab.local</ExchangeServer>
+    <ExchangePFServer>EXCH2013.lab.local</ExchangePFServer>
     <ExchangePFEnabled>true</ExchangePFEnabled>
     <ExchangeVersion>2013</ExchangeVersion>
     <ExchangeSSL>true</ExchangeSSL>
+    <ExchangeMaxAliases>10</ExchangeMaxAliases>
     <ExchangeConnection>Basic</ExchangeConnection>
-    <ExchangeDatabases></ExchangeDatabases>
+    <ExchangeDatabases>Mailbox Database 1047134082</ExchangeDatabases>
     <ExchangeGALName>{0} GAL</ExchangeGALName>
     <ExchangeABPName>{0} ABP</ExchangeABPName>
     <ExchangeOALName>{0} OAL</ExchangeOALName>

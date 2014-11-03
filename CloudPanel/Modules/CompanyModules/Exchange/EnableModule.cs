@@ -32,6 +32,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                 dynamic powershell = null;
                 try
                 {
+                    reverse = new ReverseActions();
                     db = new CloudPanelContext(Settings.ConnectionString);
 
                     string companyCode = _.CompanyCode;
@@ -45,7 +46,6 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     powershell = ExchPowershell.GetClass();
 
                     // Used to rollback data
-                    reverse = new ReverseActions();
                     string name = "";
 
                     logger.Debug("Creating global address list");
@@ -85,7 +85,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error enabling company {0} for Exchange: {1}", _.CompanyCode, ex.ToString());
+                    logger.ErrorFormat("Error enabling company for Exchange: {0}",  ex.ToString());
 
                     reverse.RollbackNow();
                     return Negotiate.WithModel(new { error = ex.Message })

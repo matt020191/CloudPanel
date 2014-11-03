@@ -119,6 +119,7 @@
     <Content Include="Content\js\application.js" />
     <Content Include="Content\js\bootstrap.js" />
     <Content Include="Content\js\bootstrap.min.js" />
+    <Content Include="Content\js\cloudpanel.js" />
     <Content Include="Content\js\enquire.js" />
     <Content Include="Content\js\images\animated-overlay.gif" />
     <Content Include="Content\js\images\ui-bg_flat_0_2b6bd9_40x100.png" />
@@ -1362,6 +1363,7 @@
     <Content Include="Content\plugins\sweetalert\lib\sweet-alert.scss" />
     <Content Include="Content\plugins\sweetalert\LICENSE" />
     <Content Include="Content\plugins\sweetalert\README.md" />
+    <None Include="Properties\PublishProfiles\HOME DC.pubxml" />
     <None Include="Properties\PublishProfiles\LAB DC.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

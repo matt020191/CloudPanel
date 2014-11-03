@@ -48,6 +48,7 @@ namespace CloudPanel.Code
                 Settings.ExchangePFEnabled = bool.Parse(Read(ref x, "Exchange", "ExchangePFEnabled"));
                 Settings.ExchangeVersion = int.Parse(Read(ref x, "Exchange", "ExchangeVersion"));
                 Settings.ExchangeConnection = Read(ref x, "Exchange", "ExchangeConnection");
+                Settings.ExchangeMaxAliases = int.Parse(Read(ref x, "Exchange", "ExchangeMaxAliases"));
                 Settings.ExchangeDatabases = Read(ref x, "Exchange", "ExchangeDatabases").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 Settings.ExchangeGALName = Read(ref x, "Exchange", "ExchangeGALName");
                 Settings.ExchangeABPName = Read(ref x, "Exchange", "ExchangeABPName");
