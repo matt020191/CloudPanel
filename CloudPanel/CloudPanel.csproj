@@ -1096,7 +1096,7 @@
     <Compile Include="Modules\Admin\SettingsModule.cs" />
     <Compile Include="Modules\ChartsModules\SuperChartsModule.cs" />
     <Compile Include="Modules\CompaniesModule.cs" />
-    <Compile Include="Modules\CompanyModules\CompanyDomainsModule.cs" />
+    <Compile Include="Modules\CompanyModules\DomainsModule.cs" />
     <Compile Include="Modules\CompanyModules\OverviewModule.cs" />
     <Compile Include="Modules\CompanyModules\UsersEditModule.cs" />
     <Compile Include="Modules\CompanyModules\UsersModule.cs" />
@@ -1375,8 +1375,8 @@
     <Content Include="Views\Company\Exchange\disable.cshtml" />
     <Content Include="Views\Company\Exchange\contacts_edit.cshtml" />
     <Content Include="Views\Company\users_edit.cshtml" />
+    <Content Include="Views\Company\Exchange\groups_edit_old.cshtml" />
     <Content Include="Views\Company\Exchange\groups_edit.cshtml" />
-    <Content Include="Views\Company\Exchange\groups_add.cshtml" />
     <Content Include="Views\Plans\plans_citrix.cshtml" />
     <Content Include="Views\Admin\brandings.cshtml" />
     <Content Include="Views\Admin\massemail.cshtml" />

@@ -10,6 +10,7 @@ using System.Reflection;
 using CloudPanel.Base.Database.Models;
 using CloudPanel.Exchange;
 using CloudPanel.Rollback;
+using System.Collections.Generic;
 
 namespace CloudPanel.Modules
 {
@@ -334,6 +335,33 @@ namespace CloudPanel.Modules
 
                 #endregion
             };
+        }
+
+        public static List<Contacts> GetContacts(string companyCode)
+        {
+            CloudPanelContext db = null;
+            try
+            {
+                logger.DebugFormat("Retrieving Exchange contacts for {0}", companyCode);
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var contacts = (from d in db.Contacts
+                                where d.CompanyCode == companyCode
+                                orderby d.DisplayName
+                                select d).ToList();
+
+                return contacts;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error retrieving Exchange contacts for {0}: {1}", companyCode, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
         }
     }
 }

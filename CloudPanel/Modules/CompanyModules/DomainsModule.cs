@@ -8,20 +8,21 @@ using CloudPanel.Exchange;
 using log4net;
 using Nancy;
 using Nancy.Security;
+using Nancy.ViewEngines.Razor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
-using System.Web;
 
 namespace CloudPanel.Modules
 {
-    public class CompanyDomainsModule : NancyModule
+    public class DomainsModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(CompanyDomainsModule));
+        private static readonly ILog logger = LogManager.GetLogger(typeof(DomainsModule));
 
-        public CompanyDomainsModule() : base("/company/{CompanyCode}/domains")
+        public DomainsModule() : base("/company/{CompanyCode}/domains")
         {
             this.RequiresAuthentication();
 
@@ -403,6 +404,75 @@ namespace CloudPanel.Modules
                 }
                 #endregion
             };
+        }
+
+        public static List<Domains> GetAcceptedDomains(string companyCode)
+        {
+            CloudPanelContext db = null;
+            try
+            {
+                logger.DebugFormat("Getting company accepted domains for {0}", companyCode);
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                // Generate code
+                var domains = (from d in db.Domains
+                              where d.IsAcceptedDomain
+                              where d.CompanyCode == companyCode
+                              select d).ToList();
+
+                return domains;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting accepted domains for {0}: {1}", companyCode, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static IHtmlString GetAcceptedDomainsOptions(string companyCode, int selectedValue)
+        {
+            var returnString = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                logger.DebugFormat("Getting company accepted domains for {0}", companyCode);
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                // Generate code
+                var domains = (from d in db.Domains
+                               where d.IsAcceptedDomain
+                               where d.CompanyCode == companyCode
+                               select d).ToList();
+
+                if (domains != null)
+                {
+                    domains.ForEach(x =>
+                    {
+                        returnString.AppendFormat("<option value=\"{0}\" {1}>{2}</option>", 
+                            x.DomainID,
+                            x.DomainID == selectedValue ? "selected" : "",
+                            x.Domain);
+                    });
+                }
+
+                return new NonEncodedHtmlString(returnString.ToString());
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting accepted domains for {0}: {1}", companyCode, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
         }
     }
 }

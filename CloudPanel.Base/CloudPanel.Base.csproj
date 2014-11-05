@@ -83,6 +83,7 @@
     <Compile Include="Database\Models\Users.cs" />
     <Compile Include="Enums\DomainType.cs" />
     <Compile Include="Enums\ExchangeValues.cs" />
+    <Compile Include="Enums\SelectValueType.cs" />
     <Compile Include="Exceptions\MatchFoundException.cs" />
     <Compile Include="Exceptions\MissingDataException.cs" />
     <Compile Include="Exchange\EmailInfo.cs" />

@@ -1,16 +1,17 @@
 ﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
 @using CloudPanel
 
+
 @{
     Layout = "__master.cshtml";
 }
+
 @section HEAD{
     <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
     <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.min.css" rel="stylesheet" />
     <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
     <link href="~/Content/plugins/form-toggle/toggles.css" rel="stylesheet" />
     <link href="~/Content/plugins/form-select2/select2.css" rel="stylesheet" />
-    <link href="~/Content/css/wait.css" rel="stylesheet" />
 }
 
 <div id="page-heading">
@@ -27,8 +28,7 @@
 
 <div class="container">
     <div class="row">
-        <form id="addGroup" action="" method="post" data-parsley-validate>
-            <input type="hidden" name="_method" value="PUT" />
+        <form id="form" action="" method="post" data-parsley-validate>
             <div class="col-md-12">
                 <div class="panel panel-primary">
                     <div class="panel-heading">Details</div>
@@ -46,7 +46,9 @@
                                     <div class="input-group">
                                         <input type="text" class="form-control" id="EmailFirst" name="EmailFirst" value="@Model.group.EmailFirst" data-parsley-required="true">
                                         <span class="input-group-addon">@@</span>
-                                        @CloudPanel.CPHtmlHelpers.GetCompanyEmailDomains(selectedCompanyCode, Model.group.EmailLast, string.Empty)
+                                        <select id="DomainID" name="DomainID" class="form-control" data-parsley-required="true">
+                                            @CloudPanel.Modules.DomainsModule.GetAcceptedDomainsOptions(this.RenderContext.Context.GetCompanyCode(), Model.group.DomainID)
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -54,7 +56,7 @@
                                 <label for="focusedinput" class="col-sm-3 control-label"></label>
                                 <div class="col-sm-9">
                                     <div class="checkbox">
-                                        <label><input type="checkbox" id="Hidden" name="Hidden" value="@(Model.group.Hidden.ToString().ToLower())" @(Model.group.Hidden == true ? "checked" : "")>Hidden from Address List? </label>
+                                        <label><input type="checkbox" id="Hidden" name="Hidden" @(Model.group.Hidden == true ? "value=\"true\" selected" : "value=\"false\"")>Hidden from Address List? </label>
                                     </div>
                                 </div>
                             </div>
@@ -65,7 +67,7 @@
 
             <!-- Managed By-->
             <div class="col-md-6">
-                <div id="managedbyPanel" class="panel panel-primary">
+                <div class="panel panel-primary">
                     <div class="panel-heading">
                         Managed By
                         <div class="options">
@@ -74,9 +76,14 @@
                     </div>
                     <div class="panel-body scrollthis">
                         <div id="managedBy" class="list-group">
-                            @foreach (var i in Model.group.ManagedByOriginalObject)
-                            {
-                                <a href="javascript:;" class="list-group-item" onclick="RemoveItem(this);" data-id="@i.Identifier"><span class="badge badge-danger">Delete</span><i class="fa fa-user"></i>@i.DisplayName</a>
+                            @{
+                                if (Model.group.ManagedByOriginalObject != null)
+                                {
+                                    foreach (var i in Model.group.ManagedByOriginalObject)
+                                    {
+                                        <a href="javascript:;" class="list-group-item" onclick="RemoveItem(this);" data-id="@i.Identifier"><span class="badge badge-danger">Delete</span><i class="fa fa-user"></i>@i.DisplayName</a>
+                                    }
+                                }
                             }
                         </div>
                         <input id="ManagedByAdded" name="ManagedByAdded" type="hidden" class="plus" value="@(Model.group.ManagedByOriginal != null ? String.Concat(String.Join(",", Model.group.ManagedByOriginal), ",") : "")" />
@@ -87,7 +94,7 @@
 
             <!-- Members -->
             <div class="col-md-6">
-                <div id ="membersPanel" class="panel panel-primary">
+                <div class="panel panel-primary">
                     <div class="panel-heading">
                         Members
                         <div class="options">
@@ -113,7 +120,7 @@
                                 <label class="col-sm-3 control-label">Owner Approval Required to Join?</label>
                                 <div class="col-sm-6">
                                     <div class="radio">
-                                        <label><input type="radio" name="MemberJoinRestriction" value="10" @(Model.group.MemberJoinRestriction == CloudPanel.Base.Enums.ExchangeValues.Open ? "checked" : "")> OPEN: Anyone can join this group without being approved by the group owners</label>
+                                        <label><input type="radio" name="MemberJoinRestriction" value="10" @(Model.group.MemberJoinRestriction == CloudPanel.Base.Enums.ExchangeValues.Open ? "checked" : "") data-parsley-required="true"> OPEN: Anyone can join this group without being approved by the group owners</label>
                                     </div>
                                     <div class="radio">
                                         <label><input type="radio" name="MemberJoinRestriction" value="11" @(Model.group.MemberJoinRestriction == CloudPanel.Base.Enums.ExchangeValues.Closed ? "checked" : "")> CLOSED: Members can be added only by the group owners. All requests to join will be rejected automatically</label>
@@ -127,7 +134,7 @@
                                 <label class="col-sm-3 control-label">Can users leave?</label>
                                 <div class="col-sm-6">
                                     <div class="radio">
-                                        <label><input type="radio" name="MemberDepartRestriction" value="10" @(Model.group.MemberDepartRestriction == CloudPanel.Base.Enums.ExchangeValues.Open ? "checked" : "")> OPEN: Anyone can leave this group without being approved by the group owners</label>
+                                        <label><input type="radio" name="MemberDepartRestriction" value="10" @(Model.group.MemberDepartRestriction == CloudPanel.Base.Enums.ExchangeValues.Open ? "checked" : "") data-parsley-required="true"> OPEN: Anyone can leave this group without being approved by the group owners</label>
                                     </div>
                                     <div class="radio">
                                         <label><input type="radio" name="MemberDepartRestriction" value="11" @(Model.group.MemberDepartRestriction == CloudPanel.Base.Enums.ExchangeValues.Closed ? "checked" : "")> CLOSED: Members can be removed only by the group owners. All requests to leave will be rejected automatically</label>
@@ -153,7 +160,7 @@
                                 <div class="col-sm-6">
                                     <p>By default, only senders inside your organization can send messages to this group. You can also allow people outside the organization to send to this group. Choose one of the options below:</p>
                                     <div class="radio">
-                                        <label><input type="radio" name="RequireSenderAuthenticationEnabled" value="15" @(Model.group.RequireSenderAuthenticationEnabled == CloudPanel.Base.Enums.ExchangeValues.Inside ? "checked" : "")> Only senders inside my organization can send to this group</label>
+                                        <label><input type="radio" name="RequireSenderAuthenticationEnabled" value="15" @(Model.group.RequireSenderAuthenticationEnabled == CloudPanel.Base.Enums.ExchangeValues.Inside ? "checked" : "") data-parsley-required="true"> Only senders inside my organization can send to this group</label>
                                     </div>
                                     <div class="radio">
                                         <label><input type="radio" name="RequireSenderAuthenticationEnabled" value="16" @(Model.group.RequireSenderAuthenticationEnabled == CloudPanel.Base.Enums.ExchangeValues.InsideAndOutside ? "checked" : "")> Senders inside and outside of my organization can send to this group</label>
@@ -165,7 +172,11 @@
                                 <label class="col-sm-3 control-label"></label>
                                 <div class="col-sm-6">
                                     <p>If you want to restrict who can send messages to the group, add users or groups to the list below. Only the specified senders will be able to send to the group and mail sent by anyone else will be rejected.</p>
-                                    @CloudPanel.CPHtmlHelpers.GetAllExchangeObjectsInSelectFormat(Model.group.AcceptMessagesOnlyFromSendersOrMembers, selectedCompanyCode, "AcceptMessagesOnlyFromSendersOrMembers", "")
+                                    <select id="AcceptMessagesOnlyFromSendersOrMembers" name="AcceptMessagesOnlyFromSendersOrMembers" class="multiselect" style="width: 100%" multiple>
+                                        <optgroup label="Users">
+                                            @CloudPanel.Modules.UsersModule.GetMailboxUsersOptions(this.RenderContext.Context.GetCompanyCode(), Model.group.AcceptMessagesOnlyFromSendersOrMembers)
+                                        </optgroup>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -184,7 +195,7 @@
                                 <div class="col-sm-6">
                                     <div class="checkbox">
                                         <label>
-                                            <input type="checkbox" id="ModerationEnabled" name="ModerationEnabled" @(Model.group.ModerationEnabled ? "value=\"true\" checked" : "value=\"false\"")> Messages sent to this group have to be approved by a moderator
+                                            <input type="checkbox" id="ModerationEnabled" name="ModerationEnabled" value="false"> Messages sent to this group have to be approved by a moderator
                                         </label>
                                     </div>
                                 </div>
@@ -192,13 +203,21 @@
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Group Moderators</label>
                                 <div class="col-sm-6">
-                                    @CloudPanel.CPHtmlHelpers.GetAllExchangeObjectsInSelectFormat(Model.group.ModeratedBy, selectedCompanyCode, "ModeratedBy", "")
+                                    <select id="ModeratedBy" name="ModeratedBy" class="multiselect" style="width: 100%" multiple>
+                                        <optgroup label="Users">
+                                            @CloudPanel.Modules.UsersModule.GetMailboxUsersOptions(this.RenderContext.Context.GetCompanyCode(), Model.group.ModeratedBy)
+                                        </optgroup>
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Senders that don't require approval</label>
                                 <div class="col-sm-6">
-                                    @CloudPanel.CPHtmlHelpers.GetAllExchangeObjectsInSelectFormat(Model.group.BypassModerationFromSendersOrMembers, selectedCompanyCode, "BypassModerationFromSendersOrMembers", "")
+                                    <select id="BypassModerationFromSendersOrMembers" name="BypassModerationFromSendersOrMembers" class="multiselect" style="width: 100%" multiple>
+                                        <optgroup label="Users">
+                                            @CloudPanel.Modules.UsersModule.GetMailboxUsersOptions(this.RenderContext.Context.GetCompanyCode(), Model.group.BypassModerationFromSendersOrMembers)
+                                        </optgroup>
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -206,7 +225,7 @@
                                 <div class="col-sm-6">
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" name="SendModerationNotifications" value="20" @(Model.group.SendModerationNotifications == CloudPanel.Base.Enums.ExchangeValues.Always ? "checked" : "")> Notify all senders when their messages aren't approved
+                                            <input type="radio" name="SendModerationNotifications" value="20" @(Model.group.SendModerationNotifications == CloudPanel.Base.Enums.ExchangeValues.Always ? "checked" : "") data-parsley-required="true"> Notify all senders when their messages aren't approved
                                         </label>
                                     </div>
                                     <div class="radio">
@@ -226,7 +245,7 @@
                     <div class="panel-footer">
                         <div class="btn-toolbar text-right">
                             <button class="btn-default btn" type="button" onclick="javascript: history.back();">Cancel</button>
-                            <button class="btn-primary btn" type="submit">Submit</button>
+                            <button class="btn-primary btn" type="button" onclick="javascript: SubmitForm();">Submit</button>
                         </div>
                     </div>
                 </div>
@@ -246,7 +265,7 @@
                 <table cellpadding="0" cellspacing="0" border="0" class="table datatables" id="dataTable">
                     <thead>
                         <tr>
-                            <th>Type</th>
+                            <th></th>
                             <th>Name</th>
                             <th>Email</th>
                             <th style="display: none">Identifier</th>
@@ -254,12 +273,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var obj in CloudPanel.Modules.GroupsModule.GetAll(selectedCompanyCode))
+                        @foreach (var obj in CloudPanel.Modules.GroupsModule.GetAll(this.RenderContext.Context.GetCompanyCode()))
                         {
                             <tr>
                                 <td>
-                                    @if (obj.ObjectType == CloudPanel.Base.Enums.ExchangeValues.Group)
-                                    {
+                                    @if (obj.ObjectType == CloudPanel.Base.Enums.ExchangeValues.Group) { 
                                         <i class="fa fa-group"></i>
                                     }
                                     else if (obj.ObjectType == CloudPanel.Base.Enums.ExchangeValues.Contact)
@@ -320,32 +338,28 @@
         });
 
         function GetMembers(identity) {
-            $("#membersPanel").block({
-                message: $('#waitMessage')
-            });
-
-            var request = $.ajax({
-                url: "@Url.RenderContext.Context.Request.Url/members",
-                type: "GET",
-                dataType: "json"
-            });
-
-            request.done(function (data) {
-                $.each(data.members, function (index, value) {
-                    AddItem("#members",
-                            data.members[index].displayName,
-                            data.members[index].email,
-                            data.members[index].objectType);
+            if (identity !== "") {
+                $("#membersPanel").block({
+                    message: $('#waitMessage')
                 });
-            });
 
-            request.fail(function (jqXHR, textStatus) {
-                alert(textStatus);
-            });
-
-            request.complete(function (jqXHR, textStatus) {
-                $("#membersPanel").unblock();
-            });
+                $.ajax({
+                    url: "@Url.RenderContext.Context.Request.Url/members",
+                    type: "GET",
+                    dataType: "json"
+                }).done(function (data) {
+                    $.each(data.members, function (index, value) {
+                        AddItem("#members",
+                                data.members[index].displayName,
+                                data.members[index].email,
+                                data.members[index].objectType);
+                    });
+                }).fail(function (returnData) {
+                    ShowError(returnData.responseJSON.error);
+                }).always(function () {
+                    $("#membersPanel").unblock();
+                });
+            }
         }
 
         function ShowPopup(div) {
@@ -426,6 +440,23 @@
                     i.val(split);
                 }
             }
+        }
+
+        function SubmitForm() {
+            if ($("#form").parsley().validate()) {
+                var data = $("#form").serialize();
+
+                $(".container").block();
+                $.post("", data).done(function (returnData) {
+                    ShowSuccess(returnData.success);
+                }).fail(function (returnData) {
+                    ShowError(returnData.responseJSON.error);
+                }).always(function () {
+                    $(".container").unblock();
+                });
+            }
+            else
+                ShowWarning("You are missing some required fields!");
         }
     </script>
 }

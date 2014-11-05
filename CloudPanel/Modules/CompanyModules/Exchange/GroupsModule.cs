@@ -288,7 +288,7 @@ namespace CloudPanel.Modules
                 #endregion
             };
 
-            Put["/{ID:int}"] = _ =>
+            Post["/{ID:int}"] = _ =>
             {
                 #region Updates existing group
                 CloudPanelContext db = null;
@@ -346,16 +346,13 @@ namespace CloudPanel.Modules
                     }
 
                     string redirectUrl = string.Format("/company/{0}/exchange/groups", companyCode);
-                    return Negotiate.WithModel(new { success = "Successfully updated group" })
-                                    .WithMediaRangeResponse("text/html", this.Response.AsRedirect(redirectUrl));
+                    return Negotiate.WithModel(new { success = "Successfully updated group" });
                 }
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error updating group for {0}: {1}", _.CompanyCode, ex.ToString());
-
-                    ViewBag.error = ex.ToString();
-                    return Negotiate.WithMediaRangeModel("application/json", new { error = ex.Message })
-                                    .WithView("error.cshtml");
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally
                 {
@@ -370,7 +367,11 @@ namespace CloudPanel.Modules
 
             Get["/new"] = _ =>
             {
-                return View["Company/Exchange/groups_add.cshtml", new { companyCode = _.CompanyCode }];
+                return View["Company/Exchange/groups_edit.cshtml", 
+                    new { 
+                        companyCode = _.CompanyCode,
+                        group = new DistributionGroups()
+                    }];
             };
 
             Post["/new"] = _ =>
@@ -429,16 +430,13 @@ namespace CloudPanel.Modules
                     }
 
                     string redirectUrl = string.Format("/company/{0}/exchange/groups", companyCode);
-                    return Negotiate.WithModel(new { success = "Successfully created new group" })
-                                    .WithMediaRangeResponse("text/html", this.Response.AsRedirect(redirectUrl));
+                    return Negotiate.WithModel(new { success = "Successfully created new group" });
                 }
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error creating new group for {0}: {1}", _.CompanyCode, ex.ToString());
-
-                    ViewBag.error = ex.ToString();
-                    return Negotiate.WithMediaRangeModel("application/json", new { error = ex.Message })
-                                    .WithView("error.cshtml");
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally
                 {
@@ -450,6 +448,33 @@ namespace CloudPanel.Modules
                 }
                 #endregion
             };
+        }
+
+        public static List<DistributionGroups> GetGroups(string companyCode)
+        {
+            CloudPanelContext db = null;
+            try
+            {
+                logger.DebugFormat("Retrieving Exchange groups for {0}", companyCode);
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var groups = (from d in db.DistributionGroups
+                                where d.CompanyCode == companyCode
+                                orderby d.DisplayName
+                                select d).ToList();
+
+                return groups;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error retrieving Exchange groups for {0}: {1}", companyCode, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
         }
 
         public static List<GroupObjectSelector> GetAll(string companyCode)

@@ -13,6 +13,9 @@ using CloudPanel.Rollback;
 using CloudPanel.Base.Exchange;
 using CloudPanel.Exchange;
 using System.Collections.Generic;
+using Nancy.ViewEngines.Razor;
+using System.Text;
+using CloudPanel.Base.Enums;
 
 namespace CloudPanel.Modules
 {
@@ -488,6 +491,54 @@ namespace CloudPanel.Modules
 
                 logger.DebugFormat("Found a total of {0} mailbox users", users.Count());
                 return users;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting mailbox users: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static IHtmlString GetMailboxUsersOptions(string companyCode, string[] selectedValues)
+        {
+            var returnString = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                logger.DebugFormat("Getting mailbox users for {0}", companyCode);
+                var users = (from u in db.Users
+                             where u.CompanyCode == companyCode
+                             where u.MailboxPlan > 0
+                             orderby u.DisplayName
+                             select u).ToList();
+
+
+                logger.DebugFormat("Found a total of {0} mailbox users", users.Count());
+                if (users != null)
+                {
+                    users.ForEach(x =>
+                    {
+                        if (!string.IsNullOrEmpty(x.DistinguishedName))
+                        {
+                            string canonicalName = CloudPanel.Base.AD.LdapConverters.ToCanonicalName(x.DistinguishedName);
+                            returnString.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                                canonicalName,
+                                (selectedValues != null && selectedValues.Contains(canonicalName)) ? "selected" : "",
+                                x.DisplayName);
+                        }
+                    });
+                }
+
+                return new NonEncodedHtmlString(returnString.ToString());
             }
             catch (Exception ex)
             {
