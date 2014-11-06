@@ -45,5 +45,31 @@ namespace CloudPanel.Base.Exchange
         public string LogFilePrefix { get; set; }
 
         public string LogFolderPath { get; set; }
+
+        public long DatabaseSizeInBytes { get; set; }
+
+        public decimal DatabaseSizeInKB
+        {
+            get
+            {
+                return DatabaseSizeInBytes > 0 ? Math.Round(decimal.Divide(DatabaseSizeInBytes, 1024), 2) : 0;
+            }
+        }
+
+        public decimal DatabaseSizeInMB
+        {
+            get
+            {
+                return DatabaseSizeInKB > 0 ? Math.Round(decimal.Divide(DatabaseSizeInKB, 1024), 2) : 0;
+            }
+        }
+
+        public decimal DatabaseSizeInGB
+        {
+            get
+            {
+                return DatabaseSizeInMB > 0 ? Math.Round(decimal.Divide(DatabaseSizeInMB, 1024), 2) : 0;
+            }
+        }
     }
 }

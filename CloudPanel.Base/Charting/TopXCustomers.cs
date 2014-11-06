@@ -40,6 +40,10 @@ namespace CloudPanel.Base.Charting
 
         public string CompanyName { get; set; }
 
+        public string ResellerCode { get; set; }
+
+        public string ResellerName { get; set; }
+
         public int TotalUsers { get; set; }
 
         public int TotalMailboxes { get; set; }

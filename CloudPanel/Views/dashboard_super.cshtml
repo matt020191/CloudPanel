@@ -88,7 +88,7 @@
 
     <!-- Graphs -->
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-6">
             <div class="panel panel-info">
                 <div class="panel-body">
                     <div class="row">
@@ -107,43 +107,82 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row">
         <div class="col-md-6">
             <div class="panel panel-grape">
+                <div class="panel-heading">
+                    <h4>Top Customers by Users</h4>
+                    <div class="options">
+                        <div class="btn-group">
+                            <button class="btn btn-default btn-xs" onclick="javascript: GetTopCustomers(5);"> Top 5 </button>
+                            <button class="btn btn-default btn-xs" onclick="javascript: GetTopCustomers(10);"> Top 10 </button>
+                            <button class="btn btn-default btn-xs" onclick="javascript: GetTopCustomers(15);"> Top 15 </button>
+                        </div>
+                    </div>
+                </div>
                 <div class="panel-body">
-                    <div class="row">
-                        <div class="col-md-12 clearfix">
-                            <h4 class="pull-left" style="margin: 0 0 20px;">Top Customers <small>(with most users)</small></h4>
-                            <div class="btn-group pull-right">
-                                <a href="javascript:GetTopCustomers(3);" class="btn btn-default btn-sm">Top 3</a>
-                                <a href="javascript:GetTopCustomers(5);" class="btn btn-default btn-sm">Top 5</a>
-                                <a href="javascript:GetTopCustomers(10);" class="btn btn-default btn-sm ">Top 10</a>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div id="top5Customers" style="height:250px;"></div>
-                        </div>
+                    <div class="list-group topXCustomers">
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="row">
+        @if (CloudPanel.Base.Config.Settings.ExchangeModule)
+        {
+            <div class="col-md-6">
+                <div class="panel panel-midnightblue">
+                    <div class="panel-heading">
+                        <h4>Mailbox Databases</h4>
+                        <div class="options">
+                            <a href="javascript:GetExchangeDatabases()"><i class="fa fa-refresh"></i></a>
+                        </div>
+                    </div>
+                    <div class="panel-body mailboxDatabases">
+                        <div id="exchangeDatabases" style="height:250px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="panel panel-inverse">
+                    <div class="panel-heading">
+                        <h4>Top Customers by Mailboxes</h4>
+                        <div class="options">
+                            <div class="btn-group">
+                                <button class="btn btn-default btn-xs" onclick="javascript: GetTopMailboxes(5);"> Top 5 </button>
+                                <button class="btn btn-default btn-xs" onclick="javascript: GetTopMailboxes(10);"> Top 10 </button>
+                                <button class="btn btn-default btn-xs" onclick="javascript: GetTopMailboxes(15);"> Top 15 </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body topMailboxes">
+                        <div id="topExchangeMailboxes" style="height:250px;"></div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
 
 @section JAVASCRIPT{
     <script src="~/Content/plugins/charts-flot/jquery.flot.min.js"></script>
-    <script src="~/Content/plugins/charts-flot/jquery.flot.resize.min.js"></script>
     <script src="~/Content/plugins/charts-flot/jquery.flot.orderBars.min.js"></script>
+    <script src="~/Content/plugins/charts-flot/jquery.flot.pie.min.js"></script>
     <script src="~/Content/plugins/charts-highcharts/js/highcharts.js"></script>
     <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
     <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
     <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
+    <script src="~/Content/plugins/blockUI/jquery.blockUI.js"></script>
     <script type="text/javascript">
-        $(document).ready(function () {
-            GetTopCustomers(3);
+        var exchangeModule = @CloudPanel.Base.Config.Settings.ExchangeModule.ToString().ToLower()
 
+        $(document).ready(function () {
+            GetTopCustomers(8);
             GetHistoryOverview(6);
+
+            if (exchangeModule) {
+                GetExchangeDatabases();
+                GetTopMailboxes(5);
+            }
         });
 
         function randValue() {
@@ -195,40 +234,85 @@
 
         function GetTopCustomers(x)
         {
-            $.ajax({
-                type: "GET",
-                url: "@Url.Content("~/charts/super/customers/top/")" + x,
-                dataType: "json",
-                success: function (data) {
-                    var users = new Array();
-                    var mailboxes = new Array();
-                    var companyNames = new Array();
+            $(".topXCustomers").block();
+            $.getJSON("@Url.Content("~/dashboard/customers/top/")" + x, function (data) {
+                    $(".topXCustomers").empty();
+                    $.each(data.data, function (index, customers) {
+                        $(".topXCustomers").append('<a href="@Url.Content("~/company/")'+customers.companyCode+'/overview" class="list-group-item"><span class="badge">' + customers.totalUsers + '</span> <i class="fa fa-building"></i> ' + customers.companyName + ' </a>');
+                    });
+                })
+                .fail(function (data) {
+                    ShowError(data.responseJSON.error);
+                })
+                .always(function (data) {
+                    $(".topXCustomers").unblock();
+                });
+        }
 
-                    $.each(data, function () {
-                        var count = 1;
-                        $.each(this, function (k, v) {
-                            users.push(new Array(count, v.totalUsers));
-                            mailboxes.push(new Array(count, v.totalMailboxes));
-                            companyNames.push(new Array(count, v.companyName));
-                            count = count + 1;
-                        });
+        function GetTopMailboxes(x)
+        {
+            $(".topMailboxes").block();
+            $.getJSON("@Url.Content("~/dashboard/customers/top/mailboxes/")" + x, function (data) {
+                    var ds = [];
+                    $.each(data.data, function (index, top) {
+                        ds.push({ label: top.companyName, data: top.totalUsers });
                     });
 
-                    var ds = new Array();
-                    ds.push({ data: users, label: "Users", bars: { show: true, barWidth: 0.2, order: 1 } });
-                    ds.push({ data: mailboxes, label: "Mailboxes", bars: { show: true, barWidth: 0.2, order: 2 } });
+                    $.plot('#topExchangeMailboxes', ds, {
+                        series: {
+                            pie: {
+                                show: true, radius: 1,
+                                innerRadius: 0.5,
+                                label: {
+                                    show: true,
+                                    radius: 3 / 4,
+                                    formatter: function (label, series) {
+                                        return '<div style="border:1px solid grey;font-size:8pt;text-align:center;padding:5px;color:white;">' +
+                                                label + '<br/>' +
+                                                series.data[0][1] +
+                                                '</div>';
+                                    },
+                                    background: { opacity: 0.5, color: '#000' }
+                                }
+                            }
+                        },
+                        legend: { show: false },
+                        grid: { hoverable: true, clickable: true }
+                    });
+                })
+                .fail(function (data) {
+                    ShowError(data.responseJSON.error);
+                })
+                .always(function (data) {
+                    $(".topMailboxes").unblock();
+                });
+        }
 
-                    $.plot($("#top5Customers"), ds, {
-                        series: { bars: { show: true, fill: 0.75, lineWidth: 0 } },
-                        grid: { labelMargin: 10, hoverable: true, clickable: true, tickColor: "#e6e7e8", borderWidth: 0 },
-                        colors: ["#8D96AF", "#556b8d"],
-                        xaxis: { tickColor: "transparent", ticks: companyNames, tickDecimals: 0, autoscaleMargin: 0, font: { color: '#8c8c8c', size: 12 } },
-                        yaxis: { ticks: 4, tickDecimals: 0, tickColor: "#e3e4e6", font: { color: '#8c8c8c', size: 12 } },
+        function GetExchangeDatabases()
+        {
+            $(".mailboxDatabases").block();
+            $.getJSON("@Url.Content("~/dashboard/exchange/databases")", function (data) {
+
+                    var names = [];
+                    var sizes = [];
+                    $.each(data.databases, function (index, database) {
+                        names.push(new Array(index, database.identity));
+                        sizes.push(new Array(index, database.databaseSizeInGB));
+                    });
+
+                    var ds = [];
+                    ds.push({ data: sizes, label: "Size In GB", bars: { show: true, barWidth: 0.2, order: 1 } });
+
+                    $.plot($("#exchangeDatabases"), ds, {
+                        series: { bars: { show: true, fill: 0.75, 'align': "center"  } },
+                        grid: { hoverable: true, clickable: false, borderWidth: 0 },
+                        xaxis: { tickColor: "transparent", ticks: names, tickDecimals: 2, font: { color: '#8c8c8c', size: 12 } },
+                        yaxis: { tickDecimals: 2 },
                         legend: { labelBoxBorderColor: 'transparent' }
                     });
 
                     var previousPointBar = null;
-                    $("#top5Customers").bind("plothover", function (event, pos, item) {
+                    $("#exchangeDatabases").bind("plothover", function (event, pos, item) {
                         $("#x").text(pos.x.toFixed(2));
                         $("#y").text(pos.y.toFixed(2));
                         if (item) {
@@ -239,7 +323,7 @@
                                 var x = item.datapoint[0].toFixed(2),
                                     y = item.datapoint[1].toFixed(2);
 
-                                showTooltip(item.pageX + 20, item.pageY, item.series.label + ": " + Math.round(y));
+                                showTooltip(item.pageX + 20, item.pageY, item.series.label + ": " + y);
 
                             }
                         } else {
@@ -247,8 +331,13 @@
                             previousPointBar = null;
                         }
                     });
-                }
-            });
+                })
+                .fail(function (data) {
+                    ShowError(data.responseJSON.error);
+                })
+                .always(function (data) {
+                    $(".mailboxDatabases").unblock();
+                });
         }
 
         function showTooltip(x, y, contents) {

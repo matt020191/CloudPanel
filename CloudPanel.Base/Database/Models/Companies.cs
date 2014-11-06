@@ -120,6 +120,9 @@ namespace CloudPanel.Base.Database.Models
 
         }
 
+        [NotMapped]
+        public int TotalUsers { get; set; }
+
         #endregion
     }
 }

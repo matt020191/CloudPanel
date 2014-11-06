@@ -35,6 +35,7 @@ using log4net;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Management.Automation;
 
@@ -1379,6 +1380,7 @@ namespace CloudPanel.Exchange
         {
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Get-MailboxDatabase");
+            cmd.AddParameter("Status");
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
 
@@ -1392,14 +1394,19 @@ namespace CloudPanel.Exchange
                 var listDatabases = new List<MailboxDatabase>();
                 foreach (PSObject ps in psObjects)
                 {
-                    listDatabases.Add(new MailboxDatabase()
-                        {
-                            Identity = ps.Members["Identity"].Value.ToString(),
-                            Guid = Guid.Parse(ps.Members["Guid"].Value.ToString()),
-                            IsMailboxDatabase = bool.Parse(ps.Members["IsMailboxDatabase"].Value.ToString()),
-                            LogFilePrefix = ps.Members["LogFilePrefix"].Value.ToString(),
-                            LogFolderPath = ps.Members["LogFolderPath"].Value.ToString()
-                        });
+                    var newDb = new MailboxDatabase();
+                    newDb.Identity = ps.Members["Identity"].Value.ToString();
+                    newDb.Guid = Guid.Parse(ps.Members["Guid"].Value.ToString());
+                    newDb.IsMailboxDatabase = bool.Parse(ps.Members["IsMailboxDatabase"].Value.ToString());
+                    newDb.LogFilePrefix = ps.Members["LogFilePrefix"].Value.ToString();
+                    newDb.LogFolderPath = ps.Members["LogFolderPath"].Value.ToString();
+
+                    if (ps.Members["DatabaseSize"].Value != null)
+                    {
+                        newDb.DatabaseSizeInBytes = GetExchangeBytes(ps.Members["DatabaseSize"].Value.ToString());
+                    }
+
+                    listDatabases.Add(newDb);
                 }
 
                 return listDatabases;
@@ -1790,6 +1797,23 @@ namespace CloudPanel.Exchange
                 return null;
             else
                 return int.Parse(bytes) / 1024;
+        }
+
+        internal long GetExchangeBytes(string data)
+        {
+            // Should be in this format: "768 MB (805,306,386 bytes)
+            logger.DebugFormat("Parsing Exchange bytes for {0}", data);
+            int startIndex = data.IndexOf("(");
+            int endIndex = data.LastIndexOf(")");
+
+            logger.DebugFormat("Start index of {0} is {1} and end index of {2}", data, startIndex, endIndex);
+            string subString = data.Substring(startIndex + 1, endIndex - startIndex - 1);
+
+            logger.DebugFormat("Substring of {0} is {1}", data, subString);
+            string[] numbersOnly = subString.Split(new[] { "bytes" }, StringSplitOptions.RemoveEmptyEntries);
+
+            logger.DebugFormat("Numbers only is {0}", numbersOnly[0].Trim());
+            return long.Parse(numbersOnly[0].Trim(), NumberStyles.AllowThousands, CultureInfo.InvariantCulture);            
         }
 
         #endregion
