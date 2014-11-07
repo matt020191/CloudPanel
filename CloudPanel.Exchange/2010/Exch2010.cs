@@ -1088,6 +1088,11 @@ namespace CloudPanel.Exchange
             HandleErrors();
         }
 
+        /// <summary>
+        /// Gets a specific mailbox
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public Users Get_Mailbox(Users user)
         {
             PSCommand cmd = new PSCommand();
@@ -1217,6 +1222,11 @@ namespace CloudPanel.Exchange
                 logger.DebugFormat("Adding send as access permissions method was called but toAdd parameter was null or empty");
         }
 
+        /// <summary>
+        /// Removes full access permissions from a mailbox
+        /// </summary>
+        /// <param name="userPrincipalName"></param>
+        /// <param name="toRemove"></param>
         public void Remove_FullAccessPermissions(string userPrincipalName, string[] toRemove)
         {
             if (toRemove != null && toRemove.Length > 0)
@@ -1245,6 +1255,11 @@ namespace CloudPanel.Exchange
                 logger.DebugFormat("Removing full access permissions method was called but toRemove parameter was null or empty");
         }
 
+        /// <summary>
+        /// Removes send as permissions from a mailbox
+        /// </summary>
+        /// <param name="distinguishedName"></param>
+        /// <param name="toRemove"></param>
         public void Remove_SendAsPermissions(string distinguishedName, string[] toRemove)
         {
             if (toRemove != null && toRemove.Length > 0)
@@ -1369,6 +1384,83 @@ namespace CloudPanel.Exchange
 
                 return listAccounts.ToArray();
             }
+        }
+
+        /// <summary>
+        /// Gets a specific users mailbox size
+        /// </summary>
+        /// <param name="userPrincipalName"></param>
+        /// <returns></returns>
+        public SvcMailboxSizes Get_MailboxSize(string userPrincipalName)
+        {
+            logger.DebugFormat("Getting mailbox size for {0}", userPrincipalName);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-MailboxStatistics");
+            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                var returnSize = new SvcMailboxSizes();
+                foreach (PSObject obj in psObjects)
+                {
+                    returnSize.UserPrincipalName = userPrincipalName;
+                    returnSize.MailboxDatabase = obj.Members["Database"].Value.ToString();
+                    returnSize.TotalItemSize = obj.Members["TotalItemSize"].Value.ToString();
+                    returnSize.TotalItemSizeInBytes = GetExchangeBytes(returnSize.TotalItemSize);
+                    returnSize.TotalDeletedItemSize = obj.Members["TotalDeletedItemSize"].Value.ToString();
+                    returnSize.TotalDeletedItemSizeInBytes = GetExchangeBytes(returnSize.TotalDeletedItemSize);
+
+                    int itemCount = 0;
+                    int.TryParse(obj.Members["ItemCount"].Value.ToString(), out itemCount);
+                    returnSize.ItemCount = itemCount;
+
+                    int deletedItemCount = 0;
+                    int.TryParse(obj.Members["DeletedItemCount"].Value.ToString(), out deletedItemCount);
+                    returnSize.DeletedItemCount = deletedItemCount;
+
+                    returnSize.Retrieved = DateTime.Now;
+                    break;
+                }
+
+                logger.DebugFormat("Successfully retrieves mailbox statistics for {0}: {1}, {2}, {3}, {4}, {5}, {6}, {7}",
+                    userPrincipalName, returnSize.MailboxDatabase, returnSize.TotalItemSize, returnSize.TotalItemSizeInBytes,
+                    returnSize.TotalDeletedItemSize, returnSize.TotalDeletedItemSizeInBytes, returnSize.ItemCount, returnSize.DeletedItemCount);
+
+                return returnSize;
+            }
+        }
+
+        /// <summary>
+        /// Gets all mailbox sizes for the list of userprincipalnames passed
+        /// </summary>
+        /// <param name="userPrincipalNames"></param>
+        /// <returns></returns>
+        public List<SvcMailboxSizes> Get_AllMailboxSizes(string[] userPrincipalNames)
+        {
+            logger.DebugFormat("Getting all mailbox sizes");
+
+            var allSizes = new List<SvcMailboxSizes>();
+            foreach (var user in userPrincipalNames)
+            {
+                logger.DebugFormat("Processing mailbox size for {0}", user);
+                try
+                {
+                    var size = Get_MailboxSize(user);
+                    allSizes.Add(size);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Failed to process mailbox size for {0}: {1}", user, ex.ToString());
+                }
+            }
+
+            return allSizes;
         }
 
         #endregion

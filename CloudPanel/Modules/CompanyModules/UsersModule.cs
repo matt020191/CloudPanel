@@ -75,8 +75,8 @@ namespace CloudPanel.Modules
                                      MailboxPlanAS = mailboxplan == null ? false : mailboxplan.EnableAS,
                                      MailboxPlanECP = mailboxplan == null ? false : mailboxplan.EnableECP,
                                      MailboxDatabase = mailboxinfo == null ? "" : mailboxinfo.MailboxDatabase,
-                                     MailboxSizeInKB = mailboxinfo == null ? "" : mailboxinfo.TotalItemSizeInKB,
-                                     MailboxDeletedSizeInKB = mailboxinfo == null ? "" : mailboxinfo.TotalDeletedItemSizeInKB,
+                                     MailboxSize = mailboxinfo == null ? 0 : mailboxinfo.TotalItemSizeInBytes,
+                                     MailboxDeletedSize = mailboxinfo == null ? 0 : mailboxinfo.TotalDeletedItemSizeInBytes,
                                      MailboxItemCount = mailboxinfo == null ? 0 : mailboxinfo.ItemCount,
                                      MailboxDeletedItemCount = mailboxinfo == null ? 0 : mailboxinfo.DeletedItemCount,
                                      MailboxInfoRetrieved = mailboxinfo == null ? "" : mailboxinfo.Retrieved.ToString(),
@@ -341,15 +341,15 @@ namespace CloudPanel.Modules
                             logger.DebugFormat("Finished cleanup for {0}", upn);
                             db.SaveChanges();
 
-                            return Negotiate.WithModel(new { success = "Deleted user " + upn })
-                                            .WithView("Company/users.cshtml");
+                            return Negotiate.WithModel(new { success = "Deleted user " + upn });
                         }
                     }
                 }
                 catch (Exception ex)
                 {
+                    logger.DebugFormat("Error deleting user: {0}", ex.ToString());
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("Company/users.cshtml");
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally
                 {

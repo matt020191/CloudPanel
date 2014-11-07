@@ -1,4 +1,5 @@
-﻿using CloudPanel.Base.Config;
+﻿using CloudPanel.ActiveDirectory;
+using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Exchange;
@@ -187,6 +188,51 @@ namespace CloudPanel.Modules.CompanyModules
                 }
 
                 #endregion
+            };
+
+            Post["/resetpassword"] = _ =>
+            {
+                string upn = _.UserPrincipalName;
+                string companyCode = _.CompanyCode;
+
+                ADUsers adUser = null;
+                CloudPanelContext db = null;
+                try
+                {
+                    if (!Request.Form.Password.HasValue)
+                        throw new MissingFieldException("", "Password");
+
+                    upn = Request.Form.UserPrincipalName;
+                    db = new CloudPanelContext(Settings.ConnectionString);
+
+                    var user = (from d in db.Users
+                                where d.CompanyCode == companyCode
+                                where d.UserPrincipalName == upn
+                                select d).FirstOrDefault();
+                    if (user == null)
+                        throw new Exception("User was not found in database.");
+                    else
+                    {
+                        adUser = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                        adUser.ResetPassword(upn, Request.Form.Password);
+                    }
+
+                    return Negotiate.WithModel(new { success = "Successfully reset password for " + upn });
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error resetting user {0}'s password", upn);
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
+                }
+                finally
+                {
+                    if (db != null)
+                        db.Dispose();
+
+                    if (adUser != null)
+                        adUser.Dispose();
+                }
             };
         }
 

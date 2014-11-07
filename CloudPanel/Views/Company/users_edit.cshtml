@@ -450,41 +450,41 @@
             if (mailboxRetrieved == false) {
                 $("#blockui").block();
                 $.getJSON(window.location.href + "/mailbox", function (data) {
-                    $("#EmailFirst").val(data.mailbox.emailFirst);
-                    $("#EmailDomain option").filter(function () {
-                        return $(this).text() == data.mailbox.emailDomain;
-                    }).prop('selected', true);
+                        $("#EmailFirst").val(data.mailbox.emailFirst);
+                        $("#EmailDomain option").filter(function () {
+                            return $(this).text() == data.mailbox.emailDomain;
+                        }).prop('selected', true);
 
-                    $("#EmailAliases").tokenfield("setTokens", data.mailbox.emailAliases);
-                    $("#EmailSendOnBehalf").select2("val", data.mailbox.emailSendOnBehalf);
+                        $("#EmailAliases").tokenfield("setTokens", data.mailbox.emailAliases);
+                        $("#EmailSendOnBehalf").select2("val", data.mailbox.emailSendOnBehalf);
 
-                    $("#EmailFullAccess").select2("val", data.mailbox.emailFullAccess);
-                    $.each(data.mailbox.emailFullAccess, function (i, val) {
-                        if ($("#EmailFullAccess option[value='" + val + "']").length > 0) {
-                            $("#EmailFullAccessOriginal").val($("#EmailFullAccessOriginal").val() + val + ",");
+                        $("#EmailFullAccess").select2("val", data.mailbox.emailFullAccess);
+                        $.each(data.mailbox.emailFullAccess, function (i, val) {
+                            if ($("#EmailFullAccess option[value='" + val + "']").length > 0) {
+                                $("#EmailFullAccessOriginal").val($("#EmailFullAccessOriginal").val() + val + ",");
+                            }
+                        });
+
+                        $("#EmailSendAs").select2("val", data.mailbox.emailSendAs);
+                        $.each(data.mailbox.emailSendAs, function (i, val) {
+                            if ($("#EmailSendAs option[value='" + val + "']").length > 0) {
+                                $("#EmailSendAsOriginal").val($("#EmailSendAsOriginal").val() + val + ",");
+                            }
+                        });
+
+                        if (data.mailbox.litigationHoldEnabled == true) {
+                            $("#LitigationHoldEnabled").click();
                         }
-                    });
-
-                    $("#EmailSendAs").select2("val", data.mailbox.emailSendAs);
-                    $.each(data.mailbox.emailSendAs, function (i, val) {
-                        if ($("#EmailSendAs option[value='" + val + "']").length > 0) {
-                            $("#EmailSendAsOriginal").val($("#EmailSendAsOriginal").val() + val + ",");
-                        }
-                    });
-
-                    if (data.mailbox.litigationHoldEnabled == true) {
-                        $("#LitigationHoldEnabled").click();
-                    }
-                    $("#LitigationHoldDate").val(data.mailbox.litigationHoldDate);
-                    $("#RetentionComment").val(data.mailbox.retentionComment);
-                    $("#RetentionUrl").val(data.mailbox.retentionUrl);
-                })
+                        $("#LitigationHoldDate").val(data.mailbox.litigationHoldDate);
+                        $("#RetentionComment").val(data.mailbox.retentionComment);
+                        $("#RetentionUrl").val(data.mailbox.retentionUrl);
+                    })
                     .done(function (data) {
                         mailboxRetrieved = true;
                     })
                     .fail(function (data) {
                         $('#submit').attr('disabled', 'disabled');
-                        AppendError(data.responseJSON.error);
+                        ShowError(data.responseJSON.error);
                     })
                     .always(function (data) {
                         $("#blockui").unblock();

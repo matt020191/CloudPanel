@@ -310,4 +310,9 @@ $('#search').click(function(event) {
 });
 
 //Presentational: set all panel-body with br0 if it has panel-footer
-$(".panel-footer").prev().css("border-radius","0");
+$(".panel-footer").prev().css("border-radius", "0");
+
+//
+// CLOUDPANEL
+// SPECIFIC
+//

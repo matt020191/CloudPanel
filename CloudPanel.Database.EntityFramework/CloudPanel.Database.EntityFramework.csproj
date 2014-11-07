@@ -84,6 +84,14 @@
     <Compile Include="Migrations\201410270059430_UpdateActiveSyncCompanyCodeNull.Designer.cs">
       <DependentUpon>201410270059430_UpdateActiveSyncCompanyCodeNull.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201411071857293_ConvertSizeFromKBtoBytes.cs" />
+    <Compile Include="Migrations\201411071857293_ConvertSizeFromKBtoBytes.Designer.cs">
+      <DependentUpon>201411071857293_ConvertSizeFromKBtoBytes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201411071913146_AddBytesColumn.cs" />
+    <Compile Include="Migrations\201411071913146_AddBytesColumn.Designer.cs">
+      <DependentUpon>201411071913146_AddBytesColumn.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -121,6 +129,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201410270059430_UpdateActiveSyncCompanyCodeNull.resx">
       <DependentUpon>201410270059430_UpdateActiveSyncCompanyCodeNull.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201411071857293_ConvertSizeFromKBtoBytes.resx">
+      <DependentUpon>201411071857293_ConvertSizeFromKBtoBytes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201411071913146_AddBytesColumn.resx">
+      <DependentUpon>201411071913146_AddBytesColumn.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

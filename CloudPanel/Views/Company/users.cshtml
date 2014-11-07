@@ -125,7 +125,6 @@
 
 <!-- Reset Password -->
 <form id="resetForm" action="" method="post" data-parsley-validate>
-    <input type="hidden" name="_method" value="PUT" />
     <div id="resetModal" class="modal fade">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -140,7 +139,7 @@
                             <div class="col-sm-9">
                                 <input type="password" class="form-control" id="Password" name="Password" data-parsley-required="true">
                                 <input id="GeneratePassword" name="GeneratePassword" type="checkbox" /> Generate Password
-                                <input id="UserPrincipalName" name="UserPrincipalName" type="hidden" />
+                                <input id="UserPrincipalName" name="UserPrincipalName" type="hidden" data-parsley-required="true" />
                             </div>
                         </div>
                     </div>
@@ -237,7 +236,22 @@
                     { "data": "userPrincipalName" },
                     { "data": "department" },
                     { "data": "userGuid", "orderable": false, "className": "text-center", "render": function (data, type, full, meta) { return GetUserFeatures(full["isEnabled"], full["isCompanyAdmin"], full["isResellerAdmin"], (full["mailboxPlan"] > 0)); } },
-                    { "data": "userPrincipalName", "orderable": false, "className": "text-right", "render": function (data, type, full, meta) { return GetButton(data); } },
+                    {
+                        "data": "userPrincipalName", "orderable": false, "className": "text-right", "render": function (data, type, full, meta)
+                        {
+                            return '<div class="btn-group"> \
+                                            <button type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown"> \
+                                                Modify <span class="caret"></span> \
+                                            </button> \
+                                            <ul class="dropdown-menu" role="menu"> \
+                                                <li><a href="@Url.Content("~/company/" + this.RenderContext.Context.GetCompanyCode() + "/users/")' + data + '">Edit</a></li> \
+                                                <li><a href="javascript:;" onclick="DeleteUser(\''+ data + '\');">Delete</a></li> \
+                                                <li class="divider"></li> \
+                                                <li><a href="javascript:;" onclick="ShowReset(\''+ data + '\');">Reset Password</a></li> \
+                                            </ul> \
+                                    </div>';
+                        }
+                    },
                 ],
                 "createdRow": function (row, data, index) {
                     $(row).find(".tooltip-ex").tooltip();
@@ -270,6 +284,9 @@
             });
         });
 
+        //
+        // Prompts the user to ask if they want to delete or not
+        //
         function DeleteUser(userPrincipalName) {
             swal({
                 title: "Delete " + userPrincipalName + "?",
@@ -297,30 +314,22 @@
             });
         }
 
+        //
+        // Shows the reset modal which allows the user to put in a password and reset 
+        //
         function ShowReset(upn) {
-            $("#resetModal").find("#UserPrincipalName").val(upn);
+            $("#resetModal #UserPrincipalName").val(upn);
             $("#resetModal").modal("show");
         }
 
-        function GetButton(upn) {
-            return '<div class="btn-group"> \
-                            <button type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown"> \
-                                Modify <span class="caret"></span> \
-                            </button> \
-                            <ul class="dropdown-menu" role="menu"> \
-                                <li><a href="@Url.Content("~/company/" + this.RenderContext.Context.GetCompanyCode() + "/users/")' + upn + '">Edit</a></li> \
-                                <li><a href="javascript:;" onclick="DeleteUser(\''+ upn + '\');">Delete</a></li> \
-                                <li class="divider"></li> \
-                                <li><a href="javascript:;" onclick="ShowReset(\''+ upn + '\');">Reset Password</a></li> \
-                            </ul> \
-                    </div>';
-        }
-
+        //
+        // Modifies the default form events and overrides them
+        //
         function AddFormHandlers() {
             $("#newForm").submit(function (event) {
                 event.preventDefault();
                 var data = $("#newForm").serialize();
-         
+
                 $.blockUI();
                 $.post("", data).done(function (returnData) {
                     $("#newModal").modal("hide");
@@ -331,6 +340,127 @@
                 }).always(function () {
                     $.unblockUI();
                 });
+            });
+
+            $("#resetForm").submit(function (event) {
+                event.preventDefault();
+                var data = $("#resetForm").serialize();
+                var url = "@Url.Content("~/company/"+this.RenderContext.Context.GetCompanyCode()+"/users/")" + $("#resetForm #userPrincipalName").val() + "/resetpassword";
+
+                $.blockUI();
+                $.post(url, data).done(function (returnData) {
+                    $("#resetModal").modal("hide");
+                    ShowSuccess(returnData.success);
+                }).fail(function (returnData) {
+                    ShowError(returnData.responseJSON.error);
+                }).always(function () {
+                    $.unblockUI();
+                });
+            });
+        }
+
+        //
+        // Formats the child table under each user
+        //
+        function FormatUsersChildTable(d) {
+            var returnData = '<table class="table table-striped table-condensed table-bordered">' +
+                                      '<tr><td align="right" width="200px">GUID:</td><td>' + d.userGuid + '</td></tr>' +
+                                      '<tr><td align="right">SamAccountName:</td><td>' + d.samAccountName + '</td></tr>' +
+                                      '<tr><td align="right">Created:</td><td>' + moment(d.created).format('LLLL') + '</td></tr>' +
+                                      '</table>';
+
+            if (d.mailboxPlan > 0) {
+                returnData += '<table class="table table-striped table-condensed table-bordered">' +
+                              '<tr><td align="right" width="200px">Plan:</td><td>' + d.mailboxPlanName + '</td></tr>' +
+                              '<tr><td align="right">Features:</td><td>' + GetMailboxFeatures(d) + '</td></tr>' +
+                              '<tr><td align="right">Size:</td><td>' + GetMailboxSizeProgressBar(d.userPrincipalName, d.mailboxSize, d.mailboxPlanSize + d.additionalMB) + '</td></tr>' +
+                              '<tr><td align="right">Deleted Size:</td><td>' + bytesToSize(d.mailboxDeletedSize) + '</td></tr>' +
+                              '<tr><td align="right">Item Count:</td><td>' + d.mailboxItemCount + '</td></tr>' +
+                              '<tr><td align="right">Deleted Item Count:</td><td>' + d.mailboxDeletedItemCount + '</td></tr>' +
+                              '<tr><td align="right">Info Retrieved:</td><td>' + d.mailboxInfoRetrieved + '</td></tr>' +
+                              '</table>';
+            }
+
+            return returnData + '</table>';
+        }
+
+        //
+        // Formats the list of mailbox features the user has
+        //
+        function GetMailboxFeatures(d) {
+            var returnData = "";
+
+            if (d.mailboxPlanPOP3) { returnData += '<span class="label label-default">POP3</span>' }
+            if (d.mailboxPlanIMAP) { returnData += '<span class="label label-primary">IMAP</span>' }
+            if (d.mailboxPlanOWA) { returnData += '<span class="label label-success">OWA</span>' }
+            if (d.mailboxPlanMAPI) { returnData += '<span class="label label-info">MAPI</span>' }
+            if (d.mailboxPlanAS) { returnData += '<span class="label label-warning">ActiveSync</span>' }
+
+            return returnData;
+        }
+
+        //
+        // Gets a list of features the user has and displays them in the table
+        //
+        function GetUserFeatures(isEnabled, isCompanyAdmin, isResellerAdmin, hasMailbox) {
+            var html = [];
+
+            if (!isEnabled)
+                html.push('<span class="badge badge-danger tooltip-ex" data-toggle="tooltip" data-original-title="User is Disabled"><i class="fa fa-frown-o"></i></span><span class="tab-space"></span>');
+
+            if (isCompanyAdmin)
+                html.push('<span class="badge badge-success tooltip-ex" data-toggle="tooltip" data-original-title="Company Administrator"><i class="fa fa-gear"></i></span><span class="tab-space"></span>');
+
+            if (isResellerAdmin)
+                html.push('<span class="badge badge-info tooltip-ex" data-toggle="tooltip" data-original-title="Reseller Administrator"><i class="fa fa-gears"></i></span><span class="tab-space"></span>');
+
+            if (hasMailbox)
+                html.push('<span class="badge badge-warning tooltip-ex" data-toggle="tooltip" data-original-title="Has a Mailbox"><i class="fa fa-envelope"></i></span><span class="tab-space"></span>');
+
+            return html.join("");
+        }
+
+        //
+        // Formats the mailbox size progress bar
+        //
+        function GetMailboxSizeProgressBar(upn, minInBytes, maxInMB) {
+            if (maxInMB == 0)
+                return "";
+            else {
+                var maxInKB = (maxInMB * 1024);
+
+                var minInKB = 0;
+                if (minInBytes > 0)
+                    minInKB = minInBytes / 1024; // Convert size to KB since we are comparing that to the max which is in KB
+
+                if (minInKB > maxInKB)
+                    maxInKB = minInKB;
+
+                var percent = Math.round((minInKB * 100) / maxInKB);
+                var title = bytesToSize(minInKB * 1024) + " / " + bytesToSize(maxInKB * 1024);
+                return '<div class="">\
+                            <div class="clearfix">\
+                                <div class="progress-title" style="float: left">'+ title + '</div>\
+                                <div class="progress-percentage" style="float: right; position: relative">'+ percent + '% <a href="javascript:GetMailboxSize(\'' + upn + '\');"><i class="fa fa-refresh"></i></div>\
+                            </div>\
+                            <div class="progress">\
+                                <div class="progress-bar progress-bar-info" style="width: '+ percent + '%"></div>\
+                            </div>\
+                        </div>';
+            }
+        }
+        
+        //
+        // Queries Exchange for an updated mailbox size for the user
+        //
+        function GetMailboxSize(upn) {
+            $(".panel").block();
+            $.getJSON("@Url.Content("~/company/" + this.RenderContext.Context.GetCompanyCode() + "/exchange/mailbox/size/")" + upn, function (data) {
+                ReloadTable("dataTable");
+            }).fail(function (data) {
+                ShowError(data.responseJSON.error);
+            }).always(function () {
+                $(".panel").unblock();
             });
         }
     </script>

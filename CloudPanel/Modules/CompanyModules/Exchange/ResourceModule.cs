@@ -17,7 +17,12 @@ namespace CloudPanel.Modules
         {
             this.RequiresAuthentication();
 
-            Get["/"] = _ =>
+            Get["/", c => c.Request.Accept("text/html")] = _ =>
+            {
+                return View["Company/Exchange/resourcemailboxes.cshtml"];
+            };
+
+            Get["/", c => c.Request.Accept("application/json")] = _ =>
             {
                 #region Returns the groups view with model or json data based on the request
                 CloudPanelContext db = null;
@@ -39,7 +44,7 @@ namespace CloudPanel.Modules
                                                  DisplayName = d.DisplayName,
                                                  CompanyCode = d.CompanyCode,
                                                  UserPrincipalName = d.UserPrincipalName,
-                                                 PrimarySmtpAddress =d.PrimarySmtpAddress,
+                                                 PrimarySmtpAddress = d.PrimarySmtpAddress,
                                                  ResourceType = d.ResourceType,
                                                  MailboxPlanID = d.MailboxPlan,
                                                  MailboxPlanName = data1.MailboxPlanName,
@@ -96,12 +101,12 @@ namespace CloudPanel.Modules
                                         recordsFiltered = recordsFiltered,
                                         data = resourceMailboxes
                                     })
-                                    .WithView("Company/Exchange/company_resourcemailboxes.cshtml");
+                                    .WithView("Company/Exchange/resourcemailboxes.cshtml");
                 }
                 catch (Exception ex)
                 {
                     return Negotiate.WithMediaRangeModel("application/json", new { error = ex.Message })
-                                    .WithView("Company/Exchange/company_resourcemailboxes.cshtml");
+                                    .WithView("Company/Exchange/resourcemailboxes.cshtml");
                 }
                 finally
                 {

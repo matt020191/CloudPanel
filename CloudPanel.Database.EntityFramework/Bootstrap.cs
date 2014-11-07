@@ -145,14 +145,6 @@ namespace CloudPanel.Database.EntityFramework
                 .Property(e => e.MailboxDatabase)
                 .IsUnicode(false);
 
-            modelBuilder.Entity<SvcMailboxSizes>()
-                .Property(e => e.TotalItemSizeInKB)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<SvcMailboxSizes>()
-                .Property(e => e.TotalDeletedItemSizeInKB)
-                .IsUnicode(false);
-
             modelBuilder.Entity<SvcQueue>()
                 .Property(e => e.UserPrincipalName)
                 .IsUnicode(false);
