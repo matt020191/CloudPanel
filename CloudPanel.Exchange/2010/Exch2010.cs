@@ -532,7 +532,6 @@ namespace CloudPanel.Exchange
                 cmd.AddParameter("Identity", group.DistinguishedName);
                 cmd.AddParameter("CustomAttribute1", group.CompanyCode);
                 cmd.AddParameter("HiddenFromAddressListsEnabled", group.Hidden);
-                cmd.AddParameter("RequireSenderAuthenticationEnabled", group.RequireSenderAuthenticationEnabled);
                 cmd.AddParameter("DomainController", this._domainController);
 
                 bool requireSenderAuth = true;
