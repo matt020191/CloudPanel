@@ -49,11 +49,17 @@ namespace CloudPanel.Base.Database.Models
 
         [Required]
         [StringLength(255)]
-        public string TotalItemSizeInKB { get; set; }
+        public string TotalItemSize { get; set; }
+
+        [Required]
+        public long TotalItemSizeInBytes { get; set; }
 
         [Required]
         [StringLength(255)]
-        public string TotalDeletedItemSizeInKB { get; set; }
+        public string TotalDeletedItemSize { get; set; }
+
+        [Required]
+        public long TotalDeletedItemSizeInBytes { get; set; }
 
         public int ItemCount { get; set; }
 

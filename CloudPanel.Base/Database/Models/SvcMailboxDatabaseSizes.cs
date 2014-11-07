@@ -51,6 +51,9 @@ namespace CloudPanel.Base.Database.Models
         [StringLength(255)]
         public string DatabaseSize { get; set; }
 
+        [Required]
+        public long DatabaseSizeInBytes { get; set; }
+
         public DateTime Retrieved { get; set; }
     }
 }
