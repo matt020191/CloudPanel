@@ -77,20 +77,33 @@
                     @if (Model != null)
                     {
                         var dict = ((System.Collections.Generic.IDictionary<string, object>)Model);
-                        if (dict.ContainsKey("success")) {
-                            <script type="text/javascript">ShowSuccess("@Model.success");</script>
+                        if (dict.ContainsKey("success"))
+                        {
+                            <div class="alert alert-dismissable alert-success">
+                                <strong>Success</strong> @Model.success
+                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                            </div>
                         }
                         if (dict.ContainsKey("info"))
                         {
-                            <script type="text/javascript">ShowAlert("Info!", "@Model.info", "info");</script>
+                            <div class="alert alert-dismissable alert-info">
+                                <strong>Heads up!</strong> @Model.info
+                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                            </div>
                         }
                         if (dict.ContainsKey("warning"))
                         {
-                            <script type="text/javascript">ShowWarning("@Model.warning");</script>
+                            <div class="alert alert-dismissable alert-warning">
+                                <strong>Warning!</strong> @Model.warning
+                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                            </div>
                         }
                         if (dict.ContainsKey("error"))
                         {
-                            <script type="text/javascript">ShowError("@Model.error");</script>
+                            <div class="alert alert-dismissable alert-danger">
+                                <strong>Oh snap!</strong> @Model.error
+                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                            </div>
                         }
                     }
                 </div>

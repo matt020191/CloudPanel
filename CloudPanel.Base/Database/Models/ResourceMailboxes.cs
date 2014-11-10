@@ -40,6 +40,8 @@ namespace CloudPanel.Base.Database.Models
         [Key]
         public int ResourceID { get; set; }
 
+        public string DistinguishedName { get; set; }
+
         [Required]
         [StringLength(255)]
         public string DisplayName { get; set; }
@@ -68,9 +70,6 @@ namespace CloudPanel.Base.Database.Models
 
         [NotMapped]
         public int SizeInMB { get; set; }
-
-        [NotMapped]
-        public string DistinguishedName { get; set; }
 
         [NotMapped]
         public string EmailDomain

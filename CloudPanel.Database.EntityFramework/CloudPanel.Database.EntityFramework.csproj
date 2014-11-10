@@ -92,6 +92,10 @@
     <Compile Include="Migrations\201411071913146_AddBytesColumn.Designer.cs">
       <DependentUpon>201411071913146_AddBytesColumn.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201411101734011_AddDNToResourceTable.cs" />
+    <Compile Include="Migrations\201411101734011_AddDNToResourceTable.Designer.cs">
+      <DependentUpon>201411101734011_AddDNToResourceTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -135,6 +139,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201411071913146_AddBytesColumn.resx">
       <DependentUpon>201411071913146_AddBytesColumn.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201411101734011_AddDNToResourceTable.resx">
+      <DependentUpon>201411101734011_AddDNToResourceTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

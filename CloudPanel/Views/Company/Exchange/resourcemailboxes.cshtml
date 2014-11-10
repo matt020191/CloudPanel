@@ -162,8 +162,6 @@
     <script src="~/Content/js/cloudpanel.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            AddFormHandlers();
-
             $("#dataTable").DataTable({
                 "serverSide": true,
                 "processing": true,
@@ -229,25 +227,6 @@
             }
 
             $("#mailboxPlanDescription").text(description)
-        }
-
-        function AddFormHandlers()
-        {
-            $("#newForm").submit(function (event) {
-                event.preventDefault();
-                var data = $("#newForm").serialize();
-
-                $.blockUI();
-                $.post("", data).done(function (returnData) {
-                    $("#newModal").modal("hide");
-                    ReloadTable("dataTable");
-                    ShowSuccess(returnData.success);
-                }).fail(function (returnData) {
-                    ShowError(returnData.responseJSON.error);
-                }).always(function () {
-                    $.unblockUI();
-                });
-            });
         }
 
         function DeleteResource(resourceUPN) {

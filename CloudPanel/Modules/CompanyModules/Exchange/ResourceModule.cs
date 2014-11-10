@@ -235,11 +235,6 @@ namespace CloudPanel.Modules
                 #endregion
             };
 
-            Put["/"] = _ =>
-            {
-                return HttpStatusCode.InternalServerError;
-            };
-
             Delete["/"] = _ =>
             {
                 #region Deletes a resource
@@ -316,13 +311,15 @@ namespace CloudPanel.Modules
                 }];
             };
 
-            Get["/{UserPrincipalName}", c => c.Request.Accept("application/json")] = _ =>
+            Get["/{UserPrincipalName}", c => !c.Request.Accept("text/html")] = _ =>
             {
+                #region Gets the resource mailbox information
                 CloudPanelContext db = null;
                 dynamic powershell = null;
                 try
                 {
                     db = new CloudPanelContext(Settings.ConnectionString);
+                    db.Database.Connection.Open();
                     
                     string companyCode = _.CompanyCode;
                     string upn = _.UserPrincipalName;
@@ -345,6 +342,10 @@ namespace CloudPanel.Modules
                         getMailbox.DisplayName = resourceMailbox.DisplayName;
                         getMailbox.AdditionalMB = resourceMailbox.AdditionalMB;
 
+                        // Update DistinguishedName in database
+                        resourceMailbox.DistinguishedName = getMailbox.DistinguishedName;
+                        db.SaveChanges();
+
                         if (getMailbox == null)
                             throw new Exception("Unable to find mailbox in Exchange " + resourceMailbox.UserPrincipalName);
                         else
@@ -366,8 +367,227 @@ namespace CloudPanel.Modules
                     if (db != null)
                         db.Dispose();
                 }
-                return View["Company/Exchange/resourcemailboxes_edit.cshtml"];
+                #endregion
             };
+
+            Post["/{UserPrincipalName}"] = _ =>
+            {
+                CloudPanelContext db = null;
+                dynamic powershell = null;
+                try
+                {
+                    db = new CloudPanelContext(Settings.ConnectionString);
+
+                    string companyCode = _.CompanyCode;
+                    string upn = _.UserPrincipalName;
+
+                    if (!Request.Form.EmailFirst.HasValue)
+                        throw new MissingFieldException("", "EmailFirst");
+
+                    if (!Request.Form.EmailDomain.HasValue)
+                        throw new MissingFieldException("", "EmailDomain");
+
+                    logger.DebugFormat("Getting resource mailbox {0} in company {1}", upn, companyCode);
+                    var resourceMailbox = (from d in db.ResourceMailboxes
+                                           where d.CompanyCode == companyCode
+                                           where d.UserPrincipalName == upn
+                                           select d).FirstOrDefault();
+
+                    var acceptedDomains = (from d in db.Domains
+                                        where d.IsAcceptedDomain
+                                        where d.CompanyCode == companyCode
+                                        select d).ToList();
+
+                    if (resourceMailbox == null)
+                        throw new Exception("Unable to find resource mailbox in the database: " + upn);
+
+                    if (acceptedDomains == null)
+                        throw new Exception("Unable to find any accepted domains for company " + companyCode);
+
+                    string selectedId = Request.Form.EmailDomain;
+                    var selectedDomain = (from d in acceptedDomains
+                                          where d.DomainID.ToString() == selectedId
+                                          select d).FirstOrDefault();
+
+                    if (selectedDomain == null)
+                        throw new Exception("Unable to find a matching domain for " + selectedId);
+
+                    var boundMailbox = this.Bind<ResourceMailboxes>();
+                    boundMailbox.DistinguishedName = resourceMailbox.DistinguishedName;
+                    boundMailbox.UserPrincipalName = upn;
+                    boundMailbox.CompanyCode = companyCode;
+                    boundMailbox.PrimarySmtpAddress = string.Format("{0}@{1}", Request.Form.EmailFirst, selectedDomain.Domain);
+
+                    logger.DebugFormat("Retrieving the mailbox plan {0}", boundMailbox.MailboxPlan);
+                    var plan = (from d in db.Plans_ExchangeMailbox
+                                    where d.MailboxPlanID == boundMailbox.MailboxPlan
+                                    select d).FirstOrDefault();
+
+                    if (plan == null)
+                        throw new Exception("Unable to find mailbox plan " + boundMailbox.MailboxPlan);
+                    else
+                    {
+                        logger.DebugFormat("Processing email aliases...");
+                        var emailAddresses = ValidateEmails(ref boundMailbox, acceptedDomains);
+
+                        logger.DebugFormat("Updating Exchange");
+                        powershell = ExchPowershell.GetClass();
+                        switch (resourceMailbox.ResourceType.ToLower())
+                        {
+                            case "room":
+                                powershell.Set_RoomMailbox(boundMailbox, plan, emailAddresses.ToArray());
+                                break;
+                            case "equipment":
+                                powershell.Set_EquipmentMailbox(boundMailbox, plan, emailAddresses.ToArray());
+                                break;
+                            case "shared":
+                                powershell.Set_SharedMailbox(boundMailbox, plan, emailAddresses.ToArray());
+                                break;
+                            default:
+                                throw new Exception("Unable to determine the resource type: " + resourceMailbox.ResourceType);
+                        }
+                    
+
+                        logger.DebugFormat("Processing full access permissions for {0}", boundMailbox.UserPrincipalName);
+                        ProcessFullAccess(boundMailbox.UserPrincipalName, ref powershell, boundMailbox.EmailFullAccessOriginal, boundMailbox.EmailFullAccess, true);
+
+                        logger.DebugFormat("Processing send as permissions for {0}", boundMailbox.UserPrincipalName);
+                        ProcessSendAs(boundMailbox.DistinguishedName, ref powershell, boundMailbox.EmailSendAsOriginal, boundMailbox.EmailSendAs);
+
+                        return Negotiate.WithModel(new { success = "Successfully updated resource mailbox" });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Unable to update resource mailbox: {0}", ex.ToString());
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithStatusCode(HttpStatusCode.InternalServerError)
+                                    .WithView("error.cshtml");
+                }
+                finally
+                {
+                    if (db != null)
+                        db.Dispose();
+                }
+            };
+        }
+
+        private List<string> ValidateEmails(ref ResourceMailboxes boundMailbox, List<Domains> validDomains)
+        {
+            var validatedList = new List<string>() { "SMTP:" + boundMailbox.PrimarySmtpAddress };
+
+            if (boundMailbox.EmailAliases != null)
+            {
+                foreach (var email in boundMailbox.EmailAliases)
+                {
+                    if (!string.IsNullOrEmpty(email))
+                    {
+                        logger.DebugFormat("Validating alias {0} but removing spaces first", email);
+                        var e = email.Replace(" ", string.Empty);
+
+                        string[] split = e.Split('@');
+                        var findDomain = (from d in validDomains
+                                          where d.Domain.Equals(split[1], StringComparison.CurrentCultureIgnoreCase)
+                                          select d).FirstOrDefault();
+
+                        if (findDomain == null)
+                            throw new Exception("Domain " + split[1] + " is not a valid domain for this company");
+                        else
+                        {
+                            if (!e.StartsWith("sip:") && !e.StartsWith("X500") && !e.StartsWith("X400"))
+                                validatedList.Add("smtp:" + e);
+                            else
+                                validatedList.Add(e);
+                        }
+                    }
+                }
+            }
+
+            logger.DebugFormat("Formatted email aliases are: {0}", String.Join(",", validatedList));
+            return validatedList;
+        }
+
+        /// <summary>
+        /// Adds or removes full access permissions
+        /// </summary>
+        /// <param name="upn"></param>
+        /// <param name="powershell"></param>
+        /// <param name="original"></param>
+        /// <param name="current"></param>
+        /// <param name="autoMapping"></param>
+        private void ProcessFullAccess(string upn, ref dynamic powershell, string[] original, string[] current, bool autoMapping = true)
+        {
+            var toAdd = new List<string>();
+            var toRemove = new List<string>();
+
+            logger.DebugFormat("Processing full access permissions");
+            if (original != null && current != null)
+            {
+                logger.DebugFormat("Both original and current were not null");
+                toAdd = (from c in current
+                         where !original.Contains(c)
+                         select c).ToList();
+
+                toRemove = (from c in original
+                            where !current.Contains(c)
+                            select c).ToList();
+            }
+
+            logger.DebugFormat("Checking if all values were removed");
+            if (original != null && current == null)
+                toRemove.AddRange(original);
+
+            logger.DebugFormat("Checking is original was null");
+            if (original == null && current != null)
+                toAdd.AddRange(current);
+
+            logger.DebugFormat("Continuing...");
+            if (toAdd != null && toAdd.Count() > 0)
+                powershell.Add_FullAccessPermissions(upn, toAdd.ToArray(), autoMapping);
+
+            if (toRemove != null && toRemove.Count() > 0)
+                powershell.Remove_FullAccessPermissions(upn, toRemove.ToArray());
+        }
+
+        /// <summary>
+        /// Adds or removes send as permissions
+        /// </summary>
+        /// <param name="distinguishedName"></param>
+        /// <param name="powershell"></param>
+        /// <param name="original"></param>
+        /// <param name="current"></param>
+        private void ProcessSendAs(string distinguishedName, ref dynamic powershell, string[] original, string[] current)
+        {
+            var toAdd = new List<string>();
+            var toRemove = new List<string>();
+
+            logger.DebugFormat("Processing send as permissions");
+            if (original != null && current != null)
+            {
+                logger.DebugFormat("Both original and current were not null");
+                toAdd = (from c in current
+                         where !original.Contains(c)
+                         select c).ToList();
+
+                toRemove = (from c in original
+                            where !current.Contains(c)
+                            select c).ToList();
+            }
+
+            logger.DebugFormat("Checking if all values were removed");
+            if (original != null && current == null)
+                toRemove.AddRange(original);
+
+            logger.DebugFormat("Checking is original was null");
+            if (original == null && current != null)
+                toAdd.AddRange(current);
+
+            logger.DebugFormat("Continuing...");
+            if (toAdd != null && toAdd.Count() > 0)
+                powershell.Add_SendAsPermissions(distinguishedName, toAdd.ToArray());
+
+            if (toRemove != null && toRemove.Count() > 0)
+                powershell.Remove_SendAsPermissions(distinguishedName, toRemove.ToArray());
         }
     }
 }

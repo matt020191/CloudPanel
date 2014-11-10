@@ -6,10 +6,10 @@ using CloudPanel.Base.Exchange;
 using CloudPanel.Database.EntityFramework;
 using log4net;
 using Nancy;
+using Nancy.ViewEngines.Razor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 
 namespace CloudPanel
 {
@@ -156,5 +156,47 @@ namespace CloudPanel
                     db.Dispose();
             }
         }
+
+        #region Alert Messages
+        public static IHtmlString GetSuccess(string message)
+        {
+            string returnMsg = string.Format(@"<div class='alert alert-dismissable alert-success'>
+								                <strong>Success</strong> {0}
+								                <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>×</button>
+							                   </div>", message);
+
+            return new NonEncodedHtmlString(returnMsg);
+        }
+
+        public static IHtmlString GetError(string message)
+        {
+            string returnMsg = string.Format(@"<div class='alert alert-dismissable alert-danger'>
+								                <strong>Error</strong> {0}
+								                <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>×</button>
+							                   </div>", message);
+
+            return new NonEncodedHtmlString(returnMsg);
+        }
+
+        public static IHtmlString GetInfo(string message)
+        {
+            string returnMsg = string.Format(@"<div class='alert alert-dismissable alert-info'>
+								                <strong>Info</strong> {0}
+								                <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>×</button>
+							                   </div>", message);
+
+            return new NonEncodedHtmlString(returnMsg);
+        }
+
+        public static IHtmlString GetWarning(string message)
+        {
+            string returnMsg = string.Format(@"<div class='alert alert-dismissable alert-warning'>
+								                <strong>Warning</strong> {0}
+								                <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>×</button>
+							                   </div>", message);
+
+            return new NonEncodedHtmlString(returnMsg);
+        }
+        #endregion
     }
 }

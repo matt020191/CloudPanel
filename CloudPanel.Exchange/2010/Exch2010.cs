@@ -1545,7 +1545,7 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("Name", resourceMailbox.DisplayName);
             cmd.AddParameter("DisplayName", resourceMailbox.DisplayName);
             cmd.AddParameter("UserPrincipalName", resourceMailbox.UserPrincipalName);
-            cmd.AddParameter("PrimarySmtpAddress", resourceMailbox.PrimarySmtpAddress);
+            cmd.AddParameter("EmailAddresses", resourceMailbox.PrimarySmtpAddress);
             cmd.AddParameter("OrganizationalUnit", string.Format("OU={0},{1}", Settings.ExchangeRoomsOU, parentOrganizationalUnit));
             cmd.AddParameter("Room");
             cmd.AddParameter("DomainController", this._domainController);
@@ -1560,7 +1560,7 @@ namespace CloudPanel.Exchange
         /// </summary>
         /// <param name="resourceMailbox"></param>
         /// <param name="p"></param>
-        public void Set_RoomMailbox(ResourceMailboxes resourceMailbox, Plans_ExchangeMailbox p)
+        public void Set_RoomMailbox(ResourceMailboxes resourceMailbox, Plans_ExchangeMailbox p, string[] emailAddresses)
         {
             logger.DebugFormat("Updating room mailbox {0}", resourceMailbox.DisplayName);
 
@@ -1585,6 +1585,7 @@ namespace CloudPanel.Exchange
             cmd.AddCommand("Set-Mailbox");
             cmd.AddParameter("Identity", resourceMailbox.UserPrincipalName);
             cmd.AddParameter("CustomAttribute1", resourceMailbox.CompanyCode);
+            cmd.AddParameter("EmailAddresses", emailAddresses);
             cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
             cmd.AddParameter("MaxReceiveSize", p.MaxReceiveKB > 0 ? string.Format("{0}KB", p.MaxReceiveKB) : "Unlimited");
             cmd.AddParameter("MaxSendSize", p.MaxSendKB > 0 ? string.Format("{0}KB", p.MaxSendKB) : "Unlimited");
@@ -1669,7 +1670,7 @@ namespace CloudPanel.Exchange
         /// </summary>
         /// <param name="resourceMailbox"></param>
         /// <param name="p"></param>
-        public void Set_EquipmentMailbox(ResourceMailboxes resourceMailbox, Plans_ExchangeMailbox p)
+        public void Set_EquipmentMailbox(ResourceMailboxes resourceMailbox, Plans_ExchangeMailbox p, string[] emailAddresses)
         {
             logger.DebugFormat("Updating equipment mailbox {0}", resourceMailbox.DisplayName);
 
@@ -1694,6 +1695,7 @@ namespace CloudPanel.Exchange
             cmd.AddCommand("Set-Mailbox");
             cmd.AddParameter("Identity", resourceMailbox.UserPrincipalName);
             cmd.AddParameter("CustomAttribute1", resourceMailbox.CompanyCode);
+            cmd.AddParameter("EmailAddresses", emailAddresses);
             cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
             cmd.AddParameter("MaxReceiveSize", p.MaxReceiveKB > 0 ? string.Format("{0}KB", p.MaxReceiveKB) : "Unlimited");
             cmd.AddParameter("MaxSendSize", p.MaxSendKB > 0 ? string.Format("{0}KB", p.MaxSendKB) : "Unlimited");
@@ -1778,7 +1780,7 @@ namespace CloudPanel.Exchange
         /// </summary>
         /// <param name="resourceMailbox"></param>
         /// <param name="p"></param>
-        public void Set_SharedMailbox(ResourceMailboxes resourceMailbox, Plans_ExchangeMailbox p)
+        public void Set_SharedMailbox(ResourceMailboxes resourceMailbox, Plans_ExchangeMailbox p, string[] emailAddresses)
         {
             logger.DebugFormat("Updating shared mailbox {0}", resourceMailbox.DisplayName);
 
@@ -1803,6 +1805,7 @@ namespace CloudPanel.Exchange
             cmd.AddCommand("Set-Mailbox");
             cmd.AddParameter("Identity", resourceMailbox.UserPrincipalName);
             cmd.AddParameter("CustomAttribute1", resourceMailbox.CompanyCode);
+            cmd.AddParameter("EmailAddresses", emailAddresses);
             cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
             cmd.AddParameter("MaxReceiveSize", p.MaxReceiveKB > 0 ? string.Format("{0}KB", p.MaxReceiveKB) : "Unlimited");
             cmd.AddParameter("MaxSendSize", p.MaxSendKB > 0 ? string.Format("{0}KB", p.MaxSendKB) : "Unlimited");
