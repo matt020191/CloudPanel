@@ -1,0 +1,240 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@using CloudPanel
+
+@{
+    Layout = "__master.cshtml";
+}
+@section HEAD{
+    <link href="~/Content/js/jqueryui.min.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-select2/select2.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-tokenfield/bootstrap-tokenfield.css" rel="stylesheet" />
+}
+
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li><a href="~/company/@this.RenderContext.Context.GetCompanyCode()/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
+        <li><a href="#">Exchange</a></li>
+        <li class="active">Resource Mailboxes</li>
+    </ol>
+
+    <h1>Resource Mailboxes</h1>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Plan</label>
+                            <div class="col-sm-6">
+                                <select id="MailboxPlan" name="MailboxPlan" class="form-control">
+                                    @CloudPanel.Modules.MailboxPlanModule.GetMailboxPlansOptions(this.RenderContext.Context.GetCompanyCode(), 0)
+                                </select>
+                                <p id="mailboxPlanDescription"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Email</label>
+                            <div class="col-sm-6">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="EmailFirst" name="EmailFirst">
+                                    <span class="input-group-addon">@@</span>
+                                    <select id="EmailDomain" name="EmailDomain" class="form-control">
+                                        @CloudPanel.Modules.DomainsModule.GetAcceptedDomainsOptions(this.RenderContext.Context.GetCompanyCode(), 0)
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="sliderDiv" class="form-group">
+                            <label class="col-sm-3 control-label">Size</label>
+                            <div class="col-sm-6" style="padding-top: 13px">
+                                <div id="slider-range-min" class="slider bg-yellow"></div>
+                            </div>
+                            <div class="col-sm-3">
+                                <p class="help-block">
+                                    <div class="slider-value">
+                                        <span class="slider-value" id="slider-range-min-amount"></span>
+                                        <input id="SizeInMB" name="SizeInMB" type="hidden" />
+                                    </div>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <h3>Email Aliases</h3><br />
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Email Aliases</label>
+                            <div class="col-sm-6">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="EmailAliases" name="EmailAliases" data-limit="10" />
+                                    <span class="input-group-addon"><span class="fa fa-envelope"></span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <h3>Permissions</h3><br />
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Full Access</label>
+                            <div class="col-sm-6">
+                                <select id="EmailFullAccess" name="EmailFullAccess" style="width: 100%" class="populate" multiple>
+                                    @if (Model.MailboxUsers != null)
+                                        {
+                                            foreach (var u in Model.MailboxUsers)
+                                            {
+                                                <option value="@u.sAMAccountName">@u.DisplayName</option>
+                                            }
+                                        }
+                                </select>
+                                <input id="EmailFullAccessOriginal" name="EmailFullAccessOriginal" type="hidden" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Send As</label>
+                            <div class="col-sm-6">
+                                <select id="EmailSendAs" name="EmailSendAs" style="width: 100%" class="populate" multiple>
+                                    @if (Model.MailboxUsers != null)
+                                        {
+                                            foreach (var u in Model.MailboxUsers)
+                                            {
+                                                <option value="@u.sAMAccountName">@u.DisplayName</option>
+                                            }
+                                        }
+                                </select>
+                                <input id="EmailSendAsOriginal" name="EmailSendAsOriginal" type="hidden" />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section JAVASCRIPT{
+    <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
+    <script src="~/Content/plugins/form-tokenfield/bootstrap-tokenfield.min.js"></script>
+    <script src="~/Content/plugins/form-select2/select2.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            /* Email Aliases token field */
+            SetupEmailTokenField();
+
+            /* Multiple fields */
+            $(".populate").select2({
+                width: 'resolve'
+            });
+
+            $("#MailboxPlan").change(function () {
+                var option = $("#MailboxPlan option:selected");
+                SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
+            });
+
+            var option = $("#MailboxPlan option:selected");
+            SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
+
+            GetResource("@Model.upn");
+        });
+
+        function SetSlider(min, max, selectedValue, description) {
+            if (min == 0) {
+                $("#sliderDiv").hide();
+                $("#SizeInMB").val("0");
+            }
+            else {
+                $("#sliderDiv").show();
+                $("#slider-range-min").slider({
+                    range: "min",
+                    value: selectedValue,
+                    step: 256,
+                    min: min,
+                    max: max,
+                    change: function (event, ui) {
+                        $("#slider-range-min-amount").text(ui.value + "MB");
+                        $("#SizeInMB").val(ui.value);
+                    }
+                });
+
+                $("#slider-range-min-amount").text(selectedValue + "MB");
+                $("#SizeInMB").val(selectedValue);
+            }
+
+            $("#mailboxPlanDescription").text(description)
+        }
+
+        function SetupEmailTokenField() {
+            $('#EmailAliases')
+              .on('beforeCreateToken', function (e) {
+                  var token = e.token.value.split('|');
+                  e.token.value = token[1] || token[0];
+                  e.token.label = token[1] ? token[0] + ' (' + token[1] + ')' : token[0];
+              })
+              .on('afterCreateToken', function (e) {
+                  var re = /\S+@@\S+\.\S+/
+                  var valid = re.test(e.token.value);
+                  if (!valid) {
+                      $(e.relatedTarget).addClass('invalid');
+                  }
+              })
+              .on('beforeEditToken', function (e) {
+                  if (e.token.label !== e.token.value) {
+                      var label = e.token.label.split(' (');
+                      e.token.value = label[0] + '|' + e.token.value;
+                  }
+              })
+              .tokenfield();
+        }
+
+        function GetResource(upn) {
+            $(".panel").block();
+            $.getJSON("", function (data) {
+                    $("#MailboxPlan").val(data.mailbox.mailboxPlan);
+                    $("#EmailFirst").val(data.mailbox.emailFirst);
+
+                    $("#EmailDomain option").filter(function () {
+                        return $(this).text() == data.mailbox.emailDomain;
+                    }).prop('selected', true);
+
+                    var option = $("#MailboxPlan option:selected");
+                    if (data.mailbox.additionalMB > 0) {
+                        SetSlider(option.data("size"), option.data("maxsize"), option.data("size") + data.mailbox.additionalMB, option.data("description"));
+                    } else {
+                        SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
+                    }
+
+                    $("#EmailAliases").tokenfield("setTokens", data.mailbox.emailAliases);
+
+                    $("#EmailFullAccess").select2("val", data.mailbox.emailFullAccess);
+                    $.each(data.mailbox.emailFullAccess, function (i, val) {
+                        if ($("#EmailFullAccess option[value='" + val + "']").length > 0) {
+                            $("#EmailFullAccessOriginal").val($("#EmailFullAccessOriginal").val() + val + ",");
+                        }
+                    });
+
+                    $("#EmailSendAs").select2("val", data.mailbox.emailSendAs);
+                    $.each(data.mailbox.emailSendAs, function (i, val) {
+                        if ($("#EmailSendAs option[value='" + val + "']").length > 0) {
+                            $("#EmailSendAsOriginal").val($("#EmailSendAsOriginal").val() + val + ",");
+                        }
+                    });
+                })
+                .fail(function (data) {
+                    $('#submit').attr('disabled', 'disabled');
+                    ShowError(data.responseJSON.error);
+                })
+                .always(function (data) {
+                    $(".panel").unblock();
+                });
+        }
+    </script>
+}

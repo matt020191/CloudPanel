@@ -35,17 +35,17 @@
                     <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered datatables" id="dataTable">
                         <thead>
                             <tr>
+                                <th></th>
                                 <th>Display Name</th>
                                 <th>Email</th>
-                                <th>Resource Type</th>
                                 <th>Mailbox Plan</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
+                                <th></th>
                                 <td>Loading...</td>
-                                <td></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -121,13 +121,6 @@
                                 </p>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="focusedinput" class="col-sm-3 control-label">Password</label>
-                            <div class="col-sm-9">
-                                <input type="password" class="form-control" id="Password" name="Password" data-parsley-required="true">
-                                <input id="GeneratePassword" name="GeneratePassword" type="checkbox" /> Generate Password
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -166,32 +159,11 @@
     <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
     <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
     <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
+    <script src="~/Content/js/cloudpanel.js"></script>
     <script type="text/javascript">
-        // Special thanks: http://www.designchemical.com/blog/index.php/jquery/random-password-generator-using-jquery/
-        $.extend({
-            password: function (length, special) {
-                var iteration = 0;
-                var password = "";
-                var randomNumber;
-                if (special == undefined) {
-                    var special = false;
-                }
-                while (iteration < length) {
-                    randomNumber = (Math.floor((Math.random() * 100)) % 94) + 33;
-                    if (!special) {
-                        if ((randomNumber >= 33) && (randomNumber <= 47)) { continue; }
-                        if ((randomNumber >= 58) && (randomNumber <= 64)) { continue; }
-                        if ((randomNumber >= 91) && (randomNumber <= 96)) { continue; }
-                        if ((randomNumber >= 123) && (randomNumber <= 126)) { continue; }
-                    }
-                    iteration++;
-                    password += String.fromCharCode(randomNumber);
-                }
-                return password;
-            }
-        });
-
         $(document).ready(function () {
+            AddFormHandlers();
+
             $("#dataTable").DataTable({
                 "serverSide": true,
                 "processing": true,
@@ -200,13 +172,25 @@
                     dataType: 'json'
                 },
                 "columns": [
+                    { 
+                        "data": "resourceType", "className": "text-center", "render": function (data, type, full, meta) {
+                            if (data == "Room") {
+                                return "<i class=\"fa fa-building\"></i>";
+                            } else if (data == "Equipment") {
+                                return "<i class=\"fa fa-wrench\"></i>";
+                            } else if (data == "Shared") {
+                                return "<i class=\"fa fa-group\"></i>";
+                            } else {
+                                return "<i class=\"fa fa-question\"></i>";
+                            }
+                        }
+                    },
                     { "data": "displayName" },
                     { "data": "primarySmtpAddress" },
-                    { "data": "resourceType" },
                     { "data": "mailboxPlanName" },
                     {
                         "data": "resourceID", "orderable": false, "className": "text-right", "render": function (data, type, full, meta) {
-                            return GetButton(data);
+                            return GetButton(data, full["userPrincipalName"]);
                         }
                     },
                 ]
@@ -219,17 +203,6 @@
 
             var option = $("#MailboxPlan option:selected");
             SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
-
-            $("input:checkbox[name=GeneratePassword]").change(function () {
-                var field = $(this).parent().find("#Password");
-                if (this.checked) {
-                    field.attr("type", "input");
-                    field.val($.password(8, false));
-                } else {
-                    field.attr("type", "password");
-                    field.val("");
-                }
-            });
         });
 
         function SetSlider(min, max, selectedValue, description) {
@@ -258,20 +231,63 @@
             $("#mailboxPlanDescription").text(description)
         }
 
-        function SetForm(element)
+        function AddFormHandlers()
         {
-            var companyCode = $(element).data("id");
-            var href = $(element).attr('href');
-            $(href).closest("form").attr("action", "@Url.Content("~/resellers/")" + companyCode);
+            $("#newForm").submit(function (event) {
+                event.preventDefault();
+                var data = $("#newForm").serialize();
+
+                $.blockUI();
+                $.post("", data).done(function (returnData) {
+                    $("#newModal").modal("hide");
+                    ReloadTable("dataTable");
+                    ShowSuccess(returnData.success);
+                }).fail(function (returnData) {
+                    ShowError(returnData.responseJSON.error);
+                }).always(function () {
+                    $.unblockUI();
+                });
+            });
         }
 
-        function GetButton(id) {
+        function DeleteResource(resourceUPN) {
+            swal({
+                title: "Delete " + resourceUPN + "?",
+                text: "This action is not reversable",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                cancelButtonText: "No",
+                closeOnConfirm: false,
+                closeOnCancel: true
+            },
+            function (isconfirm) {
+                if (isconfirm) {
+                    $.blockUI();
+                    $.ajax({
+                        type: "DELETE",
+                        data: { UserPrincipalName: resourceUPN }
+                    }).done(function () {
+                        ReloadTable("dataTable");
+                        ShowAlert("Deleted!", "Resource was successfully deleted", "success");
+                    }).fail(function (returnData) {
+                        ShowError(returnData.responseJSON.error);
+                    }).always(function () {
+                        $.unblockUI();
+                    });
+                }
+            });
+        }
+
+        function GetButton(id, upn) {
             return '<div class="btn-group"> \
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"> \
                                 Modify <span class="caret"></span> \
                             </button> \
                             <ul class="dropdown-menu" role="menu"> \
-                                <li><a href="#deleteModal" data-toggle="modal" data-id="' + id + '" onclick="SetForm(this);">Delete</a></li> \
+                                <li><a href="@Url.Content("~/company/" + this.RenderContext.Context.GetCompanyCode())' + '/exchange/resourcemailboxes/'+upn+'">Edit</a></li> \
+                                <li><a href="javascript:DeleteResource(\''+upn+'\');">Delete</a></li> \
                             </ul> \
                     </div>';
         }

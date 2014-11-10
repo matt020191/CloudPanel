@@ -1,17 +1,23 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
 using CloudPanel.Database.EntityFramework;
+using log4net;
 using Nancy;
 using Nancy.ModelBinding;
 using Nancy.Responses.Negotiation;
 using Nancy.Security;
+using Nancy.ViewEngines.Razor;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace CloudPanel.Modules
 {
     public class MailboxPlanModule : NancyModule
     {
+        private static readonly ILog logger = LogManager.GetLogger(typeof(MailboxPlanModule));
+
         public MailboxPlanModule() : base("/plans/exchange/mailbox")
         {
             this.RequiresAuthentication();
@@ -19,15 +25,13 @@ namespace CloudPanel.Modules
 
             Get["/new"] = _ =>
             {
-                return Negotiate.WithModel(new
-                                {
-                                    selectedPlan = new Plans_ExchangeMailbox()
-                                })
+                return Negotiate.WithModel(new { selectedPlan = new Plans_ExchangeMailbox() })
                                 .WithView("Plans/plans_mailbox.cshtml");
             };
 
             Post["/new"] = _ =>
             {
+                #region Creates a new mailbox plan
                 CloudPanelContext db = null;
                 try
                 {
@@ -57,10 +61,12 @@ namespace CloudPanel.Modules
                     if (db != null)
                         db.Dispose();
                 }
+                #endregion
             };
 
             Get["/{ID:int}"] = _ =>
             {
+                #region Gets an existing mailbox plan
                 CloudPanelContext db = null;
                 try
                 {
@@ -90,10 +96,12 @@ namespace CloudPanel.Modules
                     if (db != null)
                         db.Dispose();
                 }
+                #endregion
             };
 
             Post["/{ID:int}"] = _ =>
             {
+                #region Updates an existing mailbox plan
                 CloudPanelContext db = null;
                 try
                 {
@@ -138,10 +146,12 @@ namespace CloudPanel.Modules
                     if (db != null)
                         db.Dispose();
                 }
+                #endregion
             };
 
             Delete["/{ID:int}"] = _ =>
             {
+                #region Deletes a mailbox plan if its not in use
                 CloudPanelContext db = null;
                 try
                 {
@@ -180,7 +190,89 @@ namespace CloudPanel.Modules
                     if (db != null)
                         db.Dispose();
                 }
+                #endregion
             };
+        }
+
+        public static List<Plans_ExchangeMailbox> GetMailboxPlans(string companyCode)
+        {
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                List<Plans_ExchangeMailbox> plans = null;
+                if (string.IsNullOrEmpty(companyCode))
+                    plans = (from d in db.Plans_ExchangeMailbox
+                             orderby d.MailboxPlanName
+                             select d).ToList();
+                else
+                    plans = (from d in db.Plans_ExchangeMailbox
+                             where d.CompanyCode == companyCode || string.IsNullOrEmpty(d.CompanyCode)
+                             select d).ToList();
+
+                return plans;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting mailbox plans with company code [{0}]: {1}", companyCode, ex.ToString());
+                return null;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static IHtmlString GetMailboxPlansOptions(string companyCode, int selectedValue)
+        {
+            var returnString = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                List<Plans_ExchangeMailbox> plans = null;
+                if (string.IsNullOrEmpty(companyCode))
+                    plans = (from d in db.Plans_ExchangeMailbox
+                             orderby d.MailboxPlanName
+                             select d).ToList();
+                else
+                    plans = (from d in db.Plans_ExchangeMailbox
+                             where d.CompanyCode == companyCode || string.IsNullOrEmpty(d.CompanyCode)
+                             select d).ToList();
+
+                logger.DebugFormat("Found a total of {0} mailbox plans", plans.Count());
+                if (plans != null)
+                {
+                    plans.ForEach(x =>
+                        {
+                            returnString.AppendFormat("<option value=\"{0}\" data-size=\"{1}\" data-maxsize=\"{2}\" data-description=\"{3}\" data-price=\"{4}\" data-additionalprice=\"{5}\"  {6}>{7}</option>",
+                                x.MailboxPlanID,
+                                x.MailboxSizeMB,
+                                x.MaxMailboxSizeMB,
+                                x.MailboxPlanDesc.Replace("\"", "'"),
+                                x.Price,
+                                x.AdditionalGBPrice,
+                                selectedValue.Equals(x.MailboxPlanID) ? "selected" : "",
+                                x.MailboxPlanName);
+                        });
+                }
+
+                return new NonEncodedHtmlString(returnString.ToString());
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting mailbox plans with company code [{0}]: {1}", companyCode, ex.ToString());
+                return null;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
         }
     }
 }

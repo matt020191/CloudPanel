@@ -63,5 +63,54 @@ namespace CloudPanel.Base.Database.Models
         public int MailboxPlan { get; set; }
 
         public int AdditionalMB { get; set; }
+
+        #region Not Mapped
+
+        [NotMapped]
+        public int SizeInMB { get; set; }
+
+        [NotMapped]
+        public string DistinguishedName { get; set; }
+
+        [NotMapped]
+        public string EmailDomain
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(PrimarySmtpAddress))
+                    return string.Empty;
+                else
+                    return PrimarySmtpAddress.Split('@')[1];
+            }
+        }
+
+        [NotMapped]
+        public string EmailFirst
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(PrimarySmtpAddress))
+                    return string.Empty;
+                else
+                    return PrimarySmtpAddress.Split('@')[0];
+            }
+        }
+
+        [NotMapped]
+        public string[] EmailAliases { get; set; }
+
+        [NotMapped]
+        public string[] EmailFullAccess { get; set; }
+
+        [NotMapped]
+        public string[] EmailFullAccessOriginal { get; set; }
+
+        [NotMapped]
+        public string[] EmailSendAs { get; set; }
+
+        [NotMapped]
+        public string[] EmailSendAsOriginal { get; set; }
+
+        #endregion
     }
 }

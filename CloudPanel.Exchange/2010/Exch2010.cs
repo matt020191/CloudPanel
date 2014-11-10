@@ -1,9 +1,4 @@
-﻿using CloudPanel.Base.Config;
-using CloudPanel.Base.Database.Models;
-using CloudPanel.Base.Enums;
-using CloudPanel.Base.Exchange;
-using log4net;
-//
+﻿//
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
 //
@@ -38,6 +33,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Management.Automation;
+using CloudPanel.Base.Config;
+using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Enums;
+using CloudPanel.Base.Exchange;
+using log4net;
 
 namespace CloudPanel.Exchange
 {
@@ -1461,6 +1461,385 @@ namespace CloudPanel.Exchange
             }
 
             return allSizes;
+        }
+
+        #endregion
+
+        #region Resource Mailboxes
+
+        public ResourceMailboxes Get_ResourceMailbox(string userPrincipalName)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-Mailbox");
+            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                logger.DebugFormat("Found mailbox {0}", userPrincipalName);
+
+                var returnMailbox = new ResourceMailboxes();
+                var foundMailbox = psObjects[0];
+
+                returnMailbox.UserPrincipalName = userPrincipalName;
+                returnMailbox.PrimarySmtpAddress = foundMailbox.Properties["PrimarySmtpAddress"].Value.ToString();
+                returnMailbox.DistinguishedName = foundMailbox.Properties["DistinguishedName"].Value.ToString();
+
+                logger.DebugFormat("Parsing email aliases...");
+                var parsedAliases = new List<string>();
+                var emailAliasesValue = foundMailbox.Properties["EmailAddresses"].Value as PSObject;
+                var emailAliases = emailAliasesValue.BaseObject as ArrayList;
+                foreach (var i in emailAliases)
+                {
+                    string e = i.ToString();
+                    if (!e.StartsWith("SMTP:")) // Skip primary email
+                    {
+                        parsedAliases.Add(e.Replace("smtp:", ""));
+                    }
+                }
+                returnMailbox.EmailAliases = parsedAliases.ToArray();
+
+                // Get full access permissions
+                logger.DebugFormat("Retrieving full access permissions");
+                returnMailbox.EmailFullAccess = Get_FullAccessPermissions(userPrincipalName);
+
+                // Get send as permissions
+                logger.DebugFormat("Retrieving send as permissions");
+                returnMailbox.EmailSendAs = Get_SendAsPermissions(returnMailbox.DistinguishedName);
+
+                return returnMailbox;
+            }
+        }
+
+        #endregion
+
+        #region Room Mailboxes
+
+        /// <summary>
+        /// Creates a new room mailbox
+        /// </summary>
+        /// <param name="resourceMailbox"></param>
+        /// <param name="parentOrganizationalUnit"></param>
+        public void New_RoomMailbox(ResourceMailboxes resourceMailbox, string parentOrganizationalUnit)
+        {
+            logger.DebugFormat("Creating room mailbox {0}", resourceMailbox.DisplayName);
+
+            if (string.IsNullOrEmpty(resourceMailbox.DisplayName))
+                throw new MissingFieldException("", "DisplayName");
+
+            if (string.IsNullOrEmpty(resourceMailbox.UserPrincipalName))
+                throw new MissingFieldException("", "UserPrincipalName");
+
+            if (string.IsNullOrEmpty(resourceMailbox.PrimarySmtpAddress))
+                throw new MissingFieldException("", "PrimarySmtpAddress");
+
+            if (string.IsNullOrEmpty(parentOrganizationalUnit))
+                throw new MissingFieldException("", "ParentOrganizationalUnit");
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("New-Mailbox");
+            cmd.AddParameter("Name", resourceMailbox.DisplayName);
+            cmd.AddParameter("DisplayName", resourceMailbox.DisplayName);
+            cmd.AddParameter("UserPrincipalName", resourceMailbox.UserPrincipalName);
+            cmd.AddParameter("PrimarySmtpAddress", resourceMailbox.PrimarySmtpAddress);
+            cmd.AddParameter("OrganizationalUnit", string.Format("OU={0},{1}", Settings.ExchangeRoomsOU, parentOrganizationalUnit));
+            cmd.AddParameter("Room");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        /// <summary>
+        /// Updates the room mailbox
+        /// </summary>
+        /// <param name="resourceMailbox"></param>
+        /// <param name="p"></param>
+        public void Set_RoomMailbox(ResourceMailboxes resourceMailbox, Plans_ExchangeMailbox p)
+        {
+            logger.DebugFormat("Updating room mailbox {0}", resourceMailbox.DisplayName);
+
+            if (string.IsNullOrEmpty(resourceMailbox.UserPrincipalName))
+                throw new MissingFieldException("", "UserPrincipalName");
+
+            if (string.IsNullOrEmpty(resourceMailbox.CompanyCode))
+                throw new MissingFieldException("", "CompanyCode");
+
+            int sizeInMB = 0;
+            if (p.MailboxSizeMB > 0)
+            {
+                // If mailbox size for plan is greater than 0 then its not unlimited
+                if (p.MaxMailboxSizeMB != null && resourceMailbox.SizeInMB > p.MaxMailboxSizeMB)
+                    sizeInMB = (int)p.MaxMailboxSizeMB;
+
+                if (p.MaxMailboxSizeMB == null && resourceMailbox.SizeInMB > p.MailboxSizeMB)
+                    sizeInMB = p.MailboxSizeMB;
+            }
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Set-Mailbox");
+            cmd.AddParameter("Identity", resourceMailbox.UserPrincipalName);
+            cmd.AddParameter("CustomAttribute1", resourceMailbox.CompanyCode);
+            cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
+            cmd.AddParameter("MaxReceiveSize", p.MaxReceiveKB > 0 ? string.Format("{0}KB", p.MaxReceiveKB) : "Unlimited");
+            cmd.AddParameter("MaxSendSize", p.MaxSendKB > 0 ? string.Format("{0}KB", p.MaxSendKB) : "Unlimited");
+            cmd.AddParameter("OfflineAddressBook", string.Format(Settings.ExchangeOALName, resourceMailbox.CompanyCode));
+            cmd.AddParameter("ProhibitSendQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB) : "Unlimited");
+            cmd.AddParameter("ProhibitSendReceiveQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB) : "Unlimited");
+            cmd.AddParameter("RecipientLimits", p.MaxRecipients > 0 ? string.Format("{0}", p.MaxRecipients) : "Unlimited");
+            cmd.AddParameter("RetainDeletedItemsFor", p.MaxKeepDeletedItems > 0 ? p.MaxKeepDeletedItems : 30);
+            cmd.AddParameter("UseDatabaseQuotaDefaults", false);
+            cmd.AddParameter("UseDatabaseRetentionDefaults", false);
+            cmd.AddParameter("RetainDeletedItemsUntilBackup", true);
+            cmd.AddParameter("RoleAssignmentPolicy", Settings.ExchangeRoleAssignment);
+            cmd.AddParameter("EmailAddressPolicyEnabled", false);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        /// <summary>
+        /// Deletes the room mailbox and AD object
+        /// </summary>
+        /// <param name="userPrincipalName"></param>
+        public void Remove_RoomMailbox(string userPrincipalName)
+        {
+            logger.DebugFormat("Removing room mailbox {0}", userPrincipalName);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Remove-Mailbox");
+            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        #endregion
+
+        #region Equipment Mailbox
+
+        /// <summary>
+        /// Creates a new equipment mailbox
+        /// </summary>
+        /// <param name="resourceMailbox"></param>
+        /// <param name="parentOrganizationalUnit"></param>
+        public void New_EquipmentMailbox(ResourceMailboxes resourceMailbox, string parentOrganizationalUnit)
+        {
+            logger.DebugFormat("Creating equipment mailbox {0}", resourceMailbox.DisplayName);
+
+            if (string.IsNullOrEmpty(resourceMailbox.DisplayName))
+                throw new MissingFieldException("", "DisplayName");
+
+            if (string.IsNullOrEmpty(resourceMailbox.UserPrincipalName))
+                throw new MissingFieldException("", "UserPrincipalName");
+
+            if (string.IsNullOrEmpty(resourceMailbox.PrimarySmtpAddress))
+                throw new MissingFieldException("", "PrimarySmtpAddress");
+
+            if (string.IsNullOrEmpty(parentOrganizationalUnit))
+                throw new MissingFieldException("", "ParentOrganizationalUnit");
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("New-Mailbox");
+            cmd.AddParameter("Name", resourceMailbox.DisplayName);
+            cmd.AddParameter("DisplayName", resourceMailbox.DisplayName);
+            cmd.AddParameter("UserPrincipalName", resourceMailbox.UserPrincipalName);
+            cmd.AddParameter("PrimarySmtpAddress", resourceMailbox.PrimarySmtpAddress);
+            cmd.AddParameter("OrganizationalUnit", string.Format("OU={0},{1}", Settings.ExchangeResourceOU, parentOrganizationalUnit));
+            cmd.AddParameter("Equipment");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        /// <summary>
+        /// Updates the equipment mailbox
+        /// </summary>
+        /// <param name="resourceMailbox"></param>
+        /// <param name="p"></param>
+        public void Set_EquipmentMailbox(ResourceMailboxes resourceMailbox, Plans_ExchangeMailbox p)
+        {
+            logger.DebugFormat("Updating equipment mailbox {0}", resourceMailbox.DisplayName);
+
+            if (string.IsNullOrEmpty(resourceMailbox.UserPrincipalName))
+                throw new MissingFieldException("", "UserPrincipalName");
+
+            if (string.IsNullOrEmpty(resourceMailbox.CompanyCode))
+                throw new MissingFieldException("", "CompanyCode");
+
+            int sizeInMB = 0;
+            if (p.MailboxSizeMB > 0)
+            {
+                // If mailbox size for plan is greater than 0 then its not unlimited
+                if (p.MaxMailboxSizeMB != null && resourceMailbox.SizeInMB > p.MaxMailboxSizeMB)
+                    sizeInMB = (int)p.MaxMailboxSizeMB;
+
+                if (p.MaxMailboxSizeMB == null && resourceMailbox.SizeInMB > p.MailboxSizeMB)
+                    sizeInMB = p.MailboxSizeMB;
+            }
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Set-Mailbox");
+            cmd.AddParameter("Identity", resourceMailbox.UserPrincipalName);
+            cmd.AddParameter("CustomAttribute1", resourceMailbox.CompanyCode);
+            cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
+            cmd.AddParameter("MaxReceiveSize", p.MaxReceiveKB > 0 ? string.Format("{0}KB", p.MaxReceiveKB) : "Unlimited");
+            cmd.AddParameter("MaxSendSize", p.MaxSendKB > 0 ? string.Format("{0}KB", p.MaxSendKB) : "Unlimited");
+            cmd.AddParameter("OfflineAddressBook", string.Format(Settings.ExchangeOALName, resourceMailbox.CompanyCode));
+            cmd.AddParameter("ProhibitSendQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB) : "Unlimited");
+            cmd.AddParameter("ProhibitSendReceiveQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB) : "Unlimited");
+            cmd.AddParameter("RecipientLimits", p.MaxRecipients > 0 ? string.Format("{0}", p.MaxRecipients) : "Unlimited");
+            cmd.AddParameter("RetainDeletedItemsFor", p.MaxKeepDeletedItems > 0 ? p.MaxKeepDeletedItems : 30);
+            cmd.AddParameter("UseDatabaseQuotaDefaults", false);
+            cmd.AddParameter("UseDatabaseRetentionDefaults", false);
+            cmd.AddParameter("RetainDeletedItemsUntilBackup", true);
+            cmd.AddParameter("RoleAssignmentPolicy", Settings.ExchangeRoleAssignment);
+            cmd.AddParameter("EmailAddressPolicyEnabled", false);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        /// <summary>
+        /// Deletes the equipment mailbox and AD object
+        /// </summary>
+        /// <param name="userPrincipalName"></param>
+        public void Remove_EquipmentMailbox(string userPrincipalName)
+        {
+            logger.DebugFormat("Removing equipment mailbox {0}", userPrincipalName);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Remove-Mailbox");
+            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        #endregion
+
+        #region Shared Mailbox
+
+        /// <summary>
+        /// Creates a new shared mailbox
+        /// </summary>
+        /// <param name="resourceMailbox"></param>
+        /// <param name="parentOrganizationalUnit"></param>
+        public void New_SharedMailbox(ResourceMailboxes resourceMailbox, string parentOrganizationalUnit)
+        {
+            logger.DebugFormat("Creating shared mailbox {0}", resourceMailbox.DisplayName);
+
+            if (string.IsNullOrEmpty(resourceMailbox.DisplayName))
+                throw new MissingFieldException("", "DisplayName");
+
+            if (string.IsNullOrEmpty(resourceMailbox.UserPrincipalName))
+                throw new MissingFieldException("", "UserPrincipalName");
+
+            if (string.IsNullOrEmpty(resourceMailbox.PrimarySmtpAddress))
+                throw new MissingFieldException("", "PrimarySmtpAddress");
+
+            if (string.IsNullOrEmpty(parentOrganizationalUnit))
+                throw new MissingFieldException("", "ParentOrganizationalUnit");
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("New-Mailbox");
+            cmd.AddParameter("Name", resourceMailbox.DisplayName);
+            cmd.AddParameter("DisplayName", resourceMailbox.DisplayName);
+            cmd.AddParameter("UserPrincipalName", resourceMailbox.UserPrincipalName);
+            cmd.AddParameter("PrimarySmtpAddress", resourceMailbox.PrimarySmtpAddress);
+            cmd.AddParameter("OrganizationalUnit", string.Format("OU={0},{1}", Settings.ExchangeResourceOU, parentOrganizationalUnit));
+            cmd.AddParameter("Shared");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        /// <summary>
+        /// Updates the shared mailbox
+        /// </summary>
+        /// <param name="resourceMailbox"></param>
+        /// <param name="p"></param>
+        public void Set_SharedMailbox(ResourceMailboxes resourceMailbox, Plans_ExchangeMailbox p)
+        {
+            logger.DebugFormat("Updating shared mailbox {0}", resourceMailbox.DisplayName);
+
+            if (string.IsNullOrEmpty(resourceMailbox.UserPrincipalName))
+                throw new MissingFieldException("", "UserPrincipalName");
+
+            if (string.IsNullOrEmpty(resourceMailbox.CompanyCode))
+                throw new MissingFieldException("", "CompanyCode");
+
+            int sizeInMB = 0;
+            if (p.MailboxSizeMB > 0)
+            {
+                // If mailbox size for plan is greater than 0 then its not unlimited
+                if (p.MaxMailboxSizeMB != null && resourceMailbox.SizeInMB > p.MaxMailboxSizeMB)
+                    sizeInMB = (int)p.MaxMailboxSizeMB;
+
+                if (p.MaxMailboxSizeMB == null && resourceMailbox.SizeInMB > p.MailboxSizeMB)
+                    sizeInMB = p.MailboxSizeMB;
+            }
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Set-Mailbox");
+            cmd.AddParameter("Identity", resourceMailbox.UserPrincipalName);
+            cmd.AddParameter("CustomAttribute1", resourceMailbox.CompanyCode);
+            cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
+            cmd.AddParameter("MaxReceiveSize", p.MaxReceiveKB > 0 ? string.Format("{0}KB", p.MaxReceiveKB) : "Unlimited");
+            cmd.AddParameter("MaxSendSize", p.MaxSendKB > 0 ? string.Format("{0}KB", p.MaxSendKB) : "Unlimited");
+            cmd.AddParameter("OfflineAddressBook", string.Format(Settings.ExchangeOALName, resourceMailbox.CompanyCode));
+            cmd.AddParameter("ProhibitSendQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB) : "Unlimited");
+            cmd.AddParameter("ProhibitSendReceiveQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB) : "Unlimited");
+            cmd.AddParameter("RecipientLimits", p.MaxRecipients > 0 ? string.Format("{0}", p.MaxRecipients) : "Unlimited");
+            cmd.AddParameter("RetainDeletedItemsFor", p.MaxKeepDeletedItems > 0 ? p.MaxKeepDeletedItems : 30);
+            cmd.AddParameter("UseDatabaseQuotaDefaults", false);
+            cmd.AddParameter("UseDatabaseRetentionDefaults", false);
+            cmd.AddParameter("RetainDeletedItemsUntilBackup", true);
+            cmd.AddParameter("RoleAssignmentPolicy", Settings.ExchangeRoleAssignment);
+            cmd.AddParameter("EmailAddressPolicyEnabled", false);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        /// <summary>
+        /// Deletes the room mailbox and AD object
+        /// </summary>
+        /// <param name="userPrincipalName"></param>
+        public void Remove_SharedMailbox(string userPrincipalName)
+        {
+            logger.DebugFormat("Removing shared mailbox {0}", userPrincipalName);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Remove-Mailbox");
+            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
         }
 
         #endregion

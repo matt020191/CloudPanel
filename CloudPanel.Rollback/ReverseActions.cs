@@ -17,7 +17,10 @@ namespace CloudPanel.Rollback
         CreateAddressList,
         CreateOfflineAddressBook,
         CreateAddressBookPolicy,
-        CreateMailContact
+        CreateMailContact,
+        CreateRoomMailbox,
+        CreateEquipmentMailbox,
+        CreateSharedMailbox
     }
 
     public class ReverseActionValue
@@ -82,6 +85,9 @@ namespace CloudPanel.Rollback
                     case Actions.CreateAddressList:
                     case Actions.CreateGlobalAddressList:
                     case Actions.CreateOfflineAddressBook:
+                    case Actions.CreateRoomMailbox:
+                    case Actions.CreateEquipmentMailbox:
+                    case Actions.CreateSharedMailbox:
                         RollbackExchangeAction(a._PerformedAction, new[] { a._ActionAttribute });
                         break;
                     default:
@@ -156,28 +162,34 @@ namespace CloudPanel.Rollback
                 {
                     case Actions.CreateGlobalAddressList:
                         powershell.Remove_GlobalAddressList(attribute[0].ToString());
-                        log.DebugFormat("Successfully rolled back action {0} for {1}", action.ToString(), attribute[0].ToString());
                         break;
                     case Actions.CreateOfflineAddressBook:
                         powershell.Remove_OfflineAddressBook(attribute[0].ToString());
-                        log.DebugFormat("Successfully rolled back action {0} for {1}", action.ToString(), attribute[0].ToString());
                         break;
                     case Actions.CreateAddressBookPolicy:
                         powershell.Remove_AddressBookPolicy(attribute[0].ToString());
-                        log.DebugFormat("Successfully rolled back action {0} for {1}", action.ToString(), attribute[0].ToString());
                         break;
                     case Actions.CreateAddressList:
                         powershell.Remove_AddressList(attribute[0].ToString());
-                        log.DebugFormat("Successfully rolled back action {0} for {1}", action.ToString(), attribute[0].ToString());
                         break;
                     case Actions.CreateMailContact:
                         powershell.Remove_MailContact(attribute[0].ToString());
-                        log.DebugFormat("Successfully rolled back action {0} for {1}", action.ToString(), attribute[0].ToString());
+                        break;
+                    case Actions.CreateRoomMailbox:
+                        powershell.Remove_RoomMailbox(attribute[0].ToString());
+                        break;
+                    case Actions.CreateEquipmentMailbox:
+                        powershell.Remove_EquipmentMailbox(attribute[0].ToString());
+                        break;
+                    case Actions.CreateSharedMailbox:
+                        powershell.Remove_SharedMailbox(attribute[0].ToString());
                         break;
                     default:
                         log.DebugFormat("Unknown action {0}... Skipping...", action.ToString());
                         break;
                 }
+
+                log.DebugFormat("Successfully rolled back action {0} for {1}", action.ToString(), attribute[0].ToString());
             }
             catch (Exception ex)
             {

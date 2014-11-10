@@ -1383,6 +1383,7 @@
     <Content Include="Views\Admin\massemail.cshtml" />
     <Content Include="Views\Admin\settings.cshtml" />
     <Content Include="Views\Plans\activesync.cshtml" />
+    <Content Include="Views\Company\Exchange\resourcemailboxes_edit.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
