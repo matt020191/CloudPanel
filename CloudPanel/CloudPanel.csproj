@@ -14,7 +14,7 @@
     <RootNamespace>CloudPanel</RootNamespace>
     <AssemblyName>CloudPanel 3</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <UseIISExpress>false</UseIISExpress>
+    <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -102,6 +102,7 @@
     <Content Include="Content\img\citrix\quickbooks.png" />
     <Content Include="Content\img\details_close.png" />
     <Content Include="Content\img\details_open.png" />
+    <Content Include="Content\img\error.png" />
     <Content Include="Content\img\logo-big.png" />
     <Content Include="Content\img\logo.png" />
     <Content Include="Content\img\patterns\brickwall.png" />
@@ -116,6 +117,7 @@
     <Content Include="Content\img\patterns\vertical_cloth.png" />
     <Content Include="Content\img\patterns\wild_oliva.png" />
     <Content Include="Content\img\sidebar-toggle.png" />
+    <Content Include="Content\img\success.png" />
     <Content Include="Content\js\application.js" />
     <Content Include="Content\js\bootstrap.js" />
     <Content Include="Content\js\bootstrap.min.js" />
@@ -1039,6 +1041,15 @@
     <Content Include="Content\plugins\knob\jquery.knob.min.js" />
     <Content Include="Content\plugins\mixitup\jquery.mixitup.min.js" />
     <Content Include="Content\plugins\moment\moment-with-locales.js" />
+    <Content Include="Content\plugins\papaparse\papaparse.js" />
+    <Content Include="Content\plugins\papaparse\papaparse.min.js" />
+    <Content Include="Content\plugins\papaparse\player\player.css" />
+    <Content Include="Content\plugins\papaparse\player\player.html" />
+    <Content Include="Content\plugins\papaparse\player\player.js" />
+    <Content Include="Content\plugins\papaparse\tests\test-cases.js" />
+    <Content Include="Content\plugins\papaparse\tests\test-runner.js" />
+    <Content Include="Content\plugins\papaparse\tests\tests.css" />
+    <Content Include="Content\plugins\papaparse\tests\tests.html" />
     <Content Include="Content\plugins\pines-notify\jquery.pnotify.default.css" />
     <Content Include="Content\plugins\pines-notify\jquery.pnotify.js" />
     <Content Include="Content\plugins\pines-notify\jquery.pnotify.min.js" />
@@ -1099,6 +1110,7 @@
     <Compile Include="Modules\CompanyModules\DomainsModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\MailboxModule.cs" />
     <Compile Include="Modules\CompanyModules\OverviewModule.cs" />
+    <Compile Include="Modules\CompanyModules\UsersImportModule.cs" />
     <Compile Include="Modules\CompanyModules\UsersEditModule.cs" />
     <Compile Include="Modules\CompanyModules\UsersModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\ContactsModule.cs" />
@@ -1364,6 +1376,12 @@
     <Content Include="Content\plugins\sweetalert\lib\sweet-alert.scss" />
     <Content Include="Content\plugins\sweetalert\LICENSE" />
     <Content Include="Content\plugins\sweetalert\README.md" />
+    <Content Include="Content\plugins\papaparse\.gitignore" />
+    <Content Include="Content\plugins\papaparse\bower.json" />
+    <Content Include="Content\plugins\papaparse\LICENSE" />
+    <Content Include="Content\plugins\papaparse\parse.jquery.json" />
+    <Content Include="Content\plugins\papaparse\README.md" />
+    <Content Include="Content\plugins\papaparse\tests\sample.csv" />
     <None Include="Properties\PublishProfiles\HOME DC.pubxml" />
     <None Include="Properties\PublishProfiles\LAB DC.pubxml" />
     <None Include="Properties\Settings.settings">
@@ -1384,6 +1402,7 @@
     <Content Include="Views\Admin\settings.cshtml" />
     <Content Include="Views\Plans\activesync.cshtml" />
     <Content Include="Views\Company\Exchange\resourcemailboxes_edit.cshtml" />
+    <Content Include="Views\Company\users_import.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -1436,9 +1455,9 @@
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerPort>24142</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost/CloudPanel</IISUrl>
+          <IISUrl>http://localhost:24142/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

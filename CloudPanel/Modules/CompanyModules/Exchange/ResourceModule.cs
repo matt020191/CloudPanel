@@ -449,12 +449,14 @@ namespace CloudPanel.Modules
                     
 
                         logger.DebugFormat("Processing full access permissions for {0}", boundMailbox.UserPrincipalName);
-                        ProcessFullAccess(boundMailbox.UserPrincipalName, ref powershell, boundMailbox.EmailFullAccessOriginal, boundMailbox.EmailFullAccess, true);
+                        ProcessFullAccess(boundMailbox.UserPrincipalName, ref powershell, boundMailbox.EmailFullAccessOriginal, boundMailbox.EmailFullAccess, boundMailbox.AutoMapping);
 
                         logger.DebugFormat("Processing send as permissions for {0}", boundMailbox.UserPrincipalName);
                         ProcessSendAs(boundMailbox.DistinguishedName, ref powershell, boundMailbox.EmailSendAsOriginal, boundMailbox.EmailSendAs);
 
-                        return Negotiate.WithModel(new { success = "Successfully updated resource mailbox" });
+                        string redirectUrl = string.Format("~/company/{0}/exchange/resourcemailboxes", companyCode);
+                        return Negotiate.WithModel(new { success = "Successfully updated resource mailbox" })
+                                        .WithMediaRangeResponse("text/html", this.Response.AsRedirect(redirectUrl));
                     }
                 }
                 catch (Exception ex)

@@ -322,6 +322,7 @@ namespace CloudPanel.Modules
 
                     ViewBag.error = ex.ToString();
                     return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithStatusCode(HttpStatusCode.InternalServerError)
                                     .WithView("error.cshtml");
                 }
                 finally

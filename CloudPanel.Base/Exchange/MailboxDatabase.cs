@@ -46,6 +46,12 @@ namespace CloudPanel.Base.Exchange
 
         public string LogFolderPath { get; set; }
 
+        public string DatabaseSize { get; set; }
+
+        public string Server { get; set; }
+
+        public DateTime Retrieved { get; set; }
+
         public long DatabaseSizeInBytes { get; set; }
 
         public decimal DatabaseSizeInKB

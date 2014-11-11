@@ -76,11 +76,30 @@ namespace CloudPanel.Modules
             Get["/exchange/databases"] = _ =>
                 {
                     dynamic powershell = null;
+                    CloudPanelContext db = null;
                     try
                     {
                         powershell = ExchPowershell.GetClass();
 
                         List<MailboxDatabase> databases = powershell.Get_MailboxDatabases();
+                        if (databases != null)
+                        {
+                            db = new CloudPanelContext(Settings.ConnectionString);
+                            foreach (var d in databases)
+                            {
+                                db.SvcMailboxDatabaseSizes.Add(new SvcMailboxDatabaseSizes()
+                                    {
+                                         DatabaseName = d.Identity,
+                                         Server = d.Server,
+                                         DatabaseSizeInBytes = d.DatabaseSizeInBytes,
+                                         DatabaseSize = d.DatabaseSize,
+                                         Retrieved = d.Retrieved
+                                    });
+                            }
+
+                            db.SaveChanges();
+                        }
+
                         return Negotiate.WithModel(new { databases = databases });
                     }
                     catch (Exception ex)
@@ -91,6 +110,9 @@ namespace CloudPanel.Modules
                     }
                     finally
                     {
+                        if (db != null)
+                            db.Dispose();
+
                         if (powershell != null)
                             powershell.Dispose();
                     }

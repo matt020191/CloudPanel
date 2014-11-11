@@ -50,7 +50,7 @@
                     <li class="username">
                         <a href="#">
                             <div class="pull-left"><i class="fa fa-user"></i></div>
-                            <div class="pull-right"><small>Logged in as <span>@RenderContext.Context.CurrentUser.UserName</span></small></div>
+                            <div class="pull-right"><small>Logged in as <span>@if (this.RenderContext.Context.CurrentUser != null) { @RenderContext.Context.CurrentUser.UserName }</span></small></div>
                         </a>
                     </li>
                     <li class="userlinks">

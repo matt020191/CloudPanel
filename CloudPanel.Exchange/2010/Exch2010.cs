@@ -1873,11 +1873,18 @@ namespace CloudPanel.Exchange
                     newDb.IsMailboxDatabase = bool.Parse(ps.Members["IsMailboxDatabase"].Value.ToString());
                     newDb.LogFilePrefix = ps.Members["LogFilePrefix"].Value.ToString();
                     newDb.LogFolderPath = ps.Members["LogFolderPath"].Value.ToString();
+                    newDb.Server = ps.Members["Server"].Value.ToString();
+                    newDb.Retrieved = DateTime.Now;
 
+                    string size = "0 MB (0 bytes)";
+                    long sizeInBytes = 0;
                     if (ps.Members["DatabaseSize"].Value != null)
                     {
-                        newDb.DatabaseSizeInBytes = GetExchangeBytes(ps.Members["DatabaseSize"].Value.ToString());
+                        size = ps.Members["DatabaseSize"].Value.ToString();
+                        sizeInBytes = GetExchangeBytes(ps.Members["DatabaseSize"].Value.ToString());
                     }
+                    newDb.DatabaseSize = size;
+                    newDb.DatabaseSizeInBytes = sizeInBytes;
 
                     listDatabases.Add(newDb);
                 }
@@ -2274,7 +2281,7 @@ namespace CloudPanel.Exchange
 
         internal long GetExchangeBytes(string data)
         {
-            // Should be in this format: "768 MB (805,306,386 bytes)
+            // Should be in this format: "768 MB (805,306,386 bytes)"
             logger.DebugFormat("Parsing Exchange bytes for {0}", data);
             int startIndex = data.IndexOf("(");
             int endIndex = data.LastIndexOf(")");

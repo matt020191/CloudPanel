@@ -357,6 +357,9 @@ namespace CloudPanel.Base.Database.Models
         [NotMapped]
         public string RetentionUrl { get; set; }
 
+        [NotMapped]
+        public bool AutoMapping { get; set; }
+
         #endregion
 
         #region Modified notifications

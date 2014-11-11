@@ -346,13 +346,17 @@ namespace CloudPanel.Modules
                     }
 
                     string redirectUrl = string.Format("/company/{0}/exchange/groups", companyCode);
-                    return Negotiate.WithModel(new { success = "Successfully updated group" });
+                    return Negotiate.WithModel(new { success = "Successfully updated group" })
+                                    .WithMediaRangeResponse("text/html", this.Response.AsRedirect(redirectUrl));
                 }
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error updating group for {0}: {1}", _.CompanyCode, ex.ToString());
+
+                    ViewBag.error = ex.ToString();
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithStatusCode(HttpStatusCode.InternalServerError);
+                                    .WithStatusCode(HttpStatusCode.InternalServerError)
+                                    .WithView("error.cshtml");
                 }
                 finally
                 {
@@ -430,13 +434,17 @@ namespace CloudPanel.Modules
                     }
 
                     string redirectUrl = string.Format("/company/{0}/exchange/groups", companyCode);
-                    return Negotiate.WithModel(new { success = "Successfully created new group" });
+                    return Negotiate.WithModel(new { success = "Successfully created new group" })
+                                    .WithMediaRangeResponse("text/html", this.Response.AsRedirect(redirectUrl));
                 }
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error creating new group for {0}: {1}", _.CompanyCode, ex.ToString());
+
+                    ViewBag.error = ex.ToString();
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithStatusCode(HttpStatusCode.InternalServerError);
+                                    .WithStatusCode(HttpStatusCode.InternalServerError)
+                                    .WithView("error.cshtml");
                 }
                 finally
                 {

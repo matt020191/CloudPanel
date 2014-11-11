@@ -32,7 +32,13 @@
     <h1>Users</h1>
     <div class="options">
         <div class="btn-toolbar">
-            <a href="#" class="btn btn-primary hidden-xs" data-toggle="modal" data-target="#newModal">Add New</a>
+            <div class="btn-group hidden-xs">
+                <a href="#" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cloud-upload"></i><span class="hidden-sm"> Import  </span><span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="~/company/@this.RenderContext.Context.GetCompanyCode()/users/import/csv">CSV (*.csv)</a></li>
+                </ul>
+            </div>
+            <a href="javascript:;" class="btn btn-primary hidden-xs" data-toggle="modal" data-target="#newModal">Add New</a>
         </div>
     </div>
 </div>
@@ -302,7 +308,8 @@
                 if (isconfirm) {
                     $.ajax({
                         type: "DELETE",
-                        data: { UserPrincipalName: userPrincipalName }
+                        dataType: "json",
+                        data: { UserPrincipalName: userPrincipalName },
                     }).done(function () {
                         ReloadTable("dataTable");
                         ShowAlert("Deleted!", "User was successfully deleted", "success");

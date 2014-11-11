@@ -192,6 +192,7 @@ namespace CloudPanel.Modules.CompanyModules
 
             Post["/resetpassword"] = _ =>
             {
+                #region resets a user's password
                 string upn = _.UserPrincipalName;
                 string companyCode = _.CompanyCode;
 
@@ -233,6 +234,7 @@ namespace CloudPanel.Modules.CompanyModules
                     if (adUser != null)
                         adUser.Dispose();
                 }
+                #endregion
             };
         }
 
@@ -275,7 +277,7 @@ namespace CloudPanel.Modules.CompanyModules
                         powershell.Set_Mailbox(boundUser, plan, emailAddresses.ToArray());
 
                     logger.DebugFormat("Processing full access permissions for {0}", boundUser.UserPrincipalName);
-                    ProcessFullAccess(boundUser.UserPrincipalName, ref powershell, boundUser.EmailFullAccessOriginal, boundUser.EmailFullAccess, true);
+                    ProcessFullAccess(boundUser.UserPrincipalName, ref powershell, boundUser.EmailFullAccessOriginal, boundUser.EmailFullAccess, boundUser.AutoMapping);
 
                     logger.DebugFormat("Processing send as permissions for {0}", boundUser.UserPrincipalName);
                     ProcessSendAs(sqlUser.DistinguishedName, ref powershell, boundUser.EmailSendAsOriginal, boundUser.EmailSendAs);
