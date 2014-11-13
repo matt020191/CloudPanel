@@ -59,5 +59,9 @@ namespace CloudPanel.Base.Database.Models
         public string HeaderLogo { get; set; }
 
         public string Theme { get; set; }
+
+        public bool TopMenu { get; set; }
+
+        public bool TopMenuLargeIcons { get; set; }
     }
 }

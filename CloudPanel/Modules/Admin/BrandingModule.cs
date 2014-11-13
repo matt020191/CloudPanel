@@ -22,8 +22,8 @@ namespace CloudPanel.Modules
 
         public BrandingModule() : base("/admin/brandings")
         {
-            //this.RequiresAuthentication();
-            //this.RequiresAnyClaim(new[] { "SuperAdmin", "ResellerAdmin" });
+            this.RequiresAuthentication();
+            this.RequiresAnyClaim(new[] { "SuperAdmin", "ResellerAdmin" });
 
             Get["/new"] = _ =>
             {

@@ -222,7 +222,8 @@ namespace CloudPanel.Database.EntityFramework
         public virtual DbSet<SvcMailboxSizes> SvcMailboxSizes { get; set; }
         public virtual DbSet<SvcQueue> SvcQueue { get; set; }
         public virtual DbSet<SvcTask> SvcTask { get; set; }
-        public virtual DbSet<UserPermissions> UserPermissions { get; set; }
+        public virtual DbSet<UserPermission> UserPermission { get; set; }
+        public virtual DbSet<UserRole> UserRole { get; set; }
         public virtual DbSet<UserPlansCitrix> UserPlansCitrix { get; set; }
         public virtual DbSet<Users> Users { get; set; }
         public virtual DbSet<Plans_TerminalServices> Plans_TerminalServices { get; set; }

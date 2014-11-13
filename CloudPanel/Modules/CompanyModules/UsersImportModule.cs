@@ -5,6 +5,7 @@ using CloudPanel.Database.EntityFramework;
 using CloudPanel.Rollback;
 using log4net;
 using Nancy;
+using Nancy.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,9 +19,11 @@ namespace CloudPanel.Modules
 
         public UsersImportModule() : base("/company/{CompanyCode}/users/import")
         {
+            this.RequiresAuthentication();
+
             Get["/csv"] = _ =>
             { 
-                return View["Company/users_import.cshtml"];
+                return View["Company/users_importcsv.cshtml"];
             };
 
             Post["/csv"] = _ =>

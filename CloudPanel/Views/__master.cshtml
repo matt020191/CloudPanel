@@ -1,6 +1,6 @@
 ﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
 @using CloudPanel
-@{var branding = CloudPanel.Modules.BrandingModule.GetBranding(Url.RenderContext.Context.Request.Url.HostName);}
+@{var branding = CloudPanel.Modules.BrandingModule.GetBranding(Url.RenderContext.Context.Request.Url.HostName); }
 
 <!DOCTYPE html>
 <html lang="en">
@@ -34,7 +34,7 @@
     @RenderSection("HEAD", false)
 </head>
 
-<body class="">
+<body class="@(branding.TopMenu == true ? "horizontal-nav" : "")">
     <header class="navbar navbar-inverse navbar-fixed-top hidden-print" role="banner">
         <a id="leftmenu-trigger" class="tooltips" data-toggle="tooltip" data-placement="right" title="Toggle Sidebar"></a>
         <a id="rightmenu-trigger" class="tooltips" data-toggle="tooltip" data-placement="left" title="Toggle Infobar"></a>
@@ -66,10 +66,10 @@
             </li>
         </ul>
     </header>
-
+    @if (branding.TopMenu) { @Html.Partial("__topmenu.cshtml", branding.TopMenuLargeIcons) }
     <div id="page-container">
         
-        @Html.Partial("__leftmenu.cshtml")
+        @if (!branding.TopMenu) { @Html.Partial("__leftmenu.cshtml") }
 
         <div id="page-content">
             <div id="wrap">

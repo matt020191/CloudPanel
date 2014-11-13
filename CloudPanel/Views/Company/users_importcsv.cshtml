@@ -37,7 +37,7 @@
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-primary">
-                <div class="panel-heading">Import Users</div>
+                <div class="panel-heading">Import Users - <span id="importStatus"></span></div>
                 <div class="panel-body collapse in">
                     <div class="row">
                         <div class="fileinput fileinput-new" style="float:right" data-provides="fileinput">
@@ -62,7 +62,10 @@
                     </div>
                 </div>
                 <div class="panel-footer">
-                    <button id="submit" name="submit" class="btn-primary btn" type="submit">Submit</button>
+                    <div class="btn-toolbar text-right">
+                        <button class="btn-default btn" type="button" onclick="javascript: history.back()">Cancel</button>
+                        <button id="submit" name="submit" class="btn-primary btn" type="submit">Import</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -76,77 +79,79 @@
     <script src="~/Content/plugins/papaparse/papaparse.min.js"></script>
     <script src="~/Content/plugins/form-jasnyupload/fileinput.js"></script>
     <script type="text/javascript">
-    $(document).ready(function () {
-        $("#dataTable").DataTable();
+        var totalRunning = 0;
 
-        var config = buildConfig();
-        $("#submit").click(function () {
-            if (!$('#files')[0].files.length) {
-                ShowWarning("Please choose at least one file to parse.");
-            }
+        $(document).ready(function () {
+            $("#dataTable").DataTable();
 
-            $.blockUI({ message: $("#blockMessage") });
-            $('#files').parse({
-                config: config,
-                before: function (file, inputElem) {
-                    
-                },
-                error: function (err, file) {
-                    ShowError(err);
-                },
-                complete: function () {
-
+            var config = buildConfig();
+            $("#submit").click(function () {
+                if (!$('#files')[0].files.length) {
+                    ShowWarning("Please choose at least one file to parse.");
                 }
+
+                $("#importStatus").html("Parsing CSV...");
+                $('#files').parse({
+                    config: config,
+                    before: function (file, inputElem) {
+
+                    },
+                    error: function (err, file) {
+                        ShowError(err);
+                    },
+                    complete: function () {
+
+                    }
+                });
             });
         });
-    });
 
-    function buildConfig() {
-        return {
-            delimiter: ",",
-            header: true,
-            complete: completeFn,
-            error: errorFn
-        };
-    }
-
-    function completeFn(results) {
-        if (results && results.errors) {
-            if (results.errors) {
-                errorCount = results.errors.length;
-                firstError = results.errors[0];
-            }
-            if (results.data && results.data.length > 0)
-                rowCount = results.data.length;
+        function buildConfig() {
+            return {
+                delimiter: ",",
+                header: true,
+                complete: completeFn,
+                error: errorFn
+            };
         }
 
-        $.each(results.data, function (index, value) {
-            Import(value);
-        });
+        function completeFn(results) {
+            if (results && results.errors) {
+                if (results.errors) {
+                    errorCount = results.errors.length;
+                    firstError = results.errors[0];
+                }
+                if (results.data && results.data.length > 0)
+                    rowCount = results.data.length;
+            }
 
-        $.unblockUI();
-    }
+            var success = 0;
+            var fail = 0;
+            var total = results.data.length;
 
-    function errorFn(err, file) {
-        console.log("ERROR:", err, file);
-    }
+            var t = $("#dataTable").DataTable();
+            $.each(results.data, function (index, user) {
+                $.ajax({
+                    type: "POST",
+                    url: "",
+                    data: user,
+                    async: true,
+                }).success(function () {
+                    success++;
+                    t.row.add(["<img src='@Url.Content("~/Content/img/success.png")' width='24px' />", user.UserPrincipalName, "Successfully created user"]).draw();
+                }).fail(function (data) {
+                    fail++;
+                    var r = t.row.add(["<img src='@Url.Content("~/Content/img/error.png")' width='24px' />", user.UserPrincipalName, "Error: " + data.responseJSON.error]).draw().node();
+                    $(r).css('color', 'red');
+                }).always(function () {
+                    $("#importStatus").html("Success: " + success + "/" + total + ". FAILED: " + fail);
+                });;
 
-    function Import(user) {
-        $("#blockMessage").html('Importing ' + user.UserPrincipalName);
+            });
+        }
 
-        var t = $("#dataTable").DataTable();
-        $.ajax({
-            type: "POST",
-            url: "",
-            data: user,
-            async: false,
-            cache: false,
-          }).success(function () {
-              t.row.add(["<img src='@Url.Content("~/Content/img/success.png")' width='24px' />", user.UserPrincipalName, "Successfully created user"]).draw();
-          }).fail(function (data) {
-              var r = t.row.add(["<img src='@Url.Content("~/Content/img/error.png")' width='24px' />", user.UserPrincipalName, "Error: " + data.responseJSON.error]).draw().node();
-              $(r).css('color', 'red');
-          });
-    }
-    </script>
+        function errorFn(err, file) {
+            console.log("ERROR:", err, file);
+        }
+</script>
 }

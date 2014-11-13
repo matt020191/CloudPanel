@@ -1402,7 +1402,9 @@
     <Content Include="Views\Admin\settings.cshtml" />
     <Content Include="Views\Plans\activesync.cshtml" />
     <Content Include="Views\Company\Exchange\resourcemailboxes_edit.cshtml" />
-    <Content Include="Views\Company\users_import.cshtml" />
+    <Content Include="Views\Company\users_importcsv.cshtml" />
+    <Content Include="Views\Company\Exchange\bulk.cshtml" />
+    <Content Include="Views\__topmenu.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

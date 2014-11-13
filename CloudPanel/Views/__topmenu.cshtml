@@ -1,0 +1,94 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@using CloudPanel.Base.Config
+@using CloudPanel
+
+@{
+    bool isSuperAdmin = this.RenderContext.Context.IsSuperAdmin();
+    bool isResellerAdmin = this.RenderContext.Context.IsResellerAdmin();
+
+    string resellerCode = this.RenderContext.Context.GetResellerCode();
+    string companyCode = this.RenderContext.Context.GetCompanyCode();
+}
+
+<nav class="navbar navbar-default yamm" role="navigation">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+            <i class="fa fa-bars"></i>
+        </button>
+    </div>
+    <div class="collapse navbar-collapse navbar-ex1-collapse @((Model != null && Model == true) ? "large-icons-nav" : "")" id="horizontal-navbar">
+        <ul class="nav navbar-nav">
+            <li><a href="~/dashboard"><i class="fa fa-home"></i> <span>Dashboard</span></a></li>
+            @if (isSuperAdmin)
+            {
+                <li><a href="~/resellers"><i class="fa fa-users"></i> <span>Resellers</span></a></li>
+            }
+            @if (!string.IsNullOrEmpty(resellerCode))
+            {
+                <li><a href="@Url.Content("~/companies/" + resellerCode)"><i class="fa fa-building"></i> <span>Companies</span></a></li>
+            }
+            @if (isSuperAdmin)
+            {
+                <li class="dropdown">
+                    <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-pencil"></i> <span>Plans <i class="fa fa-angle-down"></i></span></a>
+                    <ul class="dropdown-menu">
+                        @if (Settings.CitrixModule)
+                        {
+                            <li><a href="~/plans/citrix">Citrix</a></li>
+                        }
+                        <li><a href="~/plans/company/new">Company</a></li>
+                        @if (Settings.ExchangeModule)
+                        {
+                             <li><a href="~/plans/exchange/mailbox/new">Mailbox Plans</a></li>
+                             <li><a href="~/plans/exchange/activesync">Activesync Plans</a></li>
+                        }
+                        @if (Settings.LyncModule)
+                        {
+                            <li><a href="~/plans/lync">Lync</a></li>
+                        }
+                    </ul>
+                </li>
+                <li><a href="~/reports"><i class="fa fa-bar-chart-o"></i> <span>Reports</span></a></li>
+            }
+            @if (isSuperAdmin || isResellerAdmin)
+            {
+                <li class="dropdown">
+                    <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-gears"></i> <span>Admin Area <i class="fa fa-angle-down"></i></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="~/admin/brandings/new">Company Branding</a></li>
+                        <li><a href="~/admin/email">Mass Email</a></li>
+                        <li><a href="~/admin/settings">Settings</a></li>
+                    </ul>
+                </li>
+            }
+            @if (!string.IsNullOrEmpty(companyCode))
+            {
+                <li><a href="~/company/@companyCode/overview"><i class="fa fa-dashboard"></i> <span>Overview</span></a></li>
+                <li><a href="~/company/@companyCode/domains"><i class="fa fa-globe"></i> <span>Domains</span></a></li>
+                <li><a href="~/company/@companyCode/users"><i class="fa fa-user"></i> <span>Users</span></a></li>
+                @if (Settings.ExchangeModule)
+                {
+                    <li class="dropdown">
+                        <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-envelope"></i> <span>Exchange <i class="fa fa-angle-down"></i></span></a>
+                        <ul class="dropdown-menu">
+                            @if (!CloudPanel.CPStaticHelpers.IsExchangeEnabled(companyCode))
+                            {
+                                <li><a href="~/company/@companyCode/exchange/enable">Enable</a></li>
+                            }
+                            else
+                            {
+                                <li><a href="~/company/@companyCode/exchange/disable">Disable</a></li>
+                                <li><a href="~/company/@companyCode/exchange/contacts">Contacts</a></li>
+                                <li><a href="~/company/@companyCode/exchange/groups">Distribution Groups</a></li>
+                                <li><a href="~/company/@companyCode/exchange/resourcemailboxes">Resource Mailboxes</a></li>
+                                <li><a href="~/company/@companyCode/exchange/publicfolders">Public Folders</a></li>
+                            }
+                        </ul>
+                    </li>
+                }
+                <li><a href="~/company/@companyCode/citrix"><i class="fa fa-tablet"></i> <span>Citrix</span></a></li>
+                <li><a href="~/company/@companyCode/billing"><i class="fa fa-money"></i> <span>Billing</span></a></li>
+            }
+        </ul>
+    </div>
+</nav>

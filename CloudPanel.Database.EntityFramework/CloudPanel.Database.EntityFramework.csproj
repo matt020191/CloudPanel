@@ -96,6 +96,10 @@
     <Compile Include="Migrations\201411101734011_AddDNToResourceTable.Designer.cs">
       <DependentUpon>201411101734011_AddDNToResourceTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201411122303032_UserPermissionTables.cs" />
+    <Compile Include="Migrations\201411122303032_UserPermissionTables.Designer.cs">
+      <DependentUpon>201411122303032_UserPermissionTables.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -142,6 +146,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201411101734011_AddDNToResourceTable.resx">
       <DependentUpon>201411101734011_AddDNToResourceTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201411122303032_UserPermissionTables.resx">
+      <DependentUpon>201411122303032_UserPermissionTables.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
 //
@@ -29,28 +29,15 @@
 //
 namespace CloudPanel.Base.Database.Models
 {
-    using System;
-    using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity.Spatial;
 
-    public partial class UserPermissions
+    public partial class UserPermission
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int UserID { get; set; }
 
-        public bool EnableExchange { get; set; }
-
-        public bool DisableExchange { get; set; }
-
-        public bool AddDomain { get; set; }
-
-        public bool DeleteDomain { get; set; }
-
-        public bool ModifyAcceptedDomain { get; set; }
-
-        public bool ImportUsers { get; set; }
+        public int RoleID { get; set; }
     }
 }

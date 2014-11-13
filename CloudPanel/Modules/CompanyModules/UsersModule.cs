@@ -32,7 +32,7 @@ namespace CloudPanel.Modules
                 return View["Company/users.cshtml"];
             };
 
-            Get["/", c => c.Request.Accept("application/json")] = _ =>
+            Get["/", c => !c.Request.Accept("text/html")] = _ =>
             {
                 #region Returns the users view with model or json data based on the request
                 CloudPanelContext db = null;
@@ -97,16 +97,18 @@ namespace CloudPanel.Modules
                     orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
 
                     // See if we are using dataTables to search
+                    logger.DebugFormat("Search value was {0}", searchValue);
                     if (!string.IsNullOrEmpty(searchValue))
                     {
                         users = (from d in users
-                                 where d.DisplayName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                  where d.DisplayName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
                                         d.UserPrincipalName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                        d.SamAccountName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                        d.Department.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                        d.Email.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
+                                        (d.SamAccountName != null && d.SamAccountName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
+                                        (d.Department != null && d.Department.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
+                                        (d.Email != null && d.Email.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1)
                                  select d).ToList();
                         recordsFiltered = users.Count;
+                        logger.DebugFormat("Total records filtered was {0}", recordsFiltered);
                     }
 
                     if (isAscendingOrder)
@@ -134,6 +136,7 @@ namespace CloudPanel.Modules
                 }
                 catch (Exception ex)
                 {
+                    logger.ErrorFormat("Error getting users: {0}", ex.ToString());
                     return Negotiate.WithModel(new { error = ex.Message })
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
@@ -324,9 +327,9 @@ namespace CloudPanel.Modules
                                 db.UserPlansCitrix.RemoveRange(citrixPlans);
 
                             logger.DebugFormat("Clearing user from permissions");
-                            var permissions = from d in db.UserPermissions where d.UserID == userId select d;
+                            var permissions = from d in db.UserPermission where d.UserID == userId select d;
                             if (permissions != null)
-                                db.UserPermissions.RemoveRange(permissions);
+                                db.UserPermission.RemoveRange(permissions);
 
                             logger.DebugFormat("Clearing user from queues");
                             var queues = from d in db.SvcQueue where d.UserPrincipalName == upn select d;

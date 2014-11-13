@@ -5,7 +5,7 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<CloudPanel.Database.EntityFramework.CloudPanelContext>
+    public sealed class Configuration : DbMigrationsConfiguration<CloudPanel.Database.EntityFramework.CloudPanelContext>
     {
         public Configuration()
         {

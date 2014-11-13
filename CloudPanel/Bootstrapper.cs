@@ -3,6 +3,7 @@
     using CloudPanel.Base.Config;
     using CloudPanel.Code;
     using CloudPanel.Database.EntityFramework;
+    using CloudPanel.Database.EntityFramework.Migrations;
     using CloudPanel.Modules;
     using log4net.Config;
     using Nancy;
@@ -10,12 +11,17 @@
     using Nancy.Bootstrapper;
     using Nancy.Session;
     using Nancy.TinyIoc;
+    using Entity = System.Data.Entity;
 
     public class Bootstrapper : DefaultNancyBootstrapper
     {
         protected override void ApplicationStartup(Nancy.TinyIoc.TinyIoCContainer container, Nancy.Bootstrapper.IPipelines pipelines)
         {
+            //
             StaticConfiguration.DisableErrorTraces = false;
+            
+            // Upgrade database on start
+            Entity.Database.SetInitializer(new Entity.MigrateDatabaseToLatestVersion<CloudPanelContext, Configuration>());
 
             // Enable the logger
             XmlConfigurator.Configure();
