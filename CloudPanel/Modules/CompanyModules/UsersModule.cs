@@ -471,12 +471,82 @@ namespace CloudPanel.Modules
                     powershell.Dispose();
             }
         }
-        
-        /// <summary>
-        /// Gets a list of mailbox users
-        /// </summary>
-        /// <param name="companyCode"></param>
-        /// <returns></returns>
+
+
+        public static List<Users> GetUsers(string companyCode)
+        {
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                logger.DebugFormat("Getting users for {0}", companyCode);
+                var users = (from u in db.Users
+                             where u.CompanyCode == companyCode
+                             orderby u.DisplayName
+                             select u).ToList();
+
+                logger.DebugFormat("Found a total of {0} users", users.Count());
+                return users;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting users: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static IHtmlString GetUsersOptions(string companyCode, string[] selectedValues)
+        {
+            var returnString = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                logger.DebugFormat("Getting users for {0}", companyCode);
+                var users = (from u in db.Users
+                             where u.CompanyCode == companyCode
+                             orderby u.DisplayName
+                             select u).ToList();
+
+                logger.DebugFormat("Found a total of {0}  users", users.Count());
+                if (users != null)
+                {
+                    users.ForEach(x =>
+                    {
+                        if (!string.IsNullOrEmpty(x.DistinguishedName))
+                        {
+                            returnString.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                                x.UserPrincipalName,
+                                (selectedValues != null && selectedValues.Contains(x.UserPrincipalName)) ? "selected" : "",
+                                x.DisplayName);
+                        }
+                    });
+                }
+
+                return new NonEncodedHtmlString(returnString.ToString());
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting users: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
         public static List<Users> GetMailboxUsers(string companyCode)
         {
             CloudPanelContext db = null;

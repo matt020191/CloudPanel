@@ -1,5 +1,225 @@
-﻿@{
-    Layout = "~/Views/__master.cshtml";
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@using CloudPanel
+
+@{
+    Layout = "__master.cshtml";
 }
 
+@section HEAD{
+    <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-select2/select2.css" rel="stylesheet" />
+    <link href="~/Content/js/jqueryui.min.css" rel="stylesheet" />
+}
 
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li><a href="~/company/@this.RenderContext.Context.GetCompanyCode()/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
+        <li>Exchange</li>
+        <li class="active">Bulk Modify</li>
+    </ol>
+
+    <h1>Bulk Edit</h1>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Bulk</div>
+                <div class="panel-body">
+                    <form action="#" id="basicwizard" class="form-horizontal">
+
+                        <fieldset title="Choose Users">
+                            <legend>Choose users to modify</legend>
+                            <table cellpadding="0" cellspacing="0" border="0" class="table table-striped datatables" id="dataTable">
+                                <thead>
+                                    <tr>
+                                        <th align="center" width="10px"><input id="SelectAll" type="checkbox" onclick="javascript: CheckboxCol(this);" /></th>
+                                        <th>Display Name</th>
+                                        <th>Username</th>
+                                        <th>Has Mailbox?</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in CloudPanel.Modules.UsersModule.GetUsers(this.RenderContext.Context.GetCompanyCode()))
+                                    {
+                                        <tr>
+                                            <td align="center" class="selector"><input name="CheckedUsers" type="checkbox" value="@user.UserPrincipalName"/></td>
+                                            <td>@user.DisplayName</td>
+                                            <td>@user.UserPrincipalName</td>
+                                            <td>@(user.MailboxPlan > 0 ? "True" : "False")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </fieldset>
+
+                        <fieldset title="Choose Action">
+                            <legend>Choose the action to take</legend>
+                            <div class="row">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Choose the action you wish to take:</label>
+                                    <div class="col-sm-6">
+                                        <div class="radio">
+                                            <label>
+                                                <input type="radio" name="ActionToTake" id="ActionToTake" value="0" onclick="javascript: HideDisable();" checked>
+                                                Choose a plan, size, and enable all the mailboxes you have selected
+                                            </label>
+                                        </div>
+                                        <div class="radio">
+                                            <label>
+                                                <input type="radio" name="ActionToTake" id="ActionToTake" value="2" onclick="javascript: HideDisable();">
+                                                Change the plan, size, features for all the mailboxes you have selected
+                                            </label>
+                                        </div>
+                                        <div class="radio">
+                                            <label>
+                                                <input type="radio" name="ActionToTake" id="ActionToTake" value="1" onclick="javascript: ShowDisable();">
+                                                Disable all the mailboxes you have selected. This will remove their mailbox data and it may or may not be recoverable.
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset title="Set Values">
+                            <legend>Set the values for the action</legend>
+                            <div class="row">
+                                <div class="form-horizontal">
+
+                                    <div id="EnableChange">
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">Plan</label>
+                                        <div class="col-sm-6">
+                                            @CloudPanel.CPHtmlHelpers.GetMailboxPlans(0, this.RenderContext.Context.GetCompanyCode(), "", "MailboxPlan")
+                                            <p id="mailboxPlanDescription"></p>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">Email</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="EmailFirst" name="EmailFirst">
+                                                <span class="input-group-addon">@@</span>
+                                                @CloudPanel.CPHtmlHelpers.GetAcceptedDomains(this.RenderContext.Context.GetCompanyCode(), "EmailDomain")
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="sliderDiv" class="form-group">
+                                        <label class="col-sm-3 control-label">Size</label>
+                                        <div class="col-sm-6" style="padding-top: 13px">
+                                            <div id="slider-range-min" class="slider bg-yellow"></div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <p class="help-block">
+                                                <div class="slider-value">
+                                                    <span class="slider-value" id="slider-range-min-amount"></span>
+                                                    <input id="SizeInMB" name="SizeInMB" type="hidden" />
+                                                </div>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    </div>
+
+                                    <div id="Disable" style="display: none;" class="text-center">
+                                        <h3>There are no values to set since you chose to disable mailboxes</h3>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <input type="submit" class="finish btn-success btn" value="Submit" />
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section JAVASCRIPT{
+    <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
+    <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
+    <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
+    <script src="~/Content/plugins/form-stepy/jquery.stepy.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('#basicwizard').stepy({
+                legend: false
+            });
+
+            $('.stepy-navigator').wrapInner('<div class="pull-right"></div>');
+
+            $("#dataTable").DataTable({
+                "lengthChange": false,
+                "stateSave": false,
+                "lengthMenu": [25],
+                "ordering": false
+            });
+
+            $("#MailboxPlan").change(function () {
+                var option = $("#MailboxPlan option:selected");
+                SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
+            });
+
+            var option = $("#MailboxPlan option:selected");
+            SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
+
+            /* Multiple fields */
+            $(".populate").select2({
+                width: 'resolve'
+            });
+        });
+
+        function CheckboxCol(source) {
+            var table = $('#dataTable').DataTable();
+            var cells = table
+                        .cells(".selector")
+                        .nodes();
+
+            $(cells).find(":checkbox").prop("checked", $(source).is(":checked"));
+        }
+
+        function SetSlider(min, max, selectedValue, description) {
+            if (min == 0) {
+                $("#sliderDiv").hide();
+                $("#SizeInMB").val("0");
+            }
+            else {
+                $("#sliderDiv").show();
+                $("#slider-range-min").slider({
+                    range: "min",
+                    value: selectedValue,
+                    step: 256,
+                    min: min,
+                    max: max,
+                    change: function (event, ui) {
+                        $("#slider-range-min-amount").text(ui.value + "MB");
+                        $("#SizeInMB").val(ui.value);
+                    }
+                });
+
+                $("#slider-range-min-amount").text(selectedValue + "MB");
+                $("#SizeInMB").val(selectedValue);
+            }
+
+            $("#mailboxPlanDescription").text(description)
+        }
+
+        function ShowDisable()
+        {
+            $("#Disable").show();
+            $("#EnableChange").hide();
+        }
+
+        function HideDisable()
+        {
+            $("#Disable").hide();
+            $("#EnableChange").show();
+        }
+    </script>
+}
