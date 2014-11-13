@@ -89,39 +89,76 @@
                             <legend>Set the values for the action</legend>
                             <div class="row">
                                 <div class="form-horizontal">
-
                                     <div id="EnableChange">
-                                    <div class="form-group">
-                                        <label class="col-sm-3 control-label">Plan</label>
-                                        <div class="col-sm-6">
-                                            @CloudPanel.CPHtmlHelpers.GetMailboxPlans(0, this.RenderContext.Context.GetCompanyCode(), "", "MailboxPlan")
-                                            <p id="mailboxPlanDescription"></p>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-sm-3 control-label">Email</label>
-                                        <div class="col-sm-6">
-                                            <div class="input-group">
-                                                <input type="text" class="form-control" id="EmailFirst" name="EmailFirst">
-                                                <span class="input-group-addon">@@</span>
-                                                @CloudPanel.CPHtmlHelpers.GetAcceptedDomains(this.RenderContext.Context.GetCompanyCode(), "EmailDomain")
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">Plan</label>
+                                            <div class="col-sm-6">
+                                                @CloudPanel.CPHtmlHelpers.GetMailboxPlans(0, this.RenderContext.Context.GetCompanyCode(), "", "MailboxPlan")
+                                                <p id="mailboxPlanDescription"></p>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <input id="UpdatePlan" name="UpdatePlan" type="checkbox" value="false" /> Update Plan
                                             </div>
                                         </div>
-                                    </div>
-                                    <div id="sliderDiv" class="form-group">
-                                        <label class="col-sm-3 control-label">Size</label>
-                                        <div class="col-sm-6" style="padding-top: 13px">
-                                            <div id="slider-range-min" class="slider bg-yellow"></div>
+                                        <div id="sliderDiv" class="form-group">
+                                            <label class="col-sm-3 control-label">Size</label>
+                                            <div class="col-sm-5" style="padding-top: 13px">
+                                                <div id="slider-range-min" class="slider bg-yellow"></div>
+                                            </div>
+                                            <div class="col-sm-1">
+                                                <p class="help-block">
+                                                    <div class="slider-value">
+                                                        <span class="slider-value" id="slider-range-min-amount"></span>
+                                                        <input id="SizeInMB" name="SizeInMB" type="hidden" />
+                                                    </div>
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div class="col-sm-3">
-                                            <p class="help-block">
-                                                <div class="slider-value">
-                                                    <span class="slider-value" id="slider-range-min-amount"></span>
-                                                    <input id="SizeInMB" name="SizeInMB" type="hidden" />
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label"></label>
+                                            <div class="col-sm-6">
+                                                <h4>Choose a format for the email addresses. See example below:</h4>
+                                                <p>Example User: John Doe</p>
+                                                <p>Example Domain: domain.com </p>
+                                                <p>Example Login: jdoe@domain.com</p>
+                                                <hr />
+                                                <div class="radio">
+                                                    <label><input type="radio" name="EmailFormat" id="EmailFormat" value="0" checked> Username: jdoe@domain.com</label>
                                                 </div>
-                                            </p>
+                                                <div class="radio">
+                                                    <label><input type="radio" name="EmailFormat" id="EmailFormat" value="1"> Firstname: john@domain.com</label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label><input type="radio" name="EmailFormat" id="EmailFormat" value="2"> Lastname: doe@domain.com</label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label><input type="radio" name="EmailFormat" id="EmailFormat" value="3"> Firstname.Lastname: John.Doe@domain.com</label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label><input type="radio" name="EmailFormat" id="EmailFormat" value="4"> FirstnameLastname: JohnDoe@domain.com</label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label><input type="radio" name="EmailFormat" id="EmailFormat" value="5"> Lastname.Firstname: Doe.John@domain.com</label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label><input type="radio" name="EmailFormat" id="EmailFormat" value="6"> LastnameFirstname: DoeJohn@domain.com</label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label><input type="radio" name="EmailFormat" id="EmailFormat" value="7"> FirstInitialLastname: jdoe@domain.com</label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label><input type="radio" name="EmailFormat" id="EmailFormat" value="8"> LastnameFirstInitial: DoeJ@domain.com</label>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">Domain</label>
+                                            <div class="col-sm-6">
+                                                <select id="EmailDomain" name="EmailDomain" class="form-control">
+                                                    @CloudPanel.Modules.DomainsModule.GetAcceptedDomainsOptions(this.RenderContext.Context.GetCompanyCode(), 0)
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div id="Disable" style="display: none;" class="text-center">
