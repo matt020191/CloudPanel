@@ -6,6 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using log4net;
+using CloudPanel.Database.EntityFramework;
+using CloudPanel.Base.Config;
+using CloudPanel.Exchange;
+using System.Text;
 
 namespace CloudPanel.Modules.CompanyModules.Exchange
 {
@@ -56,13 +60,14 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
 
                     logger.DebugFormat("Unparsed users is {0}", Request.Form.CheckedUsers.Value);
                     string users = Request.Form.CheckedUsers.Value;
-                    string[] userPrincipalName = users.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] userPrincipalNames = users.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
                     ActionToTake action = Enum.Parse(typeof(ActionToTake), Request.Form.ActionToTake.Value);
                     switch (action)
                     {
                         case ActionToTake.Disable:
                             logger.DebugFormat("Disable action was taken");
+                            DisableMailboxes(userPrincipalNames, companyCode);
                             break;
                         default:
                             throw new Exception("Unknown action was specified");
@@ -87,9 +92,58 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
             };
         }
 
-        private void DisableMailboxes(string[] userPrincipalNames)
+        private void DisableMailboxes(string[] userPrincipalNames, string companyCode)
         {
+            CloudPanelContext db = null;
+            dynamic powershell = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
 
+                powershell = ExchPowershell.GetClass();
+                foreach (var u in userPrincipalNames)
+                {
+                    logger.DebugFormat("Validating user {0} for {1} for disabling mailboxes", u, companyCode);
+                    if (!string.IsNullOrEmpty(u))
+                    {
+                        logger.DebugFormat("User {0} passed validating... Checking SQL");
+                        var sqlUser = (from d in db.Users
+                                       where d.CompanyCode == companyCode
+                                       where d.UserPrincipalName == u
+                                       select d).FirstOrDefault();
+
+                        if (sqlUser != null)
+                        {
+                            powershell.Disable_Mailbox(u);
+                            sqlUser.MailboxPlan = 0;
+                            sqlUser.AdditionalMB = 0;
+                            sqlUser.ActiveSyncPlan = 0;
+                            sqlUser.Email = string.Empty;
+                            sqlUser.LitigationHoldDate = string.Empty;
+                            sqlUser.LitigationHoldEnabled = false;
+                            sqlUser.LitigationHoldOwner = string.Empty;
+                            db.SaveChanges();
+                        }
+                        else
+                            throw new Exception("User was not found in database: " + u);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error disabling mailboxes: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (powershell != null)
+                    powershell.Dispose();
+
+                if (db != null)
+                    db.Dispose();
+
+            }
         }
     }
 }

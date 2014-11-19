@@ -75,7 +75,7 @@ namespace CloudPanel
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error logging in user {0}: {1}", username, ex.ToString());
-                return null;
+                throw;
             }
             finally
             {

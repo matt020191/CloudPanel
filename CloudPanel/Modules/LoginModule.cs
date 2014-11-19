@@ -27,22 +27,22 @@ namespace CloudPanel.Modules
                 var username = this.Request.Form.username;
                 var password = this.Request.Form.password;
 
-                Guid? usersGuid = UserMapper.ValidateUser(username, password);
-                if (usersGuid == null)
+                try
                 {
-                    ViewBag.LoginError = "Invalid username or password.";
-                    return View["login.cshtml"];
-                }
-                else
-                {
+                    Guid? usersGuid = UserMapper.ValidateUser(username, password);
                     return this.LoginAndRedirect(usersGuid.Value, null, "~/dashboard");
+                }
+                catch (Exception ex)
+                {
+                    ViewBag.LoginError = "Error: " + ex.Message;
+                    return View["login.cshtml"];
                 }
             };
 
             Get["/logout"] = _ =>
-                {
+            {
                     return this.Logout("~/login");
-                };
+            };
         }
     }
 }
