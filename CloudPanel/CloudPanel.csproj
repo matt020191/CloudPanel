@@ -1329,7 +1329,7 @@
     <Content Include="Content\plugins\sparklines\jQuery Sparklines.url" />
     <Content Include="Views\__master.cshtml" />
     <Content Include="Views\__leftmenu.cshtml" />
-    <Content Include="Views\dashboard_super.cshtml" />
+    <Content Include="Views\Dashboard\dashboard_super.cshtml" />
     <Content Include="Content\variations\header-black.less" />
     <Content Include="Content\variations\header-blue.less" />
     <Content Include="Content\variations\header-processcolors.less" />
@@ -1406,6 +1406,9 @@
     <Content Include="Views\Company\users_importcsv.cshtml" />
     <Content Include="Views\Company\Exchange\bulk.cshtml" />
     <Content Include="Views\__topmenu.cshtml" />
+    <Content Include="Views\success.cshtml" />
+    <Content Include="Views\Dashboard\dashboard_reseller.cshtml" />
+    <Content Include="Views\Dashboard\dashboard_admin.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

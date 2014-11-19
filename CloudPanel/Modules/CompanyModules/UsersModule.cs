@@ -46,8 +46,9 @@ namespace CloudPanel.Modules
                                  join m in db.Plans_ExchangeMailbox on d.MailboxPlan equals m.MailboxPlanID into d1
                                  from mailboxplan in d1.DefaultIfEmpty()
                                  join s in db.SvcMailboxSizes on d.UserPrincipalName equals s.UserPrincipalName into d2
-                                 from mailboxinfo in d2.DefaultIfEmpty()
+                                 from mailboxinfo in d2.DefaultIfEmpty().Take(1)
                                  where d.CompanyCode == companyCode
+                                 orderby mailboxinfo.Retrieved descending
                                  select new
                                  {
                                      UserGuid = d.UserGuid,

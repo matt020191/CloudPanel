@@ -1051,7 +1051,7 @@ namespace CloudPanel.Exchange
         /// Disables an Exchange mailbox
         /// </summary>
         /// <param name="userPrincipalName">UserPrincipalName of the user to disable</param>
-        public void Disable_Mailbox(string userPrincipalName)
+        public void Disable_Mailbox(string userPrincipalName, bool ignoreNotFound = false)
         {
             logger.DebugFormat("Removing mailbox {0}", userPrincipalName);
 
@@ -1063,7 +1063,7 @@ namespace CloudPanel.Exchange
             _powershell.Commands = cmd;
             _powershell.Invoke();
 
-            HandleErrors();
+            HandleErrors(ignoreNotFound, false);
         }
 
         /// <summary>

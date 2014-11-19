@@ -1,0 +1,43 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+@{
+    Layout = "__master.cshtml";
+}
+@section HEAD{
+}
+
+<div id="page-heading">
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Success</div>
+                <div class="panel-body">
+                    <p class="text-center">
+                        <span class="text-danger" style="font-size:4em;">Completed</span>
+                    </p>
+
+                    <br />
+                    <br />
+
+                    <pre>
+                        @if (Model != null)
+                        {
+                            var dict = ((System.Collections.Generic.IDictionary<string, object>)Model);
+                            if (dict.ContainsKey("success"))
+                            {
+                                @Model.success
+                            }
+                        }
+                    </pre>
+
+                    <br />
+                    <br />
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+</div>

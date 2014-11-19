@@ -74,8 +74,8 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     }
 
 
-                    return Negotiate.WithModel(new { success = "" })
-                                    .WithView("error.cshtml");
+                    return Negotiate.WithModel(new { success = "Bulk action has successfully completed." })
+                                    .WithView("success.cshtml");
                 }
                 catch (Exception ex)
                 {
@@ -84,10 +84,6 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     ViewBag.error = ex.ToString();
                     return Negotiate.WithModel(new { error = ex.Message })
                                     .WithView("error.cshtml");
-                }
-                finally
-                {
-
                 }
             };
         }
@@ -107,7 +103,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     logger.DebugFormat("Validating user {0} for {1} for disabling mailboxes", u, companyCode);
                     if (!string.IsNullOrEmpty(u))
                     {
-                        logger.DebugFormat("User {0} passed validating... Checking SQL");
+                        logger.DebugFormat("User {0} passed validating... Checking SQL", u);
                         var sqlUser = (from d in db.Users
                                        where d.CompanyCode == companyCode
                                        where d.UserPrincipalName == u
@@ -115,15 +111,18 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
 
                         if (sqlUser != null)
                         {
-                            powershell.Disable_Mailbox(u);
-                            sqlUser.MailboxPlan = 0;
-                            sqlUser.AdditionalMB = 0;
-                            sqlUser.ActiveSyncPlan = 0;
-                            sqlUser.Email = string.Empty;
-                            sqlUser.LitigationHoldDate = string.Empty;
-                            sqlUser.LitigationHoldEnabled = false;
-                            sqlUser.LitigationHoldOwner = string.Empty;
-                            db.SaveChanges();
+                            if (sqlUser.MailboxPlan > 0)
+                            {
+                                powershell.Disable_Mailbox(u);
+                                sqlUser.MailboxPlan = 0;
+                                sqlUser.AdditionalMB = 0;
+                                sqlUser.ActiveSyncPlan = 0;
+                                sqlUser.Email = string.Empty;
+                                sqlUser.LitigationHoldDate = string.Empty;
+                                sqlUser.LitigationHoldEnabled = false;
+                                sqlUser.LitigationHoldOwner = string.Empty;
+                                db.SaveChanges();
+                            }
                         }
                         else
                             throw new Exception("User was not found in database: " + u);

@@ -22,56 +22,88 @@ namespace CloudPanel.Modules
         {
             this.RequiresAuthentication();
 
-            Get["/"] = _ =>
+            Get["/", c => c.Request.Accept("text/html")] = _ =>
+            {
+                if (this.Context.IsSuperAdmin())
+                    return View["Dashboard/dashboard_super.cshtml"];
+
+                if (this.Context.IsResellerAdmin())
+                    return View["Dashboard/dashboard_reseller.cshtml"];
+
+                return View["Dashboard/dashboard_admin.cshtml"];
+            };
+
+            Get["/", c => (!c.Request.Accept("text/html") && c.IsSuperAdmin())] = _ =>
+            {
+                CloudPanelContext db = null;
+                try
                 {
-                    CloudPanelContext db = null;
-                    try
+                    db = new CloudPanelContext(Settings.ConnectionString);
+                    db.Database.Connection.Open();
+
+                    var companies = from d in db.Companies select d;
+                    var users = from d in db.Users select d;
+
+                    int totalResellers = 0, totalCompanies = 0, totalUsers = 0, totalMailboxes = 0;
+                    totalResellers = (from d in companies where d.IsReseller select d.CompanyId).Count();
+                    totalCompanies = (from d in companies where !d.IsReseller select d.CompanyId).Count();
+                    totalUsers = users.Count();
+                    totalMailboxes = (from d in users where d.MailboxPlan > 0 select d.ID).Count();
+
+                    // Get all mailboxes
+                    var sqlMailboxes = (from d in users
+                                            join d1 in db.Plans_ExchangeMailbox on d.MailboxPlan equals d1.MailboxPlanID into d1tmp
+                                            from data1 in d1tmp.DefaultIfEmpty()
+                                            where d.MailboxPlan > 0
+                                            select new
+                                            {
+                                                UserPrincipalName = d.UserPrincipalName,
+                                                AdditionalMB = d.AdditionalMB == null ? 0 : d.AdditionalMB,
+                                                PlanMB = data1.MailboxSizeMB
+                                            }).ToList();
+
+                    // Get all allocated mailbox space
+                    long totalUsed = 0;
+                    sqlMailboxes.ForEach(x =>
                     {
-                        db = new CloudPanelContext(Settings.ConnectionString);
-                        db.Database.Connection.Open();
+                        long total = 0;
+                        total = (from d in db.SvcMailboxSizes
+                                 where d.UserPrincipalName == x.UserPrincipalName
+                                 orderby d.Retrieved descending
+                                 select d.TotalItemSizeInBytes).FirstOrDefault();
 
-                        // Get totals
-                        var resellers = (from d in db.Companies where d.IsReseller select d.CompanyId).Count();
-                        var companies = (from d in db.Companies where !d.IsReseller select d.CompanyId).Count();
-                        var users = (from d in db.Users select d.ID).Count();
-                        var mailboxes = (from d in db.Users where d.MailboxPlan > 0 select d.ID).Count();
+                        totalUsed += total;
+                    });
 
-                        // Calculate mailbox allocated space
-                        var mailboxAllocated = (from d in db.Users
-                                                join d1 in db.Plans_ExchangeMailbox on d.MailboxPlan equals d1.MailboxPlanID into d1Tmp
-                                                from data1 in d1Tmp.DefaultIfEmpty()
-                                                where d.MailboxPlan > 0
-                                                select new
-                                                {
-                                                    AdditionalMB = d.AdditionalMB == null ? 0 : d.AdditionalMB,
-                                                    DefaultMB = data1.MailboxSizeMB
-                                                }).ToList();
+                    // Find latest mailbox size
+                    long mailboxAllocated = 0;
+                    sqlMailboxes.ForEach(x => mailboxAllocated += ((int)x.AdditionalMB + x.PlanMB));
 
-                        long totalAllocated = 0;
-                        mailboxAllocated.ForEach(x => totalAllocated += ((int)x.AdditionalMB + x.DefaultMB));
-                        if (totalAllocated > 0)
-                            totalAllocated = (totalAllocated * 1024) * 1024; // Convert from megabytes to bytes
+                    // Convert MB to bytes
+                    mailboxAllocated = (mailboxAllocated * 1024) * 1024;
 
-                        return Negotiate.WithModel(new
-                                    {
-                                        totalResellers = resellers,
-                                        totalCompanies = companies,
-                                        totalUsers = users,
-                                        totalMailboxes = mailboxes,
-                                        totalAllocated = CPStaticHelpers.FormatBytes(totalAllocated)
-                                    })
-                                    .WithView("dashboard_super.cshtml");
-                    }
-                    catch (Exception ex)
+                    return Negotiate.WithModel(new
                     {
-                        throw;
-                    }
-                    finally
-                    {
-                        if (db != null)
-                            db.Dispose();
-                    }
-                };
+                        TotalResellers = totalResellers,
+                        TotalCompanies = totalCompanies,
+                        TotalUsers = totalUsers,
+                        TotalMailboxes = totalMailboxes,
+                        TotalMailboxAllocated = CPStaticHelpers.FormatBytes(mailboxAllocated),
+                        TotalMailboxUsed = CPStaticHelpers.FormatBytes(totalUsed)
+                    });
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error pulling dashboard stats: {0}", ex.ToString());
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
+                }
+                finally
+                {
+                    if (db != null)
+                        db.Dispose();
+                }
+            };
 
             Get["/exchange/databases"] = _ =>
                 {
