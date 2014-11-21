@@ -47,10 +47,12 @@ namespace CloudPanel
                     // See if the current group matches a group in our list of SuperAdmins
                     if (!string.IsNullOrEmpty(c))
                     {
-                        var found = Settings.SuperAdmins.Where(x => x.Equals(c, StringComparison.InvariantCultureIgnoreCase));
-                        if (found != null)
+                        logger.DebugFormat("Comparing group {0} to super admin groups", c);
+
+                        var isAdmin = Settings.SuperAdmins.Any(x => x.Equals(c, StringComparison.InvariantCultureIgnoreCase));
+                        if (isAdmin)
                         {
-                            logger.DebugFormat("Compared {0} to {1} and found a match", c, found.FirstOrDefault());
+                            logger.DebugFormat("Compared {0} to values [{1}] and found a match", c, Settings.SuperAdminsAsString);
                             claims.Add("SuperAdmin");
                             break;
                         }
@@ -126,6 +128,7 @@ namespace CloudPanel
                     // Add the values to the user object for 
                     // selected company codes and reseller codes
                     authUser.CompanyCode = user.CompanyCode;
+                    authUser.ResellerCode = companyInfo.ResellerCode;
                     authUser.SelectedCompanyCode = user.CompanyCode;
 
                     if (companyInfo != null)
@@ -136,14 +139,17 @@ namespace CloudPanel
                     }
 
                     // Add the claims
+                    logger.DebugFormat("User belongs to reseller {0} and company {1}", authUser.ResellerCode, authUser.CompanyCode);
                     if (user.IsResellerAdmin == true)
                     {
-                        claims.Add("ResellerAdmin@" + authUser.SelectedResellerCode);
+                        claims.Add("ResellerAdmin");
+                        logger.DebugFormat("User {0} is a reseller admin for {1}", upn, authUser.SelectedResellerCode);
                     }
 
                     if (user.IsCompanyAdmin == true)
                     {
-                        claims.Add("CompanyAdmin@" + authUser.CompanyCode);
+                        claims.Add("CompanyAdmin");
+                        logger.DebugFormat("User {0} is a company admin for {1}", upn, authUser.CompanyCode);
                     }
                 }
             }            

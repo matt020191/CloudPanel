@@ -22,6 +22,8 @@ namespace CloudPanel
 
         public string CompanyCode { get; set; }
 
+        public string ResellerCode { get; set; }
+
         public IEnumerable<string> Claims { get; set; }
     }
 }

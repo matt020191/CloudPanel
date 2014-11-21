@@ -70,9 +70,7 @@
     <Compile Include="Database\Models\PriceOverride.cs" />
     <Compile Include="Database\Models\Prices.cs" />
     <Compile Include="Database\Models\ResourceMailboxes.cs" />
-    <Compile Include="Database\Models\Stats_CitrixCount.cs" />
-    <Compile Include="Database\Models\Stats_ExchCount.cs" />
-    <Compile Include="Database\Models\Stats_UserCount.cs" />
+    <Compile Include="Database\Models\Statistics.cs" />
     <Compile Include="Database\Models\SvcMailboxDatabaseSizes.cs" />
     <Compile Include="Database\Models\SvcMailboxSizes.cs" />
     <Compile Include="Database\Models\SvcQueue.cs" />

@@ -20,6 +20,11 @@ namespace CloudPanel
                             .Any(c => c.Contains(contentType));
         }
 
+        /// <summary>
+        /// Gets the selected company code
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public static string GetCompanyCode(this NancyContext context)
         {
             if (context.CurrentUser != null)
@@ -31,6 +36,11 @@ namespace CloudPanel
                 return string.Empty;
         }
 
+        /// <summary>
+        /// Gets the company name the user has selected
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public static string GetCompanyName(this NancyContext context)
         {
             if (context.CurrentUser != null)
@@ -42,6 +52,11 @@ namespace CloudPanel
                 return string.Empty;
         }
 
+        /// <summary>
+        /// Gets the selected reseller code
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public static string GetResellerCode(this NancyContext context)
         {
             if (context.CurrentUser != null)
@@ -53,6 +68,11 @@ namespace CloudPanel
                 return string.Empty;
         }
 
+        /// <summary>
+        /// Gets the selected reseller name
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public static string GetResellerName(this NancyContext context)
         {
             if (context.CurrentUser != null)
@@ -64,6 +84,11 @@ namespace CloudPanel
                 return string.Empty;
         }
 
+        /// <summary>
+        /// Sets the company code the current user selected
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="companyCode"></param>
         public static void SetCompanyCode(this NancyContext context, string companyCode)
         {
             if (context.CurrentUser != null)
@@ -97,6 +122,11 @@ namespace CloudPanel
             }
         }
 
+        /// <summary>
+        /// Sets the reseller code the current user selected
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="companyCode"></param>
         public static void SetResellerCode(this NancyContext context, string companyCode)
         {
             if (context.CurrentUser != null)
@@ -142,6 +172,34 @@ namespace CloudPanel
 
             var user = context.CurrentUser as AuthenticatedUser;
             return user.DisplayName;
+        }
+
+        /// <summary>
+        /// Determines if the user is a company admin
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static bool IsCompanyAdmin(this NancyContext context)
+        {
+            if (context.CurrentUser == null)
+                return false;
+
+            var user = context.CurrentUser as AuthenticatedUser;
+            return user.Claims.Any(x => x.Contains("CompanyAdmin"));
+        }
+
+        /// <summary>
+        /// Gets the company code the user belongs to (if any)
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static string GetCompanyCodeMembership(this NancyContext context)
+        {
+            if (context.CurrentUser == null)
+                return string.Empty;
+
+            var user = context.CurrentUser as AuthenticatedUser;
+            return user.CompanyCode;
         }
 
         /// <summary>

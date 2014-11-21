@@ -100,6 +100,14 @@
     <Compile Include="Migrations\201411122303032_UserPermissionTables.Designer.cs">
       <DependentUpon>201411122303032_UserPermissionTables.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201411201805280_AddStatisticsRemoveOld.cs" />
+    <Compile Include="Migrations\201411201805280_AddStatisticsRemoveOld.Designer.cs">
+      <DependentUpon>201411201805280_AddStatisticsRemoveOld.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201411201834315_AddStatisticsRemoveOld2.cs" />
+    <Compile Include="Migrations\201411201834315_AddStatisticsRemoveOld2.Designer.cs">
+      <DependentUpon>201411201834315_AddStatisticsRemoveOld2.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -149,6 +157,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201411122303032_UserPermissionTables.resx">
       <DependentUpon>201411122303032_UserPermissionTables.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201411201805280_AddStatisticsRemoveOld.resx">
+      <DependentUpon>201411201805280_AddStatisticsRemoveOld.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201411201834315_AddStatisticsRemoveOld2.resx">
+      <DependentUpon>201411201834315_AddStatisticsRemoveOld2.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

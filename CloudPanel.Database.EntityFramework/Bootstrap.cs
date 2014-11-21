@@ -215,9 +215,7 @@ namespace CloudPanel.Database.EntityFramework
         public virtual DbSet<Plans_Organization> Plans_Organization { get; set; }
         public virtual DbSet<Prices> Prices { get; set; }
         public virtual DbSet<ResourceMailboxes> ResourceMailboxes { get; set; }
-        public virtual DbSet<Stats_CitrixCount> Stats_CitrixCount { get; set; }
-        public virtual DbSet<Stats_ExchCount> Stats_ExchCount { get; set; }
-        public virtual DbSet<Stats_UserCount> Stats_UserCount { get; set; }
+        public virtual DbSet<Statistics> Statistics { get; set; }
         public virtual DbSet<SvcMailboxDatabaseSizes> SvcMailboxDatabaseSizes { get; set; }
         public virtual DbSet<SvcMailboxSizes> SvcMailboxSizes { get; set; }
         public virtual DbSet<SvcQueue> SvcQueue { get; set; }

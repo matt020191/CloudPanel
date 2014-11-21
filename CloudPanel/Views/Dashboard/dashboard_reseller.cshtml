@@ -15,12 +15,12 @@
 
 <div class="container">
     <!-- Top -->
-    <div class="row">
+    <div id="badgeRow" class="row">
         <div class="col-md-2">
             <a href="#" class="shortcut-tiles tiles-orange">
                 <div class="tiles-body">
                     <div class="pull-left"><i class="fa fa-building"></i></div>
-                    <div class="pull-right"><span class="badge">1</span></div>
+                    <div class="pull-right"><span id="badgeCompanies" class="badge"></span></div>
                 </div>
                 <div class="tiles-footer">
                     Companies
@@ -31,7 +31,7 @@
             <a href="#" class="shortcut-tiles tiles-success">
                 <div class="tiles-body">
                     <div class="pull-left"><i class="fa fa-users"></i></div>
-                    <div class="pull-right"><span class="badge">2</span></div>
+                    <div class="pull-right"><span id="badgeUsers" class="badge"></span></div>
                 </div>
                 <div class="tiles-footer">
                     Users
@@ -42,7 +42,7 @@
             <a href="#" class="shortcut-tiles tiles-magenta">
                 <div class="tiles-body">
                     <div class="pull-left"><i class="fa fa-envelope"></i></div>
-                    <div class="pull-right"><span class="badge">3</span></div>
+                    <div class="pull-right"><span id="badgeMailboxes" class="badge"></span></div>
                 </div>
                 <div class="tiles-footer">
                     Mailboxes
@@ -53,13 +53,24 @@
             <a href="#" class="shortcut-tiles tiles-midnightblue">
                 <div class="tiles-body">
                     <div class="pull-left"><i class="fa fa-upload"></i></div>
-                    <div class="pull-right"><span class="badge">4</span></div>
+                    <div class="pull-right"><span id="badgeMailboxAllocated" class="badge"></span></div>
                 </div>
                 <div class="tiles-footer">
                     Mailbox Space Allocated
                 </div>
             </a>
         </div> <!-- Mailbox Space Allocated -->
+        <div class="col-md-2">
+            <a href="#" class="shortcut-tiles tiles-green">
+                <div class="tiles-body">
+                    <div class="pull-left"><i class="fa fa-download"></i></div>
+                    <div class="pull-right"><span id="badgeMailboxUsed" class="badge"></span></div>
+                </div>
+                <div class="tiles-footer">
+                    Mailbox Space Used
+                </div>
+            </a>
+        </div> <!-- Mailbox Space Used -->
     </div>
 
     <!-- Graphs -->
@@ -103,6 +114,28 @@
         </div>
     </div>
     <div class="row">
+        @if (CloudPanel.Base.Config.Settings.ExchangeModule)
+        {
+            <div class="col-md-6">
+            </div>
+            <div class="col-md-6">
+                <div class="panel panel-inverse">
+                    <div class="panel-heading">
+                        <h4>Top Customers by Mailboxes</h4>
+                        <div class="options">
+                            <div class="btn-group">
+                                <button class="btn btn-default btn-xs" onclick="javascript: GetTopMailboxes(5);"> Top 5 </button>
+                                <button class="btn btn-default btn-xs" onclick="javascript: GetTopMailboxes(10);"> Top 10 </button>
+                                <button class="btn btn-default btn-xs" onclick="javascript: GetTopMailboxes(15);"> Top 15 </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body topMailboxes">
+                        <div id="topExchangeMailboxes" style="height:250px;"></div>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
 </div>
 
@@ -118,11 +151,18 @@
         var exchangeModule = @CloudPanel.Base.Config.Settings.ExchangeModule.ToString().ToLower()
 
         $(document).ready(function () {
+
+            // Get the tiles data at the top
+            GetTiles();
+
+            // Get the top 8 customers
             GetTopCustomers(8);
+
+            // Get the overview chart
             GetHistoryOverview(6);
 
+            // Only populate Exchange information if the Exchange module is enabled
             if (exchangeModule) {
-                GetExchangeDatabases();
                 GetTopMailboxes(5);
             }
         });
@@ -131,15 +171,28 @@
             return (Math.floor(Math.random() * (2)));
         }
 
-        function GetHistoryOverview(pastMonths) {
-
-            var request = $.ajax({
-                url: "@Url.Content("~/charts/super/history/months/")" + pastMonths,
-                type: "GET",
-                dataType: "json"
+        function GetTiles() {
+            $("#badgeRow").block();
+            $.getJSON("", function (stats) {
+                console.log(stats);
+                $("#badgeResellers").text(stats.totalResellers);
+                $("#badgeCompanies").text(stats.totalCompanies);
+                $("#badgeUsers").text(stats.totalUsers);
+                $("#badgeMailboxes").text(stats.totalMailboxes);
+                $("#badgeMailboxAllocated").text(stats.totalMailboxAllocated);
+                $("#badgeMailboxUsed").text(stats.totalMailboxUsed);
+            })
+            .fail(function (data) {
+                ShowError(data.responseJSON.error);
+            })
+            .always(function (data) {
+                $("#badgeRow").unblock();
             });
+        }
 
-            request.done(function (data) {
+        function GetHistoryOverview(pastMonths) {
+            $("#historyOverview").block();
+            $.getJSON("@Url.Content("~/charts/history/months/")" + pastMonths, function (data) {
                 var areaChart = new Highcharts.Chart({
                     chart: {
                         renderTo: 'historyOverview',
@@ -167,10 +220,12 @@
                     areaChart.addSeries({ name: "Citrix", data: data.citrix });
 
                 areaChart.redraw();
-            });
-
-            request.fail(function (jqXHR, textStatus) {
-                alert(textStatus);
+            })
+            .fail(function (data) {
+                ShowError(data.responseJSON.error);
+            })
+            .always(function (data) {
+                $("#historyOverview").unblock();
             });
         }
 
@@ -225,57 +280,6 @@
                 })
                 .always(function (data) {
                     $(".topMailboxes").unblock();
-                });
-        }
-
-        function GetExchangeDatabases() {
-            $(".mailboxDatabases").block();
-            $.getJSON("@Url.Content("~/dashboard/exchange/databases")", function (data) {
-
-                var names = [];
-                var sizes = [];
-                $.each(data.databases, function (index, database) {
-                    names.push(new Array(index, database.identity));
-                    sizes.push(new Array(index, database.databaseSizeInGB));
-                });
-
-                var ds = [];
-                ds.push({ data: sizes, label: "Size In GB", bars: { show: true, barWidth: 0.2, order: 1 } });
-
-                $.plot($("#exchangeDatabases"), ds, {
-                    series: { bars: { show: true, fill: 0.75, 'align': "center" } },
-                    grid: { hoverable: true, clickable: false, borderWidth: 0 },
-                    xaxis: { tickColor: "transparent", ticks: names, tickDecimals: 2, font: { color: '#8c8c8c', size: 12 } },
-                    yaxis: { tickDecimals: 2 },
-                    legend: { labelBoxBorderColor: 'transparent' }
-                });
-
-                var previousPointBar = null;
-                $("#exchangeDatabases").bind("plothover", function (event, pos, item) {
-                    $("#x").text(pos.x.toFixed(2));
-                    $("#y").text(pos.y.toFixed(2));
-                    if (item) {
-                        if (previousPointBar != item.dataIndex) {
-                            previousPointBar = item.dataIndex;
-
-                            $("#tooltip").remove();
-                            var x = item.datapoint[0].toFixed(2),
-                                y = item.datapoint[1].toFixed(2);
-
-                            showTooltip(item.pageX + 20, item.pageY, item.series.label + ": " + y);
-
-                        }
-                    } else {
-                        $("#tooltip").remove();
-                        previousPointBar = null;
-                    }
-                });
-            })
-                .fail(function (data) {
-                    ShowError(data.responseJSON.error);
-                })
-                .always(function (data) {
-                    $(".mailboxDatabases").unblock();
                 });
         }
 

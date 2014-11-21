@@ -170,51 +170,52 @@
     <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
     <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
     <script type="text/javascript">
-        var exchangeModule = @CloudPanel.Base.Config.Settings.ExchangeModule.ToString().ToLower()
+    var exchangeModule = @CloudPanel.Base.Config.Settings.ExchangeModule.ToString().ToLower()
 
-        $(document).ready(function () {
-            GetTopCustomers(8);
-            GetHistoryOverview(6);
+    $(document).ready(function () {
 
-            if (exchangeModule) {
-                GetExchangeDatabases();
-                GetTopMailboxes(5);
-            }
-        });
+        // Get the tiles data at the top
+        GetTiles();
 
-        function GetTiles() {
-            $("#badgeRow").block();
+        // Get the top 8 customers
+        GetTopCustomers(8);
+
+        // Get the overview chart
+        GetHistoryOverview(6);
+
+        // Only populate Exchange information if the Exchange module is enabled
+        if (exchangeModule) {
+            GetExchangeDatabases();
+            GetTopMailboxes(5);
+        }
+    });
+
+    function GetTiles() {
+        $("#badgeRow").block();
             $.getJSON("", function (stats) {
                 console.log(stats);
-                        $("#badgeResellers").text(stats.totalResellers);
-                        $("#badgeCompanies").text(stats.totalCompanies);
-                        $("#badgeUsers").text(stats.totalUsers);
-                        $("#badgeMailboxes").text(stats.totalMailboxes);
-                        $("#badgeMailboxAllocated").text(stats.totalMailboxAllocated);
-                        $("#badgeMailboxUsed").text(stats.totalMailboxUsed);
-                    
-                })
-                .fail(function (data) {
-                    ShowError(data.responseJSON.error);
-                })
-                .always(function (data) {
-                    $("#badgeRow").unblock();
-                });
-        }
-
-        function randValue() {
-            return (Math.floor(Math.random() * (2)));
-        }
-
-        function GetHistoryOverview(pastMonths) {
-
-            var request = $.ajax({
-                url: "@Url.Content("~/charts/super/history/months/")" + pastMonths,
-                type: "GET",
-                dataType: "json"
+                $("#badgeResellers").text(stats.totalResellers);
+                $("#badgeCompanies").text(stats.totalCompanies);
+                $("#badgeUsers").text(stats.totalUsers);
+                $("#badgeMailboxes").text(stats.totalMailboxes);
+                $("#badgeMailboxAllocated").text(stats.totalMailboxAllocated);
+                $("#badgeMailboxUsed").text(stats.totalMailboxUsed);
+            })
+            .fail(function (data) {
+                ShowError(data.responseJSON.error);
+            })
+            .always(function (data) {
+                $("#badgeRow").unblock();
             });
+    }
 
-            request.done(function (data) {
+    function randValue() {
+        return (Math.floor(Math.random() * (2)));
+    }
+
+    function GetHistoryOverview(pastMonths) {
+        $("#historyOverview").block();
+        $.getJSON("@Url.Content("~/charts/history/months/")" + pastMonths, function (data) {
                 var areaChart = new Highcharts.Chart({
                     chart: {
                         renderTo: 'historyOverview',
@@ -242,127 +243,126 @@
                     areaChart.addSeries({ name: "Citrix", data: data.citrix });
 
                 areaChart.redraw();
+            })
+            .fail(function (data) {
+                ShowError(data.responseJSON.error);
+            })
+            .always(function (data) {
+                $("#historyOverview").unblock();
             });
+    }
 
-            request.fail(function (jqXHR, textStatus) {
-                alert(textStatus);
-            });
-        }
-
-        function GetTopCustomers(x)
-        {
-            $(".topXCustomers").block();
+    function GetTopCustomers(x) {
+        $(".topXCustomers").block();
             $.getJSON("@Url.Content("~/dashboard/customers/top/")" + x, function (data) {
-                    $(".topXCustomers").empty();
-                    $.each(data.data, function (index, customers) {
-                        $(".topXCustomers").append('<a href="@Url.Content("~/company/")'+customers.companyCode+'/overview" class="list-group-item"><span class="badge">' + customers.totalUsers + '</span> <i class="fa fa-building"></i> ' + customers.companyName + ' </a>');
-                    });
-                })
-                .fail(function (data) {
-                    ShowError(data.responseJSON.error);
-                })
-                .always(function (data) {
-                    $(".topXCustomers").unblock();
+                $(".topXCustomers").empty();
+                $.each(data.data, function (index, customers) {
+                    $(".topXCustomers").append('<a href="@Url.Content("~/company/")' + customers.companyCode + '/overview" class="list-group-item"><span class="badge">' + customers.totalUsers + '</span> <i class="fa fa-building"></i> ' + customers.companyName + ' </a>');
                 });
-        }
+            })
+            .fail(function (data) {
+                ShowError(data.responseJSON.error);
+            })
+            .always(function (data) {
+                $(".topXCustomers").unblock();
+            });
+    }
 
-        function GetTopMailboxes(x)
-        {
-            $(".topMailboxes").block();
-            $.getJSON("@Url.Content("~/dashboard/customers/top/mailboxes/")" + x, function (data) {
-                    var ds = [];
-                    $.each(data.data, function (index, top) {
-                        ds.push({ label: top.companyName, data: top.totalUsers });
-                    });
-
-                    $.plot('#topExchangeMailboxes', ds, {
-                        series: {
-                            pie: {
-                                show: true, radius: 1,
-                                innerRadius: 0.5,
-                                label: {
-                                    show: true,
-                                    radius: 3 / 4,
-                                    formatter: function (label, series) {
-                                        return '<div style="border:1px solid grey;font-size:8pt;text-align:center;padding:5px;color:white;">' +
-                                                label + '<br/>' +
-                                                series.data[0][1] +
-                                                '</div>';
-                                    },
-                                    background: { opacity: 0.5, color: '#000' }
-                                }
-                            }
-                        },
-                        legend: { show: false },
-                        grid: { hoverable: true, clickable: true }
-                    });
-                })
-                .fail(function (data) {
-                    ShowError(data.responseJSON.error);
-                })
-                .always(function (data) {
-                    $(".topMailboxes").unblock();
+    function GetTopMailboxes(x) {
+        $(".topMailboxes").block();
+        $.getJSON("@Url.Content("~/dashboard/customers/top/mailboxes/")" + x, function (data) {
+                var ds = [];
+                $.each(data.data, function (index, top) {
+                    ds.push({ label: top.companyName, data: top.totalUsers });
                 });
-        }
 
-        function GetExchangeDatabases()
-        {
-            $(".mailboxDatabases").block();
-            $.getJSON("@Url.Content("~/dashboard/exchange/databases")", function (data) {
-
-                    var names = [];
-                    var sizes = [];
-                    $.each(data.databases, function (index, database) {
-                        names.push(new Array(index, database.identity));
-                        sizes.push(new Array(index, database.databaseSizeInGB));
-                    });
-
-                    var ds = [];
-                    ds.push({ data: sizes, label: "Size In GB", bars: { show: true, barWidth: 0.2, order: 1 } });
-
-                    $.plot($("#exchangeDatabases"), ds, {
-                        series: { bars: { show: true, fill: 0.75, 'align': "center"  } },
-                        grid: { hoverable: true, clickable: false, borderWidth: 0 },
-                        xaxis: { tickColor: "transparent", ticks: names, tickDecimals: 2, font: { color: '#8c8c8c', size: 12 } },
-                        yaxis: { tickDecimals: 2 },
-                        legend: { labelBoxBorderColor: 'transparent' }
-                    });
-
-                    var previousPointBar = null;
-                    $("#exchangeDatabases").bind("plothover", function (event, pos, item) {
-                        $("#x").text(pos.x.toFixed(2));
-                        $("#y").text(pos.y.toFixed(2));
-                        if (item) {
-                            if (previousPointBar != item.dataIndex) {
-                                previousPointBar = item.dataIndex;
-
-                                $("#tooltip").remove();
-                                var x = item.datapoint[0].toFixed(2),
-                                    y = item.datapoint[1].toFixed(2);
-
-                                showTooltip(item.pageX + 20, item.pageY, item.series.label + ": " + y);
-
+                $.plot('#topExchangeMailboxes', ds, {
+                    series: {
+                        pie: {
+                            show: true, radius: 1,
+                            innerRadius: 0.5,
+                            label: {
+                                show: true,
+                                radius: 3 / 4,
+                                formatter: function (label, series) {
+                                    return '<div style="border:1px solid grey;font-size:8pt;text-align:center;padding:5px;color:white;">' +
+                                            label + '<br/>' +
+                                            series.data[0][1] +
+                                            '</div>';
+                                },
+                                background: { opacity: 0.5, color: '#000' }
                             }
-                        } else {
-                            $("#tooltip").remove();
-                            previousPointBar = null;
                         }
-                    });
-                })
-                .fail(function (data) {
-                    ShowError(data.responseJSON.error);
-                })
-                .always(function (data) {
-                    $(".mailboxDatabases").unblock();
+                    },
+                    legend: { show: false },
+                    grid: { hoverable: true, clickable: true }
                 });
-        }
+            })
+            .fail(function (data) {
+                ShowError(data.responseJSON.error);
+            })
+            .always(function (data) {
+                $(".topMailboxes").unblock();
+            });
+    }
 
-        function showTooltip(x, y, contents) {
-            $('<div id="tooltip" class="tooltip top in"><div class="tooltip-inner">' + contents + '<\/div><\/div>').css({
-                display: 'none',
-                top: y - 40,
-                left: x - 55,
-            }).appendTo("body").fadeIn(200);
-        }
+    function GetExchangeDatabases() {
+        $(".mailboxDatabases").block();
+        $.getJSON("@Url.Content("~/dashboard/exchange/databases")", function (data) {
+
+                var names = [];
+                var sizes = [];
+                $.each(data.databases, function (index, database) {
+                    names.push(new Array(index, database.identity));
+                    sizes.push(new Array(index, database.databaseSizeInGB));
+                });
+
+                var ds = [];
+                ds.push({ data: sizes, label: "Size In GB", bars: { show: true, barWidth: 0.2, order: 1 } });
+
+                $.plot($("#exchangeDatabases"), ds, {
+                    series: { bars: { show: true, fill: 0.75, 'align': "center" } },
+                    grid: { hoverable: true, clickable: false, borderWidth: 0 },
+                    xaxis: { tickColor: "transparent", ticks: names, tickDecimals: 2, font: { color: '#8c8c8c', size: 12 } },
+                    yaxis: { tickDecimals: 2 },
+                    legend: { labelBoxBorderColor: 'transparent' }
+                });
+
+                var previousPointBar = null;
+                $("#exchangeDatabases").bind("plothover", function (event, pos, item) {
+                    $("#x").text(pos.x.toFixed(2));
+                    $("#y").text(pos.y.toFixed(2));
+                    if (item) {
+                        if (previousPointBar != item.dataIndex) {
+                            previousPointBar = item.dataIndex;
+
+                            $("#tooltip").remove();
+                            var x = item.datapoint[0].toFixed(2),
+                                y = item.datapoint[1].toFixed(2);
+
+                            showTooltip(item.pageX + 20, item.pageY, item.series.label + ": " + y);
+
+                        }
+                    } else {
+                        $("#tooltip").remove();
+                        previousPointBar = null;
+                    }
+                });
+            })
+            .fail(function (data) {
+                ShowError(data.responseJSON.error);
+            })
+            .always(function (data) {
+                $(".mailboxDatabases").unblock();
+            });
+    }
+
+    function showTooltip(x, y, contents) {
+        $('<div id="tooltip" class="tooltip top in"><div class="tooltip-inner">' + contents + '<\/div><\/div>').css({
+            display: 'none',
+            top: y - 40,
+            left: x - 55,
+        }).appendTo("body").fadeIn(200);
+    }
     </script>
 }
