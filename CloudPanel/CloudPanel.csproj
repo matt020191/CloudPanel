@@ -1111,6 +1111,7 @@
     <Compile Include="Modules\CompanyModules\Exchange\BulkModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\MailboxModule.cs" />
     <Compile Include="Modules\CompanyModules\OverviewModule.cs" />
+    <Compile Include="Modules\CompanyModules\PermissionsModule.cs" />
     <Compile Include="Modules\CompanyModules\UsersImportModule.cs" />
     <Compile Include="Modules\CompanyModules\UsersEditModule.cs" />
     <Compile Include="Modules\CompanyModules\UsersModule.cs" />
@@ -1410,6 +1411,7 @@
     <Content Include="Views\success.cshtml" />
     <Content Include="Views\Dashboard\dashboard_reseller.cshtml" />
     <Content Include="Views\Dashboard\dashboard_admin.cshtml" />
+    <Content Include="Views\Company\permissions.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

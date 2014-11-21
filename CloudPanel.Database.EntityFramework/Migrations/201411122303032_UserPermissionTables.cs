@@ -20,7 +20,8 @@ namespace CloudPanel.Database.EntityFramework.Migrations
                 "dbo.UserRole",
                 c => new
                     {
-                        RoleID = c.Int(nullable: false),
+                        RoleID = c.Int(nullable: false, identity: true),
+                        DisplayName = c.String(),
                         CompanyCode = c.String(),
                         vDomains = c.Boolean(nullable: false),
                         vUsers = c.Boolean(nullable: false),
@@ -39,6 +40,7 @@ namespace CloudPanel.Database.EntityFramework.Migrations
                         eExchangePublicFolders = c.Boolean(nullable: false),
                         eCitrix = c.Boolean(nullable: false),
                         eLync = c.Boolean(nullable: false),
+                        ePermissions = c.Boolean(nullable: false),
                         dDomains = c.Boolean(nullable: false),
                         dUsers = c.Boolean(nullable: false),
                         dExchangeContacts = c.Boolean(nullable: false),
@@ -47,6 +49,7 @@ namespace CloudPanel.Database.EntityFramework.Migrations
                         dExchangePublicFolders = c.Boolean(nullable: false),
                         dCitrix = c.Boolean(nullable: false),
                         dLync = c.Boolean(nullable: false),
+                        dPermissions = c.Boolean(nullable: false),
                     })
                 .PrimaryKey(t => t.RoleID);
             

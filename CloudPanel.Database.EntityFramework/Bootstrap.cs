@@ -2,12 +2,8 @@
 using CloudPanel.Base.Database.Models;
 using log4net;
 using System.Data.Entity;
-using System.Data.Entity.Core.Objects;
-using System.Data.Entity.Infrastructure;
-using System.Data.Entity.Migrations;
 using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Data.Entity.Validation;
-using System.Data.SqlClient;
 using System.Linq;
 
 // NB: http://stackoverflow.com/questions/16210771/entity-framework-code-first-without-app-config
@@ -29,6 +25,9 @@ namespace CloudPanel.Database.EntityFramework
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            //modelBuilder.Conventions.Remove<PluralizingTableNameConvention>(); 
+
+            /*
             modelBuilder.Entity<Companies>()
                 .Property(e => e.Country)
                 .IsUnicode(false);
@@ -175,7 +174,7 @@ namespace CloudPanel.Database.EntityFramework
 
             modelBuilder.Entity<UserPlans>()
                 .Property(e => e.CompanyCode)
-                .IsUnicode(false);
+                .IsUnicode(false);*/
         }
 
         public override int SaveChanges()
@@ -221,7 +220,7 @@ namespace CloudPanel.Database.EntityFramework
         public virtual DbSet<SvcQueue> SvcQueue { get; set; }
         public virtual DbSet<SvcTask> SvcTask { get; set; }
         public virtual DbSet<UserPermission> UserPermission { get; set; }
-        public virtual DbSet<UserRole> UserRole { get; set; }
+        public virtual DbSet<UserRoles> UserRoles { get; set; }
         public virtual DbSet<UserPlansCitrix> UserPlansCitrix { get; set; }
         public virtual DbSet<Users> Users { get; set; }
         public virtual DbSet<Plans_TerminalServices> Plans_TerminalServices { get; set; }

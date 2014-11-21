@@ -7,13 +7,13 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.1-30610")]
-    public sealed partial class AddStatisticsRemoveOld2 : IMigrationMetadata
+    public sealed partial class RenameUserRoleTableAddColumns : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddStatisticsRemoveOld2));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(RenameUserRoleTableAddColumns));
         
         string IMigrationMetadata.Id
         {
-            get { return "201411201834315_AddStatisticsRemoveOld2"; }
+            get { return "201411210423406_RenameUserRoleTableAddColumns"; }
         }
         
         string IMigrationMetadata.Source

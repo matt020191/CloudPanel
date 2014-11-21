@@ -3,13 +3,15 @@
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
 
-    public partial class UserRole
+    public partial class UserRoles
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int RoleID { get; set; }
 
         public string CompanyCode { get; set; }
+
+        public string DisplayName { get; set; }
 
         #region View Permissions
 
@@ -51,6 +53,8 @@
 
         public bool eLync { get; set; }
 
+        public bool ePermissions { get; set; }
+
         #endregion
 
         #region Delete Permissions
@@ -70,6 +74,8 @@
         public bool dCitrix { get; set; }
 
         public bool dLync { get; set; }
+
+        public bool dPermissions { get; set; }
 
         #endregion
     }

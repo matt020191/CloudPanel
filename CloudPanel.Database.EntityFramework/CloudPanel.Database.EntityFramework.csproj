@@ -104,9 +104,9 @@
     <Compile Include="Migrations\201411201805280_AddStatisticsRemoveOld.Designer.cs">
       <DependentUpon>201411201805280_AddStatisticsRemoveOld.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201411201834315_AddStatisticsRemoveOld2.cs" />
-    <Compile Include="Migrations\201411201834315_AddStatisticsRemoveOld2.Designer.cs">
-      <DependentUpon>201411201834315_AddStatisticsRemoveOld2.cs</DependentUpon>
+    <Compile Include="Migrations\201411210423406_RenameUserRoleTableAddColumns.cs" />
+    <Compile Include="Migrations\201411210423406_RenameUserRoleTableAddColumns.Designer.cs">
+      <DependentUpon>201411210423406_RenameUserRoleTableAddColumns.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -161,8 +161,8 @@
     <EmbeddedResource Include="Migrations\201411201805280_AddStatisticsRemoveOld.resx">
       <DependentUpon>201411201805280_AddStatisticsRemoveOld.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201411201834315_AddStatisticsRemoveOld2.resx">
-      <DependentUpon>201411201834315_AddStatisticsRemoveOld2.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201411210423406_RenameUserRoleTableAddColumns.resx">
+      <DependentUpon>201411210423406_RenameUserRoleTableAddColumns.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
