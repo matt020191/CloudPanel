@@ -30,7 +30,7 @@
                 <hr>
                 <div class="panel">
                     <div class="list-group">
-                        @if (Model != null)
+                        @if (Model != null && Model.Permissions != null)
                         {
                             foreach (CloudPanel.Base.Database.Models.UserRoles p in Model.Permissions)
                             {
@@ -57,10 +57,10 @@
                                 <label class="col-sm-3 control-label">Permissions: </label>
                                 <div class="col-sm-6">
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="ePermissions" @(Model.Permission.ePermissions == true ? "value=\"true\" checked" : "value=\"false\"")> Modify
+                                        <input type="checkbox" name="ePermissions" @(Model.Permission.ePermissions == true ? "value='true' checked" : "value='false'")> Modify
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="dPermissions" @(Model.Permission.dPermissions == true ? "value=\"true\" checked" : "value=\"false\"")> Delete
+                                        <input type="checkbox" name="dPermissions" @(Model.Permission.dPermissions == true ? "value='true' checked" : "value='false'")> Delete
                                     </label>
                                 </div>
                             </div>
@@ -68,13 +68,13 @@
                                 <label class="col-sm-3 control-label">Domains: </label>
                                 <div class="col-sm-6">
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="vDomains" @(Model.Permission.vDomains == true ? "value=\"true\" checked" : "value=\"false\"")> View
+                                        <input type="checkbox" name="vDomains" @(Model.Permission.vDomains == true ? "value='true' checked" : "value='false'")> View
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="eDomains" @(Model.Permission.eDomains == true ? "value=\"true\" checked" : "value=\"false\"")> Modify
+                                        <input type="checkbox" name="eDomains" @(Model.Permission.eDomains == true ? "value='true' checked" : "value='false'")> Modify
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="dDomains" @(Model.Permission.dDomains == true ? "value=\"true\" checked" : "value=\"false\"")> Delete
+                                        <input type="checkbox" name="dDomains" @(Model.Permission.dDomains == true ? "value='true' checked" : "value='false'")> Delete
                                     </label>
                                 </div>
                             </div>
@@ -82,13 +82,13 @@
                                 <label class="col-sm-3 control-label">Users: </label>
                                 <div class="col-sm-6">
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="vUsers" @(Model.Permission.vUsers == true ? "value=\"true\" checked" : "value=\"false\"")> View
+                                        <input type="checkbox" name="vUsers" @(Model.Permission.vUsers == true ? "value='true' checked" : "value='false'")> View
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="eUsers" @(Model.Permission.eUsers == true ? "value=\"true\" checked" : "value=\"false\"")> Modify
+                                        <input type="checkbox" name="eUsers" @(Model.Permission.eUsers == true ? "value='true' checked" : "value='false'")> Modify
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="dUsers" @(Model.Permission.dUsers == true ? "value=\"true\" checked" : "value=\"false\"")> Delete
+                                        <input type="checkbox" name="dUsers" @(Model.Permission.dUsers == true ? "value='true' checked" : "value='false'")> Delete
                                     </label>
                                 </div>
                             </div>
@@ -96,13 +96,13 @@
                                 <label class="col-sm-3 control-label">Exchange Contacts: </label>
                                 <div class="col-sm-6">
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="vExchangeContacts" @(Model.Permission.vExchangeContacts == true ? "value=\"true\" checked" : "value=\"false\"")> View
+                                        <input type="checkbox" name="vExchangeContacts" @(Model.Permission.vExchangeContacts == true ? "value='true' checked" : "value='false'")> View
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="eExchangeContacts" @(Model.Permission.eExchangeContacts == true ? "value=\"true\" checked" : "value=\"false\"")> Modify
+                                        <input type="checkbox" name="eExchangeContacts" @(Model.Permission.eExchangeContacts == true ? "value='true' checked" : "value='false'")> Modify
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="dExchangeContacts" @(Model.Permission.dExchangeContacts == true ? "value=\"true\" checked" : "value=\"false\"")> Delete
+                                        <input type="checkbox" name="dExchangeContacts" @(Model.Permission.dExchangeContacts == true ? "value='true' checked" : "value='false'")> Delete
                                     </label>
                                 </div>
                             </div>
@@ -110,13 +110,13 @@
                                 <label class="col-sm-3 control-label">Exchange Groups: </label>
                                 <div class="col-sm-6">
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="vExchangeGroups" @(Model.Permission.vExchangeGroups == true ? "value=\"true\" checked" : "value=\"false\"")> View
+                                        <input type="checkbox" name="vExchangeGroups" @(Model.Permission.vExchangeGroups == true ? "value='true' checked" : "value='false'")> View
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="eExchangeGroups" @(Model.Permission.eExchangeGroups == true ? "value=\"true\" checked" : "value=\"false\"")> Modify
+                                        <input type="checkbox" name="eExchangeGroups" @(Model.Permission.eExchangeGroups == true ? "value='true' checked" : "value='false'")> Modify
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="dExchangeGroups" @(Model.Permission.dExchangeGroups == true ? "value=\"true\" checked" : "value=\"false\"")> Delete
+                                        <input type="checkbox" name="dExchangeGroups" @(Model.Permission.dExchangeGroups == true ? "value='true' checked" : "value='false'")> Delete
                                     </label>
                                 </div>
                             </div>
@@ -124,13 +124,13 @@
                                 <label class="col-sm-3 control-label">Exchange Resources: </label>
                                 <div class="col-sm-6">
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="vExchangeResources" @(Model.Permission.vExchangeResources == true ? "value=\"true\" checked" : "value=\"false\"")> View
+                                        <input type="checkbox" name="vExchangeResources" @(Model.Permission.vExchangeResources == true ? "value='true' checked" : "value='false'")> View
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="eExchangeResources" @(Model.Permission.eExchangeResources == true ? "value=\"true\" checked" : "value=\"false\"")> Modify
+                                        <input type="checkbox" name="eExchangeResources" @(Model.Permission.eExchangeResources == true ? "value='true' checked" : "value='false'")> Modify
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="dExchangeResources" @(Model.Permission.dExchangeResources == true ? "value=\"true\" checked" : "value=\"false\"")> Delete
+                                        <input type="checkbox" name="dExchangeResources" @(Model.Permission.dExchangeResources == true ? "value='true' checked" : "value='false'")> Delete
                                     </label>
                                 </div>
                             </div>
@@ -138,13 +138,13 @@
                                 <label class="col-sm-3 control-label">Exchange Public Folders: </label>
                                 <div class="col-sm-6">
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="vExchangePublicFolders" @(Model.Permission.vExchangePublicFolders == true ? "value=\"true\" checked" : "value=\"false\"")> View
+                                        <input type="checkbox" name="vExchangePublicFolders" @(Model.Permission.vExchangePublicFolders == true ? "value='true' checked" : "value='false'")> View
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="eExchangePublicFolders" @(Model.Permission.eExchangePublicFolders == true ? "value=\"true\" checked" : "value=\"false\"")> Modify
+                                        <input type="checkbox" name="eExchangePublicFolders" @(Model.Permission.eExchangePublicFolders == true ? "value='true' checked" : "value='false'")> Modify
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="dExchangePublicFolders" @(Model.Permission.dExchangePublicFolders == true ? "value=\"true\" checked" : "value=\"false\"")> Delete
+                                        <input type="checkbox" name="dExchangePublicFolders" @(Model.Permission.dExchangePublicFolders == true ? "value='true' checked" : "value='false'")> Delete
                                     </label>
                                 </div>
                             </div>
@@ -152,13 +152,13 @@
                                 <label class="col-sm-3 control-label">Citrix: </label>
                                 <div class="col-sm-6">
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="vCitrix" @(Model.Permission.vCitrix == true ? "value=\"true\" checked" : "value=\"false\"")> View
+                                        <input type="checkbox" name="vCitrix" @(Model.Permission.vCitrix == true ? "value='true' checked" : "value='false'")> View
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="eCitrix" @(Model.Permission.eCitrix == true ? "value=\"true\" checked" : "value=\"false\"")> Modify
+                                        <input type="checkbox" name="eCitrix" @(Model.Permission.eCitrix == true ? "value='true' checked" : "value='false'")> Modify
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="dCitrix" @(Model.Permission.dCitrix == true ? "value=\"true\" checked" : "value=\"false\"")> Delete
+                                        <input type="checkbox" name="dCitrix" @(Model.Permission.dCitrix == true ? "value='true' checked" : "value='false'")> Delete
                                     </label>
                                 </div>
                             </div>
@@ -166,21 +166,27 @@
                                 <label class="col-sm-3 control-label">Lync: </label>
                                 <div class="col-sm-6">
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="vLync" @(Model.Permission.vLync == true ? "value=\"true\" checked" : "value=\"false\"")> View
+                                        <input type="checkbox" name="vLync" @(Model.Permission.vLync == true ? "value='true' checked" : "value='false'")> View
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="eLync" @(Model.Permission.eLync == true ? "value=\"true\" checked" : "value=\"false\"")> Modify
+                                        <input type="checkbox" name="eLync" @(Model.Permission.eLync == true ? "value='true' checked" : "value='false'")> Modify
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="checkbox" name="dLync" @(Model.Permission.dLync == true ? "value=\"true\" checked" : "value=\"false\"")> Delete
+                                        <input type="checkbox" name="dLync" @(Model.Permission.dLync == true ? "value='true' checked" : "value='false'")> Delete
                                     </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label"></label>
+                                <div class="col-sm-6 text-right">
+                                    <input id="SelectAll" type="checkbox"  /> Select All
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="panel-footer">
                         <div class="btn-toolbar text-right">
-                            <button class="btn-default btn" type="button">Delete</button>
+                            <button class="btn-danger btn" type="button">Delete</button>
                             <button id="submit" name="submit" class="btn-primary btn" type="submit">Submit</button>
                         </div>
                     </div>
@@ -198,6 +204,20 @@
                         $(this).val("true");
                     } else {
                         $(this).val("false");
+                    }
+                });
+
+                $("#SelectAll").click(function (event) {
+                    if (this.checked) {
+                        $("input[type=checkbox]").each(function () {
+                            this.checked = true;
+                            this.value = "true";
+                        });
+                    } else {
+                        $("input[type=checkbox]").each(function () {
+                            this.checked = false;
+                            this.value = "false";
+                        });
                     }
                 });
             });

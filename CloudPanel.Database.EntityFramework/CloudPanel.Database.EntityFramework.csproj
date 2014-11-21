@@ -108,6 +108,10 @@
     <Compile Include="Migrations\201411210423406_RenameUserRoleTableAddColumns.Designer.cs">
       <DependentUpon>201411210423406_RenameUserRoleTableAddColumns.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201411211737276_ModifyPrimaryKey.cs" />
+    <Compile Include="Migrations\201411211737276_ModifyPrimaryKey.Designer.cs">
+      <DependentUpon>201411211737276_ModifyPrimaryKey.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -163,6 +167,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201411210423406_RenameUserRoleTableAddColumns.resx">
       <DependentUpon>201411210423406_RenameUserRoleTableAddColumns.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201411211737276_ModifyPrimaryKey.resx">
+      <DependentUpon>201411211737276_ModifyPrimaryKey.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
