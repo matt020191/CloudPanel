@@ -1229,7 +1229,7 @@ namespace CloudPanel.Exchange
                     cmd.AddParameter("User", s);
                     cmd.AddParameter("AccessRights", "FullAccess");
                     cmd.AddParameter("InheritanceType", "All");
-                    cmd.AddParameter("Automapping", autoMapping);
+                    cmd.AddParameter("Automapping", autoMapping); // If it should automatically show up in the user that has rights mailbox
                     cmd.AddParameter("Confirm", false);
                     cmd.AddParameter("DomainController", this._domainController);
 
