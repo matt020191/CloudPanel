@@ -118,6 +118,7 @@ namespace CloudPanel.Modules.CompanyModules
                 #region Updates a user
 
                 CloudPanelContext db = null;
+                ADUsers adUser = null;
                 dynamic powershell = null;
                 try
                 {
@@ -147,6 +148,10 @@ namespace CloudPanel.Modules.CompanyModules
                         logger.DebugFormat("Updating database values");
                         Combine(ref sqlUser, ref boundUser);
 
+                        logger.DebugFormat("Updating Active Directory for user {0}", userPrincipalName);
+                        adUser = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                        adUser.UpdateUser(sqlUser);
+
                         #region Mailbox Changes
 
                         bool isExchangeEnabled = CPStaticHelpers.IsExchangeEnabled(companyCode);
@@ -172,14 +177,14 @@ namespace CloudPanel.Modules.CompanyModules
                             logger.DebugFormat("Litigation hold was not changed or was not enabled in Exchange for {0}", userPrincipalName);
 
                         #endregion
+
+                        logger.DebugFormat("Saving database changes...");
+                        db.SaveChanges();
+
+                        string redirectUrl = string.Format("~/company/{0}/users", companyCode);
+                        return Negotiate.WithModel(new { success = "Successfully updated user " + userPrincipalName })
+                                        .WithMediaRangeResponse("text/html", this.Response.AsRedirect(redirectUrl));
                     }
-
-                    logger.DebugFormat("Saving database changes...");
-                    db.SaveChanges();
-
-                    string redirectUrl = string.Format("~/company/{0}/users", companyCode);
-                    return Negotiate.WithModel(new { success = "Successfully updated user " + userPrincipalName })
-                                    .WithMediaRangeResponse("text/html", this.Response.AsRedirect(redirectUrl));
                 }
                 catch (Exception ex)
                 {
@@ -191,6 +196,9 @@ namespace CloudPanel.Modules.CompanyModules
                 }
                 finally
                 {
+                    if (ad != null)
+                        ad.Dispose();
+
                     if (powershell != null)
                         powershell.Dispose();
 

@@ -271,17 +271,14 @@ namespace CloudPanel.Base.Database.Models
         [NotMapped]
         public bool PwdNeverExpires { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        [NotMapped]
-        public bool ResetPwdNextLogin { get; set; }
-
         [NotMapped]
         public bool IsLyncEnabled
         {
             get { return (LyncPlan != null && LyncPlan > 0) ? true : false; }
         }
+
+        [NotMapped]
+        public bool ChangePasswordNextLogin { get; set; }
 
         #endregion
 

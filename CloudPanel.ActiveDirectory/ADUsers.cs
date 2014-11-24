@@ -64,6 +64,12 @@ namespace CloudPanel.ActiveDirectory
 
         #endregion
 
+        /// <summary>
+        /// Authenticates a user against Active Directory
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public Users Authenticate(string username, string password)
         {
             try
@@ -404,6 +410,10 @@ namespace CloudPanel.ActiveDirectory
                 userObject.UserGuid = (Guid)usr.Guid;
                 userObject.DistinguishedName = usr.DistinguishedName;
 
+                // Check if we should set change password next login flag
+                if (userObject.ChangePasswordNextLogin)
+                    usr.ExpirePasswordNow();
+
                 logger.DebugFormat("User object {0} was created in Active Directory", userObject.DistinguishedName);
                 return userObject;
             }
@@ -444,7 +454,8 @@ namespace CloudPanel.ActiveDirectory
                 DirectoryEntry deEntry = usr.GetUnderlyingObject() as DirectoryEntry;
                 deEntry.Properties["givenName"].Value = userObject.Firstname;
                 deEntry.Properties["DisplayName"].Value = userObject.DisplayName;
-                
+
+                logger.DebugFormat("Setting AD property values for {0}", userObject.UserPrincipalName);
                 SetPropertyValue(ref deEntry, "sn", userObject.Lastname);
                 SetPropertyValue(ref deEntry, "streetAddress", userObject.Street);
                 SetPropertyValue(ref deEntry, "l", userObject.City);
@@ -465,8 +476,15 @@ namespace CloudPanel.ActiveDirectory
                 SetPropertyValue(ref deEntry, "physicalDeliveryOfficeName", userObject.Office);
                 SetPropertyValue(ref deEntry, "info", userObject.Notes);
                 SetPropertyValue(ref deEntry, "wWWHomePage", userObject.Webpage);
-
                 deEntry.CommitChanges();
+
+                // Check if change password on next login was set
+                if (userObject.ChangePasswordNextLogin)
+                {
+                    logger.DebugFormat("Change password on next login was set for {0}", userObject.UserPrincipalName);
+                    usr.ExpirePasswordNow();
+                }
+
                 logger.InfoFormat("Successfully updated user {0}", userObject.UserPrincipalName);
             }
             catch (Exception ex)

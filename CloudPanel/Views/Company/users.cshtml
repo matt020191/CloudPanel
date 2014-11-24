@@ -115,7 +115,17 @@
                             <label for="focusedinput" class="col-sm-3 control-label">Password</label>
                             <div class="col-sm-9">
                                 <input type="password" class="form-control" id="Password" name="Password" data-parsley-required="true">
-                                <input id="GeneratePassword" name="GeneratePassword" type="checkbox" /> Generate Password
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"></label>
+                            <div class="col-sm-9">
+                                <label class="checkbox-inline">
+                                    <input id="GeneratePassword" name="GeneratePassword" type="checkbox" /> Generate Password
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input id="ChangePasswordNextLogin" name="ChangePasswordNextLogin" type="checkbox" value="false" /> Change password on next login
+                                </label>
                             </div>
                         </div>
                     </div>

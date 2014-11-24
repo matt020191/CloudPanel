@@ -85,6 +85,14 @@
                                                                 <input type="text" class="form-control" id="DisplayName" name="DisplayName" data-parsley-required="true">
                                                             </div>
                                                         </div>
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label"></label>
+                                                            <div class="col-sm-9">
+                                                                <label class="checkbox-inline">
+                                                                    <input id="ChangePasswordNextLogin" name="ChangePasswordNextLogin" type="checkbox" value="false" /> Change password on next login
+                                                                </label>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                     <hr />
                                                     <h3>Company Information</h3><br />
@@ -129,7 +137,7 @@
                                                         </div>
                                                     </div>
                                                     <hr />
-                                                    <h3>Peronsal Information</h3><br />
+                                                    <h3>Personal Information</h3><br />
                                                     <div class="form-horizontal">
                                                         <div class="form-group">
                                                             <label class="col-sm-3 control-label">Home Phone</label>
@@ -355,7 +363,24 @@
         var originalEmailEnabled = false;
 
         $(document).ready(function () {
-            $.blockUI.defaults.css = {};
+            $("input[type=checkbox]").click(function () {
+                if ($(this).is(':checked')) {
+                    $(this).val("true");
+                } else {
+                    $(this).val("false");
+                }
+            });
+
+            $("#EmailEnabledCheck").change(function () {
+                var chkBox = $("#EmailEnabledCheck");
+
+                if (chkBox.is(":checked")) {
+                    $("#DivEmailEnabled").show();
+                } else {
+                    $("#DivEmailEnabled").hide();
+                }
+            });
+
             $("#MailboxPlan").change(function () {
                 var option = $("#MailboxPlan option:selected");
                 SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
@@ -372,18 +397,10 @@
                 width: 'resolve'
             });
 
-            $("#EmailEnabledCheck").change(function () {
-                var chkBox = $("#EmailEnabledCheck");
-
-                if (chkBox.is(":checked")) {
-                    $("#DivEmailEnabled").show();
-                } else {
-                    $("#DivEmailEnabled").hide();
-                }
-            });
-
             // Get user properties from SQL
             GetUser('@Model.UserPrincipalName');
+
+
         });
 
         //

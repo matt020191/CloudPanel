@@ -106,6 +106,17 @@ namespace CloudPanel.Modules
                     newUser.AdditionalMB = 0;
                     newUser.IsEnabled = true;
                     newUser.Created = DateTime.Now;
+
+                    // See if they set the change password next login value
+                    if (Request.Form.ChangePasswordNextLogin.HasValue)
+                    {
+                        logger.DebugFormat("Flag to change password on next login was set");
+                        string value = Request.Form.ChangePasswordNextLogin.Value;
+                        bool change = false;
+                        bool.TryParse(value, out change);
+
+                        newUser.ChangePasswordNextLogin = change;
+                    }
                     #endregion
 
                     #region UserPrincipalName validation
