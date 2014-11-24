@@ -1,4 +1,5 @@
-﻿using Nancy.Security;
+﻿using CloudPanel.Base.Database.Models;
+using Nancy.Security;
 using System;
 using System.Collections.Generic;
 
@@ -23,6 +24,8 @@ namespace CloudPanel
         public string CompanyCode { get; set; }
 
         public string ResellerCode { get; set; }
+
+        public UserRoles SecurityPermissions { get; set; }
 
         public IEnumerable<string> Claims { get; set; }
     }

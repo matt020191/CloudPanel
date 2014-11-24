@@ -68,6 +68,9 @@
                                 <label class="col-sm-3 control-label">Domains: </label>
                                 <div class="col-sm-6">
                                     <label class="checkbox-inline">
+                                        <input type="checkbox" name="cDomains" @(Model.Permission.cDomains == true ? "value='true' checked" : "value='false'")> Create
+                                    </label>
+                                    <label class="checkbox-inline">
                                         <input type="checkbox" name="vDomains" @(Model.Permission.vDomains == true ? "value='true' checked" : "value='false'")> View
                                     </label>
                                     <label class="checkbox-inline">
@@ -81,6 +84,9 @@
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Users: </label>
                                 <div class="col-sm-6">
+                                    <label class="checkbox-inline">
+                                        <input type="checkbox" name="cUsers" @(Model.Permission.cUsers == true ? "value='true' checked" : "value='false'")> Create
+                                    </label>
                                     <label class="checkbox-inline">
                                         <input type="checkbox" name="vUsers" @(Model.Permission.vUsers == true ? "value='true' checked" : "value='false'")> View
                                     </label>
@@ -96,6 +102,9 @@
                                 <label class="col-sm-3 control-label">Exchange Contacts: </label>
                                 <div class="col-sm-6">
                                     <label class="checkbox-inline">
+                                        <input type="checkbox" name="cExchangeContacts" @(Model.Permission.cExchangeContacts == true ? "value='true' checked" : "value='false'")> Create
+                                    </label>
+                                    <label class="checkbox-inline">
                                         <input type="checkbox" name="vExchangeContacts" @(Model.Permission.vExchangeContacts == true ? "value='true' checked" : "value='false'")> View
                                     </label>
                                     <label class="checkbox-inline">
@@ -109,6 +118,9 @@
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Exchange Groups: </label>
                                 <div class="col-sm-6">
+                                    <label class="checkbox-inline">
+                                        <input type="checkbox" name="cExchangeGroups" @(Model.Permission.cExchangeGroups == true ? "value='true' checked" : "value='false'")> Create
+                                    </label>
                                     <label class="checkbox-inline">
                                         <input type="checkbox" name="vExchangeGroups" @(Model.Permission.vExchangeGroups == true ? "value='true' checked" : "value='false'")> View
                                     </label>
@@ -124,6 +136,9 @@
                                 <label class="col-sm-3 control-label">Exchange Resources: </label>
                                 <div class="col-sm-6">
                                     <label class="checkbox-inline">
+                                        <input type="checkbox" name="cExchangeResources" @(Model.Permission.cExchangeResources == true ? "value='true' checked" : "value='false'")> Create
+                                    </label>
+                                    <label class="checkbox-inline">
                                         <input type="checkbox" name="vExchangeResources" @(Model.Permission.vExchangeResources == true ? "value='true' checked" : "value='false'")> View
                                     </label>
                                     <label class="checkbox-inline">
@@ -137,6 +152,9 @@
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Exchange Public Folders: </label>
                                 <div class="col-sm-6">
+                                    <label class="checkbox-inline">
+                                        <input type="checkbox" name="cExchangePublicFolders" @(Model.Permission.cExchangePublicFolders == true ? "value='true' checked" : "value='false'")> Create
+                                    </label>
                                     <label class="checkbox-inline">
                                         <input type="checkbox" name="vExchangePublicFolders" @(Model.Permission.vExchangePublicFolders == true ? "value='true' checked" : "value='false'")> View
                                     </label>
@@ -152,6 +170,9 @@
                                 <label class="col-sm-3 control-label">Citrix: </label>
                                 <div class="col-sm-6">
                                     <label class="checkbox-inline">
+                                        <input type="checkbox" name="cCitrix" @(Model.Permission.cCitrix == true ? "value='true' checked" : "value='false'")> Create
+                                    </label>
+                                    <label class="checkbox-inline">
                                         <input type="checkbox" name="vCitrix" @(Model.Permission.vCitrix == true ? "value='true' checked" : "value='false'")> View
                                     </label>
                                     <label class="checkbox-inline">
@@ -165,6 +186,9 @@
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Lync: </label>
                                 <div class="col-sm-6">
+                                    <label class="checkbox-inline">
+                                        <input type="checkbox" name="cLync" @(Model.Permission.cLync == true ? "value='true' checked" : "value='false'")> Create
+                                    </label>
                                     <label class="checkbox-inline">
                                         <input type="checkbox" name="vLync" @(Model.Permission.vLync == true ? "value='true' checked" : "value='false'")> View
                                     </label>

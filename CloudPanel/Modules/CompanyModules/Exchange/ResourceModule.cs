@@ -12,6 +12,7 @@ using CloudPanel.Base.Database.Models;
 using CloudPanel.Exchange;
 using log4net;
 using CloudPanel.Rollback;
+using CloudPanel.Code;
 
 namespace CloudPanel.Modules
 {
@@ -25,11 +26,15 @@ namespace CloudPanel.Modules
 
             Get["/", c => c.Request.Accept("text/html")] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vExchangeResources"));
+
                 return View["Company/Exchange/resourcemailboxes.cshtml"];
             };
 
             Get["/", c => c.Request.Accept("application/json")] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vExchangeResources"));
+
                 #region Returns the groups view with model or json data based on the request
                 CloudPanelContext db = null;
                 try
@@ -124,6 +129,8 @@ namespace CloudPanel.Modules
 
             Post["/"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "cExchangeResources"));
+
                 #region Creates a new resource mailbox
                 string companyCode = _.CompanyCode;
 
@@ -237,6 +244,8 @@ namespace CloudPanel.Modules
 
             Delete["/"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "dExchangeResources"));
+
                 #region Deletes a resource
 
                 CloudPanelContext db = null;
@@ -303,6 +312,8 @@ namespace CloudPanel.Modules
 
             Get["/{UserPrincipalName}", c => c.Request.Accept("text/html")] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vExchangeResources"));
+
                 string upn = _.UserPrincipalName;
                 string companyCode = _.CompanyCode;
                 return View["Company/Exchange/resourcemailboxes_edit.cshtml", new { 
@@ -313,6 +324,8 @@ namespace CloudPanel.Modules
 
             Get["/{UserPrincipalName}", c => !c.Request.Accept("text/html")] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vExchangeResources"));
+
                 #region Gets the resource mailbox information
                 CloudPanelContext db = null;
                 dynamic powershell = null;
@@ -372,6 +385,9 @@ namespace CloudPanel.Modules
 
             Post["/{UserPrincipalName}"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eExchangeResources"));
+
+                #region Creates a new resource mailbox
                 CloudPanelContext db = null;
                 dynamic powershell = null;
                 try
@@ -471,6 +487,7 @@ namespace CloudPanel.Modules
                     if (db != null)
                         db.Dispose();
                 }
+                #endregion
             };
         }
 

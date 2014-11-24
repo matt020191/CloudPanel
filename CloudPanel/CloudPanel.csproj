@@ -1102,6 +1102,7 @@
     <Compile Include="Code\Extensions.cs" />
     <Compile Include="Code\NancyContextHelpers.cs" />
     <Compile Include="Code\StaticSettings.cs" />
+    <Compile Include="Code\ValidateClaims.cs" />
     <Compile Include="Modules\Admin\BrandingModule.cs" />
     <Compile Include="Modules\Admin\MassEmailModule.cs" />
     <Compile Include="Modules\Admin\SettingsModule.cs" />

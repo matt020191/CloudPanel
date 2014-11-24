@@ -4,12 +4,13 @@ using CloudPanel.Database.EntityFramework;
 using log4net;
 using Nancy;
 using Nancy.ModelBinding;
+using Nancy.ViewEngines.Razor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Text;
 
-namespace CloudPanel.Modules.CompanyModules
+namespace CloudPanel.Modules
 {
     public class PermissionsModule : NancyModule
     {
@@ -239,7 +240,7 @@ namespace CloudPanel.Modules.CompanyModules
 
         }
 
-        private List<UserRoles> GetRoles(string companyCode)
+        public static List<UserRoles> GetRoles(string companyCode)
         {
             CloudPanelContext db = null;
             try
@@ -257,6 +258,48 @@ namespace CloudPanel.Modules.CompanyModules
             {
                 logger.ErrorFormat("Error getting company {0} permissions: {1}", companyCode, ex.ToString());
                 return null;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static IHtmlString GetRolesWithOptions(string companyCode, int? selectedId)
+        {
+            var sb = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                logger.DebugFormat("Getting company permissions for {0}", companyCode);
+                var permissions = (from d in db.UserRoles
+                                   where d.CompanyCode == companyCode
+                                   select d).ToList();
+
+                sb.AppendLine("<option value='0'>Not a Company Admin</option>");
+                if (permissions != null)
+                {
+                    foreach (var p in permissions)
+                    {
+                        string format = string.Format("<option value='{0}' {1}>{2}</option>",
+                            p.RoleID,
+                            (selectedId != null && selectedId == p.RoleID) ? "value='true' selected" : "",
+                            p.DisplayName);
+
+                        sb.AppendLine(format);
+                    }
+                }
+
+                return new NonEncodedHtmlString(sb.ToString());
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting company {0} permissions: {1}", companyCode, ex.ToString());
+                return new NonEncodedHtmlString(ex.Message);
             }
             finally
             {

@@ -15,6 +15,7 @@ using CloudPanel.Base.AD;
 using CloudPanel.Base.Enums;
 using Nancy.ViewEngines.Razor;
 using System.Text;
+using CloudPanel.Code;
 
 namespace CloudPanel.Modules
 {
@@ -28,6 +29,8 @@ namespace CloudPanel.Modules
 
             Get["/"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vExchangeGroups"));
+
                 #region Returns the groups view with model or json data based on the request
                 CloudPanelContext db = null;
                 try
@@ -105,6 +108,8 @@ namespace CloudPanel.Modules
 
             Delete["/"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "dExchangeGroups"));
+
                 #region Updates existing group
                 CloudPanelContext db = null;
                 dynamic powershell = null;
@@ -157,6 +162,8 @@ namespace CloudPanel.Modules
 
             Get["/{ID:int}"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vExchangeGroups"));
+
                 #region Gets an existing group for editing
                 CloudPanelContext db = null;
                 dynamic powershell = null;
@@ -247,6 +254,8 @@ namespace CloudPanel.Modules
 
             Get["/{ID:int}/members"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vExchangeGroups"));
+
                 #region Gets members of a distribution group
                 CloudPanelContext db = null;
                 dynamic powershell = null;
@@ -290,6 +299,8 @@ namespace CloudPanel.Modules
 
             Post["/{ID:int}"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eExchangeGroups"));
+
                 #region Updates existing group
                 CloudPanelContext db = null;
                 dynamic powershell = null;
@@ -371,6 +382,8 @@ namespace CloudPanel.Modules
 
             Get["/new"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eExchangeGroups"));
+
                 return View["Company/Exchange/groups_edit.cshtml", 
                     new { 
                         companyCode = _.CompanyCode,
@@ -380,6 +393,8 @@ namespace CloudPanel.Modules
 
             Post["/new"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "cExchangeGroups"));
+
                 #region Create a new group
                 CloudPanelContext db = null;
                 dynamic powershell = null;

@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using Nancy.ViewEngines.Razor;
 using System.Text;
 using CloudPanel.Base.Enums;
+using CloudPanel.Code;
 
 namespace CloudPanel.Modules
 {
@@ -23,17 +24,26 @@ namespace CloudPanel.Modules
     {
         private static readonly ILog logger = LogManager.GetLogger(typeof(UsersModule));
 
+        public static bool blah()
+        {
+            return false;
+        }
+
         public UsersModule() : base("/company/{CompanyCode}/users")
         {
             this.RequiresAuthentication();
 
             Get["/", c => c.Request.Accept("text/html")] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
+
                 return View["Company/users.cshtml"];
             };
 
             Get["/", c => !c.Request.Accept("text/html")] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
+
                 #region Returns the users view with model or json data based on the request
                 CloudPanelContext db = null;
                 try
@@ -47,6 +57,8 @@ namespace CloudPanel.Modules
                                  from mailboxplan in d1.DefaultIfEmpty()
                                  join s in db.SvcMailboxSizes on d.UserPrincipalName equals s.UserPrincipalName into d2
                                  from mailboxinfo in d2.DefaultIfEmpty().Take(1)
+                                 join p in db.UserRoles on d.RoleID equals p.RoleID into d3
+                                 from permission in d3.DefaultIfEmpty().Take(1)
                                  where d.CompanyCode == companyCode
                                  orderby mailboxinfo.Retrieved descending
                                  select new
@@ -62,69 +74,55 @@ namespace CloudPanel.Modules
                                      IsCompanyAdmin = d.IsCompanyAdmin == null ? false : (bool)d.IsCompanyAdmin,
                                      IsResellerAdmin = d.IsResellerAdmin == null ? false : (bool)d.IsResellerAdmin,
                                      IsEnabled = d.IsEnabled == null ? true : (bool)d.IsEnabled,
-                                     MailboxPlan = d.MailboxPlan == null ? 0 : (int)d.MailboxPlan,
-                                     MailboxPlanName = mailboxplan == null ? "" : mailboxplan.MailboxPlanName,
-                                     MailboxPlanSize = mailboxplan == null ? 0 : mailboxplan.MailboxSizeMB,
-                                     MailboxPlanMaxSize = mailboxplan == null ? 0 : mailboxplan.MaxMailboxSizeMB,
-                                     MailboxPlanMaxSendKB = mailboxplan == null ? 0 : mailboxplan.MaxSendKB,
-                                     MailboxPlanMaxReceiveKB = mailboxplan == null ? 0 : mailboxplan.MaxReceiveKB,
-                                     MailboxPlanMaxRecipients = mailboxplan == null ? 0 : mailboxplan.MaxRecipients,
-                                     MailboxPlanPOP3 = mailboxplan == null ? false : mailboxplan.EnablePOP3,
-                                     MailboxPlanIMAP = mailboxplan == null ? false: mailboxplan.EnableIMAP,
-                                     MailboxPlanOWA = mailboxplan == null ? false : mailboxplan.EnableOWA,
-                                     MailboxPlanMAPI = mailboxplan == null ? false : mailboxplan.EnableMAPI,
-                                     MailboxPlanAS = mailboxplan == null ? false : mailboxplan.EnableAS,
-                                     MailboxPlanECP = mailboxplan == null ? false : mailboxplan.EnableECP,
-                                     MailboxDatabase = mailboxinfo == null ? "" : mailboxinfo.MailboxDatabase,
-                                     MailboxSize = mailboxinfo == null ? 0 : mailboxinfo.TotalItemSizeInBytes,
-                                     MailboxDeletedSize = mailboxinfo == null ? 0 : mailboxinfo.TotalDeletedItemSizeInBytes,
-                                     MailboxItemCount = mailboxinfo == null ? 0 : mailboxinfo.ItemCount,
-                                     MailboxDeletedItemCount = mailboxinfo == null ? 0 : mailboxinfo.DeletedItemCount,
-                                     MailboxInfoRetrieved = mailboxinfo == null ? "" : mailboxinfo.Retrieved.ToString(),
                                      Created = d.Created,
-                                     Email = d.Email
+                                     Email = d.Email,
+                                     MailboxPlan = mailboxplan,
+                                     MailboxInfo = mailboxinfo,
+                                     Permission = permission
                                  }).ToList();
 
                     int draw = 0, start = 0, length = 0, recordsTotal = users.Count, recordsFiltered = users.Count, orderColumn = 0;
                     string searchValue = "", orderColumnName = "";
                     bool isAscendingOrder = true;
 
-                    draw = Request.Query.draw;
-                    start = Request.Query.start;
-                    length = Request.Query.length;
-                    orderColumn = Request.Query["order[0][column]"];
-                    searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
-                    isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
-                    orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
-
-                    // See if we are using dataTables to search
-                    logger.DebugFormat("Search value was {0}", searchValue);
-                    if (!string.IsNullOrEmpty(searchValue))
+                    if (Request.Query.draw.HasValue)
                     {
-                        users = (from d in users
-                                  where d.DisplayName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                        d.UserPrincipalName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                        (d.SamAccountName != null && d.SamAccountName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
-                                        (d.Department != null && d.Department.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
-                                        (d.Email != null && d.Email.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1)
-                                 select d).ToList();
-                        recordsFiltered = users.Count;
-                        logger.DebugFormat("Total records filtered was {0}", recordsFiltered);
+                        draw = Request.Query.draw;
+                        start = Request.Query.start;
+                        length = Request.Query.length;
+                        orderColumn = Request.Query["order[0][column]"];
+                        searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
+                        isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
+                        orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
+
+                        // See if we are using dataTables to search
+                        logger.DebugFormat("Search value was {0}", searchValue);
+                        if (!string.IsNullOrEmpty(searchValue))
+                        {
+                            users = (from d in users
+                                     where d.DisplayName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                           d.UserPrincipalName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                           (d.SamAccountName != null && d.SamAccountName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
+                                           (d.Department != null && d.Department.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
+                                           (d.Email != null && d.Email.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1)
+                                     select d).ToList();
+                            recordsFiltered = users.Count;
+                            logger.DebugFormat("Total records filtered was {0}", recordsFiltered);
+                        }
+
+                        if (isAscendingOrder)
+                            users = users.OrderBy(x => x.GetType()
+                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                    .Skip(start)
+                                                    .Take(length)
+                                                    .ToList();
+                        else
+                            users = users.OrderByDescending(x => x.GetType()
+                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                    .Skip(start)
+                                                    .Take(length)
+                                                    .ToList();
                     }
-
-                    if (isAscendingOrder)
-                        users = users.OrderBy(x => x.GetType()
-                                                .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                .Skip(start)
-                                                .Take(length)
-                                                .ToList();
-                    else
-                        users = users.OrderByDescending(x => x.GetType()
-                                                .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                .Skip(start)
-                                                .Take(length)
-                                                .ToList();
-
 
                     return Negotiate.WithModel(new
                                     {
@@ -151,6 +149,8 @@ namespace CloudPanel.Modules
 
             Post["/"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "cUsers"));
+
                 #region Creates a new user
 
                 CloudPanelContext db = null;
@@ -283,6 +283,8 @@ namespace CloudPanel.Modules
 
             Delete["/"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "dUsers"));
+
                 #region Deletes a user from Active Directory and the database
                 CloudPanelContext db = null;
                 ADUsers adUsers = null;

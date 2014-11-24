@@ -90,6 +90,14 @@
                                                     <h3>Company Information</h3><br />
                                                     <div class="form-horizontal">
                                                         <div class="form-group">
+                                                            <label class="col-sm-3 control-label">Company Admin</label>
+                                                            <div class="col-sm-6">
+                                                                <select id="RoleID" name="RoleID" style="width: 100%" class="populate">
+                                                                    @CloudPanel.Modules.PermissionsModule.GetRolesWithOptions(Model.CompanyCode, null)
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
                                                             <label class="col-sm-3 control-label">Company</label>
                                                             <div class="col-sm-6">
                                                                 <input type="text" class="form-control" id="Company" name="Company">
@@ -396,6 +404,10 @@
                     $("#State").val(data.user.state);
                     $("#PostalCode").val(data.user.postalCode);
                     $("#Country").select2("val", data.user.country);
+
+                    if (data.user.roleID > 0) {
+                        $("#RoleID").select2("val", data.user.roleID);
+                    }
 
                     if (data.user.mailboxPlan > 0) {
                         originalEmailEnabled = true;

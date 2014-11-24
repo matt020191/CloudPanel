@@ -112,6 +112,14 @@
     <Compile Include="Migrations\201411211737276_ModifyPrimaryKey.Designer.cs">
       <DependentUpon>201411211737276_ModifyPrimaryKey.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201411231515593_AddRoleIDToUsersTable.cs" />
+    <Compile Include="Migrations\201411231515593_AddRoleIDToUsersTable.Designer.cs">
+      <DependentUpon>201411231515593_AddRoleIDToUsersTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201411231903420_AddNewColumnsToRoles.cs" />
+    <Compile Include="Migrations\201411231903420_AddNewColumnsToRoles.Designer.cs">
+      <DependentUpon>201411231903420_AddNewColumnsToRoles.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -170,6 +178,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201411211737276_ModifyPrimaryKey.resx">
       <DependentUpon>201411211737276_ModifyPrimaryKey.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201411231515593_AddRoleIDToUsersTable.resx">
+      <DependentUpon>201411231515593_AddRoleIDToUsersTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201411231903420_AddNewColumnsToRoles.resx">
+      <DependentUpon>201411231903420_AddNewColumnsToRoles.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,9 +1,11 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
+using CloudPanel.Code;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Exchange;
 using log4net;
 using Nancy;
+using Nancy.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,8 +19,12 @@ namespace CloudPanel.Modules
 
         public MailboxModule() : base("/company/{CompanyCode}/exchange/mailbox")
         {
+            this.RequiresAuthentication();
+
             Get["/size/{UserPrincipalName}"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
+
                 #region Gets the mailbox size for this specific user
                 string upn = _.UserPrincipalName;
                 logger.DebugFormat("Getting mailbox size for {0}", upn);

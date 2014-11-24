@@ -240,7 +240,7 @@
                     { "data": "displayName" },
                     { "data": "userPrincipalName" },
                     { "data": "department" },
-                    { "data": "userGuid", "orderable": false, "className": "text-center", "render": function (data, type, full, meta) { return GetUserFeatures(full["isEnabled"], full["isCompanyAdmin"], full["isResellerAdmin"], (full["mailboxPlan"] > 0)); } },
+                    { "data": "userGuid", "orderable": false, "className": "text-center", "render": function (data, type, full, meta) { return GetUserFeatures(full["isEnabled"], full["isCompanyAdmin"], full["isResellerAdmin"], full["mailboxPlan"]); } },
                     {
                         "data": "userPrincipalName", "orderable": false, "className": "text-right", "render": function (data, type, full, meta)
                         {
@@ -370,24 +370,42 @@
         //
         function FormatUsersChildTable(d) {
             var returnData = '<table class="table table-striped table-condensed table-bordered">' +
-                                      '<tr><td align="right" width="200px">GUID:</td><td>' + d.userGuid + '</td></tr>' +
-                                      '<tr><td align="right">SamAccountName:</td><td>' + d.samAccountName + '</td></tr>' +
-                                      '<tr><td align="right">Created:</td><td>' + moment(d.created).format('LLLL') + '</td></tr>' +
-                                      '</table>';
+                                '<tr><td align="right" width="200px">GUID:</td><td>' + d.userGuid + '</td></tr>' +
+                                '<tr><td align="right">SamAccountName:</td><td>' + d.samAccountName + '</td></tr>' +
+                                '<tr><td align="right">Created:</td><td>' + moment(d.created).format('LLLL') + '</td></tr>' +
+                              '</table>';
 
-            if (d.mailboxPlan > 0) {
+            if (d.mailboxPlan != null) {
+                var totalInBytes = 0;
+                if (d.mailboxPlan.mailboxSizeMB > 0) {
+                    totalInBytes = ((d.mailboxPlan.mailboxSizeMB + d.additionalMB) * 1024) * 1024;
+                }
+
                 returnData += '<table class="table table-striped table-condensed table-bordered">' +
-                              '<tr><td align="right" width="200px">Plan:</td><td>' + d.mailboxPlanName + '</td></tr>' +
-                              '<tr><td align="right">Features:</td><td>' + GetMailboxFeatures(d) + '</td></tr>' +
-                              '<tr><td align="right">Size:</td><td>' + GetMailboxSizeProgressBar(d.userPrincipalName, d.mailboxSize, d.mailboxPlanSize + d.additionalMB) + '</td></tr>' +
-                              '<tr><td align="right">Deleted Size:</td><td>' + bytesToSize(d.mailboxDeletedSize) + '</td></tr>' +
-                              '<tr><td align="right">Item Count:</td><td>' + d.mailboxItemCount + '</td></tr>' +
-                              '<tr><td align="right">Deleted Item Count:</td><td>' + d.mailboxDeletedItemCount + '</td></tr>' +
-                              '<tr><td align="right">Info Retrieved:</td><td>' + d.mailboxInfoRetrieved + '</td></tr>' +
+                                '<tr><td align="right" width="200px">Plan:</td><td>' + d.mailboxPlan.mailboxPlanName + '</td></tr>' +
+                                '<tr><td align="right">Email:</td><td><a href="mailto:'+d.email+'">'+d.email+'</a></td></tr>' +
+                                '<tr><td align="right">Features:</td><td>' + GetMailboxFeatures(d.mailboxPlan) + '</td></tr>' +
+                                '<tr><td align="right">Max Mailbox Size:</td><td>' + (totalInBytes > 0 ? bytesToSize(totalInBytes) : 'Unlimited') + '</td></tr>' +
                               '</table>';
             }
 
-            return returnData + '</table>';
+            if (d.mailboxInfo != null) {
+                var planMax = 0;
+                if (d.mailboxPlan != null && d.mailboxPlan.mailboxSizeMB > 0) {
+                    planMax = d.mailboxPlan.mailboxSizeMB + d.additionalMB;
+                }
+
+                returnData += '<table class="table table-striped table-condensed table-bordered">' +
+                                '<tr><td align="right" width="200px">Retrieved:</td><td>' + moment(d.mailboxInfo.retrieved).format('LLLL') + '</td></tr>' +
+                                '<tr><td align="right">Mailbox Size:</td><td>' + d.mailboxInfo.totalItemSize + '</td></tr>' +
+                                (planMax > 0 ? '<tr><td align="right">Used:</td><td id="prog'+d.userPrincipalName+'">'+ GetMailboxSizeProgressBar(d.userPrincipalName, d.mailboxInfo.totalItemSizeInBytes, planMax) +'</td></tr>' : '') +
+                                '<tr><td align="right">Item Count:</td><td>' + d.mailboxInfo.itemCount + '</td></tr>' +
+                                '<tr><td align="right">Deleted Item Count:</td><td>' + d.mailboxInfo.deletedItemCount + '</td></tr>' +
+                                '<tr><td align="right">Deleted Item Size:</td><td>' + d.mailboxInfo.totalDeletedItemSize + '</td></tr>' +
+                              '</table>';
+            }
+
+            return returnData;
         }
 
         //
@@ -396,11 +414,11 @@
         function GetMailboxFeatures(d) {
             var returnData = "";
 
-            if (d.mailboxPlanPOP3) { returnData += '<span class="label label-default">POP3</span>' }
-            if (d.mailboxPlanIMAP) { returnData += '<span class="label label-primary">IMAP</span>' }
-            if (d.mailboxPlanOWA) { returnData += '<span class="label label-success">OWA</span>' }
-            if (d.mailboxPlanMAPI) { returnData += '<span class="label label-info">MAPI</span>' }
-            if (d.mailboxPlanAS) { returnData += '<span class="label label-warning">ActiveSync</span>' }
+            if (d.enablePOP3) { returnData += '<span class="label label-default">POP3</span>' }
+            if (d.enableIMAP) { returnData += '<span class="label label-primary">IMAP</span>' }
+            if (d.enableOWA) { returnData += '<span class="label label-success">OWA</span>' }
+            if (d.enableMAPI) { returnData += '<span class="label label-info">MAPI</span>' }
+            if (d.enableAS) { returnData += '<span class="label label-warning">ActiveSync</span>' }
 
             return returnData;
         }
@@ -420,7 +438,7 @@
             if (isResellerAdmin)
                 html.push('<span class="badge badge-info tooltip-ex" data-toggle="tooltip" data-original-title="Reseller Administrator"><i class="fa fa-gears"></i></span><span class="tab-space"></span>');
 
-            if (hasMailbox)
+            if (hasMailbox != null)
                 html.push('<span class="badge badge-warning tooltip-ex" data-toggle="tooltip" data-original-title="Has a Mailbox"><i class="fa fa-envelope"></i></span><span class="tab-space"></span>');
 
             return html.join("");
@@ -447,27 +465,13 @@
                 return '<div class="">\
                             <div class="clearfix">\
                                 <div class="progress-title" style="float: left">'+ title + '</div>\
-                                <div class="progress-percentage" style="float: right; position: relative">'+ percent + '% <a href="javascript:GetMailboxSize(\'' + upn + '\');"><i class="fa fa-refresh"></i></div>\
+                                <div class="progress-percentage" style="float: right; position: relative">'+ percent + '%</div>\
                             </div>\
                             <div class="progress">\
                                 <div class="progress-bar progress-bar-info" style="width: '+ percent + '%"></div>\
                             </div>\
                         </div>';
             }
-        }
-        
-        //
-        // Queries Exchange for an updated mailbox size for the user
-        //
-        function GetMailboxSize(upn) {
-            $(".panel").block();
-            $.getJSON("@Url.Content("~/company/" + this.RenderContext.Context.GetCompanyCode() + "/exchange/mailbox/size/")" + upn, function (data) {
-                ReloadTable("dataTable");
-            }).fail(function (data) {
-                ShowError(data.responseJSON.error);
-            }).always(function () {
-                $(".panel").unblock();
-            });
         }
     </script>
 }

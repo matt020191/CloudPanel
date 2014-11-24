@@ -13,6 +13,26 @@
 
         public string DisplayName { get; set; }
 
+        #region Create Permissions
+
+        public bool cDomains { get; set; }
+
+        public bool cUsers { get; set; }
+
+        public bool cExchangeContacts { get; set; }
+
+        public bool cExchangeGroups { get; set; }
+
+        public bool cExchangeResources { get; set; }
+
+        public bool cExchangePublicFolders { get; set; }
+
+        public bool cCitrix { get; set; }
+
+        public bool cLync { get; set; }
+
+        #endregion
+
         #region View Permissions
 
         public bool vDomains { get; set; }

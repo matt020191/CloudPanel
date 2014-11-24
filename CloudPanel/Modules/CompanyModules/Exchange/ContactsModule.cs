@@ -11,6 +11,7 @@ using CloudPanel.Base.Database.Models;
 using CloudPanel.Exchange;
 using CloudPanel.Rollback;
 using System.Collections.Generic;
+using CloudPanel.Code;
 
 namespace CloudPanel.Modules
 {
@@ -24,6 +25,8 @@ namespace CloudPanel.Modules
 
             Get["/"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vExchangeContacts"));
+
                 #region Returns the contacts view with model or json data based on the request
                 CloudPanelContext db = null;
                 try
@@ -101,6 +104,8 @@ namespace CloudPanel.Modules
 
             Post["/"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "cExchangeContacts"));
+
                 #region Creates a new contact
 
                 CloudPanelContext db = null;
@@ -182,6 +187,8 @@ namespace CloudPanel.Modules
 
             Delete["/"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "dExchangeContacts"));
+
                 #region Deletes a contact
 
                 CloudPanelContext db = null;
@@ -236,6 +243,8 @@ namespace CloudPanel.Modules
 
             Get["/{ContactID:int}"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vExchangeContacts"));
+
                 #region Gets a specific contact from the database
                 CloudPanelContext db = null;
                 try
@@ -274,6 +283,8 @@ namespace CloudPanel.Modules
 
             Put["/{ContactID:int}"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eExchangeContacts"));
+
                 #region Updates an existing contact in Exchange and the database
 
                 CloudPanelContext db = null;

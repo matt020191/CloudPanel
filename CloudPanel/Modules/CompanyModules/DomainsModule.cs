@@ -3,6 +3,7 @@ using CloudPanel.Base.AD;
 using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
 using CloudPanel.Base.Enums;
+using CloudPanel.Code;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Exchange;
 using log4net;
@@ -28,6 +29,8 @@ namespace CloudPanel.Modules
 
             Get["/"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vDomains"));
+
                 #region Returns the domains view with model or json data based on the request
                 CloudPanelContext db = null;
                 try
@@ -112,6 +115,8 @@ namespace CloudPanel.Modules
 
             Post["/"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "cDomains"));
+
                 #region Creates a new domain for the company
                 CloudPanelContext db = null;
                 ADOrganizationalUnits org = null;
@@ -185,6 +190,8 @@ namespace CloudPanel.Modules
 
             Delete["/"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "dDomains"));
+
                 #region Deletes a domain from the company
                 CloudPanelContext db = null;
                 ADOrganizationalUnits org = null;
@@ -258,6 +265,8 @@ namespace CloudPanel.Modules
 
             Get["/{ID:int}"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vDomains"));
+
                 #region Returns the edit page or json data for a specific domain
                 CloudPanelContext db = null;
                 try
@@ -296,6 +305,8 @@ namespace CloudPanel.Modules
 
             Put["/{ID:int}"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eDomains"));
+
                 #region Updates an existing domain
                 CloudPanelContext db = null;
                 dynamic exchangePowershell = null;

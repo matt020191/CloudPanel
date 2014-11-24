@@ -150,6 +150,29 @@ namespace CloudPanel
                     {
                         claims.Add("CompanyAdmin");
                         logger.DebugFormat("User {0} is a company admin for {1}", upn, authUser.CompanyCode);
+
+                        var permission = (from d in db.UserRoles
+                                          where d.RoleID == user.RoleID
+                                          select d).FirstOrDefault();
+                        if (permission != null)
+                        {
+                            foreach (var p in permission.GetType().GetProperties())
+                            {
+                                logger.DebugFormat("Checking permission {0} for user {1}", p.Name, authUser.UserName);
+                                if (p.PropertyType == typeof(bool))
+                                {
+                                    bool isTrue = (bool)p.GetValue(permission, null);
+                                    if (isTrue)
+                                    {
+                                        claims.Add(p.Name);
+                                        logger.DebugFormat("Adding {0} to user {1} permissions", p.Name, authUser.UserName);
+                                    }
+                                }
+                            }
+                        }
+
+
+                        authUser.SecurityPermissions = permission;
                     }
                 }
             }            

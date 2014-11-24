@@ -243,5 +243,10 @@ namespace CloudPanel
             var user = context.CurrentUser as AuthenticatedUser;
             return user.Claims.Any(x => (x.Contains("SuperAdmin") || x.Contains("ResellerAdmin")));
         }
+
+        public static bool HasPermission(this NancyContext context)
+        {
+            return false;
+        }
     }
 }

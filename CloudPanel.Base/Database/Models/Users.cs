@@ -93,6 +93,8 @@ namespace CloudPanel.Base.Database.Models
 
         public int? ActiveSyncPlan { get; set; }
 
+        public int? RoleID { get; set; }
+
         #region Not Mapped AD Settings
 
         /// <summary>

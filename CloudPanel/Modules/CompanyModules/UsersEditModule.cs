@@ -1,11 +1,13 @@
 ﻿using CloudPanel.ActiveDirectory;
 using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
+using CloudPanel.Code;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Exchange;
 using log4net;
 using Nancy;
 using Nancy.ModelBinding;
+using Nancy.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,10 +20,13 @@ namespace CloudPanel.Modules.CompanyModules
 
         public UsersEditModule() : base("/company/{CompanyCode}/users/{UserPrincipalName}")
         {
+            this.RequiresAuthentication();
+
             Get["/", c => c.Request.Accept("text/html")] = _ =>
             {
-                logger.DebugFormat("Loading user edit page for company {0} and user {1}", _.CompanyCode, _.UserPrincipalName);
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
 
+                logger.DebugFormat("Loading user edit page for company {0} and user {1}", _.CompanyCode, _.UserPrincipalName);
                 string companyCode = _.CompanyCode;
                 string userPrincipalName = _.UserPrincipalName;
                 return View["Company/users_edit.cshtml", new { 
@@ -33,6 +38,8 @@ namespace CloudPanel.Modules.CompanyModules
 
             Get["/", c => c.Request.Accept("application/json")] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
+
                 #region Gets a specific user
                 CloudPanelContext db = null;
                 try
@@ -74,6 +81,8 @@ namespace CloudPanel.Modules.CompanyModules
 
             Get["/mailbox", c => c.Request.Accept("application/json")] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
+
                 #region Gets a specific user's mailbox
                 dynamic powershell = null;
                 try
@@ -104,6 +113,8 @@ namespace CloudPanel.Modules.CompanyModules
 
             Put["/"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eUsers"));
+
                 #region Updates a user
 
                 CloudPanelContext db = null;
@@ -192,6 +203,8 @@ namespace CloudPanel.Modules.CompanyModules
 
             Post["/resetpassword"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eUsers"));
+
                 #region resets a user's password
                 string upn = _.UserPrincipalName;
                 string companyCode = _.CompanyCode;
@@ -516,6 +529,7 @@ namespace CloudPanel.Modules.CompanyModules
             sqlUser.State = updatedUser.State;
             sqlUser.PostalCode = updatedUser.PostalCode;
             sqlUser.Country = updatedUser.Country;
+            sqlUser.RoleID = updatedUser.RoleID;
         }
 
         #endregion

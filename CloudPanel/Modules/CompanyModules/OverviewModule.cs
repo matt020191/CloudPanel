@@ -22,8 +22,9 @@ namespace CloudPanel.Modules
             Get["/"] = _ =>
             {
                 string companyCode = _.CompanyCode;
-                this.RequiresAnyClaim(new[] { "SuperAdmin", "ResellerAdmin", companyCode });
+                this.RequiresValidatedClaims(x => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, companyCode, "vUsers"));
 
+                #region Gets the overview page
                 this.Context.SetCompanyCode(companyCode);
                 logger.DebugFormat("Setting selected company code for {0} to {1}", this.Context.CurrentUser.UserName, _.CompanyCode);
 
@@ -85,13 +86,15 @@ namespace CloudPanel.Modules
                     if (db != null)
                         db.Dispose();
                 }
+                #endregion
             };
 
             Put["/", c => !c.Request.Accept("text/html")] = _ =>
             {
                 string companyCode = _.CompanyCode;
-                this.RequiresAnyClaim(new[] { "SuperAdmin", "ResellerAdmin", companyCode });
+                this.RequiresValidatedClaims(x => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, companyCode, "eUsers"));
 
+                #region Updates the company info
                 CloudPanelContext db = null;
                 try
                 {
@@ -144,6 +147,7 @@ namespace CloudPanel.Modules
                     if (db != null)
                         db.Dispose();
                 }
+                #endregion
             };
         }
     }
