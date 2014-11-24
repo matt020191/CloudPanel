@@ -382,9 +382,13 @@
                 }
             });
 
+            // Get user properties from SQL
             GetUser('@Model.UserPrincipalName');
         });
 
+        //
+        // Get the user properties from SQL
+        //
         function GetUser(upn) {
             $("#blockui").block();
             $.getJSON("", function (data) {
@@ -438,6 +442,9 @@
                 });
         }
 
+        //
+        // Get the mailbox properties from Exchange if the user was originally enabled for Exchange
+        //
         function Mailbox(upn) {
             $("#IsEmailModified").prop('checked', true);
             $("#IsEmailModified").val(true);
@@ -447,17 +454,22 @@
             }
         }
 
+        //
+        // Get the litigation hold properties from Exchange if the user was originally enabled for Exchange
+        //
         function LitigationHold(upn) {
             $("#IsLitigationHoldModified").prop('checked', true);
             $("#IsLitigationHoldModified").val(true);
-
             $("#LitigationHoldDate").datepicker({ startDate: "today" });
 
-            if (mailboxRetrieved == false) {
+            if (originalEmailEnabled && mailboxRetrieved == false) { // Only get litigation hold data if user was enabled for Exchange on page load
                 GetMailboxValues(upn);
             }
         }
 
+        //
+        // Gets the additional values from Exchange for the mailbox
+        //
         function GetMailboxValues(upn) {
             if (mailboxRetrieved == false) {
                 $("#blockui").block();
@@ -504,6 +516,9 @@
             }
         }
 
+        //
+        // Setup the slider for the mailbox plan selected
+        //
         function SetSlider(min, max, selectedValue, description) {
             if (min == 0) {
                 $("#sliderDiv").hide();
@@ -530,6 +545,9 @@
             $("#mailboxPlanDescription").text(description)
         }
 
+        //
+        // Setup the email alias section
+        //
         function SetupEmailTokenField()
         {
             $('#EmailAliases')
