@@ -146,7 +146,24 @@ namespace CloudPanel.Modules.CompanyModules
 
                         // Combine the old values in sql with the new values in sql
                         logger.DebugFormat("Updating database values");
-                        Combine(ref sqlUser, ref boundUser);
+                        sqlUser.Firstname = boundUser.Firstname;
+                        sqlUser.Middlename = boundUser.Middlename;
+                        sqlUser.Lastname = boundUser.Lastname;
+                        sqlUser.DisplayName = boundUser.DisplayName;
+                        sqlUser.Company = boundUser.Company;
+                        sqlUser.Department = boundUser.Department;
+                        sqlUser.JobTitle = boundUser.JobTitle;
+                        sqlUser.TelephoneNumber = boundUser.TelephoneNumber;
+                        sqlUser.Fax = boundUser.Fax;
+                        sqlUser.HomePhone = boundUser.HomePhone;
+                        sqlUser.MobilePhone = boundUser.MobilePhone;
+                        sqlUser.Street = boundUser.Street;
+                        sqlUser.City = boundUser.City;
+                        sqlUser.State = boundUser.State;
+                        sqlUser.PostalCode = boundUser.PostalCode;
+                        sqlUser.Country = boundUser.Country;
+                        sqlUser.RoleID = boundUser.RoleID;
+                        sqlUser.ChangePasswordNextLogin = boundUser.ChangePasswordNextLogin;
 
                         logger.DebugFormat("Updating Active Directory for user {0}", userPrincipalName);
                         adUser = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
@@ -196,8 +213,8 @@ namespace CloudPanel.Modules.CompanyModules
                 }
                 finally
                 {
-                    if (ad != null)
-                        ad.Dispose();
+                    if (adUser != null)
+                        adUser.Dispose();
 
                     if (powershell != null)
                         powershell.Dispose();
@@ -512,34 +529,5 @@ namespace CloudPanel.Modules.CompanyModules
 
         #endregion
 
-        #region Combine Values
-
-        /// <summary>
-        /// Combines the second parameter into the first parameter (Users object)
-        /// </summary>
-        /// <param name="sqlUser"></param>
-        /// <param name="updatedUser"></param>
-        private void Combine(ref Users sqlUser, ref Users updatedUser)
-        {
-            sqlUser.Firstname = updatedUser.Firstname;
-            sqlUser.Middlename = updatedUser.Middlename;
-            sqlUser.Lastname = updatedUser.Lastname;
-            sqlUser.DisplayName = updatedUser.DisplayName;
-            sqlUser.Company = updatedUser.Company;
-            sqlUser.Department = updatedUser.Department;
-            sqlUser.JobTitle = updatedUser.JobTitle;
-            sqlUser.TelephoneNumber = updatedUser.TelephoneNumber;
-            sqlUser.Fax = updatedUser.Fax;
-            sqlUser.HomePhone = updatedUser.HomePhone;
-            sqlUser.MobilePhone = updatedUser.MobilePhone;
-            sqlUser.Street = updatedUser.Street;
-            sqlUser.City = updatedUser.City;
-            sqlUser.State = updatedUser.State;
-            sqlUser.PostalCode = updatedUser.PostalCode;
-            sqlUser.Country = updatedUser.Country;
-            sqlUser.RoleID = updatedUser.RoleID;
-        }
-
-        #endregion
     }
 }

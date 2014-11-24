@@ -469,6 +469,7 @@ namespace CloudPanel.ActiveDirectory
                 SetPropertyValue(ref deEntry, "description", userObject.Description);
                 SetPropertyValue(ref deEntry, "title", userObject.JobTitle);
                 SetPropertyValue(ref deEntry, "facsimileTelephoneNumber", userObject.Fax);
+                SetPropertyValue(ref deEntry, "telephoneNumber", userObject.TelephoneNumber);
                 SetPropertyValue(ref deEntry, "homePhone", userObject.HomePhone);
                 SetPropertyValue(ref deEntry, "mobile", userObject.MobilePhone);
                 SetPropertyValue(ref deEntry, "pager", userObject.Pager);
