@@ -17,27 +17,22 @@
     </ol>
 
     <h1>Brandings</h1>
-    <div class="options">
-        <div class="btn-toolbar">
-            <a href="~/settings/brandings/new" class="btn btn-primary hidden-xs">Add New</a>
-        </div>
-    </div>
 </div>
 
 <div class="container">
     <div class="row">
         <div class="col-md-3">
-            <div class="panel panel-primary">
-                <div class="panel-heading">Choose a Branding</div>
-                <div class="panel-body">
-                    <div class="list-group">
-                        @foreach (var branding in Model.brandings)
-                        {
-                            <a href="~/admin/brandings/@branding.BrandingID" class="list-group-item"><i class="fa fa-globe"></i> @branding.HostName [@branding.Name] </a>
-                        }
-                    </div>
+            <div class="panel">
+                <a href="~/admin/brandings/new" class="btn btn-primary btn-lg col-xs-12">Create New</a>
+            </div>
+            <hr>
+            <div class="panel">
+                <div class="list-group">
+                    @foreach (var branding in Model.brandings)
+                    {
+                        <a href="~/admin/brandings/@branding.BrandingID" class="list-group-item"><i class="fa fa-globe"></i> @branding.HostName [@branding.Name] </a>
+                    }
                 </div>
-                <div class="panel-footer"></div>
             </div>
         </div>
 
@@ -78,6 +73,16 @@
                                         <option value="theme-default.css" @(Model.branding.Theme == "theme-default.css" ? "selected" : "")>Default</option>
                                         <option value="theme-girly.css" @(Model.branding.Theme == "theme-girly.css" ? "selected" : "")>Girly</option>
                                         <option value="theme-plainjane" @(Model.branding.Theme == "theme-plainjane.css" ? "selected" : "")>Plain</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="focusedinput" class="col-sm-2 control-label">Navigation</label>
+                                <div class="col-sm-10">
+                                    <select id="MenuType" name="MenuType" style="width:100%" class="populate">
+                                        <option value="0" @(Model.branding.MenuType > 0 ? "" : "selected")>Side Menu</option>
+                                        <option value="1" @(Model.branding.MenuType == 1 ? "selected" : "")>Top Menu with Small Icons</option>
+                                        <option value="2" @(Model.branding.MenuType == 2 ? "selected" : "")>Top Menu with Large Icons</option>
                                     </select>
                                 </div>
                             </div>

@@ -17,32 +17,34 @@
     <h1>Mailbox Plans</h1>
 </div>
 
-<form id="form" action="" method="post" data-parsley-validate>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
+<div class="container">
+    <div class="row">
+        <form id="form" action="" method="post" data-parsley-validate>
+            <div class="col-md-3">
+                <div class="panel">
+                    <a href="~/plans/exchange/mailbox/new" class="btn btn-primary btn-lg col-xs-12">Create New</a>
+                </div>
+                <hr>
+                <div class="panel">
+                    <div class="list-group">
+                        @foreach (var plan in CloudPanel.Modules.PlansModules.MailboxPlanModule.GetMailboxPlans(""))
+                        {
+                            <a href="~/plans/exchange/mailbox/@plan.MailboxPlanID" class="list-group-item"><i class="fa fa-mail-forward"></i> @plan.MailboxPlanName <span class="badge badge-inverse">@plan.CompanyCode</span></a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
                 <div class="panel panel-primary">
                     <div class="panel-heading">Modify Plan</div>
                     <div class="panel-body form-horizontal row-border">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Choose Plan</label>
-                            <div class="col-sm-6">
-                                @CloudPanel.CPHtmlHelpers.GetMailboxPlans(Model.selectedPlan.MailboxPlanID, "", "<option value='0'> --- Create New --- </option>")
-                            </div>
-                            <div class="col-sm-3">
-                                <p class="help-block">
-                                    <span data-toggle="tooltip" data-original-title="Choose a mailbox plan to edit / delete or select Create New to create a new plan." class="tooltip-ex">
-                                        <i class="fa fa-question-circle"></i>
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Name</label>
                             <div class="col-sm-6">
                                 <input type="text" class="form-control" id="MailboxPlanName" name="MailboxPlanName" value="@Model.selectedPlan.MailboxPlanName" data-parsley-required="true">
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-sm-1">
                                 <p class="help-block">
                                     <span data-toggle="tooltip" data-original-title="Enter the name of the plan. This will be visible to company's that have access to this plan.'" class="tooltip-ex">
                                         <i class="fa fa-question-circle"></i>
@@ -55,7 +57,7 @@
                             <div class="col-sm-6">
                                 <textarea id="MailboxPlanDesc" name="MailboxPlanDesc" rows="2" cols="20" class="form-control" data-parsley-required="true">@Model.selectedPlan.MailboxPlanDesc</textarea>
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-sm-1">
                                 <p class="help-block">
                                     <span data-toggle="tooltip" data-original-title="Enter the description of this plan. This will be visible to the company's that have access''" class="tooltip-ex">
                                         <i class="fa fa-question-circle"></i>
@@ -67,14 +69,16 @@
                             <label class="col-sm-3 control-label">Max Recipients</label>
                             <div class="col-sm-6">
                                 <input type="text" class="form-control" id="MaxRecipients" name="MaxRecipients" value="@Model.selectedPlan.MaxRecipients" data-parsley-required="true" data-parsley-type="integer">
-                                <input type="checkbox" id="cbMaxRecipients" name="cbMaxRecipients" value="@(Model.selectedPlan.MaxRecipients == 0 ? "true" : "false")" class="cbUnlimited"> Unlimited
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-sm-1">
                                 <p class="help-block">
                                     <span data-toggle="tooltip" data-original-title="Maximum number of recipients per message to which the mailbox can send'" class="tooltip-ex">
                                         <i class="fa fa-question-circle"></i>
                                     </span>
                                 </p>
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="checkbox" id="cbMaxRecipients" name="cbMaxRecipients" value="@(Model.selectedPlan.MaxRecipients == 0 ? "true" : "false")" class="cbUnlimited"> Unlimited
                             </div>
                         </div>
                         <div class="form-group">
@@ -82,7 +86,7 @@
                             <div class="col-sm-6">
                                 <input type="text" class="form-control" id="MaxKeepDeletedItems" name="MaxKeepDeletedItems" value="@Model.selectedPlan.MaxKeepDeletedItems" data-parsley-required="true" data-parsley-type="integer">
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-sm-1">
                                 <p class="help-block">
                                     <span data-toggle="tooltip" data-original-title="How long in days to keep deleted items.'" class="tooltip-ex">
                                         <i class="fa fa-question-circle"></i>
@@ -94,14 +98,16 @@
                             <label class="col-sm-3 control-label">Mailbox Size in Megabytes</label>
                             <div class="col-sm-6">
                                 <input type="text" class="form-control" id="MailboxSizeMB" name="MailboxSizeMB" value="@Model.selectedPlan.MailboxSizeMB" data-parsley-required="true" data-parsley-type="integer">
-                                <input type="checkbox" id="cbMailboxSizeMB" name="cbMailboxSizeMB" value="@(Model.selectedPlan.MailboxSizeMB == 0 ? "true" : "false")" class="cbUnlimited"> Unlimited
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-sm-1">
                                 <p class="help-block">
                                     <span data-toggle="tooltip" data-original-title="Size of mailbox in megabytes. 1024 equals 1MB" class="tooltip-ex">
                                         <i class="fa fa-question-circle"></i>
                                     </span>
                                 </p>
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="checkbox" id="cbMailboxSizeMB" name="cbMailboxSizeMB" value="@(Model.selectedPlan.MailboxSizeMB == 0 ? "true" : "false")" class="cbUnlimited"> Unlimited
                             </div>
                         </div>
                         <div class="form-group">
@@ -109,7 +115,7 @@
                             <div class="col-sm-6">
                                 <input type="text" class="form-control" id="MaxMailboxSizeMB" name="MaxMailboxSizeMB" value="@Model.selectedPlan.MaxMailboxSizeMB" data-parsley-required="true" data-parsley-type="integer" />
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-sm-1">
                                 <p class="help-block">
                                     <span data-toggle="tooltip" data-original-title="CloudPanel has the ability to adjust the users mailbox size without changing the plan. Set this value to the maximum size in MB the mailbox can grow. Each gigabyte added will add the price in the additional GB price field below." class="tooltip-ex">
                                         <i class="fa fa-question-circle"></i>
@@ -121,28 +127,32 @@
                             <label class="col-sm-3 control-label">Max Send Size</label>
                             <div class="col-sm-6">
                                 <input type="text" class="form-control" id="MaxSendKB" name="MaxSendKB" value="@Model.selectedPlan.MaxSendKB" data-parsley-required="true" data-parsley-type="integer">
-                                <input type="checkbox" id="cbMaxSendKB" name="cbMaxSendKB" value="@(Model.selectedPlan.MaxSendKB == 0 ? "true" : "false")" class="cbUnlimited"> Unlimited
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-sm-1">
                                 <p class="help-block">
                                     <span data-toggle="tooltip" data-original-title="Max size in kilobytes that a mailbox can send." class="tooltip-ex">
                                         <i class="fa fa-question-circle"></i>
                                     </span>
                                 </p>
                             </div>
+                            <div class="col-sm-2">
+                                <input type="checkbox" id="cbMaxSendKB" name="cbMaxSendKB" value="@(Model.selectedPlan.MaxSendKB == 0 ? "true" : "false")" class="cbUnlimited"> Unlimited
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Max Receive Size</label>
                             <div class="col-sm-6">
                                 <input type="text" class="form-control" id="MaxReceiveKB" name="MaxReceiveKB" value="@Model.selectedPlan.MaxReceiveKB" data-parsley-required="true" data-parsley-type="integer">
-                                <input type="checkbox" id="cbMaxReceiveKB" name="cbMaxReceiveKB" value="@(Model.selectedPlan.MaxReceiveKB == 0 ? "true" : "false")" class="cbUnlimited"> Unlimited
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-sm-1">
                                 <p class="help-block">
                                     <span data-toggle="tooltip" data-original-title="Max size in kilobytes that a mailbox can receive." class="tooltip-ex">
                                         <i class="fa fa-question-circle"></i>
                                     </span>
                                 </p>
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="checkbox" id="cbMaxReceiveKB" name="cbMaxReceiveKB" value="@(Model.selectedPlan.MaxReceiveKB == 0 ? "true" : "false")" class="cbUnlimited"> Unlimited
                             </div>
                         </div>
                         <div class="form-group">
@@ -234,9 +244,9 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
-</form>
+</div>
 
 <form id="deletePlan" action="" method="post">
     <input type="hidden" name="_method" value="DELETE" />
@@ -274,9 +284,9 @@
 
             $(".cbUnlimited").click(function () {
                 if ($(this).is(':checked')) {
-                    $(this).parent().find('input[type=text]').prop('disabled', true);
+                    $(this).parent().parent().find('input[type=text]').prop('disabled', true);
                 } else {
-                    $(this).parent().find('input[type=text]').prop('disabled', false);
+                    $(this).parent().parent().find('input[type=text]').prop('disabled', false);
                 }
             });
 
@@ -297,7 +307,7 @@
                     checkbox.prop('checked', true);
 
                     if (checkbox.hasClass('cbUnlimited')) {
-                        checkbox.parent().find('input[type=text]').prop('disabled', true);
+                        checkbox.parent().parent().find('input[type=text]').prop('disabled', true);
                     }
                 }
             });

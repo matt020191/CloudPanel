@@ -58,10 +58,10 @@ namespace CloudPanel.Base.Database.Models
         [Required]
         public string HeaderLogo { get; set; }
 
+        [Required]
         public string Theme { get; set; }
 
-        public bool TopMenu { get; set; }
-
-        public bool TopMenuLargeIcons { get; set; }
+        [Required]
+        public int MenuType { get; set; }
     }
 }

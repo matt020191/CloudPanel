@@ -157,6 +157,7 @@ namespace CloudPanel.Modules
                     oldBranding.Phone = newBranding.Phone;
                     oldBranding.Email = newBranding.Email;
                     oldBranding.Theme = newBranding.Theme;
+                    oldBranding.MenuType = newBranding.MenuType;
 
                     logger.DebugFormat("Checking if images were changed");
                     var files = Request.Files;

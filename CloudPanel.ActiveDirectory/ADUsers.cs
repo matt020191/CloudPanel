@@ -354,11 +354,47 @@ namespace CloudPanel.ActiveDirectory
                 if (!string.IsNullOrEmpty(userObject.Firstname))
                     usr.GivenName = userObject.Firstname;
 
+                if (!string.IsNullOrEmpty(userObject.Middlename))
+                    usr.MiddleName = userObject.Middlename;
+
                 if (!string.IsNullOrEmpty(userObject.Lastname))
                     usr.LastName = userObject.Lastname;
 
+                if (!string.IsNullOrEmpty(userObject.Company))
+                    usr.Company = userObject.Company;
+
                 if (!string.IsNullOrEmpty(userObject.Department))
                     usr.Department = userObject.Department;
+
+                if (!string.IsNullOrEmpty(userObject.JobTitle))
+                    usr.JobTitle = userObject.JobTitle;
+
+                if (!string.IsNullOrEmpty(userObject.TelephoneNumber))
+                    usr.TelephoneNumber = userObject.TelephoneNumber;
+
+                if (!string.IsNullOrEmpty(userObject.Fax))
+                    usr.Fax = userObject.Fax;
+
+                if (!string.IsNullOrEmpty(userObject.HomePhone))
+                    usr.HomePhone = userObject.HomePhone;
+
+                if (!string.IsNullOrEmpty(userObject.MobilePhone))
+                    usr.MobilePhone = userObject.MobilePhone;
+
+                if (!string.IsNullOrEmpty(userObject.Street))
+                    usr.StreetAddress = userObject.Street;
+
+                if (!string.IsNullOrEmpty(userObject.City))
+                    usr.City = userObject.City;
+
+                if (!string.IsNullOrEmpty(userObject.State))
+                    usr.State = userObject.State;
+
+                if (!string.IsNullOrEmpty(userObject.PostalCode))
+                    usr.ZipCode = userObject.PostalCode;
+
+                if (!string.IsNullOrEmpty(userObject.Country))
+                    usr.Country = userObject.Country;
 
                 logger.DebugFormat("Saving new user {0} in the directory store", userObject.UserPrincipalName);
                 usr.Save();

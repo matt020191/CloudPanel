@@ -34,7 +34,7 @@
     @RenderSection("HEAD", false)
 </head>
 
-<body class="@(branding.TopMenu == true ? "horizontal-nav" : "")">
+<body class="@(branding.MenuType > 0 ? "horizontal-nav" : "")">
     <header class="navbar navbar-inverse navbar-fixed-top hidden-print" role="banner">
         <a id="leftmenu-trigger" class="tooltips" data-toggle="tooltip" data-placement="right" title="Toggle Sidebar"></a>
         <a id="rightmenu-trigger" class="tooltips" data-toggle="tooltip" data-placement="left" title="Toggle Infobar"></a>
@@ -66,10 +66,10 @@
             </li>
         </ul>
     </header>
-    @if (branding.TopMenu) { @Html.Partial("__topmenu.cshtml", branding.TopMenuLargeIcons) }
+    @if (branding.MenuType > 0) { @Html.Partial("__topmenu.cshtml", (branding.MenuType == 2 ? true : false)) }
     <div id="page-container">
         
-        @if (!branding.TopMenu) { @Html.Partial("__leftmenu.cshtml") }
+        @if (branding.MenuType < 1) { @Html.Partial("__leftmenu.cshtml") }
 
         <div id="page-content">
             <div id="wrap">

@@ -38,6 +38,8 @@
                                     <tr>
                                         <th align="center" width="10px"><input id="SelectAll" type="checkbox" onclick="javascript: CheckboxCol(this);" /></th>
                                         <th>Display Name</th>
+                                        <th>Firstname</th>
+                                        <th>Lastname</th>
                                         <th>Username</th>
                                         <th>Has Mailbox?</th>
                                     </tr>
@@ -48,6 +50,8 @@
                                         <tr>
                                             <td align="center" class="selector"><input name="CheckedUsers" type="checkbox" value="@user.UserPrincipalName"/></td>
                                             <td>@user.DisplayName</td>
+                                            <td>@user.Firstname</td>
+                                            <td>@user.Lastname</td>
                                             <td>@user.UserPrincipalName</td>
                                             <td>@(user.MailboxPlan > 0 ? "True" : "False")</td>
                                         </tr>

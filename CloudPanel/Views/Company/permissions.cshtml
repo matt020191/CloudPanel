@@ -34,7 +34,7 @@
                         {
                             foreach (CloudPanel.Base.Database.Models.UserRoles p in Model.Permissions)
                             {
-                                <a href="~/company/@companyCode/permissions/@p.RoleID" class="list-group-item">@p.DisplayName</a>
+                                <a href="~/company/@companyCode/permissions/@p.RoleID" class="list-group-item"><i class="fa fa-lock"></i> @p.DisplayName</a>
                             }
                         }
                     </div>

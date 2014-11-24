@@ -20,168 +20,169 @@
 <form id="form" action="" method="post" data-parsley-validate>
     <div class="container">
         <div class="row">
-            <div class="col-md-12">
-                <div class="panel panel-primary">
-                    <div class="panel-heading">Details</div>
-                    <div class="panel-body form-horizontal">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Choose Plan</label>
-                            <div class="col-sm-6">
-                                @CloudPanel.CPHtmlHelpers.GetCompanyPlans(Model.selectedPlan.OrgPlanID, "<option value='0'> --- Create New --- </option>")
+            <div class="col-md-3">
+                <div class="panel">
+                    <a href="~/plans/company/new" class="btn btn-primary btn-lg col-xs-12">Create New</a>
+                </div>
+                <hr>
+                <div class="panel">
+                    <div class="list-group">
+                        @foreach (var plan in CloudPanel.Modules.PlansModules.CompanyPlanModule.GetCompanyPlans())
+                        {
+                            <a href="~/plans/company/@plan.OrgPlanID" class="list-group-item"><i class="fa fa-building"></i> @plan.OrgPlanName</a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <div class="row">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">Details</div>
+                        <div class="panel-body form-horizontal">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Name</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="OrgPlanName" name="OrgPlanName" value="@Model.selectedPlan.OrgPlanName" data-parsley-required="true">
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="help-block">
+                                        <span data-toggle="tooltip" data-original-title="Enter a name to identity the plan. Examples: Small Company, Large Company" class="tooltip-ex">
+                                            <i class="fa fa-question-circle"></i>
+                                        </span>
+                                    </p>
+                                </div>
                             </div>
-                            <div class="col-sm-3">
-                                <p class="help-block">
-                                    <span data-toggle="tooltip" data-original-title="Choose a plan to edit / delete or select Create New to create a new plan" class="tooltip-ex">
-                                        <i class="fa fa-question-circle"></i>
-                                    </span>
-                                </p>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Users</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="MaxUsers" name="MaxUsers" value="@Model.selectedPlan.MaxUsers" data-parsley-required="true" data-parsley-type="integer">
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="help-block">
+                                        <span data-toggle="tooltip" data-original-title="Set the maximum users allowed. This will limit the amount of users a company can create when assigned this plan." class="tooltip-ex" data-parsley-type="integer">
+                                            <i class="fa fa-question-circle"></i>
+                                        </span>
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Name</label>
-                            <div class="col-sm-6">
-                                <input type="text" class="form-control" id="OrgPlanName" name="OrgPlanName" value="@Model.selectedPlan.OrgPlanName" data-parsley-required="true">
-                            </div>
-                            <div class="col-sm-3">
-                                <p class="help-block">
-                                    <span data-toggle="tooltip" data-original-title="Enter a name to identity the plan. Examples: Small Company, Large Company" class="tooltip-ex">
-                                        <i class="fa fa-question-circle"></i>
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Users</label>
-                            <div class="col-sm-6">
-                                <input type="text" class="form-control" id="MaxUsers" name="MaxUsers" value="@Model.selectedPlan.MaxUsers" data-parsley-required="true" data-parsley-type="integer">
-                            </div>
-                            <div class="col-sm-3">
-                                <p class="help-block">
-                                    <span data-toggle="tooltip" data-original-title="Set the maximum users allowed. This will limit the amount of users a company can create when assigned this plan." class="tooltip-ex" data-parsley-type="integer">
-                                        <i class="fa fa-question-circle"></i>
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Domains</label>
-                            <div class="col-sm-6">
-                                <input type="text" class="form-control" id="MaxDomains" name="MaxDomains" value="@Model.selectedPlan.MaxDomains" data-parsley-required="true" data-parsley-type="integer">
-                            </div>
-                            <div class="col-sm-3">
-                                <p class="help-block">
-                                    <span data-toggle="tooltip" data-original-title="Set the maximum domains allowed. This will limit the amount of domains a company can create when assigned this plan." class="tooltip-ex" data-parsley-type="integer">
-                                        <i class="fa fa-question-circle"></i>
-                                    </span>
-                                </p>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Domains</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="MaxDomains" name="MaxDomains" value="@Model.selectedPlan.MaxDomains" data-parsley-required="true" data-parsley-type="integer">
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="help-block">
+                                        <span data-toggle="tooltip" data-original-title="Set the maximum domains allowed. This will limit the amount of domains a company can create when assigned this plan." class="tooltip-ex" data-parsley-type="integer">
+                                            <i class="fa fa-question-circle"></i>
+                                        </span>
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-12">
-                <div class="panel panel-primary">
-                    <div class="panel-heading">Microsoft Exchange</div>
-                    <div class="panel-body form-horizontal">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Mailboxes</label>
-                            <div class="col-sm-6">
-                                <input type="text" class="form-control" id="MaxExchangeMailboxes" name="MaxExchangeMailboxes" value="@Model.selectedPlan.MaxExchangeMailboxes" data-parsley-required="true" data-parsley-type="integer" data-parsley-lte="#MaxUsers">
+                <div class="row">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">Microsoft Exchange</div>
+                        <div class="panel-body form-horizontal">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Mailboxes</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="MaxExchangeMailboxes" name="MaxExchangeMailboxes" value="@Model.selectedPlan.MaxExchangeMailboxes" data-parsley-required="true" data-parsley-type="integer" data-parsley-lte="#MaxUsers">
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="help-block">
+                                        <span data-toggle="tooltip" data-original-title="Set the maximum mailboxes allowed. This value must be less than or equal to the maximum users" class="tooltip-ex">
+                                            <i class="fa fa-question-circle"></i>
+                                        </span>
+                                    </p>
+                                </div>
                             </div>
-                            <div class="col-sm-3">
-                                <p class="help-block">
-                                    <span data-toggle="tooltip" data-original-title="Set the maximum mailboxes allowed. This value must be less than or equal to the maximum users" class="tooltip-ex">
-                                        <i class="fa fa-question-circle"></i>
-                                    </span>
-                                </p>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Contacts</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="MaxExchangeContacts" name="MaxExchangeContacts" value="@Model.selectedPlan.MaxExchangeContacts" data-parsley-required="true" data-parsley-type="integer">
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="help-block">
+                                        <span data-toggle="tooltip" data-original-title="Set the maximum Exchange contacts allowed" class="tooltip-ex">
+                                            <i class="fa fa-question-circle"></i>
+                                        </span>
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Contacts</label>
-                            <div class="col-sm-6">
-                                <input type="text" class="form-control" id="MaxExchangeContacts" name="MaxExchangeContacts" value="@Model.selectedPlan.MaxExchangeContacts" data-parsley-required="true" data-parsley-type="integer">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Distribution Groups</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="MaxExchangeDistLists" name="MaxExchangeDistLists" value="@Model.selectedPlan.MaxExchangeDistLists" data-parsley-required="true" data-parsley-type="integer">
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="help-block">
+                                        <span data-toggle="tooltip" data-original-title="Set the maximum Exchange distribution groups allowed" class="tooltip-ex">
+                                            <i class="fa fa-question-circle"></i>
+                                        </span>
+                                    </p>
+                                </div>
                             </div>
-                            <div class="col-sm-3">
-                                <p class="help-block">
-                                    <span data-toggle="tooltip" data-original-title="Set the maximum Exchange contacts allowed" class="tooltip-ex">
-                                        <i class="fa fa-question-circle"></i>
-                                    </span>
-                                </p>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Resource Mailboxes</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="MaxExchangeResourceMailboxes" name="MaxExchangeResourceMailboxes" value="@Model.selectedPlan.MaxExchangeResourceMailboxes" data-parsley-required="true" data-parsley-type="integer">
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="help-block">
+                                        <span data-toggle="tooltip" data-original-title="Set the maximum Exchange resource mailboxes allowed. This is shared mailboxes, equipment mailboxes, and room mailboxes" class="tooltip-ex">
+                                            <i class="fa fa-question-circle"></i>
+                                        </span>
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Distribution Groups</label>
-                            <div class="col-sm-6">
-                                <input type="text" class="form-control" id="MaxExchangeDistLists" name="MaxExchangeDistLists" value="@Model.selectedPlan.MaxExchangeDistLists" data-parsley-required="true" data-parsley-type="integer">
-                            </div>
-                            <div class="col-sm-3">
-                                <p class="help-block">
-                                    <span data-toggle="tooltip" data-original-title="Set the maximum Exchange distribution groups allowed" class="tooltip-ex">
-                                        <i class="fa fa-question-circle"></i>
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Resource Mailboxes</label>
-                            <div class="col-sm-6">
-                                <input type="text" class="form-control" id="MaxExchangeResourceMailboxes" name="MaxExchangeResourceMailboxes" value="@Model.selectedPlan.MaxExchangeResourceMailboxes" data-parsley-required="true" data-parsley-type="integer">
-                            </div>
-                            <div class="col-sm-3">
-                                <p class="help-block">
-                                    <span data-toggle="tooltip" data-original-title="Set the maximum Exchange resource mailboxes allowed. This is shared mailboxes, equipment mailboxes, and room mailboxes" class="tooltip-ex">
-                                        <i class="fa fa-question-circle"></i>
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Mail-Enabled Public Folders</label>
-                            <div class="col-sm-6">
-                                <input type="text" class="form-control" id="MaxExchangeMailPublicFolders" name="MaxExchangeMailPublicFolders" value="@Model.selectedPlan.MaxExchangeMailPublicFolders" data-parsley-required="true" data-parsley-type="integer">
-                            </div>
-                            <div class="col-sm-3">
-                                <p class="help-block">
-                                    <span data-toggle="tooltip" data-original-title="Set the maximum public folders that can be mail enabled" class="tooltip-ex">
-                                        <i class="fa fa-question-circle"></i>
-                                    </span>
-                                </p>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Mail-Enabled Public Folders</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="MaxExchangeMailPublicFolders" name="MaxExchangeMailPublicFolders" value="@Model.selectedPlan.MaxExchangeMailPublicFolders" data-parsley-required="true" data-parsley-type="integer">
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="help-block">
+                                        <span data-toggle="tooltip" data-original-title="Set the maximum public folders that can be mail enabled" class="tooltip-ex">
+                                            <i class="fa fa-question-circle"></i>
+                                        </span>
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-12">
-                <div class="panel panel-primary">
-                    <div class="panel-heading">Microsoft Exchange</div>
-                    <div class="panel-body form-horizontal">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Users</label>
-                            <div class="col-sm-6">
-                                <input type="text" class="form-control" id="MaxTerminalServerUsers" name="MaxTerminalServerUsers" value="@Model.selectedPlan.MaxTerminalServerUsers" data-parsley-required="true" data-parsley-type="integer" data-parsley-lte="#MaxUsers">
-                            </div>
-                            <div class="col-sm-3">
-                                <p class="help-block">
-                                    <span data-toggle="tooltip" data-original-title="Limit the amount of users that can access Citrix (if you have Citrix enabled). This value must be less than or equal to the maximum users" class="tooltip-ex">
-                                        <i class="fa fa-question-circle"></i>
-                                    </span>
-                                </p>
+                <div class="row">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">Microsoft Exchange</div>
+                        <div class="panel-body form-horizontal">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Users</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="MaxTerminalServerUsers" name="MaxTerminalServerUsers" value="@Model.selectedPlan.MaxTerminalServerUsers" data-parsley-required="true" data-parsley-type="integer" data-parsley-lte="#MaxUsers">
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="help-block">
+                                        <span data-toggle="tooltip" data-original-title="Limit the amount of users that can access Citrix (if you have Citrix enabled). This value must be less than or equal to the maximum users" class="tooltip-ex">
+                                            <i class="fa fa-question-circle"></i>
+                                        </span>
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="panel-footer">
-                        <div class="row">
-                            <div class="btn-toolbar text-right">
-                                @if (Model.selectedPlan.OrgPlanID > 0) { 
-                                    <button type="button" class="btn-danger btn" data-toggle="modal" data-target="#deleteModal" data-id="@Model.selectedPlan.OrgPlanID" onclick="javascript: DeletePlan(this);">Delete</button>
-                                }
-                                <button class="btn-primary btn" type="submit">Submit</button>
+                        <div class="panel-footer">
+                            <div class="row">
+                                <div class="btn-toolbar text-right">
+                                    @if (Model.selectedPlan.OrgPlanID > 0)
+                                        {
+                                        <button type="button" class="btn-danger btn" data-toggle="modal" data-target="#deleteModal" data-id="@Model.selectedPlan.OrgPlanID" onclick="javascript: DeletePlan(this);">Delete</button>
+                                        }
+                                    <button class="btn-primary btn" type="submit">Submit</button>
+                                </div>
                             </div>
                         </div>
                     </div>

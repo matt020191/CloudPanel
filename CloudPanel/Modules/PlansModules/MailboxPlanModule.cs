@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CloudPanel.Modules
+namespace CloudPanel.Modules.PlansModules
 {
     public class MailboxPlanModule : NancyModule
     {

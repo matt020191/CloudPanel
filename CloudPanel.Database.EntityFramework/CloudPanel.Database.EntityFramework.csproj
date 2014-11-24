@@ -120,6 +120,10 @@
     <Compile Include="Migrations\201411231903420_AddNewColumnsToRoles.Designer.cs">
       <DependentUpon>201411231903420_AddNewColumnsToRoles.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201411241540564_AdjustBrandingOptions.cs" />
+    <Compile Include="Migrations\201411241540564_AdjustBrandingOptions.Designer.cs">
+      <DependentUpon>201411241540564_AdjustBrandingOptions.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -184,6 +188,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201411231903420_AddNewColumnsToRoles.resx">
       <DependentUpon>201411231903420_AddNewColumnsToRoles.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201411241540564_AdjustBrandingOptions.resx">
+      <DependentUpon>201411241540564_AdjustBrandingOptions.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -136,12 +136,12 @@
                     url: "",
                     data: user,
                     async: true,
-                }).success(function () {
+                }).success(function (data) {
                     success++;
-                    t.row.add(["<img src='@Url.Content("~/Content/img/success.png")' width='24px' />", user.UserPrincipalName, "Successfully created user"]).draw();
+                    t.row.add(["<img src='@Url.Content("~/Content/img/success.png")' width='24px' />", user.Username, data.message]).draw();
                 }).fail(function (data) {
                     fail++;
-                    var r = t.row.add(["<img src='@Url.Content("~/Content/img/error.png")' width='24px' />", user.UserPrincipalName, "Error: " + data.responseJSON.error]).draw().node();
+                    var r = t.row.add(["<img src='@Url.Content("~/Content/img/error.png")' width='24px' />", user.Username, "Error: " + data.responseJSON.error]).draw().node();
                     $(r).css('color', 'red');
                 }).always(function () {
                     $("#importStatus").html("Success: " + success + "/" + total + ". FAILED: " + fail);

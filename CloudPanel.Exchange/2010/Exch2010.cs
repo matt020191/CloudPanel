@@ -847,6 +847,34 @@ namespace CloudPanel.Exchange
 
         #region Mailboxes
 
+        public void Enable_Mailbox(Users user)
+        {
+            #region Required data
+            if (string.IsNullOrEmpty(user.UserPrincipalName))
+                throw new MissingFieldException("Users", "UserPrincipalName");
+
+            if (string.IsNullOrEmpty(user.CompanyCode))
+                throw new MissingFieldException("Users", "CompanyCode");
+
+            if (string.IsNullOrEmpty(user.Email))
+                throw new MissingFieldException("Users", "Email");
+            #endregion
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Enable-Mailbox");
+            cmd.AddParameter("Identity", user.UserPrincipalName);
+            cmd.AddParameter("AddressBookPolicy", string.Format(Settings.ExchangeABPName, user.CompanyCode));
+            cmd.AddParameter("PrimarySmtpAddress", user.Email);
+            cmd.AddParameter("Alias", string.Format("{0}_{1}", user.EmailFirst, user.EmailDomain));
+            cmd.AddParameter("DomainController", this._domainController);
+
+            logger.DebugFormat("Executing powershell commands...");
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
         /// <summary>
         /// Enable an Exchange mailbox
         /// </summary>
@@ -990,10 +1018,33 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("RoleAssignmentPolicy", Settings.ExchangeRoleAssignment);
             cmd.AddParameter("DomainController", this._domainController);
 
-            logger.DebugFormat("Continuing to Set-CASMailbox...");
-            cmd.AddStatement();
+            logger.DebugFormat("Executing powershell commands...");
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        /// <summary>
+        /// Updates the CAS mailbox settings
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="p"></param>
+        public void Set_CASMailbox(string userPrincipalName, Plans_ExchangeMailbox p)
+        {
+            logger.DebugFormat("Updating CAS mailbox for {0}", userPrincipalName);
+
+            #region Required data
+            if (string.IsNullOrEmpty(userPrincipalName))
+                throw new MissingFieldException("", "UserPrincipalName");
+
+            if (p == null)
+                throw new ArgumentNullException("Plans_ExchangeMailbox");
+            #endregion
+
+            PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-CASMailbox");
-            cmd.AddParameter("Identity", user.UserPrincipalName);
+            cmd.AddParameter("Identity", userPrincipalName);
             cmd.AddParameter("ActiveSyncEnabled", p.EnableAS);
             cmd.AddParameter("ECPEnabled", p.EnableECP);
             cmd.AddParameter("ImapEnabled", p.EnableIMAP);

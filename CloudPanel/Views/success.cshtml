@@ -30,6 +30,17 @@
                             {
                                 @Model.success
                             }
+                            
+                            <br />
+                            <br />
+                            
+                            if (dict.ContainsKey("results"))
+                            {
+                                foreach (KeyValuePair<string, string> r in Model.results)
+                                {
+                                    <pre><b>@r.Key:</b> @r.Value</pre>
+                                }
+                            }
                         }
                     </pre>
 

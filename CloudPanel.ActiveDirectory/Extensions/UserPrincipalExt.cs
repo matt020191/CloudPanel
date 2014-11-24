@@ -330,6 +330,86 @@ namespace CloudPanel.ActiveDirectory.Extensions
             }
         }
 
+        [DirectoryProperty("facsimileTelephoneNumber")]
+        public string Fax
+        {
+            get
+            {
+                if (ExtensionGet("facsimileTelephoneNumber").Length != 1)
+                    return null;
+
+                return (string)ExtensionGet("facsimileTelephoneNumber")[0];
+            }
+            set
+            {
+                this.ExtensionSet("facsimileTelephoneNumber", value);
+            }
+        }
+
+        [DirectoryProperty("pager")]
+        public string Pager
+        {
+            get
+            {
+                if (ExtensionGet("pager").Length != 1)
+                    return null;
+
+                return (string)ExtensionGet("pager")[0];
+            }
+            set
+            {
+                this.ExtensionSet("pager", value);
+            }
+        }
+
+        [DirectoryProperty("mobile")]
+        public string MobilePhone
+        {
+            get
+            {
+                if (ExtensionGet("mobile").Length != 1)
+                    return null;
+
+                return (string)ExtensionGet("mobile")[0];
+            }
+            set
+            {
+                this.ExtensionSet("mobile", value);
+            }
+        }
+
+        [DirectoryProperty("ipPhone")]
+        public string IPPhone
+        {
+            get
+            {
+                if (ExtensionGet("ipPhone").Length != 1)
+                    return null;
+
+                return (string)ExtensionGet("ipPhone")[0];
+            }
+            set
+            {
+                this.ExtensionSet("ipPhone", value);
+            }
+        }
+
+        [DirectoryProperty("homePhone")]
+        public string HomePhone
+        {
+            get
+            {
+                if (ExtensionGet("homePhone").Length != 1)
+                    return null;
+
+                return (string)ExtensionGet("homePhone")[0];
+            }
+            set
+            {
+                this.ExtensionSet("homePhone", value);
+            }
+        }
+
         [DirectoryProperty("wWWHomePage")]
         public string Website
         {

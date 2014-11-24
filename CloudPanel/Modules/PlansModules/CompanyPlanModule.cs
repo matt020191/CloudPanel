@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace CloudPanel.Modules
+namespace CloudPanel.Modules.PlansModules
 {
     public class CompanyPlanModule : NancyModule
     {
@@ -30,6 +30,7 @@ namespace CloudPanel.Modules
 
             Post["/new"] = _ =>
                 {
+                    #region Creates a new company plan
                     CloudPanelContext db = null;
                     try
                     {
@@ -56,10 +57,12 @@ namespace CloudPanel.Modules
                         if (db != null)
                             db.Dispose();
                     }
+                    #endregion
                 };
 
             Get["/{ID:int}"] = _ =>
                 {
+                    #region Gets a specific company plan
                     CloudPanelContext db = null;
                     try
                     {
@@ -88,10 +91,12 @@ namespace CloudPanel.Modules
                         if (db != null)
                             db.Dispose();
                     }
+                    #endregion
                 };
 
             Post["/{ID:int}"] = _ =>
                 {
+                    #region Updates an existing company plan
                     CloudPanelContext db = null;
                     try
                     {
@@ -126,10 +131,12 @@ namespace CloudPanel.Modules
                         if (db != null)
                             db.Dispose();
                     }
+                    #endregion
                 };
 
             Delete["/{ID:int}"] = _ =>
             {
+                #region Deletes a specific company plan
                 CloudPanelContext db = null;
                 try
                 {
@@ -149,8 +156,7 @@ namespace CloudPanel.Modules
                             db.SaveChanges();
                         }
                         else
-                            return Negotiate
-                                            .WithMediaRangeModel("application/json", new { error = "Unable to delete plan because it is in use." })
+                            return Negotiate.WithMediaRangeModel("application/json", new { error = "Unable to delete plan because it is in use." })
                                             .WithModel(new { error = "Unable to delete plan because it is in use.", selectedPlan = oldPlan })
                                             .WithView("Plans/plans_company.cshtml");
                     }
@@ -168,7 +174,32 @@ namespace CloudPanel.Modules
                     if (db != null)
                         db.Dispose();
                 }
+                #endregion
             };
         }
+
+        public static List<Plans_Organization> GetCompanyPlans()
+        {
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                var plans = (from d in db.Plans_Organization
+                            orderby d.OrgPlanName
+                            select d).ToList();
+
+                return plans;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
     }
 }
