@@ -39,6 +39,9 @@ namespace CloudPanel.Modules.PlansModules
 
                     var newPlan = this.Bind<Plans_ExchangeMailbox>();
 
+                    if (newPlan.MaxMailboxSizeMB == null || newPlan.MaxMailboxSizeMB < newPlan.MailboxSizeMB)
+                        newPlan.MaxMailboxSizeMB = newPlan.MailboxSizeMB;
+
                     if (newPlan.CompanyCode == "0")
                         newPlan.CompanyCode = string.Empty;
 
@@ -117,7 +120,9 @@ namespace CloudPanel.Modules.PlansModules
                     oldPlan.MaxRecipients = Request.Form.cbMaxRecipients == true ? 0 : updatedPlan.MaxRecipients;
                     oldPlan.MaxKeepDeletedItems = updatedPlan.MaxKeepDeletedItems;
                     oldPlan.MailboxSizeMB = Request.Form.cbMailboxSizeMB == true ? 0 : updatedPlan.MailboxSizeMB;
-                    oldPlan.MaxMailboxSizeMB = updatedPlan.MaxMailboxSizeMB;
+
+                    oldPlan.MaxMailboxSizeMB = (updatedPlan.MaxMailboxSizeMB == null || updatedPlan.MaxMailboxSizeMB < oldPlan.MailboxSizeMB) ? oldPlan.MailboxSizeMB : updatedPlan.MaxMailboxSizeMB; // Make sure max mailbox size is greater than mailbox size or equal to.
+
                     oldPlan.MaxSendKB = Request.Form.cbMaxSendKB == true ? 0 : updatedPlan.MaxSendKB;
                     oldPlan.MaxReceiveKB = Request.Form.cbMaxReceiveKB == true ? 0 : updatedPlan.MaxReceiveKB;
                     oldPlan.EnablePOP3 = updatedPlan.EnablePOP3;
