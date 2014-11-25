@@ -1,4 +1,9 @@
-﻿//
+﻿using CloudPanel.Base.Config;
+using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Enums;
+using CloudPanel.Base.Exchange;
+using log4net;
+//
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
 //
@@ -33,11 +38,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Management.Automation;
-using CloudPanel.Base.Config;
-using CloudPanel.Base.Database.Models;
-using CloudPanel.Base.Enums;
-using CloudPanel.Base.Exchange;
-using log4net;
 
 namespace CloudPanel.Exchange
 {
@@ -2162,6 +2162,9 @@ namespace CloudPanel.Exchange
                     var newItem = new Plans_ExchangeActiveSync();
                     newItem.DisplayName = ps.Members["Identity"].Value.ToString();
                     logger.DebugFormat("Found policy {0} in Exchange", newItem.DisplayName);
+
+                    newItem.AllowNonProvisionableDevices = (bool)ps.Members["AllowNonProvisionableDevices"].Value;
+                    logger.DebugFormat("Allow non provisionable devices is {0}", newItem.AllowNonProvisionableDevices);
 
                     newItem.RefreshIntervalInHours = GetHours(ps.Members["DevicePolicyRefreshInterval"].Value.ToString());
                     logger.DebugFormat("Refresh interval is {0}", newItem.RefreshIntervalInHours);

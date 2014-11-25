@@ -5,6 +5,7 @@ using CloudPanel.Exchange;
 using log4net;
 using Nancy;
 using Nancy.Security;
+using Nancy.ModelBinding;
 using Nancy.ViewEngines.Razor;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,130 @@ namespace CloudPanel.Modules.PlansModules
 
             Get["/new"] = _ =>
                 {
-                    return View["Plans/activesync.cshtml"];
+                    var plan = new Plans_ExchangeActiveSync();
+                    return View["Plans/activesync.cshtml", new { Plan = plan }];
+                };
+
+            Post["/new"] = _ =>
+            {
+                CloudPanelContext db = null;
+                dynamic powershell = null;
+                try
+                {
+                    // Bind to the forum
+                    logger.DebugFormat("Binding Activesync plan to form...");
+                    var plan = this.Bind<Plans_ExchangeActiveSync>();
+
+                    // Update Exchange
+                    logger.DebugFormat("Adding Activesync plan {0} in Exchange", plan.DisplayName);
+                    powershell = ExchPowershell.GetClass();
+                    powershell.New_ActiveSyncPolicy(plan);
+
+                    // Update SQL
+                    db = new CloudPanelContext(Settings.ConnectionString);
+                    db.Plans_ExchangeActiveSync.Add(plan);
+                    db.SaveChanges();
+
+                    var blankPlan = new Plans_ExchangeActiveSync();
+                    return View["Plans/activesync.cshtml", new { Plan = blankPlan, success = "Successfully created plan" }];
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error updating Activesync policy {0}: {1}", _.ID, ex.ToString());
+
+                    ViewBag.error = ex.Message;
+                    return View["error.cshtml"];
+                }
+                finally
+                {
+                    if (powershell != null)
+                        powershell.Dispose();
+
+                    if (db != null)
+                        db.Dispose();
+                }
+            };
+
+            Get["/{ID:int}"] = _ =>
+                {
+                    #region Gets a specific Activesync policy
+                    CloudPanelContext db = null;
+                    try
+                    {
+                        db = new CloudPanelContext(Settings.ConnectionString);
+
+                        int id = _.ID;
+                        var plan = (from d in db.Plans_ExchangeActiveSync
+                                    where d.ASID == id
+                                    select d).FirstOrDefault();
+
+                        return View["Plans/activesync.cshtml", new { Plan = plan }];
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error getting activesync plan {0}: {1}", _.ID, ex.ToString());
+
+                        ViewBag.error = ex.Message;
+                        return View["error.cshtml"];
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+                    }
+                    #endregion
+                };
+
+            Post["/{ID:int}"] = _ =>
+                {
+                    CloudPanelContext db = null;
+                    dynamic powershell = null;
+                    try
+                    {
+                        // Bind to the forum
+                        logger.DebugFormat("Binding Activesync plan to form...");
+                        var plan = this.Bind<Plans_ExchangeActiveSync>();
+
+                        // Get from SQL
+                        int id = _.ID;
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        var sqlPlan = (from d in db.Plans_ExchangeActiveSync
+                                       where d.ASID == id
+                                       select d).FirstOrDefault();
+
+                        // Update Exchange
+                        logger.DebugFormat("Updating Activesync plan {0} in Exchange", id);
+                        powershell = ExchPowershell.GetClass();
+                        powershell.Set_ActiveSyncPolicy(sqlPlan.DisplayName, plan);
+
+                        // Update SQL
+                        logger.DebugFormat("Combining the form values to the SQL values");
+                        foreach (var p in plan.GetType().GetProperties())
+                        {
+                            object value = p.GetValue(plan, null);
+                            sqlPlan.GetType()
+                                   .GetProperty(p.Name)
+                                   .SetValue(sqlPlan, value, null);
+                        }
+
+                        db.SaveChanges();
+                        return View["Plans/activesync.cshtml", new { Plan = plan, success = "Successfully updated plan" }];
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error updating Activesync policy {0}: {1}", _.ID, ex.ToString());
+
+                        ViewBag.error = ex.Message;
+                        return View["error.cshtml"];
+                    }
+                    finally
+                    {
+                        if (powershell != null)
+                            powershell.Dispose();
+
+                        if (db != null)
+                            db.Dispose();
+                    }
                 };
 
             Get["/all"] = _ =>
@@ -38,7 +162,7 @@ namespace CloudPanel.Modules.PlansModules
 
                         if (policies != null)
                         {
-                            logger.DebugFormat("Found a total of {0} activesync policies. Adding / updating the database");
+                            logger.DebugFormat("Found a total of {0} activesync policies. Adding / updating the database", policies.Count);
 
                             db = new CloudPanelContext(Settings.ConnectionString);
                             db.Database.Connection.Open();
