@@ -285,6 +285,9 @@ namespace CloudPanel.Exchange
                     newItem.DisplayName = ps.Members["Identity"].Value.ToString();
                     logger.DebugFormat("Found policy {0} in Exchange", newItem.DisplayName);
 
+                    newItem.AllowNonProvisionableDevices = (bool)ps.Members["AllowNonProvisionableDevices"].Value;
+                    logger.DebugFormat("Allow non provisionable devices is {0}", newItem.AllowNonProvisionableDevices);
+
                     newItem.RefreshIntervalInHours = GetHours(ps.Members["DevicePolicyRefreshInterval"].Value.ToString());
                     logger.DebugFormat("Refresh interval is {0}", newItem.RefreshIntervalInHours);
 
