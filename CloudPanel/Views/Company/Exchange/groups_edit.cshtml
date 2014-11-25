@@ -300,7 +300,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button id="dataTableSave" type="submit" class="btn btn-primary">Save</button>
             </div>
         </div>
     </div>
@@ -323,12 +323,15 @@
             });
 
             $("#dataTableSave").click(function () {
+                var table = $("#dataTable").DataTable();
                 table.rows('.selected').indexes().each(function (idx) {
                     AddItem(currentPopup,
                             table.cell(idx, 1).data(),
                             table.cell(idx, 3).data(),
                             table.cell(idx, 4).data());
                 });
+
+                $("#selectModal").modal("hide");
             });
 
             $(".multiselect").select2({ width: 'resolve' });

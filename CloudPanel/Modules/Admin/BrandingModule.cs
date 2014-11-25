@@ -27,6 +27,7 @@ namespace CloudPanel.Modules
 
             Get["/new"] = _ =>
             {
+                #region Gets the page to create a new branding
                 try
                 {
                     return Negotiate.WithModel(new { brandings = AllBrandings, branding = new Branding() })
@@ -42,10 +43,12 @@ namespace CloudPanel.Modules
                                     .WithView("error.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
+                #endregion
             };
 
             Post["/new"] = _ =>
             {
+                #region Creates a new branding
                 CloudPanelContext db = null;
                 try
                 {
@@ -102,10 +105,12 @@ namespace CloudPanel.Modules
                                     .WithView("error.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
+                #endregion
             };
 
             Get["/{BrandingID:int}"] = _ =>
             {
+                #region Gets a specific branding
                 CloudPanelContext db = null;
                 try
                 {
@@ -135,10 +140,12 @@ namespace CloudPanel.Modules
                                     .WithView("error.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
+                #endregion
             };
 
             Post["/{BrandingID:int}"] = _ =>
             {
+                #region Updates an existing branding
                 CloudPanelContext db = null;
                 try
                 {
@@ -209,10 +216,12 @@ namespace CloudPanel.Modules
                                     .WithView("error.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
+                #endregion
             };
 
             Delete["/{BrandingID:int}"] = _ =>
             {
+                #region Deletes a branding
                 CloudPanelContext db = null;
                 try
                 {
@@ -244,6 +253,7 @@ namespace CloudPanel.Modules
                                     .WithView("error.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
+                #endregion
             };
         }
 
@@ -255,14 +265,20 @@ namespace CloudPanel.Modules
             CloudPanelContext db = null;
             try
             {
-                logger.DebugFormat("Retrieving brandings from datbase...");
+                logger.DebugFormat("Retrieving brandings from database with connection string {0}...", Settings.ConnectionString);
                 db = new CloudPanelContext(Settings.ConnectionString);
-                var brandings =  from d in db.Brandings
+
+                var brandings =  (from d in db.Brandings
                                  orderby d.HostName
-                                 select d;
+                                 select d).ToList();
 
                 if (brandings != null)
+                {
+                    logger.DebugFormat("Found a total of {0} brandings", brandings.Count());
                     AllBrandings = brandings.ToList();
+                }
+                else
+                    logger.DebugFormat("There were no brandings found");
 
                 return AllBrandings;
             }

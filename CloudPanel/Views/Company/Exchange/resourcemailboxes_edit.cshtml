@@ -34,7 +34,7 @@
                             <label class="col-sm-3 control-label">Plan</label>
                             <div class="col-sm-6">
                                 <select id="MailboxPlan" name="MailboxPlan" class="form-control">
-                                    @CloudPanel.Modules.MailboxPlanModule.GetMailboxPlansOptions(this.RenderContext.Context.GetCompanyCode(), 0)
+                                    @CloudPanel.Modules.PlansModules.MailboxPlanModule.GetMailboxPlansOptions(this.RenderContext.Context.GetCompanyCode(), 0)
                                 </select>
                                 <p id="mailboxPlanDescription"></p>
                             </div>

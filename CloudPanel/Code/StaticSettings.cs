@@ -29,6 +29,7 @@ namespace CloudPanel.Code
 
                 // Settings node
                 logger.DebugFormat("Loading settings node");
+                Settings.ConnectionString = Read(ref x, "Settings", "Database");
                 Settings.CompanyName = Read(ref x, "Settings", "CompanyName");
                 Settings.HostingOU = Read(ref x, "Settings", "HostingOU");
                 Settings.UsersOU = Read(ref x, "Settings", "UsersOU");
@@ -128,7 +129,11 @@ namespace CloudPanel.Code
         private static string Read(ref IEnumerable<XElement> x, string node, string element)
         {
             logger.DebugFormat("Reading node {0} and element {1} from the config file", node, element);
-            return x.Descendants(node).Elements(element).FirstOrDefault().Value;
+
+            var value = x.Descendants(node).Elements(element).FirstOrDefault().Value;
+            logger.DebugFormat("Node {0} and element {1} value is {2}", node, element, value);
+
+            return value;
         }
     }
 }

@@ -21,6 +21,30 @@ namespace CloudPanel
         }
 
         /// <summary>
+        /// If the request is local
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static bool IsLocal(this NancyContext context)
+        {
+            bool isLocal = context.Request.UserHostAddress.Equals("127.0.0.1") || context.Request.UserHostAddress.Equals("::1");
+            return isLocal;
+        }
+
+        /// <summary>
+        /// If the request is local OR a logged in super admin
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static bool IsLocalOrSuperAdmin(this NancyContext context)
+        {
+            bool isSuper = context.CurrentUser != null && context.CurrentUser.Claims.Contains("SuperAdmin");
+            bool isLocal = context.Request.UserHostAddress.Equals("127.0.0.1") || context.Request.UserHostAddress.Equals("::1");
+            return (isSuper || isLocal);
+        }
+
+
+        /// <summary>
         /// Gets the selected company code
         /// </summary>
         /// <param name="context"></param>

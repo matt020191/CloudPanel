@@ -19,9 +19,6 @@
         {
             //
             StaticConfiguration.DisableErrorTraces = false;
-            
-            // Upgrade database on start
-            Entity.Database.SetInitializer(new Entity.MigrateDatabaseToLatestVersion<CloudPanelContext, Configuration>());
 
             // Enable the logger
             XmlConfigurator.Configure();
@@ -29,11 +26,14 @@
             // Load the settings
             StaticSettings.LoadSettings();
 
-            // Load brandings
-            BrandingModule.LoadAllBrandings();
+            // Upgrade database on start. Must be after load settings so we can get the connection string
+            Entity.Database.SetInitializer(new Entity.MigrateDatabaseToLatestVersion<CloudPanelContext, Configuration>());
 
             // Enable cookie based sessions
             CookieBasedSessions.Enable(pipelines);
+
+            // Load brandings
+            BrandingModule.LoadAllBrandings();
 
             base.ApplicationStartup(container, pipelines);
         }

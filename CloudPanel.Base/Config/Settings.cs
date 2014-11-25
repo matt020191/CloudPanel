@@ -1,5 +1,4 @@
-﻿using CloudPanel.Base.Security;
-//
+﻿//
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
 //
@@ -29,23 +28,13 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using CloudPanel.Base.Security;
 
 namespace CloudPanel.Base.Config
 {
     public static class Settings
     {
-        public static string ConnectionString
-        {
-            get 
-            {
-                // Need ;Persist Security Info=True for EF6 connection open (when handling opening and closing connetions ourselves
-                return "server=DXN-PC\\SQLEXPRESS;database=CloudPanel;uid=CloudPanel;password=password;";
-                //return @"server=JDIXON-PC;database=CloudPanel;uid=CloudPanel;password=Password1";
-            }
-        }
+        public static string ConnectionString { get; set; }
 
         #region Basic Settings
 
