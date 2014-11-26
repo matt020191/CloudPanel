@@ -193,7 +193,6 @@
     function GetTiles() {
         $("#badgeRow").block();
             $.getJSON("", function (stats) {
-                console.log(stats);
                 $("#badgeResellers").text(stats.totalResellers);
                 $("#badgeCompanies").text(stats.totalCompanies);
                 $("#badgeUsers").text(stats.totalUsers);
@@ -215,7 +214,7 @@
 
     function GetHistoryOverview(pastMonths) {
         $("#historyOverview").block();
-        $.getJSON("@Url.Content("~/charts/history/months/")" + pastMonths, function (data) {
+        $.getJSON("@Url.Content("~/dashboard/history/months/")" + pastMonths, function (data) {
                 var areaChart = new Highcharts.Chart({
                     chart: {
                         renderTo: 'historyOverview',

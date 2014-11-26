@@ -1106,7 +1106,6 @@
     <Compile Include="Modules\Admin\BrandingModule.cs" />
     <Compile Include="Modules\Admin\MassEmailModule.cs" />
     <Compile Include="Modules\Admin\SettingsModule.cs" />
-    <Compile Include="Modules\ChartsModules\ChartsModule.cs" />
     <Compile Include="Modules\CompaniesModule.cs" />
     <Compile Include="Modules\CompanyModules\DomainsModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\BulkModule.cs" />

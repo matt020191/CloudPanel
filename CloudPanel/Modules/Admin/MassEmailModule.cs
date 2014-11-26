@@ -20,7 +20,6 @@ namespace CloudPanel.Modules.Admin
 
         public MassEmailModule() : base("/admin/email")
         {
-            this.RequiresAuthentication();
             this.RequiresAnyClaim(new[] { "SuperAdmin", "ResellerAdmin" });
 
             Get["/"] = _ =>

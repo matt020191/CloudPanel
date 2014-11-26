@@ -192,7 +192,7 @@
 
         function GetHistoryOverview(pastMonths) {
             $("#historyOverview").block();
-            $.getJSON("@Url.Content("~/charts/history/months/")" + pastMonths, function (data) {
+            $.getJSON("@Url.Content("~/dashboard/history/months/")" + pastMonths, function (data) {
                 var areaChart = new Highcharts.Chart({
                     chart: {
                         renderTo: 'historyOverview',

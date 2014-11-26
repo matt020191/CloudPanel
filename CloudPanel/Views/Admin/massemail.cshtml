@@ -70,11 +70,11 @@
                             <label for="focusedinput" class="col-sm-1 control-label">Email To</label>
                             <div class="col-sm-6">
                                 <select id="To" name="To" class='populate' style='width: 100%'>
-                                    <optgroup id='country-optgroup-Africa' label='Global'>
+                                    <optgroup label='Global'>
                                         <option value="All">Everyone</option>
                                         <option value="Admins">Company Admins</option>
                                     </optgroup>
-                                    <optgroup id='country-optgroup-Africa' label='Specific Company'>
+                                    <optgroup label='Specific Company'>
                                         @foreach (var c in Model.companies)
                                         {
                                             <option value="@c.CompanyCode">@c.CompanyName</option>
