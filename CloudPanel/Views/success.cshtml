@@ -20,7 +20,6 @@
                     </p>
 
                     <br />
-                    <br />
 
                     <pre>
                         @if (Model != null)
@@ -30,19 +29,34 @@
                             {
                                 @Model.success
                             }
-                            
-                            <br />
-                            <br />
-                            
-                            if (dict.ContainsKey("results"))
-                            {
-                                foreach (KeyValuePair<string, string> r in Model.results)
-                                {
-                                    <pre><b>@r.Key:</b> @r.Value</pre>
-                                }
-                            }
                         }
                     </pre>
+                    
+                    <br />
+                        <table id="resultsTable" class="table table-condensed table-striped table-responsive">
+                            <thead>
+                                <tr>
+                                    <th>Identity</th>
+                                    <th>Result</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model != null)
+                                {
+                                    var dict = ((System.Collections.Generic.IDictionary<string, object>)Model);
+                                    if (dict.ContainsKey("results"))
+                                    {
+                                        foreach (KeyValuePair<string, string> r in Model.results)
+                                        {
+                                            <tr>
+                                                <td>@r.Key</td>
+                                                <td>@r.Value</td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                            </tbody>
+                        </table>
 
                     <br />
                     <br />

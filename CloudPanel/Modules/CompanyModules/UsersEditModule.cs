@@ -165,6 +165,18 @@ namespace CloudPanel.Modules.CompanyModules
                         sqlUser.RoleID = boundUser.RoleID;
                         sqlUser.ChangePasswordNextLogin = boundUser.ChangePasswordNextLogin;
 
+                        logger.DebugFormat("Checking if company admin");
+                        if (boundUser.RoleID > 0)
+                        {
+                            sqlUser.RoleID = boundUser.RoleID;
+                            sqlUser.IsCompanyAdmin = true;
+                        }
+                        else
+                        {
+                            sqlUser.RoleID = 0;
+                            sqlUser.IsCompanyAdmin = false;
+                        }
+
                         logger.DebugFormat("Updating Active Directory for user {0}", userPrincipalName);
                         adUser = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
                         adUser.UpdateUser(sqlUser);

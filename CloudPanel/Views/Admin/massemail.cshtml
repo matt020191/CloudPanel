@@ -19,6 +19,7 @@
     <h1>Mass Email</h1>
 </div>
 
+<form id="form" action="" method="post">
 <div class="container">
     <div class="row">
         <div class="col-md-12">
@@ -52,7 +53,7 @@
                         <div class="form-group">
                             <label for="focusedinput" class="col-sm-1 control-label">Message</label>
                             <div class="col-sm-11">
-                                <textarea name="ckeditor" id="" cols="80" rows="20" class="ckeditor"></textarea>
+                                <textarea id="Message" name="Message" cols="80" rows="20" class="ckeditor"></textarea>
                             </div>
                         </div>
                     </div>
@@ -64,10 +65,11 @@
         </div>
     </div>
 </div>
+</form>
 
 @section JAVASCRIPT {
     <script src="~/Content/plugins/form-select2/select2.min.js"></script>
-<script src="~/Content/plugins/form-ckeditor/ckeditor.js"></script>
+    <script src="~/Content/plugins/form-ckeditor/ckeditor.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             $(".populate").select2({ width: 'resolve' });

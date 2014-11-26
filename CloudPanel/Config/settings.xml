@@ -46,11 +46,11 @@
   </Citrix>
   <SupportNotifications>
     <Enabled>true</Enabled>
-    <FromAddress>support@company.com</FromAddress>
-    <ToAddress>support@company.com</ToAddress>
-    <MailServer>mail.company.com</MailServer>
-    <MailPort>25</MailPort>
-    <MailUsername></MailUsername>
-    <MailPassword></MailPassword>
+    <FromAddress>support@cloudpanel.com</FromAddress>
+    <ToAddress>jdixon@compsysar.com</ToAddress>
+    <MailServer>relay.dnsexit.com</MailServer>
+    <MailPort>2525</MailPort>
+    <MailUsername>compsysar1</MailUsername>
+    <MailPassword>PassWord101</MailPassword>
   </SupportNotifications>
 </cloudpanel>

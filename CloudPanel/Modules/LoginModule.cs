@@ -32,6 +32,11 @@ namespace CloudPanel.Modules
                     Guid? usersGuid = UserMapper.ValidateUser(username, password);
                     return this.LoginAndRedirect(usersGuid.Value, null, "~/dashboard");
                 }
+                catch (UnauthorizedAccessException)
+                {
+                    ViewBag.LoginError = "Login failed. Please try again.";
+                    return View["login.cshtml"];
+                }
                 catch (Exception ex)
                 {
                     ViewBag.LoginError = "Error: " + ex.Message;

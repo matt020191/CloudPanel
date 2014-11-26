@@ -24,11 +24,6 @@ namespace CloudPanel.Modules
     {
         private static readonly ILog logger = LogManager.GetLogger(typeof(UsersModule));
 
-        public static bool blah()
-        {
-            return false;
-        }
-
         public UsersModule() : base("/company/{CompanyCode}/users")
         {
             this.RequiresAuthentication();
