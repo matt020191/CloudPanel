@@ -108,14 +108,7 @@
         <div class="col-md-6">
             <div class="panel panel-grape">
                 <div class="panel-heading">
-                    <h4>Top Customers by Users</h4>
-                    <div class="options">
-                        <div class="btn-group">
-                            <button class="btn btn-default btn-xs" onclick="javascript: GetTopCustomers(5);"> Top 5 </button>
-                            <button class="btn btn-default btn-xs" onclick="javascript: GetTopCustomers(10);"> Top 10 </button>
-                            <button class="btn btn-default btn-xs" onclick="javascript: GetTopCustomers(15);"> Top 15 </button>
-                        </div>
-                    </div>
+                    <h4>Company Admins</h4>
                 </div>
                 <div class="panel-body">
                     <div class="list-group topXCustomers">
@@ -137,9 +130,9 @@
     <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
     <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
     <script type="text/javascript">
-    var exchangeModule = @CloudPanel.Base.Config.Settings.ExchangeModule.ToString().ToLower()
+        var exchangeModule = @CloudPanel.Base.Config.Settings.ExchangeModule.ToString().ToLower()
 
-        $(document).ready(function () {
+        $(document).ready(function() {
 
             // Get top row tiles data
             GetTiles();

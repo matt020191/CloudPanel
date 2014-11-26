@@ -22,16 +22,20 @@ namespace CloudPanel.Modules
             this.RequiresAuthentication();
 
             Get["/", c => c.Request.Accept("text/html")] = _ =>
-            {
-                if (this.Context.IsSuperAdmin())
-                    return View["Dashboard/dashboard_super.cshtml"];
-
-                else  if (this.Context.IsResellerAdmin())
-                    return View["Dashboard/dashboard_reseller.cshtml"];
-
-                else 
-                    return View["Dashboard/dashboard_admin.cshtml"];
-            };
+                {
+                    if (this.Context.IsSuperAdmin())
+                    {
+                        return View["Dashboard/dashboard_super.cshtml"];
+                    }
+                    else if (this.Context.IsResellerAdmin())
+                    {
+                        return View["Dashboard/dashboard_reseller.cshtml"];
+                    }
+                    else
+                    {
+                        return View["Dashboard/dashboard_admin.cshtml"];
+                    }
+                };
 
             Get["/", c => (!c.Request.Accept("text/html") && c.IsSuperAdmin())] = _ =>
                 {
@@ -380,187 +384,187 @@ namespace CloudPanel.Modules
                 };
 
             Get["/customers/top/mailboxes/{X:int}"] = _ =>
-            {
-                this.RequiresAnyClaim(new[] { "SuperAdmin", "ResellerAdmin" });
-
-                #region Gets the top X mailboxes 
-                CloudPanelContext db = null;
-                try
                 {
-                    int top = _.X;
-                    logger.DebugFormat("Getting top {0} customers mailboxes", top);
+                    this.RequiresAnyClaim(new[] { "SuperAdmin", "ResellerAdmin" });
 
-                    db = new CloudPanelContext(Settings.ConnectionString);
-                    db.Database.Connection.Open();
-
-                    logger.DebugFormat("Getting company code for user");
-                    string companyCode = this.Context.GetCompanyCodeMembership();
-
-                    logger.DebugFormat("Company code was {0}. Getting the company from the database", companyCode);
-                    var company = (from d in db.Companies where d.CompanyCode == companyCode select d).FirstOrDefault();
-
-                    var topMailboxes = new List<TopXCustomers>();
-                    if (this.Context.IsSuperAdmin())
+                    #region Gets the top X mailboxes 
+                    CloudPanelContext db = null;
+                    try
                     {
-                        logger.DebugFormat("User requesting top mailboxes is a super admin");
-                        topMailboxes = (from d in db.Users
-                                        where d.MailboxPlan > 0
-                                        group d by d.CompanyCode into grp
+                        int top = _.X;
+                        logger.DebugFormat("Getting top {0} customers mailboxes", top);
+
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
+
+                        logger.DebugFormat("Getting company code for user");
+                        string companyCode = this.Context.GetCompanyCodeMembership();
+
+                        logger.DebugFormat("Company code was {0}. Getting the company from the database", companyCode);
+                        var company = (from d in db.Companies where d.CompanyCode == companyCode select d).FirstOrDefault();
+
+                        var topMailboxes = new List<TopXCustomers>();
+                        if (this.Context.IsSuperAdmin())
+                        {
+                            logger.DebugFormat("User requesting top mailboxes is a super admin");
+                            topMailboxes = (from d in db.Users
+                                            where d.MailboxPlan > 0
+                                            group d by d.CompanyCode into grp
+                                                select new TopXCustomers
+                                                {
+                                                    CompanyCode = grp.Key,
+                                                    CompanyName = string.Empty,
+                                                    ResellerCode = string.Empty,
+                                                    TotalUsers = grp.Select(x => x.UserGuid).Distinct().Count()
+                                                }).OrderByDescending(x => x.TotalUsers).Take(top).ToList();
+                        }
+                        else
+                        {
+                            //
+                            // Is a reseller admin so only gather data for companies that beong to this reseller.
+                            //
+                            logger.DebugFormat("User requesting top mailboxes is a reseller admin. Getting all company codes");
+                            var companyCodes = (from d in db.Companies where d.ResellerCode == company.ResellerCode select d.CompanyCode).ToList();
+
+                            topMailboxes = (from d in db.Users
+                                            where d.MailboxPlan > 0
+                                            group d by d.CompanyCode into grp
                                             select new TopXCustomers
                                             {
                                                 CompanyCode = grp.Key,
                                                 CompanyName = string.Empty,
                                                 ResellerCode = string.Empty,
                                                 TotalUsers = grp.Select(x => x.UserGuid).Distinct().Count()
-                                            }).OrderByDescending(x => x.TotalUsers).Take(top).ToList();
-                    }
-                    else
-                    {
-                        //
-                        // Is a reseller admin so only gather data for companies that beong to this reseller.
-                        //
-                        logger.DebugFormat("User requesting top mailboxes is a reseller admin. Getting all company codes");
-                        var companyCodes = (from d in db.Companies where d.ResellerCode == company.ResellerCode select d.CompanyCode).ToList();
-
-                        topMailboxes = (from d in db.Users
-                                        where d.MailboxPlan > 0
-                                        group d by d.CompanyCode into grp
-                                        select new TopXCustomers
-                                        {
-                                            CompanyCode = grp.Key,
-                                            CompanyName = string.Empty,
-                                            ResellerCode = string.Empty,
-                                            TotalUsers = grp.Select(x => x.UserGuid).Distinct().Count()
-                                        }).OrderByDescending(x => x.TotalUsers)
-                                            .Where(x => companyCodes.Contains(x.CompanyCode))
-                                            .Take(top)
-                                            .ToList();
-                    }
-
-                    logger.DebugFormat("Found a total of {0} mailboxes", topMailboxes.Count());
-                    foreach (var data in topMailboxes)
-                    {
-                        var company1= (from d in db.Companies
-                                       where d.CompanyCode == data.CompanyCode
-                                       select d).FirstOrDefault();
-
-                        if (company1 != null)
-                        {
-                            data.CompanyName = company1.CompanyName;
-                            data.ResellerCode = company1.ResellerCode;
+                                            }).OrderByDescending(x => x.TotalUsers)
+                                                .Where(x => companyCodes.Contains(x.CompanyCode))
+                                                .Take(top)
+                                                .ToList();
                         }
-                    }
 
-                    return Negotiate.WithModel(new { data = topMailboxes });
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error getting top X mailboxes: {0}", ex.ToString());
-                    return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithStatusCode(HttpStatusCode.InternalServerError);
-                }
-                finally
-                {
-                    if (db != null)
-                        db.Dispose();
-                }
-                #endregion
-            };
+                        logger.DebugFormat("Found a total of {0} mailboxes", topMailboxes.Count());
+                        foreach (var data in topMailboxes)
+                        {
+                            var company1= (from d in db.Companies
+                                           where d.CompanyCode == data.CompanyCode
+                                           select d).FirstOrDefault();
+
+                            if (company1 != null)
+                            {
+                                data.CompanyName = company1.CompanyName;
+                                data.ResellerCode = company1.ResellerCode;
+                            }
+                        }
+
+                        return Negotiate.WithModel(new { data = topMailboxes });
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error getting top X mailboxes: {0}", ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+                    }
+                    #endregion
+                };
 
             Get["/history/months/{MONTHS:int}"] = _ =>
-            {
-                #region Get the history of growth for the area chart
-                CloudPanelContext db = null;
-                try
                 {
-                    int m = _.MONTHS;
-
-                    logger.DebugFormat("Getting history chart for the last {0} months", m);
-                    db = new CloudPanelContext(Settings.ConnectionString);
-                    db.Database.Connection.Open();
-
-                    // Variables
-                    string[] months = new string[m];
-                    int?[] userCount = new int?[m];
-                    int?[] exchCount = new int?[m];
-                    int?[] citrixCount = new int?[m];
-
-                    // Get company codes
-                    List<string> companyCodes = null;
-
-                    // Get the company code the user belongs to if they are a company admin
-                    if (this.Context.IsSuperAdmin())
+                    #region Get the history of growth for the area chart
+                    CloudPanelContext db = null;
+                    try
                     {
-                        logger.DebugFormat("User getting the history graph is a super admin");
-                        companyCodes = (from d in db.Companies
-                                        where d.IsReseller != true
-                                        select d.CompanyCode).ToList();
-                    }
-                    else if (this.Context.IsResellerAdmin())
-                    {
-                        logger.DebugFormat("User getting the history graph is a reseller admin");
-                        var loggedInUserCompanyCode = this.Context.GetCompanyCodeMembership();
-                        var loggedInUserResellerCode = (from d in db.Companies
-                                                        where d.CompanyCode == loggedInUserCompanyCode
-                                                        select d.ResellerCode).FirstOrDefault();
-                        companyCodes = (from d in db.Companies
-                                        where d.IsReseller != true
-                                        where d.ResellerCode == loggedInUserResellerCode
-                                        select d.CompanyCode).ToList();
-                    }
-                    else
-                    {
-                        logger.DebugFormat("User getting the history graph is a company admin");
-                        companyCodes = new List<string>() { this.Context.GetCompanyCodeMembership() };
-                    }
+                        int m = _.MONTHS;
 
-                    logger.DebugFormat("Getting user statistics...");
-                    DateTime yearAgo = DateTime.Now.AddMonths(-m + 1);
-                    for (int i = 0; i < m; i++)
-                    {
-                        // Get the month name
-                        months[i] = yearAgo.ToString("MMM yy");
-                        logger.DebugFormat("Current month {0}", months[i]);
+                        logger.DebugFormat("Getting history chart for the last {0} months", m);
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
 
-                        // Get the user counts
-                        userCount[i] = GetUserCount(ref db, yearAgo, companyCodes);
-                        logger.DebugFormat("User count for month {0} is {1}", months[i], userCount[i]);
+                        // Variables
+                        string[] months = new string[m];
+                        int?[] userCount = new int?[m];
+                        int?[] exchCount = new int?[m];
+                        int?[] citrixCount = new int?[m];
 
-                        if (Settings.ExchangeModule)
+                        // Get company codes
+                        List<string> companyCodes = null;
+
+                        // Get the company code the user belongs to if they are a company admin
+                        if (this.Context.IsSuperAdmin())
                         {
-                            exchCount[i] = GetMailboxCount(ref db, yearAgo, companyCodes);
-                            logger.DebugFormat("Exchange count for month {0} is {1}", months[i], exchCount[i]);
+                            logger.DebugFormat("User getting the history graph is a super admin");
+                            companyCodes = (from d in db.Companies
+                                            where d.IsReseller != true
+                                            select d.CompanyCode).ToList();
+                        }
+                        else if (this.Context.IsResellerAdmin())
+                        {
+                            logger.DebugFormat("User getting the history graph is a reseller admin");
+                            var loggedInUserCompanyCode = this.Context.GetCompanyCodeMembership();
+                            var loggedInUserResellerCode = (from d in db.Companies
+                                                            where d.CompanyCode == loggedInUserCompanyCode
+                                                            select d.ResellerCode).FirstOrDefault();
+                            companyCodes = (from d in db.Companies
+                                            where d.IsReseller != true
+                                            where d.ResellerCode == loggedInUserResellerCode
+                                            select d.CompanyCode).ToList();
+                        }
+                        else
+                        {
+                            logger.DebugFormat("User getting the history graph is a company admin");
+                            companyCodes = new List<string>() { this.Context.GetCompanyCodeMembership() };
                         }
 
-                        if (Settings.CitrixModule)
+                        logger.DebugFormat("Getting user statistics...");
+                        DateTime yearAgo = DateTime.Now.AddMonths(-m + 1);
+                        for (int i = 0; i < m; i++)
                         {
-                            citrixCount[i] = GetCitrixCount(ref db, yearAgo, companyCodes);
-                            logger.DebugFormat("Citrix count for month {0} is {1}", months[i], citrixCount[i]);
+                            // Get the month name
+                            months[i] = yearAgo.ToString("MMM yy");
+                            logger.DebugFormat("Current month {0}", months[i]);
+
+                            // Get the user counts
+                            userCount[i] = GetUserCount(ref db, yearAgo, companyCodes);
+                            logger.DebugFormat("User count for month {0} is {1}", months[i], userCount[i]);
+
+                            if (Settings.ExchangeModule)
+                            {
+                                exchCount[i] = GetMailboxCount(ref db, yearAgo, companyCodes);
+                                logger.DebugFormat("Exchange count for month {0} is {1}", months[i], exchCount[i]);
+                            }
+
+                            if (Settings.CitrixModule)
+                            {
+                                citrixCount[i] = GetCitrixCount(ref db, yearAgo, companyCodes);
+                                logger.DebugFormat("Citrix count for month {0} is {1}", months[i], citrixCount[i]);
+                            }
+
+                            yearAgo = yearAgo.AddMonths(1);
                         }
 
-                        yearAgo = yearAgo.AddMonths(1);
+                        return Negotiate.WithModel(new { 
+                            months = months, 
+                            users = userCount, 
+                            exchange = exchCount, 
+                            citrix = citrixCount 
+                        });
                     }
-
-                    return Negotiate.WithModel(new { 
-                        months = months, 
-                        users = userCount, 
-                        exchange = exchCount, 
-                        citrix = citrixCount 
-                    });
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error getting history overview for {0} month(s): {1}", _.MONTHS, ex.ToString());
-                    return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithStatusCode(HttpStatusCode.InternalServerError);
-                }
-                finally
-                {
-                    if (db != null)
-                        db.Dispose();
-                }
-                #endregion
-            };
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error getting history overview for {0} month(s): {1}", _.MONTHS, ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+                    }
+                    #endregion
+                };
         }
 
         /// <summary>
