@@ -26,6 +26,45 @@
             <div class="panel panel-primary">
                 <div class="panel-heading">Send E-Mail</div>
                 <div class="panel-body">
+                    <div id="accordioninpanel" class="accordion-group">
+                        <div class="accordion-item">
+                            <a class="accordion-title collapsed" data-toggle="collapse" data-parent="#accordioninpanel" href="#collapseinOne"><h4>Variables</h4></a>
+                            <div id="collapseinOne" class="collapse" style="height: 0px;">
+                                <div class="accordion-body">
+                                    <p>All variables are case sensitive.</p>
+                                    <table class="table table-condensed table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Variable</th>
+                                                <th>Information</th>
+                                                <th>Section</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>{DisplayName}</td>
+                                                <td>Replaces the variable with the display name of the user</td>
+                                                <td>Subject or Message</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{FirstName}</td>
+                                                <td>Replace the variable with the first name of the user. If the user does not contain a first name in the database then it will be blank.</td>
+                                                <td>Message Only</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{LastName}</td>
+                                                <td>Replaes the variable with the last name of the user. If the user does not contain a last name in the database then it will be blank.</td>
+                                                <td>Message Only</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr />
+
                     <div class="form-horizontal">
                         <div class="form-group">
                             <label for="focusedinput" class="col-sm-1 control-label">Email To</label>
