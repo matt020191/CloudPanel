@@ -131,6 +131,19 @@ namespace CloudPanel.Modules
                     var updatedPermission = this.Bind<UserRoles>();
                     foundPermission.DisplayName = updatedPermission.DisplayName;
 
+                    logger.DebugFormat("Updating create permissions");
+                    foreach (var found in updatedPermission.GetType().GetProperties())
+                    {
+                        if (found.PropertyType == typeof(bool))
+                        {
+                            logger.DebugFormat("Updating property {0} with value {1}", found.Name, found.GetValue(updatedPermission, null));
+                            foundPermission.GetType()
+                                           .GetProperties()
+                                           .Where(x => x.Name.Equals(found.Name)).FirstOrDefault()
+                                           .SetValue(foundPermission, found.GetValue(updatedPermission, null), null);
+                        }
+                    }
+                    /*
                     logger.DebugFormat("Updating view section");
                     foundPermission.vCitrix = updatedPermission.vCitrix;
                     foundPermission.vDomains = updatedPermission.vDomains;
@@ -162,7 +175,7 @@ namespace CloudPanel.Modules
                     foundPermission.dExchangeResources = updatedPermission.dExchangeResources;
                     foundPermission.dLync = updatedPermission.dLync;
                     foundPermission.dPermissions = updatedPermission.dPermissions;
-                    foundPermission.dUsers = updatedPermission.dUsers;
+                    foundPermission.dUsers = updatedPermission.dUsers;*/
 
                     db.SaveChanges();
 

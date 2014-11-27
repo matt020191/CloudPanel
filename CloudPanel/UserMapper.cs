@@ -63,6 +63,7 @@ namespace CloudPanel
                 if (!claims.Contains("SuperAdmin"))
                 {
                     logger.DebugFormat("User is not a super admin so we need to query the database for reseller and company admin values");
+                    
                     db = new CloudPanelContext(Settings.ConnectionString);
                     ParseAdmin(ref db, ref authUser, ref claims);
                 }
@@ -110,72 +111,69 @@ namespace CloudPanel
                        where d.UserPrincipalName == upn
                        select d).FirstOrDefault();
 
-            if (user != null)
+            if (user.IsResellerAdmin == true || user.IsCompanyAdmin == true)
             {
-                if (user.IsResellerAdmin == true || user.IsCompanyAdmin == true)
+                var companyInfo = (from c in db.Companies
+                                   join r in db.Companies on c.ResellerCode equals r.CompanyCode into reseller
+                                   from data in reseller.DefaultIfEmpty()
+                                   where c.CompanyCode == user.CompanyCode
+                                   select new
+                                   {
+                                       CompanyCode = c.CompanyCode,
+                                       CompanyName = c.CompanyName,
+                                       ResellerCode = c.ResellerCode,
+                                       ResellerName = data.CompanyName
+                                   }).FirstOrDefault();
+
+                // Add the values to the user object for 
+                // selected company codes and reseller codes
+                authUser.CompanyCode = user.CompanyCode;
+                authUser.ResellerCode = companyInfo.ResellerCode;
+                authUser.SelectedCompanyCode = user.CompanyCode;
+
+                if (companyInfo != null)
                 {
-                    var companyInfo = (from c in db.Companies
-                                       join r in db.Companies on c.ResellerCode equals r.CompanyCode into reseller
-                                       from data in reseller.DefaultIfEmpty()
-                                       where c.CompanyCode == user.CompanyCode
-                                       select new {
-                                         CompanyCode = c.CompanyCode,
-                                         CompanyName = c.CompanyName,
-                                         ResellerCode = c.ResellerCode,
-                                         ResellerName = data.CompanyName
-                                       }).FirstOrDefault();
+                    authUser.SelectedCompanyName = companyInfo.CompanyName;
+                    authUser.SelectedResellerCode = companyInfo.ResellerCode;
+                    authUser.SelectedResellerName = companyInfo.ResellerName;
+                }
 
-                    // Add the values to the user object for 
-                    // selected company codes and reseller codes
-                    authUser.CompanyCode = user.CompanyCode;
-                    authUser.ResellerCode = companyInfo.ResellerCode;
-                    authUser.SelectedCompanyCode = user.CompanyCode;
+                // Add the claims
+                logger.DebugFormat("User belongs to reseller {0} and company {1}", authUser.ResellerCode, authUser.CompanyCode);
+                if (user.IsResellerAdmin == true)
+                {
+                    claims.Add("ResellerAdmin");
+                    logger.DebugFormat("User {0} is a reseller admin for {1}", upn, authUser.SelectedResellerCode);
+                }
 
-                    if (companyInfo != null)
+                if (user.IsCompanyAdmin == true)
+                {
+                    claims.Add("CompanyAdmin");
+                    logger.DebugFormat("User {0} is a company admin for {1}", upn, authUser.CompanyCode);
+
+                    var permission = (from d in db.UserRoles
+                                      where d.RoleID == user.RoleID
+                                      select d).FirstOrDefault();
+                    if (permission != null)
                     {
-                        authUser.SelectedCompanyName = companyInfo.CompanyName;
-                        authUser.SelectedResellerCode = companyInfo.ResellerCode;
-                        authUser.SelectedResellerName = companyInfo.ResellerName;
-                    }
-
-                    // Add the claims
-                    logger.DebugFormat("User belongs to reseller {0} and company {1}", authUser.ResellerCode, authUser.CompanyCode);
-                    if (user.IsResellerAdmin == true)
-                    {
-                        claims.Add("ResellerAdmin");
-                        logger.DebugFormat("User {0} is a reseller admin for {1}", upn, authUser.SelectedResellerCode);
-                    }
-
-                    if (user.IsCompanyAdmin == true)
-                    {
-                        claims.Add("CompanyAdmin");
-                        logger.DebugFormat("User {0} is a company admin for {1}", upn, authUser.CompanyCode);
-
-                        var permission = (from d in db.UserRoles
-                                          where d.RoleID == user.RoleID
-                                          select d).FirstOrDefault();
-                        if (permission != null)
+                        foreach (var p in permission.GetType().GetProperties())
                         {
-                            foreach (var p in permission.GetType().GetProperties())
+                            logger.DebugFormat("Checking permission {0} for user {1}", p.Name, authUser.UserName);
+                            if (p.PropertyType == typeof(bool))
                             {
-                                logger.DebugFormat("Checking permission {0} for user {1}", p.Name, authUser.UserName);
-                                if (p.PropertyType == typeof(bool))
+                                bool isTrue = (bool)p.GetValue(permission, null);
+                                if (isTrue)
                                 {
-                                    bool isTrue = (bool)p.GetValue(permission, null);
-                                    if (isTrue)
-                                    {
-                                        claims.Add(p.Name);
-                                        logger.DebugFormat("Adding {0} to user {1} permissions", p.Name, authUser.UserName);
-                                    }
+                                    claims.Add(p.Name);
+                                    logger.DebugFormat("Adding {0} to user {1} permissions", p.Name, authUser.UserName);
                                 }
                             }
                         }
-
-
-                        authUser.SecurityPermissions = permission;
                     }
+
+                    authUser.SecurityPermissions = permission;
                 }
-            }            
+            }         
         }
     }
 }

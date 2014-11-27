@@ -46,7 +46,7 @@ namespace CloudPanel.Modules
 
             Get["/logout"] = _ =>
             {
-                    return this.Logout("~/login");
+                return this.LogoutAndRedirect("~/login");
             };
         }
     }

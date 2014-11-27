@@ -78,7 +78,7 @@ namespace CloudPanel.Code
                 }
                 else
                 {
-                    // Chheck if the user is a company admin and belongs to the company with the right role
+                    // Check if the user is a company admin and belongs to the company with the right role
                     logger.DebugFormat("User was not a superadmin, or reselleradmin, checking company admin rights");
                     var db = new CloudPanelContext(Settings.ConnectionString);
                     var user = (from d in db.Users
@@ -103,12 +103,15 @@ namespace CloudPanel.Code
                                           select d).FirstOrDefault();
 
                         logger.DebugFormat("Permissions was {0}", permission == null ? "not found" : "found");
-                        return permission == null ? false :
-                               permission.GetType()
-                                         .GetProperties()
-                                         .Where(x => (x.Name.Equals(role, StringComparison.InvariantCultureIgnoreCase) && x.PropertyType == typeof(bool))).FirstOrDefault()
-                                         .GetValue(permission, null)
-                                         .Equals((bool)true);
+                        bool valid = permission == null ? false :
+                                       permission.GetType()
+                                                 .GetProperties()
+                                                 .Where(x => (x.Name.Equals(role, StringComparison.InvariantCultureIgnoreCase) && x.PropertyType == typeof(bool))).FirstOrDefault()
+                                                 .GetValue(permission, null)
+                                                 .Equals((bool)true);
+
+                        logger.DebugFormat("Valid permissions found: {0}", valid);
+                        return valid;
                     }
                 }
             }

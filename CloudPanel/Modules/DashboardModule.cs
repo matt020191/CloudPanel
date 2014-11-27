@@ -6,6 +6,7 @@ using CloudPanel.Database.EntityFramework;
 using CloudPanel.Exchange;
 using log4net;
 using Nancy;
+using Nancy.Responses.Negotiation;
 using Nancy.Security;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ namespace CloudPanel.Modules
                     }
                     else
                     {
-                        return View["Dashboard/dashboard_admin.cshtml"];
+                        return GetCompanyAdminDashboard();
                     }
                 };
 
@@ -221,6 +222,11 @@ namespace CloudPanel.Modules
                         totalDomains = (from d in db.Domains where d.CompanyCode == companyCode select d).Count();
                         totalMailboxes = (from d in users where d.MailboxPlan > 0 select d).Count();
 
+                        // Get all company admins
+                        var companyAdmins = (from d in users 
+                                             where d.IsCompanyAdmin == true 
+                                             select d).ToList();
+
                         // Get all mailboxes
                         var sqlMailboxes = (from d in users
                                             join d1 in db.Plans_ExchangeMailbox on d.MailboxPlan equals d1.MailboxPlanID into d1tmp
@@ -260,6 +266,7 @@ namespace CloudPanel.Modules
                             TotalAdmins = totalAdmins,
                             TotalDomains = totalDomains,
                             TotalMailboxes = totalMailboxes,
+                            CompanyAdmins = companyAdmins,
                             TotalMailboxAllocated = CPStaticHelpers.FormatBytes(mailboxAllocated),
                             TotalMailboxUsed = CPStaticHelpers.FormatBytes(totalUsed)
                         });
@@ -567,6 +574,91 @@ namespace CloudPanel.Modules
                 };
         }
 
+        private Negotiator GetCompanyAdminDashboard()
+        {
+            #region Gets data if the user is a super admin
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                var companyCode = this.Context.GetCompanyCodeMembership();
+                var users = (from d in db.Users where d.CompanyCode == companyCode select d).ToList();
+
+                int totalUsers = 0, totalAdmins = 0, totalDomains = 0, totalMailboxes = 0;
+                totalUsers = (from d in users select d).Count();
+                totalAdmins = (from d in users where d.IsCompanyAdmin == true select d).Count();
+                totalDomains = (from d in db.Domains where d.CompanyCode == companyCode select d).Count();
+                totalMailboxes = (from d in users where d.MailboxPlan > 0 select d).Count();
+
+                // Get all company admins
+                var companyAdmins = (from d in users
+                                     where d.IsCompanyAdmin == true
+                                     select d).ToList();
+
+                // Get all mailboxes
+                var sqlMailboxes = (from d in users
+                                    join d1 in db.Plans_ExchangeMailbox on d.MailboxPlan equals d1.MailboxPlanID into d1tmp
+                                    from data1 in d1tmp.DefaultIfEmpty()
+                                    where d.MailboxPlan > 0
+                                    select new
+                                    {
+                                        UserPrincipalName = d.UserPrincipalName,
+                                        AdditionalMB = d.AdditionalMB == null ? 0 : d.AdditionalMB,
+                                        PlanMB = data1.MailboxSizeMB
+                                    }).ToList();
+
+                // Get all allocated mailbox space
+                long totalUsed = 0;
+                sqlMailboxes.ForEach(x =>
+                {
+                    long total = 0;
+                    total = (from d in db.SvcMailboxSizes
+                             where d.UserPrincipalName == x.UserPrincipalName
+                             orderby d.Retrieved descending
+                             select d.TotalItemSizeInBytes).FirstOrDefault();
+
+                    totalUsed += total;
+                });
+
+                // Find latest mailbox size
+                long mailboxAllocated = 0;
+                sqlMailboxes.ForEach(x => mailboxAllocated += ((int)x.AdditionalMB + x.PlanMB));
+
+                // Convert MB to bytes
+                mailboxAllocated = (mailboxAllocated * 1024) * 1024;
+
+                CloudPanel.Modules.StatModule.UpdateCounts();
+                return Negotiate.WithModel(new
+                                        {
+                                            TotalUsers = totalUsers,
+                                            TotalAdmins = totalAdmins,
+                                            TotalDomains = totalDomains,
+                                            TotalMailboxes = totalMailboxes,
+                                            CompanyAdmins = companyAdmins,
+                                            TotalMailboxAllocated = CPStaticHelpers.FormatBytes(mailboxAllocated),
+                                            TotalMailboxUsed = CPStaticHelpers.FormatBytes(totalUsed)
+                                        })
+                                        .WithView("Dashboard/dashboard_admin.cshtml");
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error pulling dashboard stats: {0}", ex.ToString());
+
+                ViewBag.error = ex.Message;
+                return Negotiate.WithModel(new { error = ex.Message })
+                                .WithStatusCode(HttpStatusCode.InternalServerError)
+                                .WithView("error.cshtml");
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+            #endregion
+        }
+
         /// <summary>
         /// Gets the user count for the specified month and company codes
         /// </summary>
@@ -582,13 +674,13 @@ namespace CloudPanel.Modules
             {
                 if (!string.IsNullOrEmpty(c))
                 {
-                    logger.DebugFormat("Processing user count for {0}", c);
+                    logger.DebugFormat("Processing user count for {0} for month {1} and year {2}", c, pickDate.Month, pickDate.Year);
                     if (pickDate.Month == DateTime.Now.Month && pickDate.Year == DateTime.Now.Year)
-                        value = (from d in db.Users 
+                        value += (from d in db.Users 
                                  where d.CompanyCode == c 
                                  select d.ID).Count();
                     else
-                        value = (from d in db.Statistics
+                        value += (from d in db.Statistics
                                  where d.Retrieved.Month == pickDate.Month
                                  where d.Retrieved.Year == pickDate.Year
                                  where d.CompanyCode == c
@@ -619,14 +711,14 @@ namespace CloudPanel.Modules
             {
                 if (!string.IsNullOrEmpty(c))
                 {
-                    logger.DebugFormat("Processing Exchange count for {0}", c);
+                    logger.DebugFormat("Processing Exchange count for {0} for month {1} and year {2}", c, pickDate.Month, pickDate.Year);
                     if (pickDate.Month == DateTime.Now.Month && pickDate.Year == DateTime.Now.Year)
-                        value = (from d in db.Users 
+                        value += (from d in db.Users 
                                  where d.CompanyCode == c 
                                  where d.MailboxPlan > 0 
                                  select d.ID).Count();
                     else
-                        value = (from d in db.Statistics
+                        value += (from d in db.Statistics
                                  where d.Retrieved.Month == pickDate.Month
                                  where d.Retrieved.Year == pickDate.Year
                                  where d.CompanyCode == c
@@ -657,17 +749,17 @@ namespace CloudPanel.Modules
             {
                 if (!string.IsNullOrEmpty(c))
                 {
-                    logger.DebugFormat("Processing Citrix count for {0}", c);
+                    logger.DebugFormat("Processing Citrix count for {0} for month {1} and year {2}", c, pickDate.Month, pickDate.Year);
                     int[] userIds = (from d in db.Users 
                                      where d.CompanyCode == c 
                                      select d.ID).ToArray();
 
                     if (pickDate.Month == DateTime.Now.Month && pickDate.Year == DateTime.Now.Year)
-                        value = (from d in db.UserPlansCitrix 
+                        value += (from d in db.UserPlansCitrix 
                                  where userIds.Contains(d.UserID) 
                                  select d.UserID).Distinct().Count();
                     else
-                        value = (from d in db.Statistics
+                        value += (from d in db.Statistics
                                  where d.Retrieved.Month == pickDate.Month
                                  where d.Retrieved.Year == pickDate.Year
                                  where d.CompanyCode == c

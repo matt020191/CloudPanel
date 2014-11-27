@@ -18,9 +18,9 @@
     </div>
     <div class="collapse navbar-collapse navbar-ex1-collapse @((Model != null && Model == true) ? "large-icons-nav" : "")" id="horizontal-navbar">
         <ul class="nav navbar-nav">
+            <li><a href="~/dashboard"><i class="fa fa-home"></i> <span>Dashboard</span></a></li>
             @if (isSuperAdmin || isResellerAdmin)
             {
-                <li><a href="~/dashboard"><i class="fa fa-home"></i> <span>Dashboard</span></a></li>
                 @if (isSuperAdmin)
                 {
                     <li><a href="~/resellers"><i class="fa fa-users"></i> <span>Resellers</span></a></li>

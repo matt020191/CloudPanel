@@ -20,7 +20,7 @@
             <a href="#" class="shortcut-tiles tiles-info">
                 <div class="tiles-body">
                     <div class="pull-left"><i class="fa fa-user"></i></div>
-                    <div class="pull-right"><span id="badgeUsers" class="badge"></span></div>
+                    <div class="pull-right"><span id="badgeUsers" class="badge">@Model.TotalUsers</span></div>
                 </div>
                 <div class="tiles-footer">
                     Users
@@ -31,7 +31,7 @@
             <a href="#" class="shortcut-tiles tiles-orange">
                 <div class="tiles-body">
                     <div class="pull-left"><i class="fa fa-gears"></i></div>
-                    <div class="pull-right"><span id="badgeAdmins" class="badge"></span></div>
+                    <div class="pull-right"><span id="badgeAdmins" class="badge">@Model.TotalAdmins</span></div>
                 </div>
                 <div class="tiles-footer">
                     Company Admins
@@ -42,7 +42,7 @@
             <a href="#" class="shortcut-tiles tiles-success">
                 <div class="tiles-body">
                     <div class="pull-left"><i class="fa fa-globe"></i></div>
-                    <div class="pull-right"><span id="badgeDomains" class="badge"></span></div>
+                    <div class="pull-right"><span id="badgeDomains" class="badge">@Model.TotalDomains</span></div>
                 </div>
                 <div class="tiles-footer">
                     Domains
@@ -53,7 +53,7 @@
             <a href="#" class="shortcut-tiles tiles-magenta">
                 <div class="tiles-body">
                     <div class="pull-left"><i class="fa fa-envelope"></i></div>
-                    <div class="pull-right"><span id="badgeMailboxes" class="badge"></span></div>
+                    <div class="pull-right"><span id="badgeMailboxes" class="badge">@Model.TotalMailboxes</span></div>
                 </div>
                 <div class="tiles-footer">
                     Mailboxes
@@ -64,7 +64,7 @@
             <a href="#" class="shortcut-tiles tiles-midnightblue">
                 <div class="tiles-body">
                     <div class="pull-left"><i class="fa fa-upload"></i></div>
-                    <div class="pull-right"><span id="badgeMailboxAllocated" class="badge"></span></div>
+                    <div class="pull-right"><span id="badgeMailboxAllocated" class="badge">@Model.TotalMailboxAllocated</span></div>
                 </div>
                 <div class="tiles-footer">
                     Mailbox Space Allocated
@@ -75,7 +75,7 @@
             <a href="#" class="shortcut-tiles tiles-green">
                 <div class="tiles-body">
                     <div class="pull-left"><i class="fa fa-download"></i></div>
-                    <div class="pull-right"><span id="badgeMailboxUsed" class="badge"></span></div>
+                    <div class="pull-right"><span id="badgeMailboxUsed" class="badge">@Model.TotalMailboxUsed</span></div>
                 </div>
                 <div class="tiles-footer">
                     Mailbox Space Used
@@ -111,7 +111,11 @@
                     <h4>Company Admins</h4>
                 </div>
                 <div class="panel-body">
-                    <div class="list-group topXCustomers">
+                    <div class="list-group companyAdmins">
+                        @foreach (var user in Model.CompanyAdmins)
+                        {
+                            <a href="javascript:;" class="list-group-item"><span class="badge">@user.UserPrincipalName</span> <i class="fa fa-user"></i> @user.DisplayName</a>
+                        }
                     </div>
                 </div>
             </div>
@@ -134,30 +138,9 @@
 
         $(document).ready(function() {
 
-            // Get top row tiles data
-            GetTiles();
-
             // Gets the history overview area chart
             GetHistoryOverview(6);
         });
-
-        function GetTiles() {
-            $("#badgeRow").block();
-            $.getJSON("", function (stats) {
-                $("#badgeUsers").text(stats.totalUsers);
-                $("#badgeAdmins").text(stats.totalAdmins);
-                $("#badgeDomains").text(stats.totalDomains);
-                $("#badgeMailboxes").text(stats.totalMailboxes);
-                $("#badgeMailboxAllocated").text(stats.totalMailboxAllocated);
-                $("#badgeMailboxUsed").text(stats.totalMailboxUsed);
-            })
-            .fail(function (data) {
-                ShowError(data.responseJSON.error);
-            })
-            .always(function (data) {
-                $("#badgeRow").unblock();
-            });
-        }
 
         function GetHistoryOverview(pastMonths) {
             $("#historyOverview").block();
