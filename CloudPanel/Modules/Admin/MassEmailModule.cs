@@ -32,7 +32,7 @@ namespace CloudPanel.Modules.Admin
                     db = new CloudPanelContext(Settings.ConnectionString);
                     db.Database.Connection.Open();
 
-                    if (NancyContextHelpers.IsSuperAdmin(this.Context))
+                    if (this.Context.IsSuperAdmin())
                     {
                         var companies = (from d in db.Companies
                                          orderby d.CompanyName
@@ -156,7 +156,7 @@ namespace CloudPanel.Modules.Admin
                     sc = new SmtpClient(Settings.SNServer, Settings.SNPort);
 
                     if (!string.IsNullOrEmpty(Settings.SNUsername) && !string.IsNullOrEmpty(Settings.SNEncryptedPassword))
-                        sc.Credentials = new NetworkCredential(Settings.SNUsername, Settings.SNEncryptedPassword);
+                        sc.Credentials = new NetworkCredential(Settings.SNUsername, Settings.SNDecryptedPassword);
 
                     SendMessage(ref sc, allUsers, subject, message, ref results);
 

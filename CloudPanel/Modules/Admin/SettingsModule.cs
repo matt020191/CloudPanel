@@ -102,6 +102,16 @@ namespace CloudPanel.Modules.Admin
                             StaticSettings.SaveSetting("Modules", "ExchangeModule", Request.Form.ExchangeModule.HasValue ? Request.Form.ExchangeModule.Value : "false");
                             StaticSettings.SaveSetting("Modules", "CitrixModule", Request.Form.CitrixModule.HasValue ? Request.Form.CitrixModule.Value : "false");
 
+                            // Notification settings
+                            logger.DebugFormat("Saving notification settings");
+                            StaticSettings.SaveSetting("Notifications", "Enabled", Request.Form.SNEnabled.HasValue ? Request.Form.SNEnabled.Value : "false");
+                            StaticSettings.SaveSetting("Notifications", "FromAddress", Request.Form.SNFrom.HasValue ? Request.Form.SNFrom.Value : "");
+                            StaticSettings.SaveSetting("Notifications", "ToAddress", Request.Form.SNTo.HasValue ? Request.Form.SNTo.Value : "");
+                            StaticSettings.SaveSetting("Notifications", "MailServer", Request.Form.SNServer.HasValue ? Request.Form.SNServer.Value : "");
+                            StaticSettings.SaveSetting("Notifications", "MailPort", Request.Form.SNPort.HasValue ? Request.Form.SNPort.Value : "25");
+                            StaticSettings.SaveSetting("Notifications", "MailUsername", Request.Form.SNUsername.HasValue ? Request.Form.SNUsername.Value : "");
+                            StaticSettings.SaveSetting("Notifications", "MailPassword", Request.Form.SNPassword.HasValue ? DataProtection.Encrypt(Request.Form.SNPassword.Value, Request.Form.SaltKey.Value) : "");
+
                             StaticSettings.LoadSettings();
 
                             return Negotiate.WithModel(new { success = "Successfully saved settings" })

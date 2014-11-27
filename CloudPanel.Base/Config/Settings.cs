@@ -325,6 +325,7 @@ namespace CloudPanel.Base.Config
                 EncryptedPassword = DataProtection.Encrypt(value, SaltKey);
             }
         }
+
         public static string DecryptedPassword
         {
             get
@@ -334,6 +335,18 @@ namespace CloudPanel.Base.Config
             set
             {
                 EncryptPassword = value;
+            }
+        }
+
+        public static string SNDecryptedPassword
+        {
+            get
+            {
+                return DataProtection.Decrypt(SNEncryptedPassword, SaltKey);
+            }
+            set
+            {
+                SNEncryptedPassword = DataProtection.Encrypt(value, SaltKey);
             }
         }
 

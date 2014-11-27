@@ -44,7 +44,7 @@
   <Citrix>
     <ApplicationsOUName>ApplicationsOU</ApplicationsOUName>
   </Citrix>
-  <SupportNotifications>
+  <Notifications>
     <Enabled>true</Enabled>
     <FromAddress>support@cloudpanel.com</FromAddress>
     <ToAddress>jdixon@compsysar.com</ToAddress>
@@ -52,5 +52,5 @@
     <MailPort>2525</MailPort>
     <MailUsername>compsysar1</MailUsername>
     <MailPassword>PassWord101</MailPassword>
-  </SupportNotifications>
+  </Notifications>
 </cloudpanel>

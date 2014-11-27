@@ -33,6 +33,7 @@
                                 <li><a href="#features" data-toggle="tab">Features</a></li>
                                 <li><a href="#exchange" data-toggle="tab">Exchange</a></li>
                                 <li><a href="#citrix" data-toggle="tab">Citrix</a></li>
+                                <li><a href="#notifications" data-toggle="tab">Notifications</a></li>
                             </ul>
                             <div class="tab-content">
                                 <div class="tab-pane active" id="ad">
@@ -471,6 +472,106 @@
                                         <br />
                                         <br />
                                         <br />
+                                    </div>
+                                </div>
+                                <div id="notifications" class="tab-pane">
+                                    <div class="form-horizontal">
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label"></label>
+                                            <div class="col-sm-6">
+                                                <div style="padding-top: 8px">
+                                                    <input id="SNEnabled" name="SNEnabled" type="checkbox" @(Settings.SNEnabled == true ? "value='true' checked" : "value='false'") /> Enable Support Notifications
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <p class="help-block">
+                                                    <span data-toggle="tooltip" data-original-title="Enables support notifications for problems that occur within CloudPanel." class="tooltip-ex">
+                                                        <i class="fa fa-question-circle"></i>
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">From Address</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" id="SNFrom" name="SNFrom" value="@Settings.SNFrom" data-parsley-type="email">
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <p class="help-block">
+                                                    <span data-toggle="tooltip" data-original-title="The email address that emails should appear to be coming from." class="tooltip-ex">
+                                                        <i class="fa fa-question-circle"></i>
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">To Address</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" id="SNTo" name="SNTo" value="@Settings.SNTo" data-parsley-type="email">
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <p class="help-block">
+                                                    <span data-toggle="tooltip" data-original-title="Support notifications will be emailed to this address" class="tooltip-ex">
+                                                        <i class="fa fa-question-circle"></i>
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <hr />
+
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">Mail Server</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" id="SNServer" name="SNServer" value="@Settings.SNServer">
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <p class="help-block">
+                                                    <span data-toggle="tooltip" data-original-title="Enter the server IP or FQDN of the mail server to use for notifications" class="tooltip-ex">
+                                                        <i class="fa fa-question-circle"></i>
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">Mail Port</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" id="SNPort" name="SNPort" value="@Settings.SNPort" data-parsley-type="number">
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <p class="help-block">
+                                                    <span data-toggle="tooltip" data-original-title="Port number for the mail server (usually port 25)" class="tooltip-ex">
+                                                        <i class="fa fa-question-circle"></i>
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">Username</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" id="SNUsername" name="SNUsername" value="@Settings.SNUsername">
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <p class="help-block">
+                                                    <span data-toggle="tooltip" data-original-title="Username used to authenticate against the mail server. You can leave this blank if authentication isn't required" class="tooltip-ex">
+                                                        <i class="fa fa-question-circle"></i>
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">Password</label>
+                                            <div class="col-sm-6">
+                                                <input type="password" class="form-control" id="SNPassword" name="SNPassword">
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <p class="help-block">
+                                                    <span data-toggle="tooltip" data-original-title="Password used to authenticate against the mail server. You can leave this blank if authentication isn't required" class="tooltip-ex">
+                                                        <i class="fa fa-question-circle"></i>
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

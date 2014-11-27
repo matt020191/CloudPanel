@@ -76,13 +76,13 @@ namespace CloudPanel.Code
 
                 // Support Notifications
                 logger.DebugFormat("Loading support notifications node");
-                Settings.SNEnabled = bool.Parse(Read(ref x, "SupportNotifications", "Enabled"));
-                Settings.SNFrom = Read(ref x, "SupportNotifications", "FromAddress");
-                Settings.SNTo = Read(ref x, "SupportNotifications", "ToAddress");
-                Settings.SNServer = Read(ref x, "SupportNotifications", "MailServer");
-                Settings.SNPort = int.Parse(Read(ref x, "SupportNotifications", "MailPort"));
-                Settings.SNUsername = Read(ref x, "SupportNotifications", "MailUsername");
-                Settings.SNEncryptedPassword = Read(ref x, "SupportNotifications", "MailPassword");
+                Settings.SNEnabled = bool.Parse(Read(ref x, "Notifications", "Enabled"));
+                Settings.SNFrom = Read(ref x, "Notifications", "FromAddress");
+                Settings.SNTo = Read(ref x, "Notifications", "ToAddress");
+                Settings.SNServer = Read(ref x, "Notifications", "MailServer");
+                Settings.SNPort = int.Parse(Read(ref x, "Notifications", "MailPort"));
+                Settings.SNUsername = Read(ref x, "Notifications", "MailUsername");
+                Settings.SNEncryptedPassword = Read(ref x, "Notifications", "MailPassword");
             }
             catch (Exception ex)
             {
