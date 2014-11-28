@@ -373,18 +373,21 @@ namespace CloudPanel.Modules.CompanyModules
             }
         }
 
+        /// <summary>
+        /// Processes the litigation hold settings for the user
+        /// </summary>
+        /// <param name="boundUser"></param>
         private void ProcessLitigationHold(ref Users boundUser)
         {
             logger.DebugFormat("Processing litigation hold section...");
             dynamic powershell = null;
             try
             {
-                powershell = ExchPowershell.GetClass();
-
                 logger.DebugFormat("Now checking litigation hold");
                 if (boundUser.IsLitigationHoldModified)
                 {
                     logger.DebugFormat("Litigation hold page was loaded. Updating values");
+                    powershell = ExchPowershell.GetClass();
                     powershell.Set_LitigationHold(boundUser.UserPrincipalName, boundUser.LitigationHoldEnabled, boundUser.RetentionUrl, boundUser.RetentionComment);
                 }
                 else

@@ -101,7 +101,7 @@
                             </div>
                             <div class="col-sm-1">
                                 <p class="help-block">
-                                    <span data-toggle="tooltip" data-original-title="Size of mailbox in megabytes. 1024 equals 1MB" class="tooltip-ex">
+                                    <span data-toggle="tooltip" data-original-title="Size of mailbox in megabytes. 1024 equals 1GB" class="tooltip-ex">
                                         <i class="fa fa-question-circle"></i>
                                     </span>
                                 </p>
@@ -297,7 +297,7 @@
 
         function DeletePlan(element) {
             var id = $(this).data("id");
-            $("#deleteForm").attr("action", "@Url.Content("~/plans/mailbox/")" + id);
+            $("#deleteForm").attr("action", "@Url.Content("~/plans/exchange/mailbox/")" + id);
         }
 
         function CheckCheckboxes() {

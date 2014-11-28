@@ -56,7 +56,7 @@
                                 <label for="focusedinput" class="col-sm-3 control-label"></label>
                                 <div class="col-sm-9">
                                     <div class="checkbox">
-                                        <label><input type="checkbox" id="Hidden" name="Hidden" @(Model.group.Hidden == true ? "value=\"true\" selected" : "value=\"false\"")>Hidden from Address List? </label>
+                                        <label><input type="checkbox" id="Hidden" name="Hidden" @(Model.group.Hidden == true ? "value='true' checked" : "value='false'")>Hidden from Address List? </label>
                                     </div>
                                 </div>
                             </div>
@@ -94,7 +94,7 @@
 
             <!-- Members -->
             <div class="col-md-6">
-                <div class="panel panel-primary">
+                <div id="membersPanel" class="panel panel-primary">
                     <div class="panel-heading">
                         Members
                         <div class="options">
@@ -195,7 +195,7 @@
                                 <div class="col-sm-6">
                                     <div class="checkbox">
                                         <label>
-                                            <input type="checkbox" id="ModerationEnabled" name="ModerationEnabled" value="false"> Messages sent to this group have to be approved by a moderator
+                                            <input type="checkbox" id="ModerationEnabled" name="ModerationEnabled" @(Model.group.ModerationEnabled == true ? "value='true' checked" : "value='false'")> Messages sent to this group have to be approved by a moderator
                                         </label>
                                     </div>
                                 </div>
@@ -318,6 +318,14 @@
         $(document).ready(function () {
             table = $("#dataTable").DataTable();
 
+            $("input[type=checkbox]").click(function () {
+                if ($(this).is(':checked')) {
+                    $(this).val("true");
+                } else {
+                    $(this).val("false");
+                }
+            });
+
             $("#dataTable tbody").on("click", "tr", function () {
                 $(this).toggleClass("selected");
             });
@@ -341,9 +349,7 @@
 
         function GetMembers(identity) {
             if (identity !== "") {
-                $("#membersPanel").block({
-                    message: $('#waitMessage')
-                });
+                $("#membersPanel").block();
 
                 $.ajax({
                     url: "@Url.RenderContext.Context.Request.Url/members",

@@ -212,6 +212,7 @@ namespace CloudPanel.Database.EntityFramework
         public virtual DbSet<Plans_ExchangeActiveSync> Plans_ExchangeActiveSync { get; set; }
         public virtual DbSet<Plans_ExchangeMailbox> Plans_ExchangeMailbox { get; set; }
         public virtual DbSet<Plans_Organization> Plans_Organization { get; set; }
+        public virtual DbSet<Plans_ExchangeArchiving> Plans_ExchangeArchiving { get; set; }
         public virtual DbSet<Prices> Prices { get; set; }
         public virtual DbSet<ResourceMailboxes> ResourceMailboxes { get; set; }
         public virtual DbSet<Statistics> Statistics { get; set; }

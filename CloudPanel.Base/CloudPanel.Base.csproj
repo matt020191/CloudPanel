@@ -64,6 +64,7 @@
     <Compile Include="Database\Models\Domains.cs" />
     <Compile Include="Database\Models\Plans_Citrix.cs" />
     <Compile Include="Database\Models\Plans_ExchangeActiveSync.cs" />
+    <Compile Include="Database\Models\Plans_ExchangeArchiving.cs" />
     <Compile Include="Database\Models\Plans_ExchangeMailbox.cs" />
     <Compile Include="Database\Models\Plans_Organization.cs" />
     <Compile Include="Database\Models\Plans_TerminalServices.cs" />

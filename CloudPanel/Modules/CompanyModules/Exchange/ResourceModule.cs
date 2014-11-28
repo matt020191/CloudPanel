@@ -169,17 +169,17 @@ namespace CloudPanel.Modules
                                   where d.IsAcceptedDomain
                                   where d.CompanyCode == companyCode
                                   where d.Domain == emailDomain
-                                  select d).FirstOrDefault();
+                                  select d).First();
 
                     // Find the company
                     var company = (from d in db.Companies
                                    where d.CompanyCode == companyCode
-                                   select d).FirstOrDefault();
+                                   select d).First();
 
                     // Find the mailbox plan
                     var plan = (from d in db.Plans_ExchangeMailbox
                                 where d.MailboxPlanID == resourceMailbox.MailboxPlan
-                                select d).FirstOrDefault();
+                                select d).First();
 
                     if (domain == null)
                         throw new Exception("Unable to find domain in database: " + emailDomain);
@@ -202,17 +202,20 @@ namespace CloudPanel.Modules
                         case "room":
                             powershell.New_RoomMailbox(resourceMailbox, company.DistinguishedName);
                             reverse.AddAction(Actions.CreateRoomMailbox, resourceMailbox.UserPrincipalName);
-                            powershell.Set_RoomMailbox(resourceMailbox, plan);
+
+                            powershell.Set_RoomMailbox(resourceMailbox, plan, new string[] { "SMTP:" + resourceMailbox.PrimarySmtpAddress });
                             break;
                         case "equipment":
                             powershell.New_EquipmentMailbox(resourceMailbox, company.DistinguishedName);
                             reverse.AddAction(Actions.CreateEquipmentMailbox, resourceMailbox.UserPrincipalName);
-                            powershell.Set_EquipmentMailbox(resourceMailbox, plan);
+
+                            powershell.Set_EquipmentMailbox(resourceMailbox, plan, new string[] { "SMTP:" + resourceMailbox.PrimarySmtpAddress });
                             break;
                         case "shared":
                             powershell.New_SharedMailbox(resourceMailbox, company.DistinguishedName);
                             reverse.AddAction(Actions.CreateSharedMailbox, resourceMailbox.UserPrincipalName);
-                            powershell.Set_SharedMailbox(resourceMailbox, plan);
+
+                            powershell.Set_SharedMailbox(resourceMailbox, plan, new string[] { "SMTP:" + resourceMailbox.PrimarySmtpAddress });
                             break;
                         default:
                             throw new Exception("Unable to determine if we are creating a room, equipment, or shared mailbox");

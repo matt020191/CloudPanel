@@ -52,11 +52,12 @@
                                                     <ul class="dropdown-menu">
                                                         <li><a href="#mailbox" data-toggle="tab" onclick="javascript:Mailbox('@Model.UserPrincipalName');">Edit</a></li>
                                                         <li><a href="#litigationhold" data-toggle="tab" onclick="javascript:LitigationHold('@Model.UserPrincipalName');">Litigation Hold</a></li>
-                                                        <li><a href="#">Archiving</a></li>
+                                                        <li><a href="#archiving">Archiving</a></li>
                                                     </ul>
                                                 </li>
                                             </ul>
                                             <div class="tab-content">
+
                                                 <!-- USER SETTINGS -->
                                                 <div class="tab-pane active" id="user">
                                                     <h3>General</h3><br />
@@ -317,6 +318,40 @@
                                                             <label class="col-sm-3 control-label">URL</label>
                                                             <div class="col-sm-6">
                                                                 <input type="text" class="form-control" id="RetentionUrl" name="RetentionUrl" data-parsley-type="url">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label">Notes</label>
+                                                            <div class="col-sm-6">
+                                                                <textarea name="RetentionComment" id="RetentionComment" cols="50" rows="4" class="form-control"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Archiving -->
+                                                <div id="archiving" class="tab-pane">
+                                                    <h3>Archiving</h3><br />
+                                                    <div class="form-horizontal">
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label"></label>
+                                                            <div class="col-sm-6">
+                                                                <label class="checkbox-inline">
+                                                                    <input id="ArchivingEnabled" name="ArchivingEnabled" type="checkbox" value="false" /> Archiving Enabled
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label">Archive Name</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" class="form-control" id="ArchiveName" name="ArchiveName">
+                                                            </div>
+                                                            <div class="col-sm-3">
+                                                                <p class="help-block">
+                                                                    <span data-toggle="tooltip" data-original-title="Name of the archive mailbox. This is the name displayed to users in Microsoft Office Outlook Web App and Microsoft Outlook. The default name is Online Archive - <Mailbox User's Display Name>" class="tooltip-ex">
+                                                                        <i class="fa fa-question-circle"></i>
+                                                                    </span>
+                                                                </p>
                                                             </div>
                                                         </div>
                                                         <div class="form-group">

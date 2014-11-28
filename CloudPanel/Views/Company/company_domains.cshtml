@@ -125,7 +125,20 @@
                 },
                 "columns": [
                     { "data": "domain" },
-                    { "data": "domainType" },
+                    {
+                        "data": "domainType", "render": function (data, type, full, meta) {
+                            if (data > 0) {
+                                if (data == 1)
+                                    return 'Authoritative';
+                                else if (data == 2)
+                                    return 'External Relay';
+                                else
+                                    return 'Internal Relay';
+                            } else {
+                                return 'Regular Domain';
+                            }
+                        }
+                    },
                     {
                         "data": "isDefault", "width": "10%", "class": "text-center", "render": function (data, type, full, meta) {
                             if (data == true)

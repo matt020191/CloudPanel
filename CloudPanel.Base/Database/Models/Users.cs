@@ -69,30 +69,68 @@ namespace CloudPanel.Base.Database.Models
         [StringLength(50)]
         public string Lastname { get; set; }
 
+        /// <summary>
+        /// Email field is only used when they are enabled for Exchange.
+        /// </summary>
         [StringLength(255)]
         public string Email { get; set; }
 
         [StringLength(255)]
         public string Department { get; set; }
 
+        /// <summary>
+        /// If the user is a reseller admin. Only super admins should be able to modify this value
+        /// </summary>
         public bool? IsResellerAdmin { get; set; }
 
+        /// <summary>
+        /// Is the user is a company admin and can manage their company (should have permissions associated with their account
+        /// </summary>
         public bool? IsCompanyAdmin { get; set; }
 
+        /// <summary>
+        /// If the user is enabled or disabled
+        /// </summary>
         public bool? IsEnabled { get; set; }
 
+        /// <summary>
+        /// Exchange mailbox plan the user is associated with
+        /// </summary>
         public int? MailboxPlan { get; set; }
 
+        /// <summary>
+        /// Exchange archive plan the user is associated with
+        /// </summary>
+        public int? ArchivePlan { get; set; }
+
+        /// <summary>
+        /// CURRENTLY NOT USED
+        /// </summary>
         public int? TSPlan { get; set; }
 
+        /// <summary>
+        /// CURRENTLY NOT USED
+        /// </summary>
         public int? LyncPlan { get; set; }
 
+        /// <summary>
+        /// When the user was created
+        /// </summary>
         public DateTime? Created { get; set; }
 
+        /// <summary>
+        /// How many additional MB that was added to the mailbox plan
+        /// </summary>
         public int? AdditionalMB { get; set; }
 
+        /// <summary>
+        /// Activesync plan the user is associated with
+        /// </summary>
         public int? ActiveSyncPlan { get; set; }
 
+        /// <summary>
+        /// Permissions the user has (this is for company admin permissions)
+        /// </summary>
         public int? RoleID { get; set; }
 
         #region Not Mapped AD Settings

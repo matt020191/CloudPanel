@@ -1596,7 +1596,7 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("Name", resourceMailbox.DisplayName);
             cmd.AddParameter("DisplayName", resourceMailbox.DisplayName);
             cmd.AddParameter("UserPrincipalName", resourceMailbox.UserPrincipalName);
-            cmd.AddParameter("EmailAddresses", resourceMailbox.PrimarySmtpAddress);
+            cmd.AddParameter("PrimarySmtpAddress", resourceMailbox.PrimarySmtpAddress);
             cmd.AddParameter("OrganizationalUnit", string.Format("OU={0},{1}", Settings.ExchangeRoomsOU, parentOrganizationalUnit));
             cmd.AddParameter("Room");
             cmd.AddParameter("DomainController", this._domainController);
