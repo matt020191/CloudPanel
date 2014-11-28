@@ -3,6 +3,7 @@
 
 @{
     Layout = "__master.cshtml";
+    string companyCode = this.RenderContext.Context.GetCompanyCode();
 }
 
 @section HEAD{
@@ -24,8 +25,8 @@
 <div id="page-heading">
     <ol class="breadcrumb">
         <li><a href="~/dashboard">Dashboard</a></li>
-        <li><a href="~/company/@this.RenderContext.Context.GetCompanyCode()/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
-        <li><a href="~/company/@this.RenderContext.Context.GetCompanyCode()/users">Users</a></li>
+        <li><a href="~/company/@companyCode/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
+        <li><a href="~/company/@companyCode/users">Users</a></li>
         <li class="active">Edit User</li>
     </ol>
 
@@ -52,7 +53,7 @@
                                                     <ul class="dropdown-menu">
                                                         <li><a href="#mailbox" data-toggle="tab" onclick="javascript:Mailbox('@Model.UserPrincipalName');">Edit</a></li>
                                                         <li><a href="#litigationhold" data-toggle="tab" onclick="javascript:LitigationHold('@Model.UserPrincipalName');">Litigation Hold</a></li>
-                                                        <li><a href="#archiving">Archiving</a></li>
+                                                        <li><a href="#archiving" data-toggle="tab">Archiving</a></li>
                                                     </ul>
                                                 </li>
                                             </ul>
@@ -102,7 +103,7 @@
                                                             <label class="col-sm-3 control-label">Company Admin</label>
                                                             <div class="col-sm-6">
                                                                 <select id="RoleID" name="RoleID" style="width: 100%" class="populate">
-                                                                    @CloudPanel.Modules.PermissionsModule.GetRolesWithOptions(Model.CompanyCode, null)
+                                                                    @CloudPanel.Modules.PermissionsModule.GetRolesWithOptions(companyCode, null)
                                                                 </select>
                                                             </div>
                                                         </div>
@@ -209,7 +210,7 @@
                                                             <div class="form-group">
                                                                 <label class="col-sm-3 control-label">Plan</label>
                                                                 <div class="col-sm-6">
-                                                                    @CloudPanel.CPHtmlHelpers.GetMailboxPlans(0, this.RenderContext.Context.GetCompanyCode(), "", "MailboxPlan")
+                                                                    @CloudPanel.CPHtmlHelpers.GetMailboxPlans(0, companyCode, "", "MailboxPlan")
                                                                     <p id="mailboxPlanDescription"></p>
                                                                 </div>
                                                             </div>
@@ -219,7 +220,7 @@
                                                                     <div class="input-group">
                                                                         <input type="text" class="form-control" id="EmailFirst" name="EmailFirst">
                                                                         <span class="input-group-addon">@@</span>
-                                                                        @CloudPanel.CPHtmlHelpers.GetAcceptedDomains(this.RenderContext.Context.GetCompanyCode(), "EmailDomain")
+                                                                        @CloudPanel.CPHtmlHelpers.GetAcceptedDomains(companyCode, "EmailDomain")
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -342,7 +343,7 @@
                                                             </div>
                                                         </div>
                                                         <div class="form-group">
-                                                            <label class="col-sm-3 control-label">Archive Name</label>
+                                                            <label class="col-sm-3 control-label">Display Name</label>
                                                             <div class="col-sm-6">
                                                                 <input type="text" class="form-control" id="ArchiveName" name="ArchiveName">
                                                             </div>
@@ -355,9 +356,11 @@
                                                             </div>
                                                         </div>
                                                         <div class="form-group">
-                                                            <label class="col-sm-3 control-label">Notes</label>
+                                                            <label class="col-sm-3 control-label">Plan</label>
                                                             <div class="col-sm-6">
-                                                                <textarea name="RetentionComment" id="RetentionComment" cols="50" rows="4" class="form-control"></textarea>
+                                                                <select id="ArchivePlan" name="ArchivePlan" style="width: 100%" class="populate">
+                                                                    @CloudPanel.Modules.PlansModules.ArchivePlanModule.GetArchivePlansWithOptions(companyCode, null)
+                                                                </select>
                                                             </div>
                                                         </div>
                                                     </div>

@@ -5,9 +5,11 @@ using log4net;
 using Nancy;
 using Nancy.ModelBinding;
 using Nancy.Security;
+using Nancy.ViewEngines.Razor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace CloudPanel.Modules.PlansModules
 {
@@ -248,6 +250,7 @@ namespace CloudPanel.Modules.PlansModules
                 else
                     plans = (from d in db.Plans_ExchangeArchiving
                              where string.IsNullOrEmpty(d.CompanyCode) || d.CompanyCode == companyCode
+                             orderby d.DisplayName
                              select d).ToList();
 
                 return plans;
@@ -256,6 +259,50 @@ namespace CloudPanel.Modules.PlansModules
             {
                 logger.ErrorFormat("Error getting archive plans for companycode {0}: {1}", companyCode, ex.ToString());
                 return null;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static IHtmlString GetArchivePlansWithOptions(string companyCode, int? selectedId = null)
+        {
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                List<Plans_ExchangeArchiving> plans = null;
+                if (string.IsNullOrEmpty(companyCode))
+                    plans = (from d in db.Plans_ExchangeArchiving
+                             orderby d.DisplayName
+                             select d).ToList();
+                else
+                    plans = (from d in db.Plans_ExchangeArchiving
+                             where string.IsNullOrEmpty(d.CompanyCode) || d.CompanyCode == companyCode
+                             orderby d.DisplayName
+                             select d).ToList();
+
+
+                var sb = new StringBuilder();
+                foreach (var p in plans)
+                {
+                    string append = string.Format("<option value='{0}' data-description='{1}' {2}>{3}</option>",
+                                                   p.ArchivingID,
+                                                   p.Description,
+                                                   (selectedId != null && p.ArchivingID == selectedId) ? "selected" : "",
+                                                   p.DisplayName);
+                    sb.AppendLine(append);
+                }
+
+                return new NonEncodedHtmlString(sb.ToString());
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting archive plans with options for companycode {0}: {1}", companyCode, ex.ToString());
+                return new NonEncodedHtmlString("");
             }
             finally
             {
