@@ -4,6 +4,7 @@ using CloudPanel.Base.Database.Models;
 using CloudPanel.Code;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Exchange;
+using CloudPanel.Rollback;
 using log4net;
 using Nancy;
 using Nancy.ModelBinding;
@@ -197,13 +198,23 @@ namespace CloudPanel.Modules.CompanyModules
                         else
                             logger.DebugFormat("Email was not changed or was not enabled in Exchange for {0}", userPrincipalName);
 
+                        // Check for litigation hold changes
                         logger.DebugFormat("Checking for litigation hold changes");
-                        if (boundUser.IsLitigationHoldModified && isExchangeEnabled && sqlUser.MailboxPlan > 0)
+                        if (boundUser.IsLitigationHoldModified && isExchangeEnabled)
                         {
                             ProcessLitigationHold(ref boundUser);
                         }
                         else
                             logger.DebugFormat("Litigation hold was not changed or was not enabled in Exchange for {0}", userPrincipalName);
+
+                        // Check for archive changes
+                        logger.DebugFormat("Checking for archive changes");
+                        if (boundUser.IsArchivingModified && isExchangeEnabled)
+                        {
+                            ProcessArchive(ref sqlUser, ref boundUser, ref db);
+                        }
+                        else
+                            logger.DebugFormat("Archiving was not change or was not enabled in Exchange for {0}", userPrincipalName);
 
                         #endregion
 
@@ -383,19 +394,83 @@ namespace CloudPanel.Modules.CompanyModules
             dynamic powershell = null;
             try
             {
-                logger.DebugFormat("Now checking litigation hold");
-                if (boundUser.IsLitigationHoldModified)
-                {
-                    logger.DebugFormat("Litigation hold page was loaded. Updating values");
-                    powershell = ExchPowershell.GetClass();
-                    powershell.Set_LitigationHold(boundUser.UserPrincipalName, boundUser.LitigationHoldEnabled, boundUser.RetentionUrl, boundUser.RetentionComment);
-                }
-                else
-                    logger.DebugFormat("Litigation hold was not modified");
+                logger.DebugFormat("Litigation hold page was loaded. Updating values");
+                powershell = ExchPowershell.GetClass();
+                powershell.Set_LitigationHold(boundUser.UserPrincipalName, boundUser.LitigationHoldEnabled, boundUser.RetentionUrl, boundUser.RetentionComment);
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error processing litigation hold for {0}: {1}", boundUser.UserPrincipalName, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (powershell != null)
+                    powershell.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Processes the archive mailbox settings for the user
+        /// </summary>
+        /// <param name="sqlUser"></param>
+        /// <param name="boundUser"></param>
+        /// <param name="db"></param>
+        private void ProcessArchive(ref Users sqlUser, ref Users boundUser, ref CloudPanelContext db)
+        {
+            logger.DebugFormat("Processing Exchange archiving");
+            dynamic powershell = null;
+            ReverseActions reverse = new ReverseActions();
+            try
+            {
+                bool wasEnabled = sqlUser.ArchivePlan > 0 ? true : false;
+                bool nowEnabled = boundUser.ArchivingEnabledChecked;
+
+                powershell = ExchPowershell.GetClass();
+                if ((!wasEnabled && nowEnabled) || (wasEnabled && nowEnabled))
+                {
+                    logger.DebugFormat("We are either enabling or updating the archive mailbox for {0}", boundUser.UserPrincipalName);
+                    int archivePlan = (int)boundUser.ArchivePlan;
+                    var plan = (from d in db.Plans_ExchangeArchiving
+                                where d.ArchivingID == archivePlan
+                                select d).First();
+
+                    if (plan == null)
+                        throw new Exception("Unable to find archive mailbox plan " + archivePlan);
+
+                    if (!wasEnabled && nowEnabled) // Enabling archive 
+                    {
+                        powershell.Enable_ArchiveMailbox(sqlUser.UserPrincipalName, boundUser.ArchiveName, plan.Database);
+                        reverse.AddAction(Actions.CreateArchiveMailbox, sqlUser.UserPrincipalName);
+
+                        powershell.Set_ArchiveMailbox(sqlUser.UserPrincipalName, plan.ArchiveSizeMB);
+                    }
+                    else // Update archive
+                        powershell.Set_ArchiveMailbox(boundUser.UserPrincipalName, plan.ArchiveSizeMB);
+
+                    logger.DebugFormat("Updating sql data");
+                    sqlUser.ArchivePlan = plan.ArchivingID;
+                }
+                else if (wasEnabled && !nowEnabled)
+                {
+                    #region Disable Archive Mailbox
+
+                    // Disable mailbox
+                    powershell.Disable_ArchiveMailbox(boundUser.UserPrincipalName);
+
+                    // Update sql values
+                    logger.DebugFormat("Updating SQL values for disabling archive mailbox {0}", boundUser.UserPrincipalName);
+                    sqlUser.ArchivePlan = 0;
+                    #endregion
+                }
+                else
+                    logger.InfoFormat("Processing archive mailbox returned an unknown result.");
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error processing litigation hold for {0}: {1}", boundUser.UserPrincipalName, ex.ToString());
+                reverse.RollbackNow();
+
                 throw;
             }
             finally

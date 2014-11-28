@@ -50,6 +50,8 @@ namespace CloudPanel.Modules
                     var users = (from d in db.Users
                                  join m in db.Plans_ExchangeMailbox on d.MailboxPlan equals m.MailboxPlanID into d1
                                  from mailboxplan in d1.DefaultIfEmpty()
+                                 join a in db.Plans_ExchangeArchiving on d.ArchivePlan equals a.ArchivingID into d4
+                                 from archiveplan in d4.DefaultIfEmpty()
                                  join s in db.SvcMailboxSizes on d.UserPrincipalName equals s.UserPrincipalName into d2
                                  from mailboxinfo in d2.DefaultIfEmpty().Take(1)
                                  join p in db.UserRoles on d.RoleID equals p.RoleID into d3
@@ -73,7 +75,8 @@ namespace CloudPanel.Modules
                                      Email = d.Email,
                                      MailboxPlan = mailboxplan,
                                      MailboxInfo = mailboxinfo,
-                                     Permission = permission
+                                     Permission = permission,
+                                     ArchivePlan = archiveplan
                                  }).ToList();
 
                     int draw = 0, start = 0, length = 0, recordsTotal = users.Count, recordsFiltered = users.Count, orderColumn = 0;

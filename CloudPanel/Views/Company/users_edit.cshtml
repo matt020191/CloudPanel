@@ -53,7 +53,7 @@
                                                     <ul class="dropdown-menu">
                                                         <li><a href="#mailbox" data-toggle="tab" onclick="javascript:Mailbox('@Model.UserPrincipalName');">Edit</a></li>
                                                         <li><a href="#litigationhold" data-toggle="tab" onclick="javascript:LitigationHold('@Model.UserPrincipalName');">Litigation Hold</a></li>
-                                                        <li><a href="#archiving" data-toggle="tab">Archiving</a></li>
+                                                        <li><a href="#archiving" data-toggle="tab" onclick="javascript:Archiving('@Model.UserPrincipalName');">Archiving</a></li>
                                                     </ul>
                                                 </li>
                                             </ul>
@@ -338,7 +338,7 @@
                                                             <label class="col-sm-3 control-label"></label>
                                                             <div class="col-sm-6">
                                                                 <label class="checkbox-inline">
-                                                                    <input id="ArchivingEnabled" name="ArchivingEnabled" type="checkbox" value="false" /> Archiving Enabled
+                                                                    <input id="ArchivingEnabledChecked" name="ArchivingEnabledChecked" type="checkbox" value="false" /> Archiving Enabled
                                                                 </label>
                                                             </div>
                                                         </div>
@@ -480,6 +480,11 @@
                         } else {
                             SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
                         }
+
+                        if (data.user.archivePlan > 0) {
+                            $("#ArchivingEnabledChecked").click();
+                            $("#ArchivePlan").val(data.user.archivePlan);
+                        }
                     } else {
                         originalMailboxPlan = 0;
                     }
@@ -518,6 +523,18 @@
             $("#LitigationHoldDate").datepicker({ startDate: "today" });
 
             if (originalEmailEnabled && mailboxRetrieved == false) { // Only get litigation hold data if user was enabled for Exchange on page load
+                GetMailboxValues(upn);
+            }
+        }
+
+        //
+        // Get the archiving properties from Exchange if the user was originally enabled for Exchange
+        //
+        function Archiving(upn) {
+            $("#IsArchivingModified").prop('checked', true);
+            $("#IsArchivingModified").val(true);
+
+            if (originalEmailEnabled && mailboxRetrieved == false) { // Only get archiving data if user was enabled for Exchange on page load
                 GetMailboxValues(upn);
             }
         }

@@ -250,7 +250,7 @@
                     { "data": "displayName" },
                     { "data": "userPrincipalName" },
                     { "data": "department" },
-                    { "data": "userGuid", "orderable": false, "className": "text-center", "render": function (data, type, full, meta) { return GetUserFeatures(full["isEnabled"], full["isCompanyAdmin"], full["isResellerAdmin"], full["mailboxPlan"]); } },
+                    { "data": "userGuid", "orderable": false, "className": "text-center", "render": function (data, type, full, meta) { return GetUserFeatures(full["isEnabled"], full["isCompanyAdmin"], full["isResellerAdmin"], full["mailboxPlan"], full["archivePlan"]); } },
                     {
                         "data": "userPrincipalName", "orderable": false, "className": "text-right", "render": function (data, type, full, meta)
                         {
@@ -399,6 +399,13 @@
                               '</table>';
             }
 
+            if (d.archivePlan != null) {
+                returnData += '<table class="table table-striped table-condensed table-bordered">' +
+                                '<tr><td align="right" width="200px">Plan:</td><td>' + d.archivePlan.displayName + '</td></tr>' +
+                                '<tr><td align="right">Size:</td><td>' + d.archivePlan.archiveSizeInMB + 'MB</td></tr>' +
+                              '</table>';
+            }
+
             if (d.mailboxInfo != null) {
                 var planMax = 0;
                 if (d.mailboxPlan != null && d.mailboxPlan.mailboxSizeMB > 0) {
@@ -436,7 +443,7 @@
         //
         // Gets a list of features the user has and displays them in the table
         //
-        function GetUserFeatures(isEnabled, isCompanyAdmin, isResellerAdmin, hasMailbox) {
+        function GetUserFeatures(isEnabled, isCompanyAdmin, isResellerAdmin, hasMailbox, hasArchiveMailbox) {
             var html = [];
 
             if (!isEnabled)
@@ -450,6 +457,10 @@
 
             if (hasMailbox != null)
                 html.push('<span class="badge badge-warning tooltip-ex" data-toggle="tooltip" data-original-title="Has a Mailbox"><i class="fa fa-envelope"></i></span><span class="tab-space"></span>');
+
+            if (hasArchiveMailbox != null)
+                html.push('<span class="badge badge-primary tooltip-ex" data-toggle="tooltip" data-original-title="Has a Archive Mailbox"><i class="fa fa-database"></i></span><span class="tab-space"></span>');
+
 
             return html.join("");
         }

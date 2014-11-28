@@ -329,6 +329,15 @@ namespace CloudPanel.Base.Database.Models
         }
 
         [NotMapped]
+        public bool IsArchivingEnabled
+        {
+            get { return (MailboxPlan != null && MailboxPlan > 0 && ArchivePlan > 0) ? true : false; }
+        }
+
+        [NotMapped]
+        public string ArchiveName { get; set; }
+
+        [NotMapped]
         public string EmailDomain
         {
             get
@@ -403,6 +412,9 @@ namespace CloudPanel.Base.Database.Models
 
         [NotMapped]
         public bool EmailEnabledCheck { get; set; }
+
+        [NotMapped]
+        public bool ArchivingEnabledChecked { get; set; }
 
         [NotMapped]
         public bool IsEmailModified { get; set; }

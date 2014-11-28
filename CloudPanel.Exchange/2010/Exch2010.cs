@@ -15,7 +15,7 @@ using log4net;
 //    notice, this list of conditions and the following disclaimer in the
 //    documentation and/or other materials provided with the distribution.
 // 3. All advertising materials mentioning features or use of this software
-//    must display the following acknowledgement:
+//    must display the following acknowledgement
 //    This product includes software developed by KnowMoreIT and Compsys.
 // 4. Neither the name of KnowMoreIT and Compsys nor the
 //    names of its contributors may be used to endorse or promote products
@@ -1512,6 +1512,79 @@ namespace CloudPanel.Exchange
             }
 
             return allSizes;
+        }
+
+        #endregion
+
+        #region Archive Mailbox
+
+        public virtual void Enable_ArchiveMailbox(string userPrincipalName, string archiveName, string database)
+        {
+            logger.DebugFormat("Enabling archive mailbox for {0}", userPrincipalName);
+
+            #region Required data
+            if (string.IsNullOrEmpty(userPrincipalName))
+                throw new MissingFieldException("", "UserPrincipalName");
+            #endregion
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Enable-Mailbox");
+            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Archive");
+
+            if (!string.IsNullOrEmpty(archiveName))
+                cmd.AddParameter("ArchiveName", archiveName);
+
+            if (!string.IsNullOrEmpty(database))
+                cmd.AddParameter("ArchiveDatabase", database);
+
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        public virtual void Set_ArchiveMailbox(string userPrincipalName, int archiveSizeMB)
+        {
+            logger.DebugFormat("Settings archive mailbox for {0}", userPrincipalName);
+
+            #region Required data
+            if (string.IsNullOrEmpty(userPrincipalName))
+                throw new MissingFieldException("", "UserPrincipalName");
+            #endregion
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Set-Mailbox");
+            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("ArchiveQuota", string.Format("{0}MB", archiveSizeMB));
+            cmd.AddParameter("ArchiveWarningQuota", string.Format("{0}MB", archiveSizeMB * .95));
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+
+        }
+
+        public virtual void Disable_ArchiveMailbox(string userPrincipalName)
+        {
+            logger.DebugFormat("Disabling archive mailbox for {0}", userPrincipalName);
+
+            #region Required data
+            if (!string.IsNullOrEmpty(userPrincipalName))
+                throw new MissingFieldException("", "UserPrincipalName");
+            #endregion
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Disable-Mailbox");
+            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Archive");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors(true);
         }
 
         #endregion

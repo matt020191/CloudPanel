@@ -21,7 +21,8 @@ namespace CloudPanel.Rollback
         CreateRoomMailbox,
         CreateEquipmentMailbox,
         CreateSharedMailbox,
-        CreateMailbox
+        CreateMailbox,
+        CreateArchiveMailbox
     }
 
     public class ReverseActionValue
@@ -187,6 +188,9 @@ namespace CloudPanel.Rollback
                         break;
                     case Actions.CreateMailbox:
                         powershell.Disable_Mailbox(attribute[0].ToString(), true);
+                        break;
+                    case Actions.CreateArchiveMailbox:
+                        powershell.Disable_ArchiveMailbox(attribute[0].ToString());
                         break;
                     default:
                         log.DebugFormat("Unknown action {0}... Skipping...", action.ToString());
