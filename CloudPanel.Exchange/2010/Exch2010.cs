@@ -1572,7 +1572,7 @@ namespace CloudPanel.Exchange
             logger.DebugFormat("Disabling archive mailbox for {0}", userPrincipalName);
 
             #region Required data
-            if (!string.IsNullOrEmpty(userPrincipalName))
+            if (string.IsNullOrEmpty(userPrincipalName))
                 throw new MissingFieldException("", "UserPrincipalName");
             #endregion
 
@@ -1581,6 +1581,7 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("Identity", userPrincipalName);
             cmd.AddParameter("Archive");
             cmd.AddParameter("DomainController", this._domainController);
+            cmd.AddParameter("Confirm", false);
             _powershell.Commands = cmd;
             _powershell.Invoke();
 

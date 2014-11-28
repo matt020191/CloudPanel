@@ -191,7 +191,6 @@
     });
 
     function GetTiles() {
-        $("#badgeRow").block();
             $.getJSON("", function (stats) {
                 $("#badgeResellers").text(stats.totalResellers);
                 $("#badgeCompanies").text(stats.totalCompanies);
@@ -204,7 +203,6 @@
                 ShowError(data.responseJSON.error);
             })
             .always(function (data) {
-                $("#badgeRow").unblock();
             });
     }
 
@@ -213,7 +211,6 @@
     }
 
     function GetHistoryOverview(pastMonths) {
-        $("#historyOverview").block();
         $.getJSON("@Url.Content("~/dashboard/history/months/")" + pastMonths, function (data) {
                 var areaChart = new Highcharts.Chart({
                     chart: {
@@ -247,12 +244,10 @@
                 ShowError(data.responseJSON.error);
             })
             .always(function (data) {
-                $("#historyOverview").unblock();
             });
     }
 
     function GetTopCustomers(x) {
-        $(".topXCustomers").block();
             $.getJSON("@Url.Content("~/dashboard/customers/top/")" + x, function (data) {
                 $(".topXCustomers").empty();
                 $.each(data.data, function (index, customers) {
@@ -263,12 +258,10 @@
                 ShowError(data.responseJSON.error);
             })
             .always(function (data) {
-                $(".topXCustomers").unblock();
             });
     }
 
     function GetTopMailboxes(x) {
-        $(".topMailboxes").block();
         $.getJSON("@Url.Content("~/dashboard/customers/top/mailboxes/")" + x, function (data) {
                 var ds = [];
                 $.each(data.data, function (index, top) {
@@ -300,7 +293,6 @@
                 ShowError(data.responseJSON.error);
             })
             .always(function (data) {
-                $(".topMailboxes").unblock();
             });
     }
 

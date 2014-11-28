@@ -228,7 +228,7 @@ namespace CloudPanel.Modules.CompanyModules
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error creating new user for company {0}: {1}", _.CompanyCode, ex.ToString());
+                    logger.ErrorFormat("Error updating user for company {0}: {1}", _.CompanyCode, ex.ToString());
 
                     ViewBag.error = ex.Message;
                     return Negotiate.WithModel(new { error = ex.Message })

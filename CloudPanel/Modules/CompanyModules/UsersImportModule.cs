@@ -8,9 +8,7 @@ using log4net;
 using Nancy;
 using Nancy.Security;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 
 namespace CloudPanel.Modules
 {
@@ -191,8 +189,6 @@ namespace CloudPanel.Modules
                             newUser.SizeInMB = plan.MailboxSizeMB; // Set the size to the minimum plan size
                             powershell.Set_Mailbox(newUser, plan, new string[] { "SMTP:" + newUser.Email });
 
-
-
                             logger.DebugFormat("Setting CAS mailbox for {0}", newUser.UserPrincipalName);
                             powershell.Set_CASMailbox(newUser.UserPrincipalName, plan);
 
@@ -203,7 +199,7 @@ namespace CloudPanel.Modules
                         else
                         {
                             logger.InfoFormat("User {0} was supposed to have a mailbox on import but the domain {1} was invalid.", newUser.UserPrincipalName, email[1]);
-                            message = string.Format("Successfully created user BUT the mailbox wsa not created because the domain {0} was invalid", email[1]);
+                            message = string.Format("Successfully created user BUT the mailbox was not created because the domain {0} was invalid", email[1]);
                         }
                     }
 

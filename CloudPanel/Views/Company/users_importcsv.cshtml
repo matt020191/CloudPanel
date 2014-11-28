@@ -39,6 +39,135 @@
             <div class="panel panel-primary">
                 <div class="panel-heading">Import Users - <span id="importStatus"></span></div>
                 <div class="panel-body collapse in">
+                    <div id="accordioninpanel" class="accordion-group">
+                        <div class="accordion-item">
+                            <a class="accordion-title collapsed" data-toggle="collapse" data-parent="#accordioninpanel" href="#collapseinOne"><h4>Variables</h4></a>
+                            <div id="collapseinOne" class="collapse" style="height: 0px;">
+                                <div class="accordion-body">
+                                    <p>Below are required and optional columns that are needed in the CSV file that you import. The columns ARE case sensitive.</p>
+                                    <table class="table table-condensed table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Column</th>
+                                                <th>Information</th>
+                                                <th>Is Required</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>DisplayName</td>
+                                                <td>The display name of the user you are importing</td>
+                                                <td><i class="fa fa-check-square"></i></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Username</td>
+                                                <td>The username for the user. This value must be unique. Example: jdoe@domain.com</td>
+                                                <td><i class="fa fa-check-square"></i></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Password</td>
+                                                <td>Password for the user</td>
+                                                <td><i class="fa fa-check-square"></i></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Firstname</td>
+                                                <td>The user's first name</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Middlename</td>
+                                                <td>The user's middle name</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Lastname</td>
+                                                <td>The user's last name</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Department</td>
+                                                <td>Department within the company that the user belongs to</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Company</td>
+                                                <td>Company/Branch of the user</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>JobTitle</td>
+                                                <td>The user's job title for the company</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>TelephoneNumber</td>
+                                                <td>The user's telephone number</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Fax</td>
+                                                <td>The user's fax number</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>HomePhone</td>
+                                                <td>The user's home phone number</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>MobilePhone</td>
+                                                <td>The user's mobile phone number. This can also be used for password resets</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Street</td>
+                                                <td>The user's street address of their home</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>City</td>
+                                                <td>The user's city</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>State</td>
+                                                <td>The user's state</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>PostalCode</td>
+                                                <td>The user's postal code / zip code</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Country</td>
+                                                <td>The user's country</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>ChangePasswordNextLogin</td>
+                                                <td>If you want to set the change password at next login value. Valid values are True,False,1,0</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Email</td>
+                                                <td>The email address of the user. This is only used if you are enabling mailboxes for the users you are importing</td>
+                                                <td><i class="fa fa-question"></i></td>
+                                            </tr>
+                                            <tr>
+                                                <td>MailboxPlan</td>
+                                                <td>The mailbox plan of the user if you are enabling a mailbox during import. The email field is required if enabling a mailbox</td>
+                                                <td><i class="fa fa-question"></i></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr />
+
                     <div class="row">
                         <div class="fileinput fileinput-new" style="float:right" data-provides="fileinput">
                             <span class="btn btn-default btn-file"><span class="fileinput-new">Select file</span><span class="fileinput-exists">Change</span><input type="file" id="files" name="..."></span>
