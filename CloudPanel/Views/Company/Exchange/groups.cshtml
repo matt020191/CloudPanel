@@ -3,7 +3,10 @@
 
 @{
     Layout = "__master.cshtml";
+    var companyCode = this.RenderContext.Context.GetCompanyCode();
+    var isUnderLimit = CloudPanel.CPStaticHelpers.IsUnderLimit(companyCode, "distributiongroup");
 }
+
 @section HEAD{
     <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
 }
@@ -11,17 +14,19 @@
 <div id="page-heading">
     <ol class="breadcrumb">
         <li><a href="~/dashboard">Dashboard</a></li>
-        <li><a href="~/company/@this.RenderContext.Context.GetCompanyCode()/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
+        <li><a href="~/company/@companyCode/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
         <li><a href="#">Exchange</a></li>
         <li class="active">Distribution Groups</li>
     </ol>
 
     <h1>Distribution Groups</h1>
-    <div class="options">
-        <div class="btn-toolbar">
-            <a href="~/company/@this.RenderContext.Context.GetCompanyCode()/exchange/groups/new" class="btn btn-primary hidden-xs">Add New</a>
+    @if (isUnderLimit) {
+        <div class="options">
+            <div class="btn-toolbar">
+                <a href="~/company/@companyCode/exchange/groups/new" class="btn btn-primary hidden-xs">Add New</a>
+            </div>
         </div>
-    </div>
+    }
 </div>
 
 <div class="container">

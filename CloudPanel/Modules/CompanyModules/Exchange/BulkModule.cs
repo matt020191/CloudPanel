@@ -257,6 +257,9 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                         if (sqlUser.MailboxPlan > 0)
                             throw new Exception("User already has a mailbox");
 
+                        if (!CloudPanel.CPStaticHelpers.IsUnderLimit(companyCode, "mailbox"))
+                            throw new Exception("You have reached the mailbox limit");
+
                         logger.DebugFormat("Getting user's email address based on options selected. Selected {0}", format.ToString());
                         switch (format)
                         {

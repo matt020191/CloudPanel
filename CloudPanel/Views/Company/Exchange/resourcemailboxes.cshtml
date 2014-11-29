@@ -3,6 +3,8 @@
 
 @{
     Layout = "__master.cshtml";
+    var companyCode = this.RenderContext.Context.GetCompanyCode();
+    var isUnderLimit = CloudPanel.CPStaticHelpers.IsUnderLimit(companyCode, "resource");
 }
 @section HEAD{
     <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
@@ -13,17 +15,19 @@
 <div id="page-heading">
     <ol class="breadcrumb">
         <li><a href="~/dashboard">Dashboard</a></li>
-        <li><a href="~/company/@this.RenderContext.Context.GetCompanyCode()/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
+        <li><a href="~/company/@companyCode/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
         <li><a href="#">Exchange</a></li>
         <li class="active">Resource Mailboxes</li>
     </ol>
 
     <h1>Resource Mailboxes</h1>
-    <div class="options">
-        <div class="btn-toolbar">
-            <a href="#" class="btn btn-primary hidden-xs" data-toggle="modal" data-target="#newModal">Add New</a>
+    @if (isUnderLimit) {
+        <div class="options">
+            <div class="btn-toolbar">
+                <a href="#" class="btn btn-primary hidden-xs" data-toggle="modal" data-target="#newModal">Add New</a>
+            </div>
         </div>
-    </div>
+    }
 </div>
 
 <div class="container">
@@ -96,14 +100,14 @@
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="EmailFirst" name="EmailFirst" data-parsley-required="true">
                                     <span class="input-group-addon">@@</span>
-                                    @CloudPanel.CPHtmlHelpers.GetAcceptedDomains(this.RenderContext.Context.GetCompanyCode(), "EmailDomain")
+                                    @CloudPanel.CPHtmlHelpers.GetAcceptedDomains(companyCode, "EmailDomain")
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Plan</label>
                             <div class="col-sm-6">
-                                @CloudPanel.CPHtmlHelpers.GetMailboxPlans(0, this.RenderContext.Context.GetCompanyCode(), "", "MailboxPlan")
+                                @CloudPanel.CPHtmlHelpers.GetMailboxPlans(0, companyCode, "", "MailboxPlan")
                                 <p id="mailboxPlanDescription"></p>
                             </div>
                         </div>
@@ -265,7 +269,7 @@
                                 Modify <span class="caret"></span> \
                             </button> \
                             <ul class="dropdown-menu" role="menu"> \
-                                <li><a href="@Url.Content("~/company/" + this.RenderContext.Context.GetCompanyCode())' + '/exchange/resourcemailboxes/'+upn+'">Edit</a></li> \
+                                <li><a href="@Url.Content("~/company/" + companyCode)' + '/exchange/resourcemailboxes/'+upn+'">Edit</a></li> \
                                 <li><a href="javascript:DeleteResource(\''+upn+'\');">Delete</a></li> \
                             </ul> \
                     </div>';

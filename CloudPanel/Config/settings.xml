@@ -49,7 +49,7 @@
     <FromAddress></FromAddress>
     <ToAddress></ToAddress>
     <MailServer></MailServer>
-    <MailPort></MailPort>
+    <MailPort>0</MailPort>
     <MailUsername></MailUsername>
     <MailPassword>1jr3Kd5dEDI=</MailPassword>
   </Notifications>

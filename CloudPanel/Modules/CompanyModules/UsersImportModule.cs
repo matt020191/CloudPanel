@@ -49,6 +49,9 @@ namespace CloudPanel.Modules
                     if (!Request.Form.Password.HasValue)
                         throw new Exception("Password is a required field");
 
+                    if (!CloudPanel.CPStaticHelpers.IsUnderLimit(companyCode, "user"))
+                        throw new Exception("You have reached the user limit");
+
                     #endregion
 
                     db = new CloudPanelContext(Settings.ConnectionString);
@@ -178,6 +181,10 @@ namespace CloudPanel.Modules
                         {
                             // Set the email attribute to store in the database and pass to powershell
                             newUser.Email = email;
+
+                            // Check the mailbox limit
+                            if (!CloudPanel.CPStaticHelpers.IsUnderLimit(companyCode, "mailbox"))
+                                throw new Exception("You have reached the mailbox limit.");
 
                             logger.DebugFormat("Initializing powershell to enable mailbox for {0}", newUser.UserPrincipalName);
                             powershell = ExchPowershell.GetClass();

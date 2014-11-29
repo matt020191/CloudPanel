@@ -3,6 +3,8 @@
 
 @{
     Layout = "__master.cshtml";
+    var companyCode = this.RenderContext.Context.GetCompanyCode();
+    var isUnderLimit = CloudPanel.CPStaticHelpers.IsUnderLimit(companyCode, "contact");
 }
 
 @section HEAD{
@@ -13,17 +15,19 @@
 <div id="page-heading">
     <ol class="breadcrumb">
         <li><a href="~/dashboard">Dashboard</a></li>
-        <li><a href="~/company/@this.RenderContext.Context.GetCompanyCode()/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
+        <li><a href="~/company/@companyCode/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
         <li><a href="#">Exchange</a></li>
         <li class="active">Contacts</li>
     </ol>
 
     <h1>Contacts</h1>
-    <div class="options">
-        <div class="btn-toolbar">
-            <a href="#" class="btn btn-primary hidden-xs" data-toggle="modal" data-target="#newModal">Add New</a>
+    @if (isUnderLimit) {
+        <div class="options">
+            <div class="btn-toolbar">
+                <a href="#" class="btn btn-primary hidden-xs" data-toggle="modal" data-target="#newModal">Add New</a>
+            </div>
         </div>
-    </div>
+    }
 </div>
 
 <div class="container">

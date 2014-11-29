@@ -333,7 +333,12 @@ namespace CloudPanel.Modules.CompanyModules
                     var emailAddresses = ValidateEmails(ref boundUser, acceptedDomains);
 
                     if (!wasEnabled && nowEnabled)
+                    {
+                        if (!CloudPanel.CPStaticHelpers.IsUnderLimit(sqlUser.CompanyCode, "mailbox"))
+                            throw new Exception("You have reached the mailbox limit.");
+
                         powershell.Enable_Mailbox(boundUser, plan, emailAddresses.ToArray());
+                    }
                     else
                         powershell.Set_Mailbox(boundUser, plan, emailAddresses.ToArray());
 

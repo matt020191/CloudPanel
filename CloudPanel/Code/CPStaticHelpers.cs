@@ -157,6 +157,56 @@ namespace CloudPanel
             }
         }
 
+        public static bool IsUnderLimit(string companyCode, string section)
+        {
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                var companyPlan = (from d in db.Companies
+                                    join p in db.Plans_Organization on d.OrgPlanID equals p.OrgPlanID into p1
+                                    from plan in p1
+                                    where d.CompanyCode == companyCode
+                                    select plan).First();
+
+                switch (section.ToLower())
+                {
+                    case "user":
+                        var userCount = (from d in db.Users where d.CompanyCode == companyCode select d).Count();
+                        return (companyPlan.MaxUsers > userCount);
+                    case "mailbox":
+                        var mailboxCount = (from d in db.Users where d.CompanyCode == companyCode where d.MailboxPlan > 0 select d).Count();
+                        return (companyPlan.MaxExchangeMailboxes > mailboxCount);
+                    case "distributiongroup":
+                        var groupCount = (from d in db.DistributionGroups where d.CompanyCode == companyCode select d).Count();
+                        return (companyPlan.MaxExchangeDistLists > groupCount);
+                    case "contact":
+                        var contactCount = (from d in db.Contacts where d.CompanyCode == companyCode select d).Count();
+                        return (companyPlan.MaxExchangeContacts > contactCount);
+                    case "resource":
+                        var resourceCount = (from d in db.ResourceMailboxes where d.CompanyCode == companyCode select d).Count();
+                        return (companyPlan.MaxExchangeResourceMailboxes > resourceCount);
+                    case "domain":
+                        var domainCount = (from d in db.Domains where d.CompanyCode == companyCode select d).Count();
+                        return (companyPlan.MaxDomains > domainCount);
+                    default:
+                        return false; // Return false that it is at the limits if it doesn't find the section
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error checking company plan limit for {0} and section {1}: {2}", companyCode, section, ex.ToString());
+                return false; // Return false that it is at the limits if something fails
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
         #region Alert Messages
         public static IHtmlString GetSuccess(string message)
         {

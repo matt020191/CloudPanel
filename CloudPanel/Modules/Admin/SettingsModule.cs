@@ -72,14 +72,14 @@ namespace CloudPanel.Modules.Admin
                             StaticSettings.SaveSetting("Settings", "SuperAdmins", Request.Form.SuperAdmins.Value);
                             StaticSettings.SaveSetting("Settings", "BillingAdmins", Request.Form.BillingAdmins.Value);
                             StaticSettings.SaveSetting("Settings", "SaltKey", Request.Form.SaltKey.Value);
-                            StaticSettings.SaveSetting("Settings", "ResellersEnabled", Request.Form.ResellersEnabled.HasValue ? Request.Form.ResellersEnabled.Value : "false");
+                            StaticSettings.SaveSetting("Settings", "ResellersEnabled", Request.Form.ResellersEnabled.HasValue ? (string)Request.Form.ResellersEnabled.Value : "false");
 
                             // Exchange Settings
                             logger.DebugFormat("Saving Exchange settings");
                             StaticSettings.SaveSetting("Exchange", "ExchangeRoleAssignment", Request.Form.ExchangeRoleAssignment.Value);
                             StaticSettings.SaveSetting("Exchange", "ExchangeServer", Request.Form.ExchangeServer.Value);
                             StaticSettings.SaveSetting("Exchange", "ExchangePFServer", Request.Form.ExchangePFServer.Value);
-                            StaticSettings.SaveSetting("Exchange", "ExchangePFEnabled", Request.Form.ExchangePFEnabled.HasValue ? Request.Form.ExchangePFEnabled.Value : "false");
+                            StaticSettings.SaveSetting("Exchange", "ExchangePFEnabled", Request.Form.ExchangePFEnabled.HasValue ? (string)Request.Form.ExchangePFEnabled.Value : "false");
                             StaticSettings.SaveSetting("Exchange", "ExchangeVersion", Request.Form.ExchangeVersion.Value);
                             StaticSettings.SaveSetting("Exchange", "ExchangeConnection", Request.Form.ExchangeConnection.Value);
                             StaticSettings.SaveSetting("Exchange", "ExchangeMaxAliases", Request.Form.ExchangeMaxAliases.Value);
@@ -99,12 +99,12 @@ namespace CloudPanel.Modules.Admin
 
                             // Feature settings
                             logger.DebugFormat("Saving feature settings");
-                            StaticSettings.SaveSetting("Modules", "ExchangeModule", Request.Form.ExchangeModule.HasValue ? Request.Form.ExchangeModule.Value : "false");
-                            StaticSettings.SaveSetting("Modules", "CitrixModule", Request.Form.CitrixModule.HasValue ? Request.Form.CitrixModule.Value : "false");
+                            StaticSettings.SaveSetting("Modules", "ExchangeModule", Request.Form.ExchangeModule.HasValue ? (string)Request.Form.ExchangeModule.Value : "false");
+                            StaticSettings.SaveSetting("Modules", "CitrixModule", Request.Form.CitrixModule.HasValue ? (string)Request.Form.CitrixModule.Value : "false");
 
                             // Notification settings
                             logger.DebugFormat("Saving notification settings");
-                            StaticSettings.SaveSetting("Notifications", "Enabled", Request.Form.SNEnabled.HasValue ? Request.Form.SNEnabled.Value : "false");
+                            StaticSettings.SaveSetting("Notifications", "Enabled", Request.Form.SNEnabled.HasValue ? (string)Request.Form.SNEnabled.Value : "false");
                             StaticSettings.SaveSetting("Notifications", "FromAddress", Request.Form.SNFrom.HasValue ? Request.Form.SNFrom.Value : "");
                             StaticSettings.SaveSetting("Notifications", "ToAddress", Request.Form.SNTo.HasValue ? Request.Form.SNTo.Value : "");
                             StaticSettings.SaveSetting("Notifications", "MailServer", Request.Form.SNServer.HasValue ? Request.Form.SNServer.Value : "");

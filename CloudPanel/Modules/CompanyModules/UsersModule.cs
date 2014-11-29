@@ -160,6 +160,7 @@ namespace CloudPanel.Modules
                 {
                     logger.DebugFormat("Creating a new user... validating parameters");
 
+                    #region Validate parameters
                     if (!Request.Form.DisplayName.HasValue)
                         throw new Exception("Display name is a required field");
 
@@ -171,6 +172,10 @@ namespace CloudPanel.Modules
 
                     if (!Request.Form.Password.HasValue)
                         throw new Exception("Password is a required field");
+
+                    if (!CloudPanel.CPStaticHelpers.IsUnderLimit(_.CompanyCode, "user"))
+                        throw new Exception("You have reached the user limit.");
+                    #endregion
 
                     int domainID = Request.Form.DomainID;
                     string companyCode = _.CompanyCode;

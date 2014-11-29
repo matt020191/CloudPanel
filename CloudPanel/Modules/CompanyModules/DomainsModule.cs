@@ -133,6 +133,10 @@ namespace CloudPanel.Modules
                     // Validate
                     logger.DebugFormat("Validating domain name {0}", domainName);
                     domainName = domainName.Replace(" ", string.Empty);
+
+                    if (!CloudPanel.CPStaticHelpers.IsUnderLimit(_.CompanyCode, "domain"))
+                        throw new Exception("You have reached the domain limit");
+
                     if (string.IsNullOrEmpty(domainName))
                         throw new Exception("Domain name was not provided. Please providate the domain name to add");
                     else if (Regex.IsMatch(domainName, "^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)$", RegexOptions.IgnoreCase))

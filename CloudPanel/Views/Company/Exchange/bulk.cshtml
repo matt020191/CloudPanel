@@ -3,6 +3,8 @@
 
 @{
     Layout = "__master.cshtml";
+    var companyCode = this.RenderContext.Context.GetCompanyCode();
+    var isUnderLimit = CloudPanel.CPStaticHelpers.IsUnderLimit(companyCode, "mailbox");
 }
 
 @section HEAD{
@@ -15,7 +17,7 @@
 <div id="page-heading">
     <ol class="breadcrumb">
         <li><a href="~/dashboard">Dashboard</a></li>
-        <li><a href="~/company/@this.RenderContext.Context.GetCompanyCode()/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
+        <li><a href="~/company/@companyCode/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
         <li>Exchange</li>
         <li class="active">Bulk Modify</li>
     </ol>
@@ -45,7 +47,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var user in CloudPanel.Modules.UsersModule.GetUsers(this.RenderContext.Context.GetCompanyCode()))
+                                    @foreach (var user in CloudPanel.Modules.UsersModule.GetUsers(companyCode))
                                     {
                                         <tr>
                                             <td align="center" class="selector"><input name="CheckedUsers" type="checkbox" value="@user.UserPrincipalName"/></td>
@@ -97,7 +99,7 @@
                                         <div class="form-group">
                                             <label class="col-sm-3 control-label">Plan</label>
                                             <div class="col-sm-6">
-                                                @CloudPanel.CPHtmlHelpers.GetMailboxPlans(0, this.RenderContext.Context.GetCompanyCode(), "", "MailboxPlan")
+                                                @CloudPanel.CPHtmlHelpers.GetMailboxPlans(0, companyCode, "", "MailboxPlan")
                                                 <p id="mailboxPlanDescription"></p>
                                             </div>
                                             <div class="col-sm-2">
@@ -159,7 +161,7 @@
                                             <label class="col-sm-3 control-label">Domain</label>
                                             <div class="col-sm-6">
                                                 <select id="EmailDomain" name="EmailDomain" class="form-control">
-                                                    @CloudPanel.Modules.DomainsModule.GetAcceptedDomainsOptions(this.RenderContext.Context.GetCompanyCode(), 0)
+                                                    @CloudPanel.Modules.DomainsModule.GetAcceptedDomainsOptions(companyCode, 0)
                                                 </select>
                                             </div>
                                         </div>
