@@ -62,43 +62,45 @@ namespace CloudPanel.Modules
                         string searchValue = "", orderColumnName = "";
                         bool isAscendingOrder = true;
 
-                        draw = Request.Query.draw;
-                        start = Request.Query.start;
-                        length = Request.Query.length;
-                        orderColumn = Request.Query["order[0][column]"];
-                        searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
-                        isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
-                        orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
-
-                        // See if we are using dataTables to search
-                        if (!string.IsNullOrEmpty(searchValue))
+                        if (Request.Form.draw.HasValue)
                         {
-                            logger.DebugFormat("Search value of '{0}' has been provided", searchValue);
-                            resellers = (from d in resellers
-                                         where d.CompanyCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.City.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.State.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.ZipCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.Country.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
-                                         select d).ToList();
-                            recordsFiltered = resellers.Count;
+                            draw = Request.Query.draw;
+                            start = Request.Query.start;
+                            length = Request.Query.length;
+                            orderColumn = Request.Query["order[0][column]"];
+                            searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
+                            isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
+                            orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
+
+                            // See if we are using dataTables to search
+                            if (!string.IsNullOrEmpty(searchValue))
+                            {
+                                logger.DebugFormat("Search value of '{0}' has been provided", searchValue);
+                                resellers = (from d in resellers
+                                             where d.CompanyCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                                   d.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                                   d.City.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                                   d.State.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                                   d.ZipCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                                   d.Country.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
+                                             select d).ToList();
+                                recordsFiltered = resellers.Count;
+                            }
+
+                            logger.DebugFormat("Total resellers returned after filtering is {0}. Sorting acsending? {1}", recordsFiltered, isAscendingOrder);
+                            if (isAscendingOrder)
+                                resellers = resellers.OrderBy(x => x.GetType()
+                                                        .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                        .Skip(start)
+                                                        .Take(length)
+                                                        .ToList();
+                            else
+                                resellers = resellers.OrderByDescending(x => x.GetType()
+                                                        .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                        .Skip(start)
+                                                        .Take(length)
+                                                        .ToList();
                         }
-
-                        logger.DebugFormat("Total resellers returned after filtering is {0}. Sorting acsending? {1}", recordsFiltered, isAscendingOrder);
-                        if (isAscendingOrder)
-                            resellers = resellers.OrderBy(x => x.GetType()
-                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                    .Skip(start)
-                                                    .Take(length)
-                                                    .ToList();
-                        else
-                            resellers = resellers.OrderByDescending(x => x.GetType()
-                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                    .Skip(start)
-                                                    .Take(length)
-                                                    .ToList();
-
 
                         return Negotiate.WithModel(new
                                         {

@@ -11,7 +11,6 @@ using Nancy.Security;
 using System;
 using System.Linq;
 using System.Reflection;
-using CloudPanel.Code;
 
 namespace CloudPanel.Modules
 {
@@ -54,40 +53,43 @@ namespace CloudPanel.Modules
                     string searchValue = "", orderColumnName = "";
                     bool isAscendingOrder = true;
 
-                    draw = Request.Query.draw;
-                    start = Request.Query.start;
-                    length = Request.Query.length;
-                    orderColumn = Request.Query["order[0][column]"];
-                    searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
-                    isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
-                    orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
-
-                    // See if we are using dataTables to search
-                    if (!string.IsNullOrEmpty(searchValue))
+                    if (Request.Form.draw.HasValue)
                     {
-                        companies = (from d in companies
-                                     where d.CompanyCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                           d.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                           d.City.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                           d.State.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                           d.ZipCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                           d.Country.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
-                                     select d).ToList();
-                        recordsFiltered = companies.Count;
-                    }
+                        draw = Request.Query.draw;
+                        start = Request.Query.start;
+                        length = Request.Query.length;
+                        orderColumn = Request.Query["order[0][column]"];
+                        searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
+                        isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
+                        orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
 
-                    if (isAscendingOrder)
-                        companies = companies.OrderBy(x => x.GetType()
-                                                .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                .Skip(start)
-                                                .Take(length)
-                                                .ToList();
-                    else
-                        companies = companies.OrderByDescending(x => x.GetType()
-                                                .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                .Skip(start)
-                                                .Take(length)
-                                                .ToList();
+                        // See if we are using dataTables to search
+                        if (!string.IsNullOrEmpty(searchValue))
+                        {
+                            companies = (from d in companies
+                                         where d.CompanyCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                               d.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                               d.City.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                               d.State.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                               d.ZipCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                               d.Country.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
+                                         select d).ToList();
+                            recordsFiltered = companies.Count;
+                        }
+
+                        if (isAscendingOrder)
+                            companies = companies.OrderBy(x => x.GetType()
+                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                    .Skip(start)
+                                                    .Take(length)
+                                                    .ToList();
+                        else
+                            companies = companies.OrderByDescending(x => x.GetType()
+                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                    .Skip(start)
+                                                    .Take(length)
+                                                    .ToList();
+                    }
 
                     return Negotiate.WithModel(new
                                     {

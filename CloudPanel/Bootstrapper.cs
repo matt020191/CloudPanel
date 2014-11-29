@@ -8,6 +8,7 @@
     using log4net.Config;
     using Nancy;
     using Nancy.Authentication.Forms;
+    using Nancy.Authentication.Token;
     using Nancy.Bootstrapper;
     using Nancy.Session;
     using Nancy.TinyIoc;
@@ -43,6 +44,7 @@
             base.ConfigureRequestContainer(container, context);
 
             container.Register<IUserMapper, UserMapper>();
+            container.Register<ITokenizer>(new Tokenizer());
             container.Register<CloudPanelContext>((x, y) => string.IsNullOrEmpty(Settings.ConnectionString) ? null : new CloudPanelContext(Settings.ConnectionString));
         }
 
@@ -58,6 +60,8 @@
                 };
 
             FormsAuthentication.Enable(pipelines, formsAuthConfiguration);
+
+            TokenAuthentication.Enable(pipelines, new TokenAuthenticationConfiguration(requestContainer.Resolve<ITokenizer>()));
         }
     }
 }

@@ -5,11 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using log4net;
 
 namespace CloudPanel.Modules
 {
     public class LoginModule : NancyModule
     {
+        private readonly ILog logger = LogManager.GetLogger(typeof(LoginModule));
+
         public LoginModule()
         {
             Get["/"] = _ =>
@@ -29,8 +32,8 @@ namespace CloudPanel.Modules
 
                 try
                 {
-                    Guid? usersGuid = UserMapper.ValidateUser(username, password);
-                    return this.LoginAndRedirect(usersGuid.Value, null, "~/dashboard");
+                    AuthenticatedUser identity = UserMapper.ValidateUser(username, password);
+                    return this.LoginAndRedirect(identity.UserGuid, null, "~/dashboard");
                 }
                 catch (UnauthorizedAccessException)
                 {

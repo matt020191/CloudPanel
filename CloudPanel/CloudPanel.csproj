@@ -59,6 +59,9 @@
     <Reference Include="Nancy.Authentication.Stateless">
       <HintPath>..\packages\Nancy.Authentication.Stateless.0.23.2\lib\net40\Nancy.Authentication.Stateless.dll</HintPath>
     </Reference>
+    <Reference Include="Nancy.Authentication.Token">
+      <HintPath>..\packages\Nancy.Authentication.Token.0.23.2\lib\net40\Nancy.Authentication.Token.dll</HintPath>
+    </Reference>
     <Reference Include="Nancy.Hosting.Aspnet, Version=0.23.2.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Nancy.Hosting.Aspnet.0.23.2\lib\net40\Nancy.Hosting.Aspnet.dll</HintPath>
@@ -104,7 +107,6 @@
     <Content Include="Content\img\details_open.png" />
     <Content Include="Content\img\error.png" />
     <Content Include="Content\img\logo-big.png" />
-    <Content Include="Content\img\logo.png" />
     <Content Include="Content\img\patterns\brickwall.png" />
     <Content Include="Content\img\patterns\dark_stripes.png" />
     <Content Include="Content\img\patterns\grey_wash_wall.png" />
@@ -1105,6 +1107,7 @@
     <Compile Include="Modules\Admin\BrandingModule.cs" />
     <Compile Include="Modules\Admin\MassEmailModule.cs" />
     <Compile Include="Modules\Admin\SettingsModule.cs" />
+    <Compile Include="Modules\ApiModule.cs" />
     <Compile Include="Modules\CompaniesModule.cs" />
     <Compile Include="Modules\CompanyModules\DomainsModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\BulkModule.cs" />

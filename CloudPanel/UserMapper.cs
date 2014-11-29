@@ -23,7 +23,7 @@ namespace CloudPanel
             return loggedInUsers.FirstOrDefault(u => u.UserGuid == identifier);
         }
 
-        public static Guid? ValidateUser(string username, string password)
+        public static IUserIdentity ValidateUser(string username, string password)
         {
             ADUsers user = null;
             CloudPanelContext db = null;
@@ -73,7 +73,7 @@ namespace CloudPanel
                 loggedInUsers.Add(authUser);
 
                 // Return the user guid
-                return authUser.UserGuid;
+                return authUser;
             }
             catch (Exception ex)
             {

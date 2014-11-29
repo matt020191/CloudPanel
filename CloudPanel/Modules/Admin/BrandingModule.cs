@@ -331,8 +331,8 @@ namespace CloudPanel.Modules
             {
                 Name = "CloudPanel",
                 Phone = "1 (501) 758-6818",
-                Email = "support@compsys.com",
-                HeaderLogo = "~/Content/img/logo.png",
+                Email = "jdixon@knowmoreit.com",
+                HeaderLogo = "",
                 LoginLogo = "~/Content/img/logo-big.png",
                 Theme = "theme-default.css"
             };
