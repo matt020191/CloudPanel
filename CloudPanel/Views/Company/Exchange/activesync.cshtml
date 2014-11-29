@@ -1,8 +1,12 @@
 ﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@using CloudPanel
 
 @{
     Layout = "__master.cshtml";
+    var companyCode = this.RenderContext.Context.GetCompanyCode();
+    var isUnderLimit = CloudPanel.CPStaticHelpers.IsUnderLimit(companyCode, "activesync");
 }
+
 @section HEAD{
     <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
 }
@@ -10,8 +14,9 @@
 <div id="page-heading">
     <ol class="breadcrumb">
         <li><a href="~/dashboard">Dashboard</a></li>
-        <li>Plans</li>
-        <li class="active">ActiveSync Plans</li>
+        <li><a href="~/company/@companyCode/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
+        <li>Exchange</li>
+        <li class="active">Activesync Policies</li>
     </ol>
 
     <h1>ActiveSync Plans</h1>
@@ -21,14 +26,14 @@
     <div class="row">
         <div class="col-md-3">
             <div class="panel">
-                <a href="~/plans/exchange/activesync/new" class="btn btn-primary btn-lg col-xs-12">Create New</a>
+                <a href="~/company/@companyCode/exchange/activesync/new" class="btn btn-primary btn-lg col-xs-12">Create New</a>
             </div>
             <hr>
             <div class="panel">
                 <div class="list-group">
-                    @foreach (var plan in CloudPanel.Modules.PlansModules.ActiveSyncPlanModule.GetPlans())
+                    @foreach (var plan in CloudPanel.Modules.CompanyModules.Exchange.ActiveSyncModule.GetPlans(companyCode))
                     {
-                        <a href="~/plans/exchange/activesync/@plan.ASID" class="list-group-item"><i class="fa fa-mobile"></i> @plan.DisplayName <span class="badge badge-inverse">@plan.CompanyCode</span></a>
+                        <a href="~/company/@companyCode/exchange/activesync/@plan.ASID" class="list-group-item"><i class="fa fa-mobile"></i> @plan.DisplayName <span class="badge badge-inverse">@plan.CompanyCode</span></a>
                     }
                 </div>
             </div>
@@ -87,14 +92,14 @@
                                                                     </label>
                                                                 </div>
                                                             </div>
-                                                                <div class="col-sm-3">
-                                                                    <p class="help-block">
-                                                                        <span data-toggle="tooltip" data-original-title="Enables all mobile phones to synchronize with the Exchange server, regardless of whether the phone can enforce all the specific settings established in the Mobile Device mailbox policy. This also includes mobile phones managed by a separate device management system." class="tooltip-ex">
-                                                                            <i class="fa fa-question-circle"></i>
-                                                                        </span>
-                                                                    </p>
-                                                                </div>
+                                                            <div class="col-sm-3">
+                                                                <p class="help-block">
+                                                                    <span data-toggle="tooltip" data-original-title="Enables all mobile phones to synchronize with the Exchange server, regardless of whether the phone can enforce all the specific settings established in the Mobile Device mailbox policy. This also includes mobile phones managed by a separate device management system." class="tooltip-ex">
+                                                                        <i class="fa fa-question-circle"></i>
+                                                                    </span>
+                                                                </p>
                                                             </div>
+                                                        </div>
                                                         <div class="form-group">
                                                             <label class="col-sm-3 control-label">Refresh Interval in Hours</label>
                                                             <div class="col-sm-6">
@@ -608,19 +613,5 @@
                 }
             });
         });
-
-        function GetPolicies()
-        {
-            $("#form").block();
-            $.getJSON("@ResolveUrl("~/plans/exchange/activesync/all")", function (data) { 
-                ShowSuccess("Successfully retrieved plans from Exchange");
-            })
-            .fail(function (data) {
-                ShowError(data.response.error);
-            })
-            .always(function (data) {
-                $("#form").unblock();
-            });
-        }
     </script>
 }

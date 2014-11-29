@@ -128,6 +128,10 @@
     <Compile Include="Migrations\201411280412013_AddArchivePlanTableAndColumnes.Designer.cs">
       <DependentUpon>201411280412013_AddArchivePlanTableAndColumnes.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201411291706293_ChangeASPolicyBooleanToNotNull.cs" />
+    <Compile Include="Migrations\201411291706293_ChangeASPolicyBooleanToNotNull.Designer.cs">
+      <DependentUpon>201411291706293_ChangeASPolicyBooleanToNotNull.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -198,6 +202,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201411280412013_AddArchivePlanTableAndColumnes.resx">
       <DependentUpon>201411280412013_AddArchivePlanTableAndColumnes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201411291706293_ChangeASPolicyBooleanToNotNull.resx">
+      <DependentUpon>201411291706293_ChangeASPolicyBooleanToNotNull.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

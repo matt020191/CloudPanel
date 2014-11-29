@@ -99,6 +99,23 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label class="col-sm-3 control-label">Exchange ActiveSync Plans: </label>
+                                <div class="col-sm-6">
+                                    <label class="checkbox-inline">
+                                        <input type="checkbox" name="cExchangeActiveSyncPlans" @(Model.Permission.cExchangeActiveSyncPlans == true ? "value='true' checked" : "value='false'")> Create
+                                    </label>
+                                    <label class="checkbox-inline">
+                                        <input type="checkbox" name="vExchangeActiveSyncPlans" @(Model.Permission.vExchangeActiveSyncPlans == true ? "value='true' checked" : "value='false'")> View
+                                    </label>
+                                    <label class="checkbox-inline">
+                                        <input type="checkbox" name="eExchangeActiveSyncPlans" @(Model.Permission.eExchangeActiveSyncPlans == true ? "value='true' checked" : "value='false'")> Modify
+                                    </label>
+                                    <label class="checkbox-inline">
+                                        <input type="checkbox" name="dExchangeActiveSyncPlans" @(Model.Permission.dExchangeActiveSyncPlans == true ? "value='true' checked" : "value='false'")> Delete
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="col-sm-3 control-label">Exchange Contacts: </label>
                                 <div class="col-sm-6">
                                     <label class="checkbox-inline">

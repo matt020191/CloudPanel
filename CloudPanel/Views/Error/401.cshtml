@@ -1,0 +1,41 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@{var branding = CloudPanel.Modules.BrandingModule.GetBranding(Url.RenderContext.Context.Request.Url.HostName);}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>CloudPanel</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CloudPanel">
+    <meta name="author" content="KnowMoreIT - Jacob Dixon">
+
+    <!-- <link href="~/content/less/styles.less" rel="stylesheet/less" media="all"> -->
+    <link rel="stylesheet" href="~/content/css/styles.css">
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
+    <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
+
+    <!-- <script type="text/javascript" src="~/content/js/less.js"></script> -->
+</head>
+<body class="focusedform">
+    <div class="verticalcenter">
+        <a href="index.htm"><img src="@Url.Content(branding.LoginLogo)" alt="Logo" class="brand" /></a>
+
+        <div class="col-md-12">
+            <div class="panel panel-danger">
+                <div class="panel-body">
+                    <p class="text-center">
+                        <span class="text-danger" style="font-size:4em;">Unauthorized</span>
+                    </p>
+                    <p class="text-center">The section you attempted to access is unauthorized.</p>
+                    <p class="text-center">If you feel this is not correct and you should have access, then please contact support.</p>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/Content/js/jquery-1.10.2.min.js"></script>
+</body>
+</html>

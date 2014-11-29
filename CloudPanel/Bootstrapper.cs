@@ -5,17 +5,21 @@
     using CloudPanel.Database.EntityFramework;
     using CloudPanel.Database.EntityFramework.Migrations;
     using CloudPanel.Modules;
+    using log4net;
     using log4net.Config;
     using Nancy;
     using Nancy.Authentication.Forms;
     using Nancy.Authentication.Token;
     using Nancy.Bootstrapper;
+    using Nancy.Responses;
     using Nancy.Session;
     using Nancy.TinyIoc;
     using Entity = System.Data.Entity;
 
     public class Bootstrapper : DefaultNancyBootstrapper
     {
+        private static readonly ILog logger = LogManager.GetLogger(typeof(Bootstrapper));
+
         protected override void ApplicationStartup(Nancy.TinyIoc.TinyIoCContainer container, Nancy.Bootstrapper.IPipelines pipelines)
         {
             //
@@ -36,32 +40,27 @@
             // Load brandings
             BrandingModule.LoadAllBrandings();
 
+            //
             base.ApplicationStartup(container, pipelines);
         }
 
         protected override void ConfigureRequestContainer(TinyIoCContainer container, NancyContext context)
         {
-            base.ConfigureRequestContainer(container, context);
-
             container.Register<IUserMapper, UserMapper>();
             container.Register<ITokenizer>(new Tokenizer());
             container.Register<CloudPanelContext>((x, y) => string.IsNullOrEmpty(Settings.ConnectionString) ? null : new CloudPanelContext(Settings.ConnectionString));
+
+            base.ConfigureRequestContainer(container, context);
         }
 
         protected override void RequestStartup(TinyIoCContainer requestContainer, IPipelines pipelines, NancyContext context)
         {
-            base.RequestStartup(requestContainer, pipelines, context);
-
-            var formsAuthConfiguration =
-                new FormsAuthenticationConfiguration()
-                {
-                    RedirectUrl = "~/login",
-                    UserMapper = requestContainer.Resolve<IUserMapper>(),
-                };
+            var formsAuthConfiguration = new FormsAuthenticationConfiguration() { RedirectUrl = "~/login", UserMapper = requestContainer.Resolve<IUserMapper>() };
 
             FormsAuthentication.Enable(pipelines, formsAuthConfiguration);
-
             TokenAuthentication.Enable(pipelines, new TokenAuthenticationConfiguration(requestContainer.Resolve<ITokenizer>()));
+
+            base.RequestStartup(requestContainer, pipelines, context);
         }
     }
 }

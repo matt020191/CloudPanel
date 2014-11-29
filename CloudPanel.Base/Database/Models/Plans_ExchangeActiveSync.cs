@@ -53,21 +53,21 @@ namespace CloudPanel.Base.Database.Models
         [StringLength(75)]
         public string ExchangeName { get; set; }
 
-        public bool? AllowNonProvisionableDevices { get; set; }
+        public bool AllowNonProvisionableDevices { get; set; }
 
         public int? RefreshIntervalInHours { get; set; }
 
-        public bool? RequirePassword { get; set; }
+        public bool RequirePassword { get; set; }
 
-        public bool? RequireAlphanumericPassword { get; set; }
+        public bool RequireAlphanumericPassword { get; set; }
 
-        public bool? EnablePasswordRecovery { get; set; }
+        public bool EnablePasswordRecovery { get; set; }
 
-        public bool? RequireEncryptionOnDevice { get; set; }
+        public bool RequireEncryptionOnDevice { get; set; }
 
-        public bool? RequireEncryptionOnStorageCard { get; set; }
+        public bool RequireEncryptionOnStorageCard { get; set; }
 
-        public bool? AllowSimplePassword { get; set; }
+        public bool AllowSimplePassword { get; set; }
 
         public int? MinDevicePasswordComplexCharacters { get; set; }
 
@@ -89,41 +89,41 @@ namespace CloudPanel.Base.Database.Models
 
         public int? LimitEmailSizeInKB { get; set; }
 
-        public bool? AllowDirectPushWhenRoaming { get; set; }
+        public bool AllowDirectPushWhenRoaming { get; set; }
 
-        public bool? AllowHTMLEmail { get; set; }
+        public bool AllowHTMLEmail { get; set; }
 
-        public bool? AllowAttachmentsDownload { get; set; }
+        public bool AllowAttachmentsDownload { get; set; }
 
         public int? MaximumAttachmentSizeInKB { get; set; }
 
-        public bool? AllowRemovableStorage { get; set; }
+        public bool AllowRemovableStorage { get; set; }
 
-        public bool? AllowCamera { get; set; }
+        public bool AllowCamera { get; set; }
 
-        public bool? AllowWiFi { get; set; }
+        public bool AllowWiFi { get; set; }
 
-        public bool? AllowInfrared { get; set; }
+        public bool AllowInfrared { get; set; }
 
-        public bool? AllowInternetSharing { get; set; }
+        public bool AllowInternetSharing { get; set; }
 
-        public bool? AllowRemoteDesktop { get; set; }
+        public bool AllowRemoteDesktop { get; set; }
 
-        public bool? AllowDesktopSync { get; set; }
+        public bool AllowDesktopSync { get; set; }
 
         [StringLength(10)]
         public string AllowBluetooth { get; set; }
 
-        public bool? AllowBrowser { get; set; }
+        public bool AllowBrowser { get; set; }
 
-        public bool? AllowConsumerMail { get; set; }
+        public bool AllowConsumerMail { get; set; }
 
         public bool? IsEnterpriseCAL { get; set; }
 
-        public bool? AllowTextMessaging { get; set; }
+        public bool AllowTextMessaging { get; set; }
 
-        public bool? AllowUnsignedApplications { get; set; }
+        public bool AllowUnsignedApplications { get; set; }
 
-        public bool? AllowUnsignedInstallationPackages { get; set; }
+        public bool AllowUnsignedInstallationPackages { get; set; }
     }
 }

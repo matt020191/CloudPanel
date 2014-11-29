@@ -19,6 +19,8 @@
 
         public bool cUsers { get; set; }
 
+        public bool cExchangeActiveSyncPlans { get; set; }
+
         public bool cExchangeContacts { get; set; }
 
         public bool cExchangeGroups { get; set; }
@@ -41,6 +43,8 @@
 
         public bool vUsersEdit { get; set; }
 
+        public bool vExchangeActiveSyncPlans { get; set; }
+
         public bool vExchangeContacts { get; set; }
 
         public bool vExchangeGroups { get; set; }
@@ -60,6 +64,8 @@
         public bool eDomains { get; set; }
 
         public bool eUsers { get; set; }
+
+        public bool eExchangeActiveSyncPlans { get; set; }
 
         public bool eExchangeContacts { get; set; }
 
@@ -82,6 +88,8 @@
         public bool dDomains { get; set; }
 
         public bool dUsers { get; set; }
+
+        public bool dExchangeActiveSyncPlans { get; set; }
 
         public bool dExchangeContacts { get; set; }
 

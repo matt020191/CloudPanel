@@ -4,8 +4,8 @@ using CloudPanel.Database.EntityFramework;
 using CloudPanel.Exchange;
 using log4net;
 using Nancy;
-using Nancy.Security;
 using Nancy.ModelBinding;
+using Nancy.Security;
 using Nancy.ViewEngines.Razor;
 using System;
 using System.Collections.Generic;
@@ -25,48 +25,50 @@ namespace CloudPanel.Modules.PlansModules
             Get["/new"] = _ =>
                 {
                     var plan = new Plans_ExchangeActiveSync();
-                    return View["Plans/activesync.cshtml", new { Plan = plan }];
+                    return View["Plans/activesync.cshtml", new { Plan = GetDefaultPlan() }];
                 };
 
             Post["/new"] = _ =>
-            {
-                CloudPanelContext db = null;
-                dynamic powershell = null;
-                try
                 {
-                    // Bind to the forum
-                    logger.DebugFormat("Binding Activesync plan to form...");
-                    var plan = this.Bind<Plans_ExchangeActiveSync>();
+                    #region Creates a new Activesync policy
+                    CloudPanelContext db = null;
+                    dynamic powershell = null;
+                    try
+                    {
+                        // Bind to the forum
+                        logger.DebugFormat("Binding Activesync plan to form...");
+                        var plan = this.Bind<Plans_ExchangeActiveSync>();
 
-                    // Update Exchange
-                    logger.DebugFormat("Adding Activesync plan {0} in Exchange", plan.DisplayName);
-                    powershell = ExchPowershell.GetClass();
-                    powershell.New_ActiveSyncPolicy(plan);
+                        // Update Exchange
+                        logger.DebugFormat("Adding Activesync plan {0} in Exchange", plan.DisplayName);
+                        powershell = ExchPowershell.GetClass();
+                        powershell.New_ActiveSyncPolicy(plan);
 
-                    // Update SQL
-                    db = new CloudPanelContext(Settings.ConnectionString);
-                    db.Plans_ExchangeActiveSync.Add(plan);
-                    db.SaveChanges();
+                        // Update SQL
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Plans_ExchangeActiveSync.Add(plan);
+                        db.SaveChanges();
 
-                    var blankPlan = new Plans_ExchangeActiveSync();
-                    return View["Plans/activesync.cshtml", new { Plan = blankPlan, success = "Successfully created plan" }];
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error updating Activesync policy {0}: {1}", _.ID, ex.ToString());
+                        var blankPlan = new Plans_ExchangeActiveSync();
+                        return View["Plans/activesync.cshtml", new { Plan = blankPlan, success = "Successfully created plan" }];
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error updating Activesync policy {0}: {1}", _.ID, ex.ToString());
 
-                    ViewBag.error = ex.Message;
-                    return View["error.cshtml"];
-                }
-                finally
-                {
-                    if (powershell != null)
-                        powershell.Dispose();
+                        ViewBag.error = ex.Message;
+                        return View["error.cshtml"];
+                    }
+                    finally
+                    {
+                        if (powershell != null)
+                            powershell.Dispose();
 
-                    if (db != null)
-                        db.Dispose();
-                }
-            };
+                        if (db != null)
+                            db.Dispose();
+                    }
+                    #endregion
+                };
 
             Get["/{ID:int}"] = _ =>
                 {
@@ -100,13 +102,14 @@ namespace CloudPanel.Modules.PlansModules
 
             Post["/{ID:int}"] = _ =>
                 {
+                    #region Updates an existing Activesync policy
                     CloudPanelContext db = null;
                     dynamic powershell = null;
                     try
                     {
                         // Bind to the forum
                         logger.DebugFormat("Binding Activesync plan to form...");
-                        var plan = this.Bind<Plans_ExchangeActiveSync>();
+                        var plan = this.Bind<Plans_ExchangeActiveSync>(new[] { "ASID", "IsEnterpriseCAL" });
 
                         // Get from SQL
                         int id = _.ID;
@@ -124,10 +127,13 @@ namespace CloudPanel.Modules.PlansModules
                         logger.DebugFormat("Combining the form values to the SQL values");
                         foreach (var p in plan.GetType().GetProperties())
                         {
-                            object value = p.GetValue(plan, null);
-                            sqlPlan.GetType()
-                                   .GetProperty(p.Name)
-                                   .SetValue(sqlPlan, value, null);
+                            if (!p.Name.Equals("ASID"))
+                            {
+                                object value = p.GetValue(plan, null);
+                                sqlPlan.GetType()
+                                       .GetProperty(p.Name)
+                                       .SetValue(sqlPlan, value, null);
+                            }
                         }
 
                         db.SaveChanges();
@@ -148,6 +154,7 @@ namespace CloudPanel.Modules.PlansModules
                         if (db != null)
                             db.Dispose();
                     }
+                    #endregion
                 };
 
             Get["/all"] = _ =>
@@ -248,6 +255,7 @@ namespace CloudPanel.Modules.PlansModules
                 db = new CloudPanelContext(Settings.ConnectionString);
                 
                 var plans = (from d in db.Plans_ExchangeActiveSync
+                             orderby d.DisplayName
                              select d).ToList();
 
                 return plans;
@@ -274,6 +282,7 @@ namespace CloudPanel.Modules.PlansModules
                 db = new CloudPanelContext(Settings.ConnectionString);
 
                 var plans = (from d in db.Plans_ExchangeActiveSync
+                             orderby d.DisplayName
                              select d).ToList();
 
                 foreach (var p in plans)
@@ -299,6 +308,43 @@ namespace CloudPanel.Modules.PlansModules
                 if (db != null)
                     db.Dispose();
             }
+        }
+
+        public static Plans_ExchangeActiveSync GetDefaultPlan()
+        {
+            return new Plans_ExchangeActiveSync()
+            {
+                AllowBluetooth = "Allow",
+                AllowBrowser = true,
+                AllowCamera = true,
+                AllowConsumerMail = true,
+                AllowDesktopSync = true,
+                AllowHTMLEmail = true,
+                AllowInternetSharing = true,
+                AllowInfrared = true,
+                AllowNonProvisionableDevices = true,
+                AllowSimplePassword = false,
+                AllowRemoteDesktop = true,
+                RequireAlphanumericPassword = false,
+                AllowRemovableStorage = true,
+                AllowTextMessaging = true,
+                AllowUnsignedApplications = true,
+                AllowUnsignedInstallationPackages = true,
+                AllowWiFi = true,
+                AllowAttachmentsDownload = true,
+                RequireEncryptionOnDevice = false,
+                RequirePassword = false,
+                PasswordExpirationInDays = 0,
+                EnforcePasswordHistory = 0,
+                RefreshIntervalInHours = 0,
+                MaximumAttachmentSizeInKB = 0,
+                NumberOfFailedAttempted = 4,
+                InactivityTimeoutInMinutes = 15,
+                MinimumPasswordLength = 4,
+                MinDevicePasswordComplexCharacters = 0,
+                RequireEncryptionOnStorageCard = false,
+                EnablePasswordRecovery = false
+            };
         }
     }
 }
