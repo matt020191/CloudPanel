@@ -7,13 +7,13 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.1-30610")]
-    public sealed partial class ConvertSizeFromKBtoBytes : IMigrationMetadata
+    public sealed partial class UpdateTo31Beta : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(ConvertSizeFromKBtoBytes));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(UpdateTo31Beta));
         
         string IMigrationMetadata.Id
         {
-            get { return "201411071857293_ConvertSizeFromKBtoBytes"; }
+            get { return "201411300507534_UpdateTo31Beta"; }
         }
         
         string IMigrationMetadata.Source

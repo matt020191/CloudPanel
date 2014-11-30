@@ -99,12 +99,15 @@
     <Content Include="Content\fonts\glyphicons\css\glyphicons.css" />
     <Content Include="Content\fonts\glyphicons\css\glyphicons.min.css" />
     <Content Include="Content\fonts\glyphicons\font\glyphicons-halflings-regular.svg" />
+    <Content Include="Content\img\bullet_blue.png" />
     <Content Include="Content\img\citrix\citrix_app.png" />
     <Content Include="Content\img\citrix\citrix_server.png" />
     <Content Include="Content\img\citrix\server.png" />
     <Content Include="Content\img\citrix\quickbooks.png" />
     <Content Include="Content\img\details_close.png" />
     <Content Include="Content\img\details_open.png" />
+    <Content Include="Content\img\donate_button.png" />
+    <Content Include="Content\img\donate_button_sm.png" />
     <Content Include="Content\img\error.png" />
     <Content Include="Content\img\install_icon.ico" />
     <Content Include="Content\img\logo-big.png" />

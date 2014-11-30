@@ -7,13 +7,13 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.1-30610")]
-    public sealed partial class AddRoleIDToUsersTable : IMigrationMetadata
+    public sealed partial class UpdateTo31Beta001 : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddRoleIDToUsersTable));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(UpdateTo31Beta001));
         
         string IMigrationMetadata.Id
         {
-            get { return "201411231515593_AddRoleIDToUsersTable"; }
+            get { return "201411300508417_UpdateTo31Beta.001"; }
         }
         
         string IMigrationMetadata.Source
