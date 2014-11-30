@@ -17,8 +17,7 @@ namespace CloudPanel.Modules.PlansModules
 
         public CitrixPlanModule() : base("/plans/citrix")
         {
-            //this.RequiresAuthentication();
-            //this.RequiresAnyClaim(new[] { "SuperAdmin" });
+            this.RequiresAnyClaim(new[] { "SuperAdmin" });
 
             Get["/"] = _ =>
             {
@@ -126,6 +125,7 @@ namespace CloudPanel.Modules.PlansModules
                 }
                 catch (Exception ex)
                 {
+                    logger.ErrorFormat("Error creating Citrix plan: {0}", ex.ToString());
                     throw;
                 }
                 finally
@@ -173,6 +173,7 @@ namespace CloudPanel.Modules.PlansModules
                 }
                 catch (Exception ex)
                 {
+                    logger.ErrorFormat("Error deleting Citrix plan: {0}", ex.ToString());
                     throw;
                 }
                 finally

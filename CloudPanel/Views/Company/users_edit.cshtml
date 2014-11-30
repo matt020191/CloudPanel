@@ -239,6 +239,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
+
                                                         <hr />
                                                         <h3>Email Aliases</h3><br />
                                                         <div class="form-horizontal">
@@ -252,6 +253,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
+
                                                         <hr />
                                                         <h3>Permissions</h3><br />
                                                         <div class="form-horizontal">
@@ -296,6 +298,20 @@
                                                                                 <option value="@CloudPanel.Base.AD.LdapConverters.ToCanonicalName(u.DistinguishedName)">@u.DisplayName</option>
                                                                             }
                                                                         }
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <hr />
+                                                        <h3>Other</h3><br />
+                                                        <div class="form-horizontal">
+                                                            <div class="form-group">
+                                                                <label class="col-sm-3 control-label">ActiveSync Policy</label>
+                                                                <div class="col-sm-6">
+                                                                    <select id="ActiveSyncPlan" name="ActiveSyncPlan" style="width: 100%" class="form-control">
+                                                                        <option value="0">Default</option>
+                                                                        @CloudPanel.Modules.CompanyModules.Exchange.ActiveSyncModule.GetAllPlansWithOptions(companyCode, null)
                                                                     </select>
                                                                 </div>
                                                             </div>
@@ -437,8 +453,6 @@
 
             // Get user properties from SQL
             GetUser('@Model.UserPrincipalName');
-
-
         });
 
         //
@@ -473,6 +487,7 @@
 
                         $("#EmailEnabledCheck").click();
                         $("#MailboxPlan").val(data.user.mailboxPlan);
+                        $("#ActiveSyncPlan").val(data.user.activeSyncPlan);
 
                         var option = $("#MailboxPlan option:selected");
                         if (data.user.additionalMB > 0) {

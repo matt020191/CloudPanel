@@ -28,9 +28,11 @@
             <hr>
             <div class="panel">
                 <div class="list-group">
-                    @foreach (var branding in Model.brandings)
-                    {
-                        <a href="~/admin/brandings/@branding.BrandingID" class="list-group-item"><i class="fa fa-globe"></i> @branding.HostName [@branding.Name] </a>
+                    @if (Model != null && Model.brandings != null) {
+                        foreach (var branding in Model.brandings)
+                        {
+                            <a href="~/admin/brandings/@branding.BrandingID" class="list-group-item"><i class="fa fa-globe"></i> @branding.HostName [@branding.Name] </a>
+                        }
                     }
                 </div>
             </div>

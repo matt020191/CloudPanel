@@ -57,6 +57,7 @@ namespace CloudPanel.Modules.PlansModules
                 }
                 catch (Exception ex)
                 {
+                    logger.ErrorFormat("Error creating mailbox plan: {0}", ex.ToString());
                     throw;
                 }
                 finally
@@ -92,6 +93,7 @@ namespace CloudPanel.Modules.PlansModules
                 }
                 catch (Exception ex)
                 {
+                    logger.ErrorFormat("Error getting mailbox plan {0}: {1}", _.ID, ex.ToString());
                     throw;
                 }
                 finally
@@ -144,6 +146,7 @@ namespace CloudPanel.Modules.PlansModules
                 }
                 catch (Exception ex)
                 {
+                    logger.ErrorFormat("Error updating mailbox plan {0}: {1}", _.ID, ex.ToString());
                     throw;
                 }
                 finally
@@ -188,6 +191,7 @@ namespace CloudPanel.Modules.PlansModules
                 }
                 catch (Exception ex)
                 {
+                    logger.ErrorFormat("Error deleting mailbox plan {0}: {1}", _.ID, ex.ToString());
                     throw;
                 }
                 finally

@@ -83,43 +83,46 @@ namespace CloudPanel.Modules
                     string searchValue = "", orderColumnName = "";
                     bool isAscendingOrder = true;
 
-                    if (Request.Query.draw.HasValue)
+                    if (Request.Form.draw.HasValue)
                     {
-                        draw = Request.Query.draw;
-                        start = Request.Query.start;
-                        length = Request.Query.length;
-                        orderColumn = Request.Query["order[0][column]"];
-                        searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
-                        isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
-                        orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
-
-                        // See if we are using dataTables to search
-                        logger.DebugFormat("Search value was {0}", searchValue);
-                        if (!string.IsNullOrEmpty(searchValue))
+                        if (Request.Query.draw.HasValue)
                         {
-                            users = (from d in users
-                                     where d.DisplayName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                           d.UserPrincipalName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                           (d.SamAccountName != null && d.SamAccountName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
-                                           (d.Department != null && d.Department.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
-                                           (d.Email != null && d.Email.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1)
-                                     select d).ToList();
-                            recordsFiltered = users.Count;
-                            logger.DebugFormat("Total records filtered was {0}", recordsFiltered);
-                        }
+                            draw = Request.Query.draw;
+                            start = Request.Query.start;
+                            length = Request.Query.length;
+                            orderColumn = Request.Query["order[0][column]"];
+                            searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
+                            isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
+                            orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
 
-                        if (isAscendingOrder)
-                            users = users.OrderBy(x => x.GetType()
-                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                    .Skip(start)
-                                                    .Take(length)
-                                                    .ToList();
-                        else
-                            users = users.OrderByDescending(x => x.GetType()
-                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                    .Skip(start)
-                                                    .Take(length)
-                                                    .ToList();
+                            // See if we are using dataTables to search
+                            logger.DebugFormat("Search value was {0}", searchValue);
+                            if (!string.IsNullOrEmpty(searchValue))
+                            {
+                                users = (from d in users
+                                         where d.DisplayName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                               d.UserPrincipalName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                               (d.SamAccountName != null && d.SamAccountName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
+                                               (d.Department != null && d.Department.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
+                                               (d.Email != null && d.Email.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1)
+                                         select d).ToList();
+                                recordsFiltered = users.Count;
+                                logger.DebugFormat("Total records filtered was {0}", recordsFiltered);
+                            }
+
+                            if (isAscendingOrder)
+                                users = users.OrderBy(x => x.GetType()
+                                                        .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                        .Skip(start)
+                                                        .Take(length)
+                                                        .ToList();
+                            else
+                                users = users.OrderByDescending(x => x.GetType()
+                                                        .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                        .Skip(start)
+                                                        .Take(length)
+                                                        .ToList();
+                        }
                     }
 
                     return Negotiate.WithModel(new
@@ -199,7 +202,6 @@ namespace CloudPanel.Modules
                         newUser.CompanyCode = companyCode;
                         newUser.Name = Request.Form.DisplayName; // TODO: MAKE THIS USE EITHER DISPLAY NAME OR EMAIL BASED ON CONFIG FILE
                         newUser.DisplayName = Request.Form.DisplayName;
-
                         newUser.Firstname = Request.Form.Firstname.HasValue ? Request.Form.Firstname.Value : string.Empty;
                         newUser.Middlename = Request.Form.Middlename.HasValue ? Request.Form.Middlename.Value : string.Empty;
                         newUser.Lastname = Request.Form.Lastname.HasValue ? Request.Form.Lastname.Value : string.Empty;

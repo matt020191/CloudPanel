@@ -263,6 +263,10 @@ namespace CloudPanel.Exchange
             HandleErrors(true);
         }
 
+        /// <summary>
+        /// Gets all activesync policy
+        /// </summary>
+        /// <returns></returns>
         public override List<Plans_ExchangeActiveSync> Get_ActiveSyncPolicies()
         {
             var foundList = new List<Plans_ExchangeActiveSync>();

@@ -8,7 +8,6 @@ using Nancy.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 
 namespace CloudPanel
 {
@@ -32,50 +31,54 @@ namespace CloudPanel
                 user = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
 
                 // Authenticate the user
-                var authenticatedUser = user.Authenticate(username, password);
-
-                // Create our authenticated user object to store since authentication was successful
-                var authUser = new AuthenticatedUser();
-                authUser.UserGuid = authenticatedUser.UserGuid;
-                authUser.UserName = authenticatedUser.UserPrincipalName;
-                authUser.DisplayName = authenticatedUser.DisplayName;
-
-                // Create our claims (security rights)
-                var claims = new List<string>();
-                foreach (var c in authenticatedUser.MemberOf)
+                var authenticatedUser = user.AuthenticateQuickly(username, password);
+                if (authenticatedUser == null)
+                    return null;
+                else
                 {
-                    // See if the current group matches a group in our list of SuperAdmins
-                    if (!string.IsNullOrEmpty(c))
-                    {
-                        logger.DebugFormat("Comparing group {0} to super admin groups", c);
+                    // Create our authenticated user object to store since authentication was successful
+                    var authUser = new AuthenticatedUser();
+                    authUser.UserGuid = authenticatedUser.UserGuid;
+                    authUser.UserName = authenticatedUser.UserPrincipalName;
+                    authUser.DisplayName = authenticatedUser.DisplayName;
 
-                        var isAdmin = Settings.SuperAdmins.Any(x => x.Equals(c, StringComparison.InvariantCultureIgnoreCase));
-                        if (isAdmin)
+                    // Create our claims (security rights)
+                    var claims = new List<string>();
+                    foreach (var c in authenticatedUser.MemberOf)
+                    {
+                        // See if the current group matches a group in our list of SuperAdmins
+                        if (!string.IsNullOrEmpty(c))
                         {
-                            logger.DebugFormat("Compared {0} to values [{1}] and found a match", c, Settings.SuperAdminsAsString);
-                            claims.Add("SuperAdmin");
-                            break;
+                            logger.DebugFormat("Comparing group {0} to super admin groups", c);
+
+                            var isAdmin = Settings.SuperAdmins.Any(x => x.Equals(c, StringComparison.InvariantCultureIgnoreCase));
+                            if (isAdmin)
+                            {
+                                logger.DebugFormat("Compared {0} to values [{1}] and found a match", c, Settings.SuperAdminsAsString);
+                                claims.Add("SuperAdmin");
+                                break;
+                            }
                         }
                     }
+
+                    // See if the user is a SuperAdmin. No need to query database if SuperAdmin
+                    if (!claims.Contains("SuperAdmin"))
+                    {
+                        logger.DebugFormat("User is not a super admin so we need to query the database for reseller and company admin values");
+
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
+
+                        ParseAdmin(ref db, ref authUser, ref claims);
+                    }
+
+                    // Add to our list of logged in users after adding claims
+                    authUser.Claims = claims;
+                    loggedInUsers.Add(authUser);
+
+                    // Return the user guid
+                    return authUser;
                 }
-
-                // See if the user is a SuperAdmin. No need to query database if SuperAdmin
-                if (!claims.Contains("SuperAdmin"))
-                {
-                    logger.DebugFormat("User is not a super admin so we need to query the database for reseller and company admin values");
-                    
-                    db = new CloudPanelContext(Settings.ConnectionString);
-                    db.Database.Connection.Open();
-
-                    ParseAdmin(ref db, ref authUser, ref claims);
-                }
-
-                // Add to our list of logged in users after adding claims
-                authUser.Claims = claims;
-                loggedInUsers.Add(authUser);
-
-                // Return the user guid
-                return authUser;
             }
             catch (Exception ex)
             {

@@ -374,6 +374,19 @@ namespace CloudPanel.Modules
                                 db.Companies.Remove(reseller);
                                 db.SaveChanges();
 
+                                // See if the current reseller selected is the reseller the user just deletected
+                                // If it is then we need to clear it from the user context
+                                var user = this.Context.CurrentUser as AuthenticatedUser;
+                                if (user.SelectedResellerCode.Equals(resellerCode))
+                                {
+                                    user.SelectedResellerCode = string.Empty;
+                                    user.SelectedResellerName = string.Empty;
+
+                                    // Remove selected company from the context to since it will be under this reseller and couldn't exist
+                                    user.SelectedCompanyCode = string.Empty;
+                                    user.SelectedCompanyName = string.Empty;
+                                }
+
                                 return Negotiate.WithModel(new { success = "Reseller was deleted successfully" })
                                             .WithView("resellers.cshtml")
                                             .WithStatusCode(HttpStatusCode.OK);

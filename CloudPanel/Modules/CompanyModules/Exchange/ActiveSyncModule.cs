@@ -234,6 +234,51 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
             }
         }
 
+        /// <summary>
+        /// Gets a list of activesync plans including the global ones that the company has access to
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <param name="selectedValue"></param>
+        /// <returns></returns>
+        public static IHtmlString GetAllPlansWithOptions(string companyCode, int? selectedValue)
+        {
+            var sb = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                logger.DebugFormat("Geting all plans for {0}", companyCode);
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                var plans = (from d in db.Plans_ExchangeActiveSync
+                             where string.IsNullOrEmpty(d.CompanyCode) || d.CompanyCode.Equals(companyCode)
+                             orderby d.DisplayName
+                             select d).ToList();
+
+                foreach (var p in plans)
+                {
+                    string append = string.Format("<option value='{0}' {1}>{2}</option>",
+                                           p.ASID,
+                                           (selectedValue.HasValue && p.ASID == selectedValue.Value) ? "selected" : "",
+                                           p.DisplayName);
+                    sb.AppendLine(append);
+                }
+
+                return new NonEncodedHtmlString(sb.ToString());
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting all plans with options for {0}: {1}", companyCode, ex.ToString());
+                return new NonEncodedHtmlString(sb.ToString());
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
         public static Plans_ExchangeActiveSync GetDefaultPlan()
         {
             return new Plans_ExchangeActiveSync()

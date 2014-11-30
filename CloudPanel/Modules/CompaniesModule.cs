@@ -485,6 +485,15 @@ namespace CloudPanel.Modules
                         logger.DebugFormat("Saving changes to database...");
                         db.SaveChanges();
 
+                        // Check to see if the company that was deleted is what they have selected
+                        // So we can remove it from being selected. This will hide the left menu bar if it was
+                        var user = this.Context.CurrentUser as AuthenticatedUser;
+                        if (user.SelectedCompanyCode.Equals(companyCode))
+                        {
+                            user.SelectedCompanyCode = string.Empty;
+                            user.SelectedCompanyName = string.Empty;
+                        }
+
                         return Negotiate.WithModel(new { success = "Company was deleted successfully" })
                                         .WithView("companies.cshtml")
                                         .WithStatusCode(HttpStatusCode.OK);

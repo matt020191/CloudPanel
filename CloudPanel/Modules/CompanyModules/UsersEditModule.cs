@@ -141,6 +141,7 @@ namespace CloudPanel.Modules.CompanyModules
                     {
                         // Model bind
                         logger.DebugFormat("Binding form to class...");
+
                         var boundUser = this.Bind<Users>();
                         boundUser.UserPrincipalName = userPrincipalName;
                         boundUser.CompanyCode = companyCode;
@@ -312,14 +313,16 @@ namespace CloudPanel.Modules.CompanyModules
             bool wasEnabled = sqlUser.MailboxPlan > 0 ? true : false;
             bool nowEnabled = boundUser.EmailEnabledCheck;
 
+            ReverseActions reverse = new ReverseActions();
             dynamic powershell = null;
             try
             {
                 powershell = ExchPowershell.GetClass();
 
+                string userPrincipalName = boundUser.UserPrincipalName;
                 if ((!wasEnabled && nowEnabled) || (wasEnabled && nowEnabled))
                 {
-                    logger.DebugFormat("We are either enabling or updating the mailbox for {0}", boundUser.UserPrincipalName);
+                    logger.DebugFormat("We are either enabling or updating the mailbox for {0}", userPrincipalName);
                     int mailboxPlan = (int)boundUser.MailboxPlan;
                     var plan = (from d in db.Plans_ExchangeMailbox
                                 where d.MailboxPlanID == mailboxPlan
@@ -337,10 +340,27 @@ namespace CloudPanel.Modules.CompanyModules
                         if (!CloudPanel.CPStaticHelpers.IsUnderLimit(sqlUser.CompanyCode, "mailbox"))
                             throw new Exception("You have reached the mailbox limit.");
 
-                        powershell.Enable_Mailbox(boundUser, plan, emailAddresses.ToArray());
+                        // Enables mailbox
+                        powershell.Enable_Mailbox(boundUser);
+                        reverse.AddAction(Actions.CreateMailbox, userPrincipalName);
+                    }
+
+                    // Update mailbox settings
+                    powershell.Set_Mailbox(boundUser, plan, emailAddresses.ToArray());
+
+                    // Update CAS mailbox
+                    logger.DebugFormat("New Activesync plan is {0}", boundUser.ActiveSyncPlan);
+                    if (boundUser.ActiveSyncPlan > 0)
+                    {
+                        logger.DebugFormat("Activesync plan is not setting the default for {0}. Settings to {1}", userPrincipalName, boundUser.ActiveSyncPlan);
+                        int asPlanId = boundUser.ActiveSyncPlan.Value;
+                        var asPlan = (from d in db.Plans_ExchangeActiveSync
+                                      where d.ASID == asPlanId
+                                      select d).First();
+                        powershell.Set_CASMailbox(boundUser.UserPrincipalName, plan, asPlan);
                     }
                     else
-                        powershell.Set_Mailbox(boundUser, plan, emailAddresses.ToArray());
+                        powershell.Set_CASMailbox(boundUser.UserPrincipalName, plan);
 
                     logger.DebugFormat("Processing full access permissions for {0}", boundUser.UserPrincipalName);
                     ProcessFullAccess(boundUser.UserPrincipalName, ref powershell, boundUser.EmailFullAccessOriginal, boundUser.EmailFullAccess, boundUser.AutoMapping);
@@ -351,6 +371,7 @@ namespace CloudPanel.Modules.CompanyModules
                     logger.DebugFormat("Updating sql data");
                     sqlUser.Email = boundUser.Email;
                     sqlUser.MailboxPlan = plan.MailboxPlanID;
+                    sqlUser.ActiveSyncPlan = boundUser.ActiveSyncPlan > 0 ? boundUser.ActiveSyncPlan : 0;
 
                     if (plan.MailboxSizeMB > 0)
                         sqlUser.AdditionalMB = (boundUser.SizeInMB - plan.MailboxSizeMB);
@@ -380,6 +401,7 @@ namespace CloudPanel.Modules.CompanyModules
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error processing mailbox for {0}: {1}", sqlUser.UserPrincipalName, ex.ToString());
+                reverse.RollbackNow();
                 throw;
             }
             finally

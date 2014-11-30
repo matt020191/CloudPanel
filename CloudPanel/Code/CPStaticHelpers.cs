@@ -45,6 +45,7 @@ namespace CloudPanel
             try
             {
                 db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
 
                 // Generate code
                 char[] arr = companyName.ToCharArray();
@@ -59,11 +60,14 @@ namespace CloudPanel
                 string validCompanyCode = companyCode;
                 while (true)
                 {
+                    logger.DebugFormat("Checking if code {0} exists", validCompanyCode);
                     int codeExist = (from d in db.Companies where d.CompanyCode == validCompanyCode select d).Count();
                     if (codeExist > 0)
                     {
                         validCompanyCode = string.Format("{0}{1}", companyCode, count);
                         count = count + 1;
+
+                        logger.DebugFormat("Code already existed. Increasing number and trying {0}", validCompanyCode);
                     }
                     else
                         break;
@@ -73,6 +77,7 @@ namespace CloudPanel
             }
             catch (Exception ex)
             {
+                logger.ErrorFormat("Error generating new company code for {0}: {1}", companyName, ex.ToString());
                 throw;
             }
             finally
@@ -108,7 +113,7 @@ namespace CloudPanel
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error getting");
+                logger.ErrorFormat("Error getting company name for {0} form the database: {1}", companyCode, ex.ToString());
                 throw;
             }
             finally

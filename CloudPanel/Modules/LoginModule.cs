@@ -33,12 +33,13 @@ namespace CloudPanel.Modules
                 try
                 {
                     AuthenticatedUser identity = UserMapper.ValidateUser(username, password);
-                    return this.LoginAndRedirect(identity.UserGuid, null, "~/dashboard");
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    ViewBag.LoginError = "Login failed. Please try again.";
-                    return View["login.cshtml"];
+                    if (identity == null)
+                    {
+                        ViewBag.LoginError = "Login failed. Please try again.";
+                        return View["login.cshtml"];
+                    }
+                    else
+                        return this.LoginAndRedirect(identity.UserGuid, null, "~/dashboard");
                 }
                 catch (Exception ex)
                 {

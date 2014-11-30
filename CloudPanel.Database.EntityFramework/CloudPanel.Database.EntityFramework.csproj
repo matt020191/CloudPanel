@@ -64,6 +64,10 @@
     <Compile Include="Migrations\201411300508417_UpdateTo31Beta.001.Designer.cs">
       <DependentUpon>201411300508417_UpdateTo31Beta.001.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201411301548133_AddMissingUserRolesColumns.cs" />
+    <Compile Include="Migrations\201411301548133_AddMissingUserRolesColumns.Designer.cs">
+      <DependentUpon>201411301548133_AddMissingUserRolesColumns.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -86,6 +90,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201411300508417_UpdateTo31Beta.001.resx">
       <DependentUpon>201411300508417_UpdateTo31Beta.001.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201411301548133_AddMissingUserRolesColumns.resx">
+      <DependentUpon>201411301548133_AddMissingUserRolesColumns.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

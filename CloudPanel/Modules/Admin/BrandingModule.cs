@@ -278,7 +278,10 @@ namespace CloudPanel.Modules
                     AllBrandings = brandings.ToList();
                 }
                 else
+                {
                     logger.DebugFormat("There were no brandings found");
+                    AllBrandings = new List<Branding>();
+                }
 
                 return AllBrandings;
             }

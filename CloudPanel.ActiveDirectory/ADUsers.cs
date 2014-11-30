@@ -1,14 +1,10 @@
 ﻿using CloudPanel.ActiveDirectory.Extensions;
-using CloudPanel.Base.AD;
 using CloudPanel.Base.Database.Models;
 using log4net;
 using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
-using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace CloudPanel.ActiveDirectory
 {
@@ -87,6 +83,52 @@ namespace CloudPanel.ActiveDirectory
 
                     return GetUser(username);
                 }                
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error authenticating user {0}. Exception: {1}", username, ex.ToString());
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Authenticates a user against Active Directory with minimal information to quickly authenticate
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public Users AuthenticateQuickly(string username, string password)
+        {
+            try
+            {
+                pc = GetPrincipalContext();
+
+                logger.DebugFormat("Attempting to authenticate user {0}", username);
+                var user = UserPrincipal.FindByIdentity(pc, IdentityType.UserPrincipalName, username);
+                if (user == null)
+                    return null;
+
+                logger.DebugFormat("User was found in AD. Validating credentials for {0}", username);
+                bool validCredentials = pc.ValidateCredentials(username, password, ContextOptions.SimpleBind);
+                if (!validCredentials)
+                    return null;
+
+                var returnUser = new Users();
+                returnUser.UserPrincipalName = username;
+                returnUser.DisplayName = user.DisplayName;
+                returnUser.UserGuid = user.Guid.Value;
+
+                logger.DebugFormat("Getting AuthorizationGroups for {0}", username);
+                var groups = user.GetAuthorizationGroups();
+                var groupsList = new List<string>();
+                foreach (var g in groups)
+                {
+                    logger.DebugFormat("Found group {0} with distinguishedname {1}", g.Name, g.DistinguishedName);
+                    groupsList.Add(g.Name);
+                }
+                returnUser.MemberOf = groupsList.ToArray();
+
+                return returnUser;
             }
             catch (Exception ex)
             {
@@ -345,7 +387,7 @@ namespace CloudPanel.ActiveDirectory
                 pc = GetPrincipalContext(); // Used for querying purposes
                 usr = UserPrincipalExt.FindByIdentity(pc, IdentityType.UserPrincipalName, userObject.UserPrincipalName);
                 if (usr != null)
-                    throw new PrincipalExistsException(userObject.UserPrincipalName);
+                    throw new PrincipalExistsException(userObject.UserPrincipalName + " already exists.");
 
                 // Now we can create the user!
                 logger.DebugFormat("User doesn't exist. Continuing...");

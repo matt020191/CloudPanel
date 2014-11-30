@@ -67,6 +67,7 @@ namespace CloudPanel
             }
             catch (Exception ex)
             {
+                logger.ErrorFormat("Error getting company plans: {0}", ex.ToString());
                 throw;
             }
             finally
@@ -117,6 +118,7 @@ namespace CloudPanel
             }
             catch (Exception ex)
             {
+                logger.ErrorFormat("Error getting companycodes' {0} domains: {1}", companyCode, ex.ToString());
                 throw;
             }
             finally
@@ -168,6 +170,7 @@ namespace CloudPanel
             }
             catch (Exception ex)
             {
+                logger.ErrorFormat("Error getting company email domains for {0}: {1}", companyCode, ex.ToString());
                 throw;
             }
             finally
@@ -455,6 +458,7 @@ namespace CloudPanel
             }
             catch (Exception ex)
             {
+                logger.ErrorFormat("Error getting companies: {0}", ex.ToString());
                 throw;
             }
             finally
@@ -772,6 +776,7 @@ namespace CloudPanel
             }
             catch (Exception ex)
             {
+                logger.ErrorFormat("Error getting accepted domain: {0}", ex.ToString());
                 throw;
             }
             finally

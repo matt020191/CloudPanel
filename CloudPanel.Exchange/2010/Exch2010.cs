@@ -1030,7 +1030,7 @@ namespace CloudPanel.Exchange
         /// </summary>
         /// <param name="user"></param>
         /// <param name="p"></param>
-        public void Set_CASMailbox(string userPrincipalName, Plans_ExchangeMailbox p)
+        public void Set_CASMailbox(string userPrincipalName, Plans_ExchangeMailbox p, Plans_ExchangeActiveSync a = null)
         {
             logger.DebugFormat("Updating CAS mailbox for {0}", userPrincipalName);
 
@@ -1051,7 +1051,12 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("MAPIEnabled", p.EnableMAPI);
             cmd.AddParameter("OWAEnabled", p.EnableOWA);
             cmd.AddParameter("PopEnabled", p.EnablePOP3);
-            //cmd.AddParameter("ActiveSyncMailboxPolicy", "");
+
+            if (a == null)
+                cmd.AddParameter("ActiveSyncMailboxPolicy", null);
+            else
+                cmd.AddParameter("ActiveSyncMailboxPolicy", string.IsNullOrEmpty(a.ExchangeName) ? a.DisplayName : a.ExchangeName);
+
             cmd.AddParameter("DomainController", this._domainController);
 
             logger.DebugFormat("Executing powershell commands...");

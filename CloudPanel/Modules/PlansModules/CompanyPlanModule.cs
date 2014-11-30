@@ -1,6 +1,7 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
 using CloudPanel.Database.EntityFramework;
+using log4net;
 using Nancy;
 using Nancy.ModelBinding;
 using Nancy.Responses.Negotiation;
@@ -14,6 +15,8 @@ namespace CloudPanel.Modules.PlansModules
 {
     public class CompanyPlanModule : NancyModule
     {
+        private static readonly ILog logger = LogManager.GetLogger(typeof(CompanyPlanModule));
+
         public CompanyPlanModule() : base("/plans/company")
         {
             this.RequiresAuthentication();
@@ -49,6 +52,7 @@ namespace CloudPanel.Modules.PlansModules
                     }
                     catch (Exception ex)
                     {
+                        logger.ErrorFormat("Error creating new company plan: {0}", ex.ToString());
                         throw;
                     }
                     finally
@@ -83,6 +87,7 @@ namespace CloudPanel.Modules.PlansModules
                     }
                     catch (Exception ex)
                     {
+                        logger.ErrorFormat("Error getting company plan {0}: {1}", _.ID, ex.ToString());
                         throw;
                     }
                     finally
@@ -125,6 +130,7 @@ namespace CloudPanel.Modules.PlansModules
                     }
                     catch (Exception ex)
                     {
+                        logger.ErrorFormat("Error updating company plan {0}: {1}", _.ID, ex.ToString());
                         throw;
                     }
                     finally
@@ -168,6 +174,7 @@ namespace CloudPanel.Modules.PlansModules
                     }
                     catch (Exception ex)
                     {
+                        logger.ErrorFormat("Error deleting comapny plan {0}: {1}", _.ID, ex.ToString());
                         throw;
                     }
                     finally
@@ -193,6 +200,7 @@ namespace CloudPanel.Modules.PlansModules
             }
             catch (Exception ex)
             {
+                logger.ErrorFormat("Error getting company plans: {0}", ex.ToString());
                 throw;
             }
             finally
