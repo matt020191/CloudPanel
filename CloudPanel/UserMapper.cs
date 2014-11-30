@@ -65,6 +65,8 @@ namespace CloudPanel
                     logger.DebugFormat("User is not a super admin so we need to query the database for reseller and company admin values");
                     
                     db = new CloudPanelContext(Settings.ConnectionString);
+                    db.Database.Connection.Open();
+
                     ParseAdmin(ref db, ref authUser, ref claims);
                 }
 

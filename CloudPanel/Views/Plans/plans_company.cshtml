@@ -140,6 +140,19 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label class="col-sm-3 control-label">ActiveSync Plans</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="MaxExchangeActivesyncPolicies" name="MaxExchangeActivesyncPolicies" value="@(Model.selectedPlan.MaxExchangeActivesyncPolicies > 0 ? Model.selectedPlan.MaxExchangeActivesyncPolicies : "0")" data-parsley-required="true" data-parsley-type="integer">
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="help-block">
+                                        <span data-toggle="tooltip" data-original-title="Set the maximum custom Exchange activesync plans allowed. This number does not include the global Activesync plans." class="tooltip-ex">
+                                            <i class="fa fa-question-circle"></i>
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="col-sm-3 control-label">Mail-Enabled Public Folders</label>
                                 <div class="col-sm-6">
                                     <input type="text" class="form-control" id="MaxExchangeMailPublicFolders" name="MaxExchangeMailPublicFolders" value="@Model.selectedPlan.MaxExchangeMailPublicFolders" data-parsley-required="true" data-parsley-type="integer">
@@ -158,7 +171,7 @@
 
                 <div class="row">
                     <div class="panel panel-primary">
-                        <div class="panel-heading">Microsoft Exchange</div>
+                        <div class="panel-heading">Citrix</div>
                         <div class="panel-body form-horizontal">
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Users</label>
@@ -178,9 +191,9 @@
                             <div class="row">
                                 <div class="btn-toolbar text-right">
                                     @if (Model.selectedPlan.OrgPlanID > 0)
-                                        {
+                                    {
                                         <button type="button" class="btn-danger btn" data-toggle="modal" data-target="#deleteModal" data-id="@Model.selectedPlan.OrgPlanID" onclick="javascript: DeletePlan(this);">Delete</button>
-                                        }
+                                    }
                                     <button class="btn-primary btn" type="submit">Submit</button>
                                 </div>
                             </div>

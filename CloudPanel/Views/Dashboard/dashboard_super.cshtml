@@ -185,8 +185,9 @@
 
         // Only populate Exchange information if the Exchange module is enabled
         if (exchangeModule) {
-            GetExchangeDatabases();
             GetTopMailboxes(5);
+
+            GetExchangeDatabases();
         }
     });
 

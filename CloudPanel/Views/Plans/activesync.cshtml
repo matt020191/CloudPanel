@@ -616,7 +616,7 @@
                 ShowSuccess("Successfully retrieved plans from Exchange");
             })
             .fail(function (data) {
-                ShowError(data.response.error);
+                ShowError(data.responseJSON.error);
             })
             .always(function (data) {
                 $("#form").unblock();

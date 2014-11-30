@@ -106,6 +106,7 @@
     <Content Include="Content\img\details_close.png" />
     <Content Include="Content\img\details_open.png" />
     <Content Include="Content\img\error.png" />
+    <Content Include="Content\img\install_icon.ico" />
     <Content Include="Content\img\logo-big.png" />
     <Content Include="Content\img\patterns\brickwall.png" />
     <Content Include="Content\img\patterns\dark_stripes.png" />
@@ -1097,15 +1098,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />
-    <Compile Include="Code\InternalErrorHandler.cs" />
-    <Compile Include="Code\PageNotFoundHandler.cs" />
+    <Compile Include="Code\ErrorResponseHandler.cs" />
     <Compile Include="Code\AuthenticatedUser.cs" />
     <Compile Include="Code\CPHtmlHelpers.cs" />
     <Compile Include="Code\CPStaticHelpers.cs" />
     <Compile Include="Code\Extensions.cs" />
     <Compile Include="Code\NancyContextHelpers.cs" />
     <Compile Include="Code\StaticSettings.cs" />
-    <Compile Include="Code\UnauthorizedHandler.cs" />
     <Compile Include="Code\ValidateClaims.cs" />
     <Compile Include="Modules\Admin\BrandingModule.cs" />
     <Compile Include="Modules\Admin\MassEmailModule.cs" />

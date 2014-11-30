@@ -37,7 +37,6 @@ namespace CloudPanel.Modules.PlansModules
                         db = new CloudPanelContext(Settings.ConnectionString);
 
                         var newPlan = this.Bind<Plans_Organization>();
-
                         db.Plans_Organization.Add(newPlan);
                         db.SaveChanges();
 
@@ -106,16 +105,18 @@ namespace CloudPanel.Modules.PlansModules
                         var oldPlan = (from d in db.Plans_Organization
                                        where d.OrgPlanID == id
                                        select d).FirstOrDefault();
+
                         var updatedPlan = this.Bind<Plans_Organization>();
-                        oldPlan.OrgPlanName = updatedPlan.OrgPlanName;
-                        oldPlan.MaxUsers = updatedPlan.MaxUsers;
-                        oldPlan.MaxDomains = updatedPlan.MaxDomains;
-                        oldPlan.MaxExchangeMailboxes = updatedPlan.MaxExchangeMailboxes;
-                        oldPlan.MaxExchangeContacts = updatedPlan.MaxExchangeContacts;
-                        oldPlan.MaxExchangeDistLists = updatedPlan.MaxExchangeDistLists;
-                        oldPlan.MaxExchangeResourceMailboxes = updatedPlan.MaxExchangeResourceMailboxes;
-                        oldPlan.MaxExchangeMailPublicFolders = updatedPlan.MaxExchangeMailPublicFolders;
-                        oldPlan.MaxTerminalServerUsers = updatedPlan.MaxTerminalServerUsers;
+                        foreach (var p in updatedPlan.GetType().GetProperties())
+                        {
+                            if (!p.Name.Equals("OrgPlanID"))
+                            {
+                                object value = p.GetValue(updatedPlan, null);
+                                oldPlan.GetType()
+                                       .GetProperty(p.Name)
+                                       .SetValue(oldPlan, value, null);
+                            }
+                        }
                         db.SaveChanges();
 
                         return Negotiate
@@ -135,47 +136,47 @@ namespace CloudPanel.Modules.PlansModules
                 };
 
             Delete["/{ID:int}"] = _ =>
-            {
-                #region Deletes a specific company plan
-                CloudPanelContext db = null;
-                try
                 {
-                    db = new CloudPanelContext(Settings.ConnectionString);
-
-                    int id = _.ID;
-                    var oldPlan = (from d in db.Plans_Organization
-                                   where d.OrgPlanID == id
-                                   select d).FirstOrDefault();
-
-                    if (oldPlan != null)
+                    #region Deletes a specific company plan
+                    CloudPanelContext db = null;
+                    try
                     {
-                        var companiesUsingPlan = (from d in db.Companies where d.OrgPlanID == id select d.CompanyId).Count();
-                        if (companiesUsingPlan == 0)
-                        {
-                            db.Plans_Organization.Remove(oldPlan);
-                            db.SaveChanges();
-                        }
-                        else
-                            return Negotiate.WithMediaRangeModel("application/json", new { error = "Unable to delete plan because it is in use." })
-                                            .WithModel(new { error = "Unable to delete plan because it is in use.", selectedPlan = oldPlan })
-                                            .WithView("Plans/plans_company.cshtml");
-                    }
+                        db = new CloudPanelContext(Settings.ConnectionString);
 
-                    return Negotiate
-                                .WithMediaRangeModel("application/json", HttpStatusCode.OK)
-                                .WithMediaRangeResponse(new MediaRange("text/html"), this.Response.AsRedirect("~/plans/company/new"));
-                }
-                catch (Exception ex)
-                {
-                    throw;
-                }
-                finally
-                {
-                    if (db != null)
-                        db.Dispose();
-                }
-                #endregion
-            };
+                        int id = _.ID;
+                        var oldPlan = (from d in db.Plans_Organization
+                                       where d.OrgPlanID == id
+                                       select d).FirstOrDefault();
+
+                        if (oldPlan != null)
+                        {
+                            var companiesUsingPlan = (from d in db.Companies where d.OrgPlanID == id select d.CompanyId).Count();
+                            if (companiesUsingPlan == 0)
+                            {
+                                db.Plans_Organization.Remove(oldPlan);
+                                db.SaveChanges();
+                            }
+                            else
+                                return Negotiate.WithMediaRangeModel("application/json", new { error = "Unable to delete plan because it is in use." })
+                                                .WithModel(new { error = "Unable to delete plan because it is in use.", selectedPlan = oldPlan })
+                                                .WithView("Plans/plans_company.cshtml");
+                        }
+
+                        return Negotiate
+                                    .WithMediaRangeModel("application/json", HttpStatusCode.OK)
+                                    .WithMediaRangeResponse(new MediaRange("text/html"), this.Response.AsRedirect("~/plans/company/new"));
+                    }
+                    catch (Exception ex)
+                    {
+                        throw;
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+                    }
+                    #endregion
+                };
         }
 
         public static List<Plans_Organization> GetCompanyPlans()

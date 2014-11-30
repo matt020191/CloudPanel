@@ -119,6 +119,8 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     // Bind to the forum
                     logger.DebugFormat("Binding Activesync plan to form...");
                     var plan = this.Bind<Plans_ExchangeActiveSync>(new[] { "ASID", "IsEnterpriseCAL" });
+                    plan.CompanyCode = _.CompanyCode;
+                    plan.ExchangeName = string.Format("{0}_{1}", _.CompanyCode, plan.DisplayName);
 
                     // Get from SQL
                     int id = _.ID;
@@ -130,7 +132,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     // Update Exchange
                     logger.DebugFormat("Updating Activesync plan {0} in Exchange", id);
                     powershell = ExchPowershell.GetClass();
-                    powershell.Set_ActiveSyncPolicy(sqlPlan.DisplayName, plan);
+                    powershell.Set_ActiveSyncPolicy(sqlPlan.ExchangeName, plan);
 
                     // Update SQL
                     logger.DebugFormat("Combining the form values to the SQL values");

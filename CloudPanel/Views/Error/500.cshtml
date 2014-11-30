@@ -15,12 +15,20 @@
     <link rel="stylesheet" href="~/content/css/styles.css">
     <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
     <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
+    <style type="text/css">
+        .focusedform .panel {
+            width: 600px !important;
+        }
+        .focusedform .verticalcenter {
+            left: 43% !important;
+        }
+    </style>
 
     <!-- <script type="text/javascript" src="~/content/js/less.js"></script> -->
 </head>
 <body class="focusedform">
     <div class="verticalcenter">
-        <a href="index.htm"><img src="@Url.Content(branding.LoginLogo)" alt="Logo" class="brand" /></a>
+        <a href="~/"><img src="@Url.Content(branding.LoginLogo)" alt="Logo" class="brand" /></a>
 
         <div class="col-md-12">
             <div class="panel panel-danger">
@@ -29,7 +37,7 @@
                         <span class="text-danger" style="font-size:4em;">500 Error</span>
                     </p>
                     <p class="text-center">An internal server error occurred.</p>
-                    <p class="text-center">Pleaes contact support.</p>
+                    <div class="well well-sm">@(Model != null ? Model.InnerException.ToString() : "Unknown Error")</div>
                 </div>
                 <div class="panel-footer"></div>
             </div>

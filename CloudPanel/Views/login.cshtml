@@ -21,10 +21,23 @@
 <body class="focusedform">
     <form id="loginForm" action="@Url.Content("~/login")" method="post" data-parsley-validate>
         <div class="verticalcenter">
-            <a href="index.htm"><img src="@Url.Content(branding.LoginLogo)" alt="Logo" class="brand" /></a>
+            <a href="~/"><img src="@Url.Content(branding.LoginLogo)" alt="Logo" class="brand" /></a>
             <div class="panel panel-primary">
                 <div class="panel-body">
                     <h4 class="text-center" style="margin-bottom: 25px;">Log in to get started</h4>
+
+                    <div id="EnableJavascript" class="well well-sm">
+                        The javascript in your browser is not enabled. You must enable javascript before continuing.
+                    </div>
+
+                    <div id="EnableCookies" class="well well-sm">
+                        Cookies are not enabled in your browser and must be enabled before continuing.
+                    </div>
+
+                    <div id="BrowserOutOfDate" class="well well-sm" style="display: none">
+                        Your browser is either not supported or  out of date and must be updated before continuing.
+                    </div>
+
                     <div class="form-horizontal" style="margin-bottom: 0px !important;">
                         <div class="form-group">
                             <div class="col-sm-12">
@@ -50,7 +63,7 @@
                 </div>
                 <div class="panel-footer">
                     <div class="pull-right">
-                        <input id="btnLogin" type="submit" value="Log In" class="btn btn-primary" />
+                        <input id="btnLogin" type="submit" value="Log In" class="btn btn-primary" disabled="disabled" />
                     </div>
                 </div>
             </div>
@@ -58,6 +71,53 @@
     </form>
 
     <script src="~/Content/js/jquery-1.10.2.min.js"></script>
+    <script src="~/Content/js/jquery.cookie.js"></script>
+    <script src="~/Content/js/placeholdr.js"></script>
     <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
+    <script type="text/javascript">
+        var jsEnabled = false;
+        var ckEnabled = false;
+
+        var $buoop = {
+            vs: { i: 8, f: 20, o: 15, s: 6, c: 2 },
+            reminder: 0,
+            onshow: function (infos) {
+                $("#BrowserOutOfDate").show();
+                $("input[type=submit]").attr('disabled', 'disabled');
+            },
+            onclick: function (infos) { },
+            l: false,
+            test: false,
+            newwindow: true
+        };
+
+        function $buo_f() {
+            var e = document.createElement("script");
+            e.src = "//browser-update.org/update.js";
+            document.body.appendChild(e);
+        };
+        try { document.addEventListener("DOMContentLoaded", $buo_f, false) }
+        catch (e) { window.attachEvent("onload", $buo_f) }
+
+        $(document).ready(function () {
+            jsEnabled = true;
+
+            var TEST_COOKIE = 'test_cookie';
+            jQuery.cookie(TEST_COOKIE, true);
+            if (jQuery.cookie(TEST_COOKIE)) {
+                jQuery.cookie(TEST_COOKIE, null);
+                ckEnabled = true;
+            }
+
+            if (jsEnabled)
+                $("#EnableJavascript").hide();
+
+            if (ckEnabled)
+                $("#EnableCookies").hide();
+
+            if (jsEnabled && ckEnabled)
+                $("input[type=submit]").removeAttr("disabled");
+        });
+    </script>
 </body>
 </html>

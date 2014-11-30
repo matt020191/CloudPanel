@@ -26,7 +26,9 @@
     <div class="row">
         <div class="col-md-3">
             <div class="panel">
-                <a href="~/company/@companyCode/exchange/activesync/new" class="btn btn-primary btn-lg col-xs-12">Create New</a>
+                @if (isUnderLimit) {
+                    <a href="~/company/@companyCode/exchange/activesync/new" class="btn btn-primary btn-lg col-xs-12">Create New</a>
+                }
             </div>
             <hr>
             <div class="panel">

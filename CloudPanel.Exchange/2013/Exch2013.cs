@@ -85,7 +85,7 @@ namespace CloudPanel.Exchange
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("New-MobileDeviceMailboxPolicy");
-            cmd.AddParameter("Name", policy.DisplayName);
+            cmd.AddParameter("Name", policy.ExchangeName);
             cmd.AddParameter("AllowBluetooth", policy.AllowBluetooth);
             cmd.AddParameter("AllowBrowser", policy.AllowBrowser);
             cmd.AddParameter("AllowCamera", policy.AllowCamera);
@@ -170,7 +170,7 @@ namespace CloudPanel.Exchange
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-MobileDeviceMailboxPolicy");
             cmd.AddParameter("Identity", oldDisplayName);
-            cmd.AddParameter("Name", policy.DisplayName);
+            cmd.AddParameter("Name", policy.ExchangeName);
             cmd.AddParameter("AllowBluetooth", policy.AllowBluetooth);
             cmd.AddParameter("AllowBrowser", policy.AllowBrowser);
             cmd.AddParameter("AllowCamera", policy.AllowCamera);
@@ -283,112 +283,124 @@ namespace CloudPanel.Exchange
                 {
                     var newItem = new Plans_ExchangeActiveSync();
                     newItem.DisplayName = ps.Members["Identity"].Value.ToString();
+                    newItem.ExchangeName = newItem.DisplayName;
                     logger.DebugFormat("Found policy {0} in Exchange", newItem.DisplayName);
 
-                    newItem.AllowNonProvisionableDevices = (bool)ps.Members["AllowNonProvisionableDevices"].Value;
-                    logger.DebugFormat("Allow non provisionable devices is {0}", newItem.AllowNonProvisionableDevices);
+                    logger.DebugFormat("Checking if it is the default policy");
+                    bool isDefault = (bool)ps.Members["IsDefault"].Value;
+                    if (isDefault)
+                    {
+                        logger.DebugFormat("Policy {0} was found but it was the default. Not importing", newItem.DisplayName);
+                    }
+                    else
+                    {
+                        logger.DebugFormat("Policy {0} was found and it was not the default policy.", newItem.DisplayName);
 
-                    newItem.RefreshIntervalInHours = GetHours(ps.Members["DevicePolicyRefreshInterval"].Value.ToString());
-                    logger.DebugFormat("Refresh interval is {0}", newItem.RefreshIntervalInHours);
+                        newItem.AllowNonProvisionableDevices = (bool)ps.Members["AllowNonProvisionableDevices"].Value;
+                        logger.DebugFormat("Allow non provisionable devices is {0}", newItem.AllowNonProvisionableDevices);
 
-                    newItem.RequirePassword = (bool)ps.Members["PasswordEnabled"].Value;
-                    logger.DebugFormat("Device password required {0}", newItem.RequirePassword);
+                        newItem.RefreshIntervalInHours = GetHours(ps.Members["DevicePolicyRefreshInterval"].Value.ToString());
+                        logger.DebugFormat("Refresh interval is {0}", newItem.RefreshIntervalInHours);
 
-                    newItem.RequireAlphanumericPassword = (bool)ps.Members["AlphanumericPasswordRequired"].Value;
-                    logger.DebugFormat("Require alphanumeric password required {0}", newItem.RequireAlphanumericPassword);
+                        newItem.RequirePassword = (bool)ps.Members["PasswordEnabled"].Value;
+                        logger.DebugFormat("Device password required {0}", newItem.RequirePassword);
 
-                    newItem.EnablePasswordRecovery = (bool)ps.Members["PasswordRecoveryEnabled"].Value;
-                    logger.DebugFormat("Password Recovery", newItem.EnablePasswordRecovery);
+                        newItem.RequireAlphanumericPassword = (bool)ps.Members["AlphanumericPasswordRequired"].Value;
+                        logger.DebugFormat("Require alphanumeric password required {0}", newItem.RequireAlphanumericPassword);
 
-                    newItem.RequireEncryptionOnDevice = (bool)ps.Members["DeviceEncryptionEnabled"].Value;
-                    logger.DebugFormat("Encryption required {0}", newItem.RequireEncryptionOnDevice);
+                        newItem.EnablePasswordRecovery = (bool)ps.Members["PasswordRecoveryEnabled"].Value;
+                        logger.DebugFormat("Password Recovery", newItem.EnablePasswordRecovery);
 
-                    newItem.RequireEncryptionOnStorageCard = (bool)ps.Members["RequireStorageCardEncryption"].Value;
-                    logger.DebugFormat("Encryption on storage card required {0}", newItem.RequireEncryptionOnStorageCard);
+                        newItem.RequireEncryptionOnDevice = (bool)ps.Members["DeviceEncryptionEnabled"].Value;
+                        logger.DebugFormat("Encryption required {0}", newItem.RequireEncryptionOnDevice);
 
-                    newItem.AllowSimplePassword = (bool)ps.Members["AllowSimplePassword"].Value;
-                    logger.DebugFormat("Simple password allowed {0}", newItem.AllowSimplePassword);
+                        newItem.RequireEncryptionOnStorageCard = (bool)ps.Members["RequireStorageCardEncryption"].Value;
+                        logger.DebugFormat("Encryption on storage card required {0}", newItem.RequireEncryptionOnStorageCard);
 
-                    newItem.MinDevicePasswordComplexCharacters = (int)ps.Members["MinPasswordComplexCharacters"].Value;
-                    logger.DebugFormat("Minimum character sets {0}", newItem.MinDevicePasswordComplexCharacters);
+                        newItem.AllowSimplePassword = (bool)ps.Members["AllowSimplePassword"].Value;
+                        logger.DebugFormat("Simple password allowed {0}", newItem.AllowSimplePassword);
 
-                    newItem.NumberOfFailedAttempted = GetNumber(ps.Members["MaxPasswordFailedAttempts"].Value.ToString());
-                    logger.DebugFormat("Failed password attempts {0}", newItem.NumberOfFailedAttempted);
+                        newItem.MinDevicePasswordComplexCharacters = (int)ps.Members["MinPasswordComplexCharacters"].Value;
+                        logger.DebugFormat("Minimum character sets {0}", newItem.MinDevicePasswordComplexCharacters);
 
-                    newItem.MinimumPasswordLength = GetNumber(ps.Members["MinPasswordLength"].Value);
-                    logger.DebugFormat("Minimum password length {0}", newItem.MinimumPasswordLength);
+                        newItem.NumberOfFailedAttempted = GetNumber(ps.Members["MaxPasswordFailedAttempts"].Value.ToString());
+                        logger.DebugFormat("Failed password attempts {0}", newItem.NumberOfFailedAttempted);
 
-                    newItem.InactivityTimeoutInMinutes = GetMinutes(ps.Members["MaxInactivityTimeLock"].Value.ToString());
-                    logger.DebugFormat("Inactivity device lock in minutes {0}", newItem.InactivityTimeoutInMinutes);
+                        newItem.MinimumPasswordLength = GetNumber(ps.Members["MinPasswordLength"].Value);
+                        logger.DebugFormat("Minimum password length {0}", newItem.MinimumPasswordLength);
 
-                    newItem.PasswordExpirationInDays = GetDays(ps.Members["PasswordExpiration"].Value.ToString());
-                    logger.DebugFormat("Password expiration in days {0}", newItem.PasswordExpirationInDays);
+                        newItem.InactivityTimeoutInMinutes = GetMinutes(ps.Members["MaxInactivityTimeLock"].Value.ToString());
+                        logger.DebugFormat("Inactivity device lock in minutes {0}", newItem.InactivityTimeoutInMinutes);
 
-                    newItem.EnforcePasswordHistory = GetNumber(ps.Members["PasswordHistory"].Value.ToString());
-                    logger.DebugFormat("Password history {0}", newItem.EnforcePasswordHistory);
+                        newItem.PasswordExpirationInDays = GetDays(ps.Members["PasswordExpiration"].Value.ToString());
+                        logger.DebugFormat("Password expiration in days {0}", newItem.PasswordExpirationInDays);
 
-                    newItem.IncludePastCalendarItems = ps.Members["MaxCalendarAgeFilter"].Value.ToString();
-                    logger.DebugFormat("Calendar items {0}", newItem.IncludePastCalendarItems);
+                        newItem.EnforcePasswordHistory = GetNumber(ps.Members["PasswordHistory"].Value.ToString());
+                        logger.DebugFormat("Password history {0}", newItem.EnforcePasswordHistory);
 
-                    newItem.IncludePastEmailItems = ps.Members["MaxEmailAgeFilter"].Value.ToString();
-                    logger.DebugFormat("Email items {0}", newItem.IncludePastEmailItems);
+                        newItem.IncludePastCalendarItems = ps.Members["MaxCalendarAgeFilter"].Value.ToString();
+                        logger.DebugFormat("Calendar items {0}", newItem.IncludePastCalendarItems);
 
-                    newItem.LimitEmailSizeInKB = GetKiloBytes(ps.Members["MaxEmailBodyTruncationSize"].Value.ToString());
-                    logger.DebugFormat("Limit email size in KB {0}", newItem.LimitEmailSizeInKB);
+                        newItem.IncludePastEmailItems = ps.Members["MaxEmailAgeFilter"].Value.ToString();
+                        logger.DebugFormat("Email items {0}", newItem.IncludePastEmailItems);
 
-                    newItem.MaximumAttachmentSizeInKB = GetKiloBytes(ps.Members["MaxAttachmentSize"].Value.ToString());
-                    logger.DebugFormat("Max attachment size in KB {0}", newItem.MaximumAttachmentSizeInKB);
+                        newItem.LimitEmailSizeInKB = GetKiloBytes(ps.Members["MaxEmailBodyTruncationSize"].Value.ToString());
+                        logger.DebugFormat("Limit email size in KB {0}", newItem.LimitEmailSizeInKB);
 
-                    newItem.AllowDirectPushWhenRoaming = (bool)ps.Members["RequireManualSyncWhenRoaming"].Value;
-                    logger.DebugFormat("Allow direct push {0}", newItem.AllowDirectPushWhenRoaming);
+                        newItem.MaximumAttachmentSizeInKB = GetKiloBytes(ps.Members["MaxAttachmentSize"].Value.ToString());
+                        logger.DebugFormat("Max attachment size in KB {0}", newItem.MaximumAttachmentSizeInKB);
 
-                    newItem.AllowHTMLEmail = (bool)ps.Members["AllowHTMLEmail"].Value;
-                    logger.DebugFormat("Allow HTML email {0}", newItem.AllowHTMLEmail);
+                        newItem.AllowDirectPushWhenRoaming = (bool)ps.Members["RequireManualSyncWhenRoaming"].Value;
+                        logger.DebugFormat("Allow direct push {0}", newItem.AllowDirectPushWhenRoaming);
 
-                    newItem.AllowAttachmentsDownload = (bool)ps.Members["AttachmentsEnabled"].Value;
-                    logger.DebugFormat("Allow attachment download {0}", newItem.AllowAttachmentsDownload);
+                        newItem.AllowHTMLEmail = (bool)ps.Members["AllowHTMLEmail"].Value;
+                        logger.DebugFormat("Allow HTML email {0}", newItem.AllowHTMLEmail);
 
-                    newItem.AllowRemovableStorage = (bool)ps.Members["AllowStorageCard"].Value;
-                    logger.DebugFormat("Allow removable storage {0}", newItem.AllowRemovableStorage);
+                        newItem.AllowAttachmentsDownload = (bool)ps.Members["AttachmentsEnabled"].Value;
+                        logger.DebugFormat("Allow attachment download {0}", newItem.AllowAttachmentsDownload);
 
-                    newItem.AllowCamera = (bool)ps.Members["AllowCamera"].Value;
-                    logger.DebugFormat("Allow camera {0}", newItem.AllowCamera);
+                        newItem.AllowRemovableStorage = (bool)ps.Members["AllowStorageCard"].Value;
+                        logger.DebugFormat("Allow removable storage {0}", newItem.AllowRemovableStorage);
 
-                    newItem.AllowWiFi = (bool)ps.Members["AllowWiFi"].Value;
-                    logger.DebugFormat("Allow wifi {0}", newItem.AllowWiFi);
+                        newItem.AllowCamera = (bool)ps.Members["AllowCamera"].Value;
+                        logger.DebugFormat("Allow camera {0}", newItem.AllowCamera);
 
-                    newItem.AllowInfrared = (bool)ps.Members["AllowIrDA"].Value;
-                    logger.DebugFormat("Allow infrared {0}", newItem.AllowInfrared);
+                        newItem.AllowWiFi = (bool)ps.Members["AllowWiFi"].Value;
+                        logger.DebugFormat("Allow wifi {0}", newItem.AllowWiFi);
 
-                    newItem.AllowInternetSharing = (bool)ps.Members["AllowInternetSharing"].Value;
-                    logger.DebugFormat("Allow internet sharing {0}", newItem.AllowInternetSharing);
+                        newItem.AllowInfrared = (bool)ps.Members["AllowIrDA"].Value;
+                        logger.DebugFormat("Allow infrared {0}", newItem.AllowInfrared);
 
-                    newItem.AllowRemoteDesktop = (bool)ps.Members["AllowRemoteDesktop"].Value;
-                    logger.DebugFormat("Allow remote desktop {0}", newItem.AllowRemoteDesktop);
+                        newItem.AllowInternetSharing = (bool)ps.Members["AllowInternetSharing"].Value;
+                        logger.DebugFormat("Allow internet sharing {0}", newItem.AllowInternetSharing);
 
-                    newItem.AllowDesktopSync = (bool)ps.Members["AllowDesktopSync"].Value;
-                    logger.DebugFormat("Allow desktop sync {0}", newItem.AllowDesktopSync);
+                        newItem.AllowRemoteDesktop = (bool)ps.Members["AllowRemoteDesktop"].Value;
+                        logger.DebugFormat("Allow remote desktop {0}", newItem.AllowRemoteDesktop);
 
-                    newItem.AllowTextMessaging = (bool)ps.Members["AllowTextMessaging"].Value;
-                    logger.DebugFormat("Allow text messaging {0}", newItem.AllowTextMessaging);
+                        newItem.AllowDesktopSync = (bool)ps.Members["AllowDesktopSync"].Value;
+                        logger.DebugFormat("Allow desktop sync {0}", newItem.AllowDesktopSync);
 
-                    newItem.AllowBluetooth = ps.Members["AllowBluetooth"].Value.ToString();
-                    logger.DebugFormat("Allow bluetooth {0}", newItem.AllowBluetooth);
+                        newItem.AllowTextMessaging = (bool)ps.Members["AllowTextMessaging"].Value;
+                        logger.DebugFormat("Allow text messaging {0}", newItem.AllowTextMessaging);
 
-                    newItem.AllowBrowser = (bool)ps.Members["AllowBrowser"].Value;
-                    logger.DebugFormat("Allow browser {0}", newItem.AllowBrowser);
+                        newItem.AllowBluetooth = ps.Members["AllowBluetooth"].Value.ToString();
+                        logger.DebugFormat("Allow bluetooth {0}", newItem.AllowBluetooth);
 
-                    newItem.AllowConsumerMail = (bool)ps.Members["AllowConsumerEmail"].Value;
-                    logger.DebugFormat("Allow consumer email {0}", newItem.AllowConsumerMail);
+                        newItem.AllowBrowser = (bool)ps.Members["AllowBrowser"].Value;
+                        logger.DebugFormat("Allow browser {0}", newItem.AllowBrowser);
 
-                    newItem.AllowUnsignedApplications = (bool)ps.Members["AllowUnsignedApplications"].Value;
-                    logger.DebugFormat("Unsigned apps {0}", newItem.AllowUnsignedApplications);
+                        newItem.AllowConsumerMail = (bool)ps.Members["AllowConsumerEmail"].Value;
+                        logger.DebugFormat("Allow consumer email {0}", newItem.AllowConsumerMail);
 
-                    newItem.AllowUnsignedInstallationPackages = (bool)ps.Members["AllowUnsignedInstallationPackages"].Value;
-                    logger.DebugFormat("Unsigned installation packages {0}", newItem.AllowUnsignedInstallationPackages);
+                        newItem.AllowUnsignedApplications = (bool)ps.Members["AllowUnsignedApplications"].Value;
+                        logger.DebugFormat("Unsigned apps {0}", newItem.AllowUnsignedApplications);
 
-                    logger.DebugFormat("Completed {0}", newItem.DisplayName);
-                    foundList.Add(newItem);
+                        newItem.AllowUnsignedInstallationPackages = (bool)ps.Members["AllowUnsignedInstallationPackages"].Value;
+                        logger.DebugFormat("Unsigned installation packages {0}", newItem.AllowUnsignedInstallationPackages);
+
+                        logger.DebugFormat("Completed {0}", newItem.DisplayName);
+                        foundList.Add(newItem);
+                    }
                 }
             }
 

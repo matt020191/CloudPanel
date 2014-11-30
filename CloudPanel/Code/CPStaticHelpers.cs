@@ -6,6 +6,7 @@ using CloudPanel.Base.Exchange;
 using CloudPanel.Database.EntityFramework;
 using log4net;
 using Nancy;
+using Nancy.Responses.Negotiation;
 using Nancy.ViewEngines.Razor;
 using System;
 using System.Collections.Generic;
@@ -157,6 +158,38 @@ namespace CloudPanel
             }
         }
 
+        /// <summary>
+        /// Checks if the clients wants HTML or not. This is for error handler classes
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static bool ClientWantsHtml(NancyContext context)
+        {
+            var acceptHeaders = context.Request.Headers.Accept;
+            var mediaRanges = acceptHeaders.OrderByDescending(x => x.Item2)
+                                           .Select(x => new MediaRange(x.Item1))
+                                           .ToList();
+
+            foreach (var item in mediaRanges)
+            {
+                if (item.Matches("application/json"))
+                    return false;
+                if (item.Matches("text/json"))
+                    return false;
+                if (item.Matches("text/html"))
+                    return true;
+            }
+
+            // Return true as fallback
+            return true;
+        }
+
+        /// <summary>
+        /// Checks if the current numbers are under the plan limit or not
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <param name="section"></param>
+        /// <returns></returns>
         public static bool IsUnderLimit(string companyCode, string section)
         {
             CloudPanelContext db = null;
@@ -191,6 +224,9 @@ namespace CloudPanel
                     case "domain":
                         var domainCount = (from d in db.Domains where d.CompanyCode == companyCode select d).Count();
                         return (companyPlan.MaxDomains > domainCount);
+                    case "activesync":
+                        var activesyncCount = (from d in db.Plans_ExchangeActiveSync where d.CompanyCode == companyCode select d).Count();
+                        return (companyPlan.MaxExchangeActivesyncPolicies > activesyncCount);
                     default:
                         return false; // Return false that it is at the limits if it doesn't find the section
                 }
