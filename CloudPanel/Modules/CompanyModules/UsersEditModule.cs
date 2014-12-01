@@ -1,4 +1,5 @@
 ﻿using CloudPanel.ActiveDirectory;
+using CloudPanel.Base.AD;
 using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
 using CloudPanel.Code;
@@ -9,9 +10,11 @@ using log4net;
 using Nancy;
 using Nancy.ModelBinding;
 using Nancy.Security;
+using Nancy.ViewEngines.Razor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace CloudPanel.Modules.CompanyModules
 {
@@ -166,6 +169,12 @@ namespace CloudPanel.Modules.CompanyModules
                         sqlUser.Country = boundUser.Country;
                         sqlUser.RoleID = boundUser.RoleID;
                         sqlUser.ChangePasswordNextLogin = boundUser.ChangePasswordNextLogin;
+
+                        // Check if the user is a super admin and change the IsResellerAdmin option
+                        if (this.Context.IsSuperAdmin())
+                        {
+                            sqlUser.IsResellerAdmin = boundUser.IsResellerAdmin;
+                        }
 
                         logger.DebugFormat("Checking if company admin");
                         if (boundUser.RoleID > 0)
@@ -642,6 +651,132 @@ namespace CloudPanel.Modules.CompanyModules
                            select d).ToList();
 
             return domains;
+        }
+
+        /// <summary>
+        /// Gets a list of mailboxes for ForwardTo 
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <returns></returns>
+        public static IHtmlString GetMailboxesWithOptions(string companyCode)
+        {
+            var sb = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var mailboxes = (from d in db.Users
+                                 where d.CompanyCode == companyCode
+                                 orderby d.DisplayName
+                                 select d).ToList();
+
+                mailboxes.ForEach(x =>
+                    {
+                        x.CanoncialName = LdapConverters.ToCanonicalName(x.DistinguishedName);
+                        string append = string.Format("<option value='{0}'>{1}</option>",
+                                                       x.CanoncialName,
+                                                       x.DisplayName);
+                        sb.AppendLine(append);
+                    });
+
+                return new NonEncodedHtmlString(sb.ToString());
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting mailboxes with options for {0}: {1}", companyCode, ex.ToString());
+                return new NonEncodedHtmlString("");
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Gets a list of groups for ForwardTo
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <returns></returns>
+        public static IHtmlString GetGroupsWithOptions(string companyCode)
+        {
+            var sb = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var groups = (from d in db.DistributionGroups
+                                 where d.CompanyCode == companyCode
+                                 orderby d.DisplayName
+                                 select d).ToList();
+
+                groups.ForEach(x =>
+                {
+                    x.CanonicalName = LdapConverters.ToCanonicalName(x.DistinguishedName);
+                    string append = string.Format("<option value='{0}'>{1}</option>",
+                                                   x.CanonicalName,
+                                                   x.DisplayName);
+                    sb.AppendLine(append);
+                });
+
+                return new NonEncodedHtmlString(sb.ToString());
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting distribution groups with options for {0}: {1}", companyCode, ex.ToString());
+                return new NonEncodedHtmlString("");
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Gets a list of contacts for ForwardTo
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <returns></returns>
+        public static IHtmlString GetContactsWithOptions(string companyCode)
+        {
+            var sb = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var contacts = (from d in db.Contacts
+                              where d.CompanyCode == companyCode
+                              orderby d.DisplayName
+                              select d).ToList();
+
+                contacts.ForEach(x =>
+                {
+                    x.CanoncialName = LdapConverters.ToCanonicalName(x.DistinguishedName);
+                    string append = string.Format("<option value='{0}'>{1}</option>",
+                                                   x.CanoncialName,
+                                                   x.DisplayName);
+                    sb.AppendLine(append);
+                });
+
+                return new NonEncodedHtmlString(sb.ToString());
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting distribution groups with options for {0}: {1}", companyCode, ex.ToString());
+                return new NonEncodedHtmlString("");
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
         }
 
         #endregion

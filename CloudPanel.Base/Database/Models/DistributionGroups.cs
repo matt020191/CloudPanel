@@ -118,6 +118,9 @@ namespace CloudPanel.Base.Database.Models
         [NotMapped]
         public int SendModerationNotifications { get; set; }
 
+        [NotMapped]
+        public string CanonicalName { get; set; }
+
         #endregion
     }
 }

@@ -404,7 +404,16 @@ namespace CloudPanel.Base.Database.Models
         public string RetentionUrl { get; set; }
 
         [NotMapped]
+        public string ForwardTo { get; set; }
+
+        [NotMapped]
+        public string CanoncialName { get; set; }
+
+        [NotMapped]
         public bool AutoMapping { get; set; }
+
+        [NotMapped]
+        public bool DeliverToMailboxAndForward { get; set; }
 
         #endregion
 

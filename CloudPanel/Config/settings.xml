@@ -46,11 +46,11 @@
   </Citrix>
   <Notifications>
     <Enabled>false</Enabled>
-    <FromAddress></FromAddress>
-    <ToAddress></ToAddress>
-    <MailServer></MailServer>
-    <MailPort>0</MailPort>
-    <MailUsername></MailUsername>
+    <FromAddress>jdixon@compsysar.com</FromAddress>
+    <ToAddress>jdixon@compsysar.com</ToAddress>
+    <MailServer>relay.dnsexit.com</MailServer>
+    <MailPort>2525</MailPort>
+    <MailUsername>compsysar1</MailUsername>
     <MailPassword>1jr3Kd5dEDI=</MailPassword>
   </Notifications>
 </cloudpanel>

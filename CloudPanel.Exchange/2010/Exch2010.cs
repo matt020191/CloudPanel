@@ -1016,6 +1016,13 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("CustomAttribute1", user.CompanyCode);
             cmd.AddParameter("GrantSendOnBehalfTo", (user.EmailSendOnBehalf == null || user.EmailSendOnBehalf.Length == 0) ? null : user.EmailSendOnBehalf);
             cmd.AddParameter("RoleAssignmentPolicy", Settings.ExchangeRoleAssignment);
+            cmd.AddParameter("DeliverToMailboxAndForward", user.DeliverToMailboxAndForward);
+
+            if (!string.IsNullOrEmpty(user.ForwardTo) && !user.ForwardTo.Equals("0"))
+                cmd.AddParameter("ForwardingAddress", user.ForwardTo);
+            else
+                cmd.AddParameter("ForwardingAddress", null);
+
             cmd.AddParameter("DomainController", this._domainController);
 
             logger.DebugFormat("Executing powershell commands...");
@@ -1181,6 +1188,14 @@ namespace CloudPanel.Exchange
                     }
                 }
                 user.EmailAliases = parsedAliases.ToArray();
+
+                logger.DebugFormat("Getting forward to attribute");
+                if (foundUser.Properties["ForwardingAddress"].Value != null)
+                    user.ForwardTo = foundUser.Properties["ForwardingAddress"].Value.ToString();
+
+                logger.DebugFormat("Getting deliver to mailbox and forward attribute");
+                if (foundUser.Properties["DeliverToMailboxAndForward"].Value != null)
+                    user.DeliverToMailboxAndForward = bool.Parse(foundUser.Properties["DeliverToMailboxAndForward"].Value.ToString());
 
                 logger.DebugFormat("Retrieving litigation hold information");
                 if (foundUser.Properties["LitigationHoldEnabled"].Value != null)

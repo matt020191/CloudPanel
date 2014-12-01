@@ -57,5 +57,12 @@ namespace CloudPanel.Base.Database.Models
         public string Email { get; set; }
 
         public bool Hidden { get; set; }
+
+        #region Not Mapped
+
+        [NotMapped]
+        public string CanoncialName { get; set; }
+
+        #endregion
     }
 }

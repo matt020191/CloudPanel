@@ -95,6 +95,16 @@
                                                                 </label>
                                                             </div>
                                                         </div>
+                                                        @if (this.RenderContext.Context.IsSuperAdmin()) {
+                                                            <div class="form-group">
+                                                                <label class="col-sm-3 control-label"></label>
+                                                                <div class="col-sm-9">
+                                                                    <label class="checkbox-inline">
+                                                                        <input id="IsResellerAdmin" name="IsResellerAdmin" type="checkbox" value="false" /> Is Reseller Admin
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        }
                                                     </div>
                                                     <hr />
                                                     <h3>Company Information</h3><br />
@@ -315,6 +325,24 @@
                                                                     </select>
                                                                 </div>
                                                             </div>
+                                                            <div class="form-group">
+                                                                <label class="col-sm-3 control-label">Forward To</label>
+                                                                <div class="col-sm-6">
+                                                                    <select id="ForwardTo" name="ForwardTo" style="width: 100%" class="form-control">
+                                                                        <option value="0">Not Forwarded</option>
+                                                                        <optgroup label="Users">
+                                                                            @CloudPanel.Modules.CompanyModules.UsersEditModule.GetMailboxesWithOptions(companyCode)
+                                                                        </optgroup>
+                                                                        <optgroup label="Groups">
+                                                                            @CloudPanel.Modules.CompanyModules.UsersEditModule.GetGroupsWithOptions(companyCode)
+                                                                        </optgroup>
+                                                                        <optgroup label="Contacts">
+                                                                            @CloudPanel.Modules.CompanyModules.UsersEditModule.GetContactsWithOptions(companyCode)
+                                                                        </optgroup>
+                                                                    </select>
+                                                                    <input id="DeliverToMailboxAndForward" name="DeliverToMailboxAndForward" type="checkbox" value="false" /> Deliver to mailbox and forward
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -478,6 +506,11 @@
                     $("#PostalCode").val(data.user.postalCode);
                     $("#Country").select2("val", data.user.country);
 
+                    if (data.user.isResellerAdmin) {
+                        $("#IsResellerAdmin").val("true");
+                        $("#IsResellerAdmin").prop("checked", true);
+                    }
+
                     if (data.user.roleID > 0) {
                         $("#RoleID").select2("val", data.user.roleID);
                     }
@@ -589,6 +622,15 @@
                         $("#LitigationHoldDate").val(data.mailbox.litigationHoldDate);
                         $("#RetentionComment").val(data.mailbox.retentionComment);
                         $("#RetentionUrl").val(data.mailbox.retentionUrl);
+                        $("#ForwardTo").val(data.mailbox.forwardTo);
+
+                        if (data.mailbox.deliverToMailboxAndForward) {
+                            $("#DeliverToMailboxAndForward").val("true");
+                            $("#DeliverToMailboxAndForward").prop("checked", true);
+                        } else {
+                            $("#DeliverToMailboxAndForward").val("false");
+                            $("#DeliverToMailboxAndForward").prop("checked", false);
+                        }
                     })
                     .done(function (data) {
                         mailboxRetrieved = true;
