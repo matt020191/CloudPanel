@@ -3,6 +3,7 @@
 
 @{
     Layout = "__master.cshtml";
+    var companyCode = this.RenderContext.Context.GetCompanyCode();
 }
 @section HEAD{
 <link href="~/Content/plugins/charts-morrisjs/morris.css" rel="stylesheet" />
@@ -105,33 +106,44 @@
                                         <div class="progress-bar progress-bar-primary _domains" style="width: @((int)(0.5f + ((100f * Model.totalDomains) / Model.companyPlan.MaxDomains)))%"></div>
                                     </div>
                                 </div> <!-- Domains -->
-                                <div class="contextual-progress">
-                                    <div class="clearfix">
-                                        <div class="progress-title">Mailboxes</div>
-                                        <div class="progress-percentage _mailboxes">@Model.totalMailboxes / @Model.companyPlan.MaxExchangeMailboxes</div>
-                                    </div>
-                                    <div class="progress">
-                                        <div class="progress-bar progress-bar-warning _mailboxes" style="width: @((int)(0.5f + ((100f * Model.totalMailboxes) / Model.companyPlan.MaxExchangeMailboxes)))%"></div>
-                                    </div>
-                                </div> <!-- Mailboxes -->
-                                <div class="contextual-progress">
-                                    <div class="clearfix">
-                                        <div class="progress-title">Contacts</div>
-                                        <div class="progress-percentage _contacts">@Model.totalContacts / @Model.companyPlan.MaxExchangeContacts</div>
-                                    </div>
-                                    <div class="progress">
-                                        <div class="progress-bar progress-bar-danger _contacts" style="width: @((int)(0.5f + ((100f * Model.totalContacts) / Model.companyPlan.MaxExchangeContacts)))%"></div>
-                                    </div>
-                                </div> <!-- Contacts -->
-                                <div class="contextual-progress">
-                                    <div class="clearfix">
-                                        <div class="progress-title">Distribution Groups</div>
-                                        <div class="progress-percentage _groups">@Model.totalGroups / @Model.companyPlan.MaxExchangeDistLists</div>
-                                    </div>
-                                    <div class="progress">
-                                        <div class="progress-bar progress-bar-success _groups" style="width: @((int)(0.5f + ((100f * Model.totalGroups) / Model.companyPlan.MaxExchangeDistLists)))%"></div>
-                                    </div>
-                                </div> <!-- Distribution Groups -->
+                                 @if (CloudPanel.CPStaticHelpers.IsExchangeEnabled(companyCode)) {
+                                    <div class="contextual-progress">
+                                        <div class="clearfix">
+                                            <div class="progress-title">Mailboxes</div>
+                                            <div class="progress-percentage _mailboxes">@Model.totalMailboxes / @Model.companyPlan.MaxExchangeMailboxes</div>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-warning _mailboxes" style="width: @((int)(0.5f + ((100f * Model.totalMailboxes) / Model.companyPlan.MaxExchangeMailboxes)))%"></div>
+                                        </div>
+                                    </div> <!-- Mailboxes -->
+                                    <div class="contextual-progress">
+                                        <div class="clearfix">
+                                            <div class="progress-title">Contacts</div>
+                                            <div class="progress-percentage _contacts">@Model.totalContacts / @Model.companyPlan.MaxExchangeContacts</div>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-danger _contacts" style="width: @((int)(0.5f + ((100f * Model.totalContacts) / Model.companyPlan.MaxExchangeContacts)))%"></div>
+                                        </div>
+                                    </div> <!-- Contacts -->
+                                    <div class="contextual-progress">
+                                        <div class="clearfix">
+                                            <div class="progress-title">Distribution Groups</div>
+                                            <div class="progress-percentage _groups">@Model.totalGroups / @Model.companyPlan.MaxExchangeDistLists</div>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-success _groups" style="width: @((int)(0.5f + ((100f * Model.totalGroups) / Model.companyPlan.MaxExchangeDistLists)))%"></div>
+                                        </div>
+                                    </div> <!-- Distribution Groups -->
+                                    <div class="contextual-progress">
+                                        <div class="clearfix">
+                                            <div class="progress-title">ActiveSync Plans</div>
+                                            <div class="progress-percentage _groups">@Model.totalActiveSync / @Model.companyPlan.MaxExchangeActivesyncPolicies</div>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-info _activesync" style="width: @((int)(0.5f + ((100f * Model.totalActiveSync) / Model.companyPlan.MaxExchangeActivesyncPolicies)))%"></div>
+                                        </div>
+                                    </div> <!-- ActiveSync Plans -->
+                                 }
                             </div>
                         </div>
                     </div>

@@ -169,12 +169,10 @@
                     <hr />
 
                     <div class="row">
-                        <div class="fileinput fileinput-new" style="float:right" data-provides="fileinput">
-                            <span class="btn btn-default btn-file"><span class="fileinput-new">Select file</span><span class="fileinput-exists">Change</span><input type="file" id="files" name="..."></span>
-                            <span class="fileinput-filename"></span>
-                            <a href="#" class="close fileinput-exists" data-dismiss="fileinput" style="float: none">&times;</a>
-                        </div>
+                        <input type="file" id="files" name="files" style="float:right">
                     </div>
+
+                    <br />
 
                     <div class="row">
                     <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered datatables" id="dataTable">
@@ -206,7 +204,6 @@
    <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
     <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
     <script src="~/Content/plugins/papaparse/papaparse.min.js"></script>
-    <script src="~/Content/plugins/form-jasnyupload/fileinput.js"></script>
     <script type="text/javascript">
         var totalRunning = 0;
 

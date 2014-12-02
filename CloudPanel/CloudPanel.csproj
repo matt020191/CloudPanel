@@ -967,6 +967,10 @@
     <Content Include="Content\plugins\gmaps\gmaps.streetview.js" />
     <Content Include="Content\plugins\gmaps\gmaps.styles.js" />
     <Content Include="Content\plugins\gmaps\gmaps.utils.js" />
+    <Content Include="Content\plugins\jasny-bootstrap\css\jasny-bootstrap.css" />
+    <Content Include="Content\plugins\jasny-bootstrap\css\jasny-bootstrap.min.css" />
+    <Content Include="Content\plugins\jasny-bootstrap\js\jasny-bootstrap.js" />
+    <Content Include="Content\plugins\jasny-bootstrap\js\jasny-bootstrap.min.js" />
     <Content Include="Content\plugins\jcrop\css\Jcrop.gif" />
     <Content Include="Content\plugins\jcrop\css\jquery.Jcrop.css" />
     <Content Include="Content\plugins\jcrop\css\jquery.Jcrop.min.css" />
@@ -1394,6 +1398,7 @@
     <Content Include="Content\plugins\papaparse\parse.jquery.json" />
     <Content Include="Content\plugins\papaparse\README.md" />
     <Content Include="Content\plugins\papaparse\tests\sample.csv" />
+    <Content Include="Content\plugins\jasny-bootstrap\css\jasny-bootstrap.css.map" />
     <None Include="Properties\PublishProfiles\HOME DC.pubxml" />
     <None Include="Properties\PublishProfiles\HOME ZIP.pubxml" />
     <None Include="Properties\PublishProfiles\LAB DC.pubxml" />

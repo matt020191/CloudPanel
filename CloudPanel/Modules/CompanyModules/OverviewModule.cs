@@ -61,6 +61,9 @@ namespace CloudPanel.Modules
                     logger.DebugFormat("Querying total groups for {0}", companyCode);
                     var totalGroups = (from d in db.DistributionGroups where d.CompanyCode == companyCode select d.ID).Count();
 
+                    logger.DebugFormat("Querying total activesync policies for {0}", companyCode);
+                    var totalActiveSync = (from d in db.Plans_ExchangeActiveSync where d.CompanyCode == companyCode select d.ASID).Count();
+
                     return Negotiate.WithModel(new 
                                     {
                                         company = company,
@@ -69,7 +72,8 @@ namespace CloudPanel.Modules
                                         totalDomains = totalDomains,
                                         totalMailboxes = totalMailboxes,
                                         totalContacts = totalContacts,
-                                        totalGroups = totalGroups
+                                        totalGroups = totalGroups,
+                                        totalActiveSync = totalActiveSync
                                     })
                                     .WithView("Company/overview.cshtml");
                 }

@@ -70,13 +70,13 @@
                                     <div class="col-sm-6">
                                         <div class="radio">
                                             <label>
-                                                <input type="radio" name="ActionToTake" id="ActionToTake" value="0" onclick="javascript: HideDisable();" checked>
+                                                <input type="radio" name="ActionToTake" id="ActionToTake" value="0" onclick="javascript: ShowEnable();" checked>
                                                 Choose a plan, size, and enable all the mailboxes you have selected
                                             </label>
                                         </div>
                                         <div class="radio">
                                             <label>
-                                                <input type="radio" name="ActionToTake" id="ActionToTake" value="2" onclick="javascript: HideDisable();" disabled>
+                                                <input type="radio" name="ActionToTake" id="ActionToTake" value="2" onclick="javascript: ShowChange();">
                                                 Change the plan, size, features for all the mailboxes you have selected
                                             </label>
                                         </div>
@@ -95,15 +95,13 @@
                             <legend>Set the values for the action</legend>
                             <div class="row">
                                 <div class="form-horizontal">
-                                    <div id="EnableChange">
+
+                                    <div id="Enable">
                                         <div class="form-group">
                                             <label class="col-sm-3 control-label">Plan</label>
                                             <div class="col-sm-6">
                                                 @CloudPanel.CPHtmlHelpers.GetMailboxPlans(0, companyCode, "", "MailboxPlan")
                                                 <p id="mailboxPlanDescription"></p>
-                                            </div>
-                                            <div class="col-sm-2">
-                                                <input id="UpdatePlan" name="UpdatePlan" type="checkbox" value="false" /> Update Plan
                                             </div>
                                         </div>
                                         <div id="sliderDiv" class="form-group">
@@ -167,6 +165,72 @@
                                         </div>
                                     </div>
 
+                                    <div id="Change" style="display: none">
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">Litgation Hold</label>
+                                            <div class="col-sm-6">
+                                                <label class="checkbox-inline">
+                                                    <input id="LitigationHoldEnabled" name="LitigationHoldEnabled" type="checkbox" value="false" /> Litigation Hold Enabled
+                                                </label>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input id="cbChangeLitigationHold" name="cbChangeLitigationHold" type="checkbox" value="false" /> Update changes
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">Litigation Hold URL</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" id="RetentionUrl" name="RetentionUrl" data-parsley-type="url">
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input id="cbChangeLitigationHoldUrl" name="cbChangeLitigationHoldUrl" type="checkbox" value="false" /> Update changes
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">Litigation Hold Message</label>
+                                            <div class="col-sm-6">
+                                                <textarea name="RetentionComment" id="RetentionComment" cols="50" rows="4" class="form-control"></textarea>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input id="cbChangeLitigationHoldComment" name="cbChangeLitigationHoldComment" type="checkbox" value="false" /> Update changes
+                                            </div>
+                                        </div>
+
+                                        <hr />
+
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">Archive Mailbox</label>
+                                            <div class="col-sm-6">
+                                                <label class="checkbox-inline">
+                                                    <input id="ArchivingEnabledChecked" name="ArchivingEnabledChecked" type="checkbox" value="false" /> Archiving Enabled <small>(Note: Enabling archive requires you to select an archive plan)</small>
+                                                </label>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input id="cbChangeArchiving" name="cbChangeArchiving" type="checkbox" value="false" /> Update changes
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">Archive Name</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" id="ArchiveName" name="ArchiveName">
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input id="cbChangeArchiveName" name="cbChangeArchiveName" type="checkbox" value="false" /> Update changes
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">Archive Plan</label>
+                                            <div class="col-sm-6">
+                                                <select id="ArchivePlan" name="ArchivePlan" style="width: 100%" class="populate">
+                                                    @CloudPanel.Modules.PlansModules.ArchivePlanModule.GetArchivePlansWithOptions(companyCode, null)
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input id="cbChangeArchivePlan" name="cbChangeArchivePlan" type="checkbox" value="false" /> Update changes
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div id="Disable" style="display: none;" class="text-center">
                                         <h3>There are no values to set since you chose to disable mailboxes</h3>
                                     </div>
@@ -191,6 +255,13 @@
     <script src="~/Content/plugins/form-select2/select2.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
+            $("input[type=checkbox]").click(function () {
+                if ($(this).is(':checked')) {
+                    $(this).val("true");
+                } else {
+                    $(this).val("false");
+                }
+            });
 
             $('#basicwizard').stepy({
                 legend: false
@@ -254,16 +325,24 @@
             $("#mailboxPlanDescription").text(description)
         }
 
+        function ShowEnable() {
+            $("#Disable").hide();
+            $("#Change").hide();
+            $("#Enable").show();
+        }
+
         function ShowDisable()
         {
             $("#Disable").show();
-            $("#EnableChange").hide();
+            $("#Change").hide();
+            $("#Enable").hide();
         }
 
-        function HideDisable()
+        function ShowChange()
         {
             $("#Disable").hide();
-            $("#EnableChange").show();
+            $("#Change").show();
+            $("#Enable").hide();
         }
     </script>
 }

@@ -64,7 +64,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     string[] userPrincipalNames = users.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
                     // For our results
-                    Dictionary<string, string> results = null;
+                    Dictionary<string, string> results = new Dictionary<string,string>();
 
                     ActionToTake action = Enum.Parse(typeof(ActionToTake), Request.Form.ActionToTake.Value);
                     switch (action)
@@ -91,7 +91,39 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                             results = EnableMailboxes(userPrincipalNames, companyCode, format, Request.Form.MailboxPlan, Request.Form.SizeInMB, Request.Form.EmailDomain);
                             break;
                         case ActionToTake.Change:
-                            logger.DebugFormat("Change action was taken");
+                            logger.DebugFormat("Change action was taken.. Checking Litigation Hold settings");
+                            bool changeLitigationHold = Request.Form.cbChangeLitigationHold.HasValue ? (bool)Request.Form.cbChangeLitigationHold : false;
+                            bool changeLitigationUrl = Request.Form.cbChangeLitigationHoldUrl.HasValue ? (bool)Request.Form.cbChangeLitigationHoldUrl : false;
+                            bool changeLitigationComment = Request.Form.cbChangeLitigationHoldComment.HasValue ? (bool)Request.Form.cbChangeLitigationHoldComment : false;
+
+                            if (changeLitigationHold || changeLitigationUrl || changeLitigationComment)
+                            {
+                                logger.DebugFormat("We are updating litigation hold information. Hold: {0}, Url: {1}, Comment: {2}", changeLitigationHold, changeLitigationUrl, changeLitigationComment);
+                                results = ModifyLitigationHold(userPrincipalNames, companyCode, 
+                                                               (changeLitigationHold == true ? (bool?)Request.Form.LitigationHoldEnabled : null),
+                                                               (changeLitigationUrl == true ? Request.Form.cbChangeLitigationHoldUrl.Value : null),
+                                                               (changeLitigationComment == true ? Request.Form.RetentionComment.Value : null));
+
+                             
+                            }
+
+                            logger.DebugFormat("Checking for Archive Mailbox changes");
+                            bool changeArchive = Request.Form.cbChangeArchiving.HasValue ? (bool)Request.Form.cbChangeArchiving : false;
+                            bool changeArchiveName = Request.Form.cbChangeArchiveName.HasValue ? (bool)Request.Form.cbChangeArchiveName : false;
+                            bool changeArchivePlan = Request.Form.cbChangeArchivePlan.HasValue ? (bool)Request.Form.cbChangeArchivePlan : false;
+
+                            if (changeArchive || changeArchiveName || changeArchivePlan)
+                            {
+                                logger.DebugFormat("We are updating archive mailbox information. Archive: {0}, Name: {1}, Plan: {2}", changeArchive, changeArchiveName, changeArchivePlan);
+                                
+                                Dictionary<string, string> r2 = ModifyArchiveMailbox(userPrincipalNames, companyCode,
+                                                                                    (changeArchive == true ? (bool?)Request.Form.ArchivingEnabledChecked : null),
+                                                                                    (changeArchiveName == true ? Request.Form.ArchiveName.Value : null),
+                                                                                    (changeArchivePlan == true || changeArchive == true) ? (int?)Request.Form.ArchivePlan : null);
+
+                                results = results.Union(r2).ToDictionary(k => k.Key, v => v.Value);
+                            }
+
                             break;
                         default:
                             throw new Exception("Unknown action was specified");
@@ -344,6 +376,171 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                         results.Add(u, ex.Message);
 
                         reverse.RollbackNow();
+                    }
+                }
+
+                // Return our results to the calling method to display to the user
+                return results;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error enabling mailboxes: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (powershell != null)
+                    powershell.Dispose();
+
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Updates the litigation hold section
+        /// </summary>
+        /// <param name="userPrincipalNames"></param>
+        /// <param name="companyCode"></param>
+        /// <param name="isEnabled"></param>
+        /// <param name="url"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        private Dictionary<string, string> ModifyLitigationHold(string[] userPrincipalNames, string companyCode, bool? isEnabled = null, string url = null, string message = null)
+        {
+            var results = new Dictionary<string, string>();
+
+            CloudPanelContext db = null;
+            dynamic powershell = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                powershell = ExchPowershell.GetClass();
+                foreach (var u in userPrincipalNames)
+                {
+                    string resultName = string.Format("{0} [Litigation Hold]", u);
+                    try
+                    {
+                        //
+                        // Get the user from the database
+                        //
+                        logger.DebugFormat("Getting user {0} from the database", u);
+                        var sqlUser = (from d in db.Users
+                                       where d.UserPrincipalName == u
+                                       where d.CompanyCode == companyCode
+                                       where d.MailboxPlan > 0
+                                       select d).FirstOrDefault();
+
+                        if (sqlUser == null)
+                            results.Add(resultName, "User does not appear to have a mailbox");
+                        else
+                        {
+                            powershell.Set_LitigationHold(u, litigationHoldEnabled: isEnabled, retentionUrl: url, retentionComment: message);
+                            results.Add(resultName, "Successfully updated litigation hold settings");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error updating litigation hold settings for {0}: {1}", u, ex.ToString());
+                        results.Add(resultName, ex.Message);
+                    }
+                }
+
+                // Return our results to the calling method to display to the user
+                return results;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error modifying litigation hold: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (powershell != null)
+                    powershell.Dispose();
+
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Makes modifications to archive mailbox
+        /// </summary>
+        /// <param name="userPrincipalNames"></param>
+        /// <param name="companyCode"></param>
+        /// <param name="isEnabled"></param>
+        /// <param name="archiveName"></param>
+        /// <param name="archivePlan"></param>
+        /// <returns></returns>
+        private Dictionary<string, string> ModifyArchiveMailbox(string[] userPrincipalNames, string companyCode, bool? isEnabled = null, string archiveName = null, int? archivePlan = null)
+        {
+            var results = new Dictionary<string, string>();
+
+            CloudPanelContext db = null;
+            dynamic powershell = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                int? archivePlanSize = null;
+                if (archivePlan != null)
+                    archivePlanSize = (from d in db.Plans_ExchangeArchiving
+                                       where d.ArchivingID == archivePlan
+                                       where string.IsNullOrEmpty(d.CompanyCode) || d.CompanyCode == companyCode
+                                       select d.ArchiveSizeMB).First();
+
+                powershell = ExchPowershell.GetClass();
+                foreach (var u in userPrincipalNames)
+                {
+                    string resultName = string.Format("{0} [Archive]", u);
+                    try
+                    {
+                        //
+                        // Get the user from the database
+                        //
+                        logger.DebugFormat("Getting user {0} from the database", u);
+                        var sqlUser = (from d in db.Users
+                                       where d.UserPrincipalName == u
+                                       where d.CompanyCode == companyCode
+                                       where d.MailboxPlan > 0
+                                       select d).FirstOrDefault();
+
+                        if (sqlUser == null)
+                            results.Add(resultName, "User does not appear to have a mailbox");
+                        else
+                        {
+                            if (isEnabled == true) // Archiving is being enabled
+                            {
+                                logger.DebugFormat("Enabling archive mailbox for {0}", u);
+                                powershell.Enable_ArchiveMailbox(u, archiveName, string.Empty);
+                            }
+                            else if (isEnabled == false) // Archiving is being disabled
+                            {
+                                logger.DebugFormat("Disabling archive mailbox for {0}", u);
+                                powershell.Disable_ArchiveMailbox(u);
+                                sqlUser.ArchivePlan = 0;
+                                db.SaveChanges();
+                            }
+
+                            if (archiveName != null || archivePlanSize != null) // The name or plan has been changed.
+                            {
+                                logger.DebugFormat("Updating archive settings for {0}", u);
+                                powershell.Set_ArchiveMailbox(u, archiveName, archivePlanSize);
+                                sqlUser.ArchivePlan = (int)archivePlan;
+                                db.SaveChanges();
+                            }
+
+                            results.Add(resultName, "Successfully updated archive settings");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error updating archive for {0}: {1}", u, ex.ToString());
+                        results.Add(resultName, ex.Message);
                     }
                 }
 

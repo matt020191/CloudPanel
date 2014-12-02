@@ -1111,6 +1111,37 @@ namespace CloudPanel.Exchange
         }
 
         /// <summary>
+        /// Sets the litigation hold settings (currently used for bulk operations)
+        /// </summary>
+        /// <param name="userPrincipalName"></param>
+        /// <param name="litigationHoldEnabled"></param>
+        /// <param name="retentionUrl"></param>
+        /// <param name="retentionComment"></param>
+        public void Set_LitigationHold(string userPrincipalName, bool? litigationHoldEnabled = null, string retentionUrl = null, string retentionComment = null)
+        {
+            logger.DebugFormat("Updating litigation hold information for {0}", userPrincipalName);
+            logger.DebugFormat("Litigation hold values are {0}, {1}, {2}, {3}", userPrincipalName, litigationHoldEnabled, retentionUrl, retentionComment);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Set-Mailbox");
+            cmd.AddParameter("Identity", userPrincipalName);
+            
+            if (litigationHoldEnabled != null)
+                cmd.AddParameter("LitigationHoldEnabled", litigationHoldEnabled);
+
+            if (retentionUrl != null)
+                cmd.AddParameter("RetentionUrl", retentionUrl);
+
+            if (retentionComment != null)
+                cmd.AddParameter("RetentionComment", retentionComment);
+
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        /// <summary>
         /// Disables an Exchange mailbox
         /// </summary>
         /// <param name="userPrincipalName">UserPrincipalName of the user to disable</param>
@@ -1579,6 +1610,42 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("Identity", userPrincipalName);
             cmd.AddParameter("ArchiveQuota", string.Format("{0}MB", archiveSizeMB));
             cmd.AddParameter("ArchiveWarningQuota", string.Format("{0}MB", archiveSizeMB * .95));
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+
+        }
+
+        /// <summary>
+        /// Archive mailbox settings. Currently used for bulk operations
+        /// </summary>
+        /// <param name="userPrincipalName"></param>
+        /// <param name="archiveName"></param>
+        /// <param name="archiveSizeMB"></param>
+        /// <param name="?"></param>
+        public virtual void Set_ArchiveMailbox(string userPrincipalName, string archiveName = null, int? archiveSizeMB = null)
+        {
+            logger.DebugFormat("Settings archive mailbox for {0}", userPrincipalName);
+
+            #region Required data
+            if (string.IsNullOrEmpty(userPrincipalName))
+                throw new MissingFieldException("", "UserPrincipalName");
+            #endregion
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Set-Mailbox");
+            cmd.AddParameter("Identity", userPrincipalName);
+
+            if (!string.IsNullOrEmpty(archiveName))
+                cmd.AddParameter("ArchiveName", archiveName);
+
+            if (archiveSizeMB != null) {
+                cmd.AddParameter("ArchiveQuota", string.Format("{0}MB", archiveSizeMB));
+                cmd.AddParameter("ArchiveWarningQuota", string.Format("{0}MB", archiveSizeMB * .95));
+            }
+
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
             _powershell.Invoke();

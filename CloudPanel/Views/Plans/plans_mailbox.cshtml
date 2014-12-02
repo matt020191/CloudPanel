@@ -274,6 +274,14 @@
     <script src="~/Content/plugins/form-inputmask/jquery.inputmask.bundle.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
+            $("input[type=checkbox]").click(function () {
+                if ($(this).is(':checked')) {
+                    $(this).val("true");
+                } else {
+                    $(this).val("false");
+                }
+            });
+
             $("#MailboxPlanID").change(function () {
                 var value = this.value;
                 if (value == "0")
