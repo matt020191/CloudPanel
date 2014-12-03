@@ -53,11 +53,10 @@ namespace CloudPanel.Modules
                                  join a in db.Plans_ExchangeArchiving on d.ArchivePlan equals a.ArchivingID into d4
                                  from archiveplan in d4.DefaultIfEmpty()
                                  join s in db.SvcMailboxSizes on d.UserPrincipalName equals s.UserPrincipalName into d2
-                                 from mailboxinfo in d2.DefaultIfEmpty().Take(1)
+                                 from mailboxinfo in d2.DefaultIfEmpty().OrderByDescending(x => x.Retrieved).Take(1)
                                  join p in db.UserRoles on d.RoleID equals p.RoleID into d3
                                  from permission in d3.DefaultIfEmpty().Take(1)
                                  where d.CompanyCode == companyCode
-                                 orderby mailboxinfo.Retrieved descending
                                  select new
                                  {
                                      UserGuid = d.UserGuid,
@@ -83,46 +82,43 @@ namespace CloudPanel.Modules
                     string searchValue = "", orderColumnName = "";
                     bool isAscendingOrder = true;
 
-                    if (Request.Form.draw.HasValue)
+                    if (Request.Query.draw.HasValue)
                     {
-                        if (Request.Query.draw.HasValue)
+                        draw = Request.Query.draw;
+                        start = Request.Query.start;
+                        length = Request.Query.length;
+                        orderColumn = Request.Query["order[0][column]"];
+                        searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
+                        isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
+                        orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
+
+                        // See if we are using dataTables to search
+                        logger.DebugFormat("Search value was {0}", searchValue);
+                        if (!string.IsNullOrEmpty(searchValue))
                         {
-                            draw = Request.Query.draw;
-                            start = Request.Query.start;
-                            length = Request.Query.length;
-                            orderColumn = Request.Query["order[0][column]"];
-                            searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
-                            isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
-                            orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
-
-                            // See if we are using dataTables to search
-                            logger.DebugFormat("Search value was {0}", searchValue);
-                            if (!string.IsNullOrEmpty(searchValue))
-                            {
-                                users = (from d in users
-                                         where d.DisplayName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.UserPrincipalName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               (d.SamAccountName != null && d.SamAccountName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
-                                               (d.Department != null && d.Department.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
-                                               (d.Email != null && d.Email.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1)
-                                         select d).ToList();
-                                recordsFiltered = users.Count;
-                                logger.DebugFormat("Total records filtered was {0}", recordsFiltered);
-                            }
-
-                            if (isAscendingOrder)
-                                users = users.OrderBy(x => x.GetType()
-                                                        .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                        .Skip(start)
-                                                        .Take(length)
-                                                        .ToList();
-                            else
-                                users = users.OrderByDescending(x => x.GetType()
-                                                        .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                        .Skip(start)
-                                                        .Take(length)
-                                                        .ToList();
+                            users = (from d in users
+                                     where d.DisplayName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                           d.UserPrincipalName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                           (d.SamAccountName != null && d.SamAccountName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
+                                           (d.Department != null && d.Department.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
+                                           (d.Email != null && d.Email.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1)
+                                     select d).ToList();
+                            recordsFiltered = users.Count;
+                            logger.DebugFormat("Total records filtered was {0}", recordsFiltered);
                         }
+
+                        if (isAscendingOrder)
+                            users = users.OrderBy(x => x.GetType()
+                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                    .Skip(start)
+                                                    .Take(length)
+                                                    .ToList();
+                        else
+                            users = users.OrderByDescending(x => x.GetType()
+                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                    .Skip(start)
+                                                    .Take(length)
+                                                    .ToList();
                     }
 
                     return Negotiate.WithModel(new

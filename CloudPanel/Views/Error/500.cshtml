@@ -37,7 +37,7 @@
                         <span class="text-danger" style="font-size:4em;">500 Error</span>
                     </p>
                     <p class="text-center">An internal server error occurred.</p>
-                    <div class="well well-sm">@(Model != null ? Model.InnerException.ToString() : "Unknown Error")</div>
+                    <div class="well well-sm">@((Model != null && Model.InnerException.HasValue) ? Model.InnerException.ToString() : "Unknown Error")</div>
                 </div>
                 <div class="panel-footer"></div>
             </div>

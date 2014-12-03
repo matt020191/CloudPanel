@@ -170,11 +170,11 @@
                                             <label class="col-sm-3 control-label">Litgation Hold</label>
                                             <div class="col-sm-6">
                                                 <label class="checkbox-inline">
-                                                    <input id="LitigationHoldEnabled" name="LitigationHoldEnabled" type="checkbox" value="false" /> Litigation Hold Enabled
+                                                    <input id="LitigationHoldEnabled" name="LitigationHoldEnabled" type="checkbox" value="false" class="checkbox-boolean" /> Litigation Hold Enabled
                                                 </label>
                                             </div>
                                             <div class="col-sm-3">
-                                                <input id="cbChangeLitigationHold" name="cbChangeLitigationHold" type="checkbox" value="false" /> Update changes
+                                                <input id="cbChangeLitigationHold" name="cbChangeLitigationHold" type="checkbox" value="false" class="checkbox-boolean" /> Update changes
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -183,7 +183,7 @@
                                                 <input type="text" class="form-control" id="RetentionUrl" name="RetentionUrl" data-parsley-type="url">
                                             </div>
                                             <div class="col-sm-3">
-                                                <input id="cbChangeLitigationHoldUrl" name="cbChangeLitigationHoldUrl" type="checkbox" value="false" /> Update changes
+                                                <input id="cbChangeLitigationHoldUrl" name="cbChangeLitigationHoldUrl" type="checkbox" value="false" class="checkbox-boolean" /> Update changes
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -192,7 +192,7 @@
                                                 <textarea name="RetentionComment" id="RetentionComment" cols="50" rows="4" class="form-control"></textarea>
                                             </div>
                                             <div class="col-sm-3">
-                                                <input id="cbChangeLitigationHoldComment" name="cbChangeLitigationHoldComment" type="checkbox" value="false" /> Update changes
+                                                <input id="cbChangeLitigationHoldComment" name="cbChangeLitigationHoldComment" type="checkbox" value="false" class="checkbox-boolean" /> Update changes
                                             </div>
                                         </div>
 
@@ -202,11 +202,11 @@
                                             <label class="col-sm-3 control-label">Archive Mailbox</label>
                                             <div class="col-sm-6">
                                                 <label class="checkbox-inline">
-                                                    <input id="ArchivingEnabledChecked" name="ArchivingEnabledChecked" type="checkbox" value="false" /> Archiving Enabled <small>(Note: Enabling archive requires you to select an archive plan)</small>
+                                                    <input id="ArchivingEnabledChecked" name="ArchivingEnabledChecked" type="checkbox" value="false" class="checkbox-boolean" /> Archiving Enabled <small>(Note: Enabling archive requires you to select an archive plan)</small>
                                                 </label>
                                             </div>
                                             <div class="col-sm-3">
-                                                <input id="cbChangeArchiving" name="cbChangeArchiving" type="checkbox" value="false" /> Update changes
+                                                <input id="cbChangeArchiving" name="cbChangeArchiving" type="checkbox" value="false" class="checkbox-boolean" /> Update changes
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -215,7 +215,7 @@
                                                 <input type="text" class="form-control" id="ArchiveName" name="ArchiveName">
                                             </div>
                                             <div class="col-sm-3">
-                                                <input id="cbChangeArchiveName" name="cbChangeArchiveName" type="checkbox" value="false" /> Update changes
+                                                <input id="cbChangeArchiveName" name="cbChangeArchiveName" type="checkbox" value="false" class="updateCheckbox" class="checkbox-boolean" /> Update changes
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -226,7 +226,7 @@
                                                 </select>
                                             </div>
                                             <div class="col-sm-3">
-                                                <input id="cbChangeArchivePlan" name="cbChangeArchivePlan" type="checkbox" value="false" /> Update changes
+                                                <input id="cbChangeArchivePlan" name="cbChangeArchivePlan" type="checkbox" value="false" class="checkbox-boolean" /> Update changes
                                             </div>
                                         </div>
                                     </div>
@@ -255,7 +255,7 @@
     <script src="~/Content/plugins/form-select2/select2.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            $("input[type=checkbox]").click(function () {
+            $(".checkbox-boolean").click(function () {
                 if ($(this).is(':checked')) {
                     $(this).val("true");
                 } else {

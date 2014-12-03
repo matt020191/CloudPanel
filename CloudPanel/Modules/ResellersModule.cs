@@ -62,7 +62,7 @@ namespace CloudPanel.Modules
                         string searchValue = "", orderColumnName = "";
                         bool isAscendingOrder = true;
 
-                        if (Request.Form.draw.HasValue)
+                        if (Request.Query.draw.HasValue)
                         {
                             draw = Request.Query.draw;
                             start = Request.Query.start;
