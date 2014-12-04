@@ -1090,6 +1090,7 @@
     <Content Include="Content\plugins\sweetalert\lib\sweet-alert.js" />
     <Content Include="Content\plugins\sweetalert\lib\sweet-alert.min.js" />
     <Content Include="Content\plugins\sweetalert\sweetalert.gif" />
+    <Content Include="Content\variations\theme-blue-steel.css" />
     <Content Include="Content\variations\theme-default.css" />
     <Content Include="Content\variations\default.css" />
     <Content Include="Content\variations\theme-girly.css" />
@@ -1097,10 +1098,11 @@
     <Content Include="Content\variations\header-blue.css" />
     <Content Include="Content\variations\header-red.css" />
     <Content Include="Content\variations\header-steel.css" />
-    <Content Include="Content\variations\theme-plainjane.css" />
+    <Content Include="Content\variations\theme-plain.css" />
     <Content Include="Content\variations\sidebar-green.css" />
     <Content Include="Content\variations\sidebar-lavender.css" />
     <Content Include="Content\variations\sidebar-steel.css" />
+    <Content Include="Content\variations\theme-red-steel.css" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -1345,15 +1347,6 @@
     <Content Include="Views\__master.cshtml" />
     <Content Include="Views\__leftmenu.cshtml" />
     <Content Include="Views\Dashboard\dashboard_super.cshtml" />
-    <Content Include="Content\variations\header-black.less" />
-    <Content Include="Content\variations\header-blue.less" />
-    <Content Include="Content\variations\header-processcolors.less" />
-    <Content Include="Content\variations\header-red.less" />
-    <Content Include="Content\variations\header-steel.less" />
-    <Content Include="Content\variations\sidebar-green.less" />
-    <Content Include="Content\variations\sidebar-lavender.less" />
-    <Content Include="Content\variations\sidebar-processcolors.less" />
-    <Content Include="Content\variations\sidebar-steel.less" />
     <Content Include="Views\resellers.cshtml" />
     <Content Include="Content\plugins\datatables-1.10.2\bower.json" />
     <Content Include="Content\plugins\datatables-1.10.2\composer.json" />

@@ -1,4 +1,5 @@
-﻿using Nancy;
+﻿using log4net;
+using Nancy;
 using Nancy.ErrorHandling;
 using Nancy.Responses.Negotiation;
 using Nancy.ViewEngines;
@@ -11,12 +12,16 @@ namespace CloudPanel.Code
 {
     public class ErrorResponseHandler : DefaultViewRenderer, IStatusCodeHandler
     {
+        private static readonly ILog logger = log4net.LogManager.GetLogger(typeof(ErrorResponseHandler));
+
         public ErrorResponseHandler(IViewFactory factory) : base(factory)
         {
         }
 
         public bool HandlesStatusCode(HttpStatusCode statusCode, NancyContext context)
         {
+            logger.DebugFormat("Response Handler status code {0}", statusCode);
+
             return (statusCode == HttpStatusCode.InternalServerError ||
                     statusCode == HttpStatusCode.Unauthorized ||
                     statusCode == HttpStatusCode.Forbidden ||
@@ -30,6 +35,7 @@ namespace CloudPanel.Code
                 return;
             else
             {
+                logger.DebugFormat("Client did not want html back");
                 switch (statusCode)
                 {
                     case HttpStatusCode.InternalServerError:

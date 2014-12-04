@@ -170,13 +170,17 @@ namespace CloudPanel
         /// <returns></returns>
         public static bool ClientWantsHtml(NancyContext context)
         {
+            logger.DebugFormat("Checking if client wants HTML bck or not");
+
             var acceptHeaders = context.Request.Headers.Accept;
             var mediaRanges = acceptHeaders.OrderByDescending(x => x.Item2)
                                            .Select(x => new MediaRange(x.Item1))
                                            .ToList();
 
+            logger.DebugFormat("Found a total of {0} media ranges", mediaRanges.Count);
             foreach (var item in mediaRanges)
             {
+                logger.DebugFormat("Matching media range {0}", item.ToString());
                 if (item.Matches("application/json"))
                     return false;
                 if (item.Matches("text/json"))
