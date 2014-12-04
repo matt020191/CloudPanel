@@ -39,7 +39,9 @@ namespace CloudPanel.Modules
                         return View["login.cshtml"];
                     }
                     else
+                    {
                         return this.LoginAndRedirect(identity.UserGuid, null, "~/dashboard");
+                    }
                 }
                 catch (Exception ex)
                 {

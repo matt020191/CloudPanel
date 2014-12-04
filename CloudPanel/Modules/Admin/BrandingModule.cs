@@ -85,6 +85,12 @@ namespace CloudPanel.Modules
                             branding.HeaderLogo = string.Format("~/Content/img/branding/{0}/{1}", branding.HostName, newFileName);
                     }
 
+                    if (branding.HeaderLogo == null)
+                        branding.HeaderLogo = "";
+
+                    if (branding.LoginLogo == null)
+                        branding.LoginLogo = "";
+
                     logger.DebugFormat("Saving to the database");
                     db.Brandings.Add(branding);
                     db.SaveChanges();
@@ -196,6 +202,12 @@ namespace CloudPanel.Modules
                                 oldBranding.HeaderLogo = string.Format("~/Content/img/branding/{0}/{1}", oldBranding.HostName, newFileName);
                         }
                     }
+
+                    if (newBranding.HeaderLogo == null)
+                        oldBranding.HeaderLogo = "";
+
+                    if (newBranding.LoginLogo == null)
+                        oldBranding.LoginLogo = "";
 
                     logger.DebugFormat("Saving to the database");
                     db.SaveChanges();

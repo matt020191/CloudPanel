@@ -35,12 +35,16 @@ namespace CloudPanel.Code
                 return;
             else
             {
-                logger.DebugFormat("Client did not want html back");
+                logger.DebugFormat("Client wanted HTML back");
                 switch (statusCode)
                 {
                     case HttpStatusCode.InternalServerError:
-                        var exception = context.Items[NancyEngine.ERROR_EXCEPTION] as Exception;
-                        context.Response = RenderView(context, "Error/500", exception); 
+                        if (context.Items.ContainsKey(NancyEngine.ERROR_EXCEPTION)) {
+                            var exception = context.Items[NancyEngine.ERROR_EXCEPTION] as Exception;
+                            context.Response = RenderView(context, "Error/500", exception); 
+                        } else {
+                            context.Response = RenderView(context, "Error/500", context.ViewBag.error);
+                        }
                         break;
                     case HttpStatusCode.Forbidden:
                     case HttpStatusCode.Unauthorized:

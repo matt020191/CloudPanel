@@ -170,7 +170,7 @@ namespace CloudPanel
         /// <returns></returns>
         public static bool ClientWantsHtml(NancyContext context)
         {
-            logger.DebugFormat("Checking if client wants HTML bck or not");
+            logger.DebugFormat("Checking if client wants HTML back or not");
 
             var acceptHeaders = context.Request.Headers.Accept;
             var mediaRanges = acceptHeaders.OrderByDescending(x => x.Item2)
