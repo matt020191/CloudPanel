@@ -17,10 +17,10 @@ namespace CloudPanel.Code
 
         public bool HandlesStatusCode(HttpStatusCode statusCode, NancyContext context)
         {
-            return statusCode == HttpStatusCode.InternalServerError ||
-                   statusCode == HttpStatusCode.Unauthorized ||
-                   statusCode == HttpStatusCode.Forbidden ||
-                   statusCode == HttpStatusCode.NotFound;
+            return (statusCode == HttpStatusCode.InternalServerError ||
+                    statusCode == HttpStatusCode.Unauthorized ||
+                    statusCode == HttpStatusCode.Forbidden ||
+                    statusCode == HttpStatusCode.NotFound) && context.Request.Accept("text/html");
         }
 
         public void Handle(HttpStatusCode statusCode, NancyContext context)

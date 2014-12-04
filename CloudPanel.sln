@@ -19,6 +19,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPanel.Exchange", "Clou
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPanel", "CloudPanel\CloudPanel.csproj", "{B4F9C525-5C56-440E-B4C2-972A33D7C8CD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demos", "Demos", "{62145FBD-8A8B-4EBE-A063-FC1CBA5847B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPanel.Demo.Api.Client", "CloudPanel.Demo.Api.Client\CloudPanel.Demo.Api.Client.csproj", "{2715D6F7-4CC5-4C96-A312-80F439E6C252}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +53,10 @@ Global
 		{B4F9C525-5C56-440E-B4C2-972A33D7C8CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4F9C525-5C56-440E-B4C2-972A33D7C8CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4F9C525-5C56-440E-B4C2-972A33D7C8CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2715D6F7-4CC5-4C96-A312-80F439E6C252}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2715D6F7-4CC5-4C96-A312-80F439E6C252}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2715D6F7-4CC5-4C96-A312-80F439E6C252}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2715D6F7-4CC5-4C96-A312-80F439E6C252}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,5 +68,6 @@ Global
 		{6144303A-7153-4938-8AB5-02BB0CF8F2A4} = {D64FED88-8FF5-46A5-B8E9-31D132A099D6}
 		{51C6EC47-98AB-49D1-B4CB-B48665D1725E} = {D64FED88-8FF5-46A5-B8E9-31D132A099D6}
 		{B4F9C525-5C56-440E-B4C2-972A33D7C8CD} = {77C0EB4D-486D-48EC-9EB9-8554E7E79008}
+		{2715D6F7-4CC5-4C96-A312-80F439E6C252} = {62145FBD-8A8B-4EBE-A063-FC1CBA5847B0}
 	EndGlobalSection
 EndGlobal
