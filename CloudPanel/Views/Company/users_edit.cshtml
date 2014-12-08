@@ -106,7 +106,9 @@
                                                             </div>
                                                         }
                                                     </div>
+
                                                     <hr />
+
                                                     <h3>Company Information</h3><br />
                                                     <div class="form-horizontal">
                                                         <div class="form-group">
@@ -148,7 +150,9 @@
                                                             </div>
                                                         </div>
                                                     </div>
+
                                                     <hr />
+
                                                     <h3>Personal Information</h3><br />
                                                     <div class="form-horizontal">
                                                         <div class="form-group">
@@ -194,6 +198,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
+
                                                 </div>
 
                                                 <!-- MAILBOX SETTINGS -->
@@ -251,6 +256,7 @@
                                                         </div>
 
                                                         <hr />
+
                                                         <h3>Email Aliases</h3><br />
                                                         <div class="form-horizontal">
                                                             <div class="form-group">
@@ -265,6 +271,7 @@
                                                         </div>
 
                                                         <hr />
+
                                                         <h3>Permissions</h3><br />
                                                         <div class="form-horizontal">
                                                             <div class="form-group">
@@ -520,13 +527,16 @@
 
                         $("#EmailEnabledCheck").click();
                         $("#MailboxPlan").val(data.user.mailboxPlan);
-                        $("#ActiveSyncPlan").val(data.user.activeSyncPlan);
 
                         var option = $("#MailboxPlan option:selected");
                         if (data.user.additionalMB > 0) {
                             SetSlider(option.data("size"), option.data("maxsize"), option.data("size") + data.user.additionalMB, option.data("description"));                            
                         } else {
                             SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
+                        }
+
+                        if (data.user.activeSyncPlan > 0) {
+                            $("#ActiveSyncPlan").val(data.user.activeSyncPlan);
                         }
 
                         if (data.user.archivePlan > 0) {
@@ -622,7 +632,10 @@
                         $("#LitigationHoldDate").val(data.mailbox.litigationHoldDate);
                         $("#RetentionComment").val(data.mailbox.retentionComment);
                         $("#RetentionUrl").val(data.mailbox.retentionUrl);
-                        $("#ForwardTo").val(data.mailbox.forwardTo);
+
+                        if (data.mailbox.forwardTo != null) {
+                            $("#ForwardTo").val(data.mailbox.forwardTo);
+                        }
 
                         if (data.mailbox.deliverToMailboxAndForward) {
                             $("#DeliverToMailboxAndForward").val("true");

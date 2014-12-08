@@ -80,10 +80,9 @@ namespace CloudPanel.Modules
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error getting company overview page for {0}: {1}", _.CompanyCode, ex.ToString());
-
-                    ViewBag.error = ex.ToString();
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("error.cshtml");
+                                    .WithView("Error/500.cshtml")
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally
                 {

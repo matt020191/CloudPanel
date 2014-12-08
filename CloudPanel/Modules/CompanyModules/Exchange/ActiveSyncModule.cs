@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using CloudPanel.Exchange;
 using CloudPanel.Code;
+using Nancy.Responses.Negotiation;
 
 namespace CloudPanel.Modules.CompanyModules.Exchange
 {
@@ -38,6 +39,10 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                 dynamic powershell = null;
                 try
                 {
+                    // Checking if they are under the limit
+                    if (CloudPanel.CPStaticHelpers.IsUnderLimit(_.CompanyCode, "activesync") != true)
+                        throw new Exception("You are already at the limit of Activesync plans you can have.");
+
                     // Bind to the forum
                     logger.DebugFormat("Binding Activesync plan to form...");
                     var plan = this.Bind<Plans_ExchangeActiveSync>();
@@ -156,6 +161,67 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
 
                     ViewBag.error = ex.Message;
                     return View["error.cshtml"];
+                }
+                finally
+                {
+                    if (powershell != null)
+                        powershell.Dispose();
+
+                    if (db != null)
+                        db.Dispose();
+                }
+                #endregion
+            };
+
+            Delete["/{ID:int}"] = _ =>
+            {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "dExchangeActiveSyncPlans"));
+
+                #region Updates an existing Activesync policy
+                CloudPanelContext db = null;
+                dynamic powershell = null;
+                try
+                {
+                    logger.DebugFormat("Getting ActiveSync plan from the database for deleting");
+                    db = new CloudPanelContext(Settings.ConnectionString);
+                    db.Database.Connection.Open();
+
+                    int id = _.ID;
+                    string companyCode = _.CompanyCode;
+                    var plan = (from d in db.Plans_ExchangeActiveSync
+                                where d.ASID == id
+                                where d.CompanyCode == companyCode
+                                select d).First();
+
+
+                    logger.DebugFormat("Checking the database to make sure the plan is not in use");
+                    var inUseCount = (from d in db.Users
+                                      where d.ActiveSyncPlan == id
+                                      select d).Count();
+
+                    if (inUseCount > 0)
+                        throw new Exception("This ActiveSync plan cannot be deleted because it is in use by " + inUseCount.ToString() + " user(s)");
+                    else
+                    {
+                        logger.DebugFormat("Deleting ActiveSync plan {0} from Exchange", plan.ExchangeName);
+                        powershell = ExchPowershell.GetClass();
+                        powershell.Remove_ActiveSyncPolicy(plan.ExchangeName);
+
+                        logger.DebugFormat("Deleted ActiveSync plan from Exchange. Now removing from SQL");
+                        db.Plans_ExchangeActiveSync.Remove(plan);
+                        db.SaveChanges();
+
+                        string returnUrl = string.Format("/company/{0}/exchange/activesync/new", companyCode);
+                        return Negotiate.WithModel(new { success = "Successfully removed ActiveSync policy" })
+                                        .WithMediaRangeResponse("text/html", this.Response.AsRedirect(returnUrl));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error updating Activesync policy {0}: {1}", _.ID, ex.ToString());
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithView("Error/500.cshtml")
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally
                 {

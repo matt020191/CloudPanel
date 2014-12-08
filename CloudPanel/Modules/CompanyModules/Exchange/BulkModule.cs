@@ -136,10 +136,9 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error bulk updating mailboxes: {0}", ex.ToString());
-
-                    ViewBag.error = ex.ToString();
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("error.cshtml");
+                                    .WithView("Error/500.cshtml")
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
             };
         }

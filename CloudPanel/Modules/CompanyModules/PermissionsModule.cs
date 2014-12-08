@@ -53,10 +53,8 @@ namespace CloudPanel.Modules
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error creating new permission model: {0}", ex.ToString());
-
-                    ViewBag.error = ex.ToString();
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("error.cshtml")
+                                    .WithView("Error/500.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally
@@ -93,10 +91,8 @@ namespace CloudPanel.Modules
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error getting permission model {0}: {1}", _.ID, ex.ToString());
-
-                    ViewBag.error = ex.ToString();
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("error.cshtml")
+                                    .WithView("Error/500.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally
@@ -186,10 +182,8 @@ namespace CloudPanel.Modules
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error getting permission model {0}: {1}", _.ID, ex.ToString());
-
-                    ViewBag.error = ex.ToString();
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("error.cshtml")
+                                    .WithView("Error/500.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally
@@ -237,10 +231,8 @@ namespace CloudPanel.Modules
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error deleting permission model {0}: {1}", _.ID, ex.ToString());
-
-                    ViewBag.error = ex.ToString();
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("error.cshtml")
+                                    .WithView("Error/500.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally

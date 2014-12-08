@@ -41,9 +41,10 @@ namespace CloudPanel.Code
                     case HttpStatusCode.InternalServerError:
                         if (context.Items.ContainsKey(NancyEngine.ERROR_EXCEPTION)) {
                             var exception = context.Items[NancyEngine.ERROR_EXCEPTION] as Exception;
-                            context.Response = RenderView(context, "Error/500", exception); 
-                        } else {
-                            context.Response = RenderView(context, "Error/500", context.ViewBag.error);
+                            context.Response = RenderView(context, "Error/500", exception);
+                        } 
+                        else {
+                            context.Response = RenderView(context, "Error/500", context.NegotiationContext.DefaultModel);
                         }
                         break;
                     case HttpStatusCode.Forbidden:

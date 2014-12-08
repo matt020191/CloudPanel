@@ -55,9 +55,9 @@ namespace CloudPanel.Modules.PlansModules
                     catch (Exception ex)
                     {
                         logger.ErrorFormat("Error updating Activesync policy {0}: {1}", _.ID, ex.ToString());
-
-                        ViewBag.error = ex.Message;
-                        return View["error.cshtml"];
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithView("Error/500.cshtml")
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
                     }
                     finally
                     {
@@ -88,9 +88,9 @@ namespace CloudPanel.Modules.PlansModules
                     catch (Exception ex)
                     {
                         logger.ErrorFormat("Error getting activesync plan {0}: {1}", _.ID, ex.ToString());
-
-                        ViewBag.error = ex.Message;
-                        return View["error.cshtml"];
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithView("Error/500.cshtml")
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
                     }
                     finally
                     {
@@ -143,9 +143,9 @@ namespace CloudPanel.Modules.PlansModules
                     catch (Exception ex)
                     {
                         logger.ErrorFormat("Error updating Activesync policy {0}: {1}", _.ID, ex.ToString());
-
-                        ViewBag.error = ex.Message;
-                        return View["error.cshtml"];
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithView("Error/500.cshtml")
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
                     }
                     finally
                     {

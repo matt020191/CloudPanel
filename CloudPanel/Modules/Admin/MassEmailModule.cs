@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using System.Web;
 
 namespace CloudPanel.Modules.Admin
 {
@@ -58,9 +57,9 @@ namespace CloudPanel.Modules.Admin
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error loading mass email page: {0}", ex.ToString());
-
-                    ViewBag.error = ex.Message;
-                    return View["error.cshtml"];
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithView("Error/500.cshtml")
+                                    .WithStatusCode(Nancy.HttpStatusCode.InternalServerError);
                 }
                 finally
                 {
@@ -166,9 +165,9 @@ namespace CloudPanel.Modules.Admin
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error sending messages: {0}", ex.ToString());
-
-                    ViewBag.error = ex.Message;
-                    return View["error.cshtml"];
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithView("Error/500.cshtml")
+                                    .WithStatusCode(Nancy.HttpStatusCode.InternalServerError);
                 }
                 finally
                 {

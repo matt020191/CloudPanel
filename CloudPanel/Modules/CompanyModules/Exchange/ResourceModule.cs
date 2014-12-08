@@ -374,8 +374,8 @@ namespace CloudPanel.Modules
                 {
                     logger.ErrorFormat("Unable to get resource mailbox: {0}", ex.ToString());
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithStatusCode(HttpStatusCode.InternalServerError)
-                                    .WithView("error.cshtml");
+                                    .WithView("Error/500.cshtml")
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally
                 {
@@ -481,8 +481,8 @@ namespace CloudPanel.Modules
                 {
                     logger.ErrorFormat("Unable to update resource mailbox: {0}", ex.ToString());
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithStatusCode(HttpStatusCode.InternalServerError)
-                                    .WithView("error.cshtml");
+                                    .WithView("Error/500.cshtml")
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally
                 {

@@ -293,10 +293,9 @@ namespace CloudPanel.Modules
                 }
                 catch (Exception ex)
                 {
-                    ViewBag.error = ex.ToString();
                     logger.ErrorFormat("Error getting domain {0} for {1}: {2}", _.ID, _.CompanyCode, ex.ToString());
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("error.cshtml")
+                                    .WithView("Error/500.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally
@@ -403,10 +402,9 @@ namespace CloudPanel.Modules
                 }
                 catch (Exception ex)
                 {
-                    ViewBag.error = ex.ToString();
                     logger.ErrorFormat("Error updating domain {0} for {1}: {2}", _.ID, _.CompanyCode, ex.ToString());
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("error.cshtml")
+                                    .WithView("Error/500.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally

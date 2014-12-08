@@ -330,11 +330,9 @@ namespace CloudPanel.Modules
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error updating contact for {0}: {1}", _.CompanyCode, ex.ToString());
-
-                    ViewBag.error = ex.ToString();
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithStatusCode(HttpStatusCode.InternalServerError)
-                                    .WithView("error.cshtml");
+                                    .WithView("Error/500.cshtml")
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally
                 {

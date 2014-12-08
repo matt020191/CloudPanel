@@ -1090,6 +1090,7 @@
     <Content Include="Content\plugins\sweetalert\lib\sweet-alert.js" />
     <Content Include="Content\plugins\sweetalert\lib\sweet-alert.min.js" />
     <Content Include="Content\plugins\sweetalert\sweetalert.gif" />
+    <Content Include="Content\sql\initial.sql" />
     <Content Include="Content\variations\theme-blue-steel.css" />
     <Content Include="Content\variations\theme-default.css" />
     <Content Include="Content\variations\default.css" />
@@ -1399,13 +1400,11 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <Content Include="Views\error.cshtml" />
     <Content Include="Views\Company\company_domains_edit.cshtml" />
     <Content Include="Views\Company\Exchange\enable.cshtml" />
     <Content Include="Views\Company\Exchange\disable.cshtml" />
     <Content Include="Views\Company\Exchange\contacts_edit.cshtml" />
     <Content Include="Views\Company\users_edit.cshtml" />
-    <Content Include="Views\Company\Exchange\groups_edit_old.cshtml" />
     <Content Include="Views\Company\Exchange\groups_edit.cshtml" />
     <Content Include="Views\Plans\plans_citrix.cshtml" />
     <Content Include="Views\Admin\brandings.cshtml" />

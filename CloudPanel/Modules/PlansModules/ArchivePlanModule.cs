@@ -69,10 +69,9 @@ namespace CloudPanel.Modules.PlansModules
                     catch (Exception ex)
                     {
                         logger.ErrorFormat("Error creating new archive plan: {0}", ex.ToString());
-
-                        ViewBag.error = ex.Message;
                         return Negotiate.WithModel(new { error = ex.Message })
-                                        .WithView("error.cshtml");
+                                        .WithView("Error/500.cshtml")
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
                     }
                     finally
                     {
@@ -175,10 +174,9 @@ namespace CloudPanel.Modules.PlansModules
                     catch (Exception ex)
                     {
                         logger.ErrorFormat("Error updating archive plan: {0}", ex.ToString());
-
-                        ViewBag.error = ex.Message;
                         return Negotiate.WithModel(new { error = ex.Message })
-                                        .WithView("error.cshtml");
+                                        .WithView("Error/500.cshtml")
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
                     }
                     finally
                     {
@@ -221,10 +219,9 @@ namespace CloudPanel.Modules.PlansModules
                     catch (Exception ex)
                     {
                         logger.ErrorFormat("Error deleting archive plan: {0}", ex.ToString());
-
-                        ViewBag.error = ex.Message;
                         return Negotiate.WithModel(new { error = ex.Message })
-                                        .WithView("error.cshtml");
+                                        .WithView("Error/500.cshtml")
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
                     }
                     finally
                     {

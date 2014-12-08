@@ -239,10 +239,9 @@ namespace CloudPanel.Modules.CompanyModules
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error updating user for company {0}: {1}", _.CompanyCode, ex.ToString());
-
-                    ViewBag.error = ex.Message;
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("error.cshtml");
+                                    .WithView("Error/500.cshtml")
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally
                 {

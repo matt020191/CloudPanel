@@ -37,10 +37,8 @@ namespace CloudPanel.Modules
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error loading company brandings: {0}", ex.ToString());
-
-                    ViewBag.error = ex.ToString();
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("error.cshtml")
+                                    .WithView("Error/500.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 #endregion
@@ -105,10 +103,8 @@ namespace CloudPanel.Modules
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error creating new branding: {0}", ex.ToString());
-
-                    ViewBag.error = ex.ToString();
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("error.cshtml")
+                                    .WithView("Error/500.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 #endregion
@@ -140,10 +136,8 @@ namespace CloudPanel.Modules
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error loading company brandings: {0}", ex.ToString());
-
-                    ViewBag.error = ex.ToString();
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("error.cshtml")
+                                    .WithView("Error/500.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 #endregion
@@ -222,10 +216,8 @@ namespace CloudPanel.Modules
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error creating new branding: {0}", ex.ToString());
-
-                    ViewBag.error = ex.ToString();
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("error.cshtml")
+                                    .WithView("Error/500.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 #endregion
@@ -259,10 +251,8 @@ namespace CloudPanel.Modules
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error deleting branding: {0}", ex.ToString());
-
-                    ViewBag.error = ex.ToString();
                     return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithView("error.cshtml")
+                                    .WithView("Error/500.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 #endregion

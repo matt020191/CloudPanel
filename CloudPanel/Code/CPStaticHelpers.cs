@@ -204,6 +204,8 @@ namespace CloudPanel
             CloudPanelContext db = null;
             try
             {
+                logger.DebugFormat("Checking if {0} is under the limit for section {1}", companyCode, section);
+
                 db = new CloudPanelContext(Settings.ConnectionString);
                 db.Database.Connection.Open();
 
@@ -217,24 +219,31 @@ namespace CloudPanel
                 {
                     case "user":
                         var userCount = (from d in db.Users where d.CompanyCode == companyCode select d).Count();
+                        logger.DebugFormat("{0} under the limit for {1}? {2}/{3}", companyCode, section, userCount, companyPlan.MaxUsers);
                         return (companyPlan.MaxUsers > userCount);
                     case "mailbox":
                         var mailboxCount = (from d in db.Users where d.CompanyCode == companyCode where d.MailboxPlan > 0 select d).Count();
+                        logger.DebugFormat("{0} under the limit for {1}? {2}/{3}", companyCode, section, mailboxCount, companyPlan.MaxExchangeMailboxes);
                         return (companyPlan.MaxExchangeMailboxes > mailboxCount);
                     case "distributiongroup":
                         var groupCount = (from d in db.DistributionGroups where d.CompanyCode == companyCode select d).Count();
+                        logger.DebugFormat("{0} under the limit for {1}? {2}/{3}", companyCode, section, groupCount, companyPlan.MaxExchangeDistLists);
                         return (companyPlan.MaxExchangeDistLists > groupCount);
                     case "contact":
                         var contactCount = (from d in db.Contacts where d.CompanyCode == companyCode select d).Count();
+                        logger.DebugFormat("{0} under the limit for {1}? {2}/{3}", companyCode, section, contactCount, companyPlan.MaxExchangeContacts);
                         return (companyPlan.MaxExchangeContacts > contactCount);
                     case "resource":
                         var resourceCount = (from d in db.ResourceMailboxes where d.CompanyCode == companyCode select d).Count();
+                        logger.DebugFormat("{0} under the limit for {1}? {2}/{3}", companyCode, section, resourceCount, companyPlan.MaxExchangeResourceMailboxes);
                         return (companyPlan.MaxExchangeResourceMailboxes > resourceCount);
                     case "domain":
                         var domainCount = (from d in db.Domains where d.CompanyCode == companyCode select d).Count();
+                        logger.DebugFormat("{0} under the limit for {1}? {2}/{3}", companyCode, section, domainCount, companyPlan.MaxDomains);
                         return (companyPlan.MaxDomains > domainCount);
                     case "activesync":
                         var activesyncCount = (from d in db.Plans_ExchangeActiveSync where d.CompanyCode == companyCode select d).Count();
+                        logger.DebugFormat("{0} under the limit for {1}? {2}/{3}", companyCode, section, activesyncCount, companyPlan.MaxExchangeActivesyncPolicies);
                         return (companyPlan.MaxExchangeActivesyncPolicies > activesyncCount);
                     default:
                         return false; // Return false that it is at the limits if it doesn't find the section
