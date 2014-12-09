@@ -1074,6 +1074,38 @@ namespace CloudPanel.Exchange
         }
 
         /// <summary>
+        /// Updates the ActiveSync plan for the mailbox
+        /// </summary>
+        /// <param name="userPrincipalName"></param>
+        /// <param name="a"></param>
+        public void Set_CASMailbox(string userPrincipalName, Plans_ExchangeActiveSync a)
+        {
+            logger.DebugFormat("Updating CAS mailbox ActiveSync policy for {0}", userPrincipalName);
+
+            #region Required data
+            if (string.IsNullOrEmpty(userPrincipalName))
+                throw new MissingFieldException("", "UserPrincipalName");
+            #endregion
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Set-CASMailbox");
+            cmd.AddParameter("Identity", userPrincipalName);
+
+            if (a == null)
+                cmd.AddParameter("ActiveSyncMailboxPolicy", null);
+            else
+                cmd.AddParameter("ActiveSyncMailboxPolicy", string.IsNullOrEmpty(a.ExchangeName) ? a.DisplayName : a.ExchangeName);
+
+            cmd.AddParameter("DomainController", this._domainController);
+
+            logger.DebugFormat("Executing powershell commands...");
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        /// <summary>
         /// Updates an Exchange mailbox litigation hold information
         /// </summary>
         /// <param name="userPrincipalName">UPN of the user to update</param>

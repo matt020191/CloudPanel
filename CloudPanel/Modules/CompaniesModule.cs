@@ -231,11 +231,15 @@ namespace CloudPanel.Modules
                         groups.Create(createdOrg.DistinguishedName, new SecurityGroup() { Name = "AllUsers@" + companyCode, SamAccountName = "AllUsers@" + companyCode });
 
                         // Add AllTSUsers@ company group to the hosting group and GPOAccess group
+                        logger.DebugFormat("Adding terminal server group to hosting group");
                         groups.AddGroup("AllTSUsers@Hosting", "AllTSUsers@" + companyCode);
+
+                        logger.DebugFormat("Adding terminal server group to gpo access group");
                         groups.AddGroup("GPOAccess@" + reseller.CompanyCode, "AllTSUsers@" + companyCode);
 
 
                         // Remove authenticated users rights and add AllUsers read rights
+                        logger.DebugFormat("Setting company rights to the organizational unit");
                         org.SetCompanyRights(createdOrg.DistinguishedName, "AllUsers@" + companyCode);
 
                         //

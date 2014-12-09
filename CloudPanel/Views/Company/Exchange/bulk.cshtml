@@ -163,6 +163,15 @@
                                                 </select>
                                             </div>
                                         </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">ActiveSync Plan</label>
+                                            <div class="col-sm-6">
+                                                <select id="ActiveSyncPlan" name="ActiveSyncPlan" style="width: 100%" class="form-control">
+                                                    <option value="0">Default</option>
+                                                    @CloudPanel.Modules.CompanyModules.Exchange.ActiveSyncModule.GetAllPlansWithOptions(companyCode, null)
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div id="Change" style="display: none">
@@ -227,6 +236,21 @@
                                             </div>
                                             <div class="col-sm-3">
                                                 <input id="cbChangeArchivePlan" name="cbChangeArchivePlan" type="checkbox" value="false" class="checkbox-boolean" /> Update changes
+                                            </div>
+                                        </div>
+
+                                        <hr />
+
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">ActiveSync Policy</label>
+                                            <div class="col-sm-6">
+                                                <select id="ActiveSyncPlan" name="ActiveSyncPlan" style="width: 100%" class="form-control">
+                                                    <option value="0">Default</option>
+                                                    @CloudPanel.Modules.CompanyModules.Exchange.ActiveSyncModule.GetAllPlansWithOptions(companyCode, null)
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input id="cbChangeActiveSyncPlan" name="cbChangeActiveSyncPlan" type="checkbox" value="false" class="checkbox-boolean" /> Update changes
                                             </div>
                                         </div>
                                     </div>

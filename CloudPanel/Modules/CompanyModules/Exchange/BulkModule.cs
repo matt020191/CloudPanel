@@ -75,6 +75,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                             break;
                         case ActionToTake.Enable:
                             logger.DebugFormat("Enable action was taken");
+
                             if (!Request.Form.MailboxPlan.HasValue)
                                 throw new MissingFieldException("", "MailboxPlan");
 
@@ -87,8 +88,11 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                             if (!Request.Form.SizeInMB.HasValue)
                                 throw new MissingFieldException("", "SizeInMB");
 
+                            if (!Request.Form.ActiveSyncPlan.HasValue)
+                                throw new MissingFieldException("", "ActiveSyncPlan");
+
                             EmailFormat format = Enum.Parse(typeof(EmailFormat), Request.Form.EmailFormat.Value);
-                            results = EnableMailboxes(userPrincipalNames, companyCode, format, Request.Form.MailboxPlan, Request.Form.SizeInMB, Request.Form.EmailDomain);
+                            results = EnableMailboxes(userPrincipalNames, companyCode, format, Request.Form.MailboxPlan, Request.Form.SizeInMB, Request.Form.EmailDomain, Request.Form.ActiveSyncPlan);
                             break;
                         case ActionToTake.Change:
                             logger.DebugFormat("Change action was taken.. Checking Litigation Hold settings");
@@ -122,6 +126,18 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                                                                                     (changeArchivePlan == true || changeArchive == true) ? (int?)Request.Form.ArchivePlan : null);
 
                                 results = results.Union(r2).ToDictionary(k => k.Key, v => v.Value);
+                            }
+
+                            logger.DebugFormat("Checking for ActiveSync policy changes");
+                            bool changeActiveSync = Request.Form.cbChangeActiveSyncPlan.HasValue ? (bool)Request.Form.cbChangeActiveSyncPlan : false;
+
+                            if (changeActiveSync)
+                            {
+                                logger.DebugFormat("We are updating ActiveSync policy information.");
+
+                                Dictionary<string, string> r3 = ModifyActiveSyncPolicy(userPrincipalNames, companyCode, (int)Request.Form.ActiveSyncPlan.Value);
+
+                                results = results.Union(r3).ToDictionary(k => k.Key, v => v.Value);
                             }
 
                             break;
@@ -233,7 +249,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
         /// <param name="sizeInMB"></param>
         /// <param name="domainId"></param>
         /// <returns></returns>
-        private Dictionary<string, string> EnableMailboxes(string[] userPrincipalNames, string companyCode, EmailFormat format, int mailboxPlanId, int sizeInMB, int domainId)
+        private Dictionary<string, string> EnableMailboxes(string[] userPrincipalNames, string companyCode, EmailFormat format, int mailboxPlanId, int sizeInMB, int domainId, int activeSyncPlan)
         {
             var results = new Dictionary<string, string>();
 
@@ -266,6 +282,14 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
 
                 if (domain == null)
                     throw new Exception("Unable to find domain in the database " + domainId);
+
+                //
+                // Get the ActiveSync plan from the database
+                //
+                logger.DebugFormat("Getting active sync plan {0} from the database", activeSyncPlan);
+                var asPlan = (from d in db.Plans_ExchangeActiveSync
+                              where d.ASID == activeSyncPlan
+                              select d).FirstOrDefault();
 
                 powershell = ExchPowershell.GetClass();
                 foreach (var u in userPrincipalNames)
@@ -360,7 +384,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                         powershell.Set_Mailbox(sqlUser, mailboxPlan, new string[] { "SMTP:" + sqlUser.Email });
 
                         logger.DebugFormat("Setting CAS mailbox properties for {0}", u);
-                        powershell.Set_CASMailbox(u, mailboxPlan);
+                        powershell.Set_CASMailbox(u, mailboxPlan, asPlan);
 
                         logger.DebugFormat("Successfully enabled {0} mailbox.. updating database", u);
                         sqlUser.MailboxPlan = mailboxPlanId;
@@ -549,6 +573,79 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error enabling mailboxes: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (powershell != null)
+                    powershell.Dispose();
+
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+    
+        /// <summary>
+        /// Makes modifications to the ActiveSync policy for the mailboxes
+        /// </summary>
+        /// <param name="userPrincipalNames"></param>
+        /// <param name="companyCode"></param>
+        /// <param name="planId"></param>
+        /// <returns></returns>
+        private Dictionary<string, string> ModifyActiveSyncPolicy(string[] userPrincipalNames, string companyCode, int planId)
+        {
+            var results = new Dictionary<string, string>();
+
+            CloudPanelContext db = null;
+            dynamic powershell = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                var asPlan = (from d in db.Plans_ExchangeActiveSync
+                              where d.ASID == planId
+                              select d).FirstOrDefault();
+
+                powershell = ExchPowershell.GetClass();
+                foreach (var u in userPrincipalNames)
+                {
+                    string resultName = string.Format("{0} [ActiveSync]", u);
+                    try
+                    {
+                        //
+                        // Get the user from the database
+                        //
+                        logger.DebugFormat("Getting user {0} from the database", u);
+                        var sqlUser = (from d in db.Users
+                                       where d.UserPrincipalName == u
+                                       where d.CompanyCode == companyCode
+                                       where d.MailboxPlan > 0
+                                       select d).FirstOrDefault();
+
+                        if (sqlUser == null)
+                            results.Add(resultName, "User does not appear to have a mailbox");
+                        else
+                        {
+                            logger.DebugFormat("Updating ActiveSync policy for {0}", u);
+                            powershell.Set_CASMailbox(u, asPlan);
+
+                            results.Add(resultName, "Successfully updated archive settings");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error updating ActiveSync policy for {0}: {1}", u, ex.ToString());
+                        results.Add(resultName, ex.Message);
+                    }
+                }
+
+                // Return our results to the calling method to display to the user
+                return results;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error updating ActiveSync policy for mailboxes: {0}", ex.ToString());
                 throw;
             }
             finally
