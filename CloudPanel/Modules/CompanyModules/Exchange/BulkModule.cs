@@ -11,6 +11,7 @@ using CloudPanel.Base.Config;
 using CloudPanel.Exchange;
 using System.Text;
 using CloudPanel.Rollback;
+using CloudPanel.Base.Database.Models;
 
 namespace CloudPanel.Modules.CompanyModules.Exchange
 {
@@ -61,7 +62,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
 
                     logger.DebugFormat("Unparsed users is {0}", Request.Form.CheckedUsers.Value);
                     string users = Request.Form.CheckedUsers.Value;
-                    string[] userPrincipalNames = users.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] userGuids = users.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
                     // For our results
                     Dictionary<string, string> results = new Dictionary<string,string>();
@@ -71,7 +72,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     {
                         case ActionToTake.Disable:
                             logger.DebugFormat("Disable action was taken");
-                            results = DisableMailboxes(userPrincipalNames, companyCode);
+                            results = DisableMailboxes(userGuids, companyCode);
                             break;
                         case ActionToTake.Enable:
                             logger.DebugFormat("Enable action was taken");
@@ -92,7 +93,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                                 throw new MissingFieldException("", "ActiveSyncPlan");
 
                             EmailFormat format = Enum.Parse(typeof(EmailFormat), Request.Form.EmailFormat.Value);
-                            results = EnableMailboxes(userPrincipalNames, companyCode, format, Request.Form.MailboxPlan, Request.Form.SizeInMB, Request.Form.EmailDomain, Request.Form.ActiveSyncPlan);
+                            results = EnableMailboxes(userGuids, companyCode, format, Request.Form.MailboxPlan, Request.Form.SizeInMB, Request.Form.EmailDomain, Request.Form.ActiveSyncPlan);
                             break;
                         case ActionToTake.Change:
                             logger.DebugFormat("Change action was taken.. Checking Litigation Hold settings");
@@ -103,7 +104,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                             if (changeLitigationHold || changeLitigationUrl || changeLitigationComment)
                             {
                                 logger.DebugFormat("We are updating litigation hold information. Hold: {0}, Url: {1}, Comment: {2}", changeLitigationHold, changeLitigationUrl, changeLitigationComment);
-                                results = ModifyLitigationHold(userPrincipalNames, companyCode, 
+                                results = ModifyLitigationHold(userGuids, companyCode, 
                                                                (changeLitigationHold == true ? (bool?)Request.Form.LitigationHoldEnabled : null),
                                                                (changeLitigationUrl == true ? Request.Form.cbChangeLitigationHoldUrl.Value : null),
                                                                (changeLitigationComment == true ? Request.Form.RetentionComment.Value : null));
@@ -119,8 +120,8 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                             if (changeArchive || changeArchiveName || changeArchivePlan)
                             {
                                 logger.DebugFormat("We are updating archive mailbox information. Archive: {0}, Name: {1}, Plan: {2}", changeArchive, changeArchiveName, changeArchivePlan);
-                                
-                                Dictionary<string, string> r2 = ModifyArchiveMailbox(userPrincipalNames, companyCode,
+
+                                Dictionary<string, string> r2 = ModifyArchiveMailbox(userGuids, companyCode,
                                                                                     (changeArchive == true ? (bool?)Request.Form.ArchivingEnabledChecked : null),
                                                                                     (changeArchiveName == true ? Request.Form.ArchiveName.Value : null),
                                                                                     (changeArchivePlan == true || changeArchive == true) ? (int?)Request.Form.ArchivePlan : null);
@@ -135,7 +136,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                             {
                                 logger.DebugFormat("We are updating ActiveSync policy information.");
 
-                                Dictionary<string, string> r3 = ModifyActiveSyncPolicy(userPrincipalNames, companyCode, (int)Request.Form.ActiveSyncPlan.Value);
+                                Dictionary<string, string> r3 = ModifyActiveSyncPolicy(userGuids, companyCode, (int)Request.Form.ActiveSyncPlan.Value);
 
                                 results = results.Union(r3).ToDictionary(k => k.Key, v => v.Value);
                             }
@@ -164,8 +165,9 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
         /// </summary>
         /// <param name="userPrincipalNames"></param>
         /// <param name="companyCode"></param>
-        private Dictionary<string, string> DisableMailboxes(string[] userPrincipalNames, string companyCode)
+        private Dictionary<string, string> DisableMailboxes(string[] userGuids, string companyCode)
         {
+
             var results = new Dictionary<string, string>();
 
             CloudPanelContext db = null;
@@ -176,7 +178,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                 db.Database.Connection.Open();
 
                 powershell = ExchPowershell.GetClass();
-                foreach (var u in userPrincipalNames)
+                foreach (var u in userGuids)
                 {
                     try
                     {
@@ -185,17 +187,19 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                         if (!string.IsNullOrEmpty(u))
                         {
                             logger.DebugFormat("User {0} passed validating... Checking SQL", u);
+
+                            Guid guid = Guid.Parse(u);
                             var sqlUser = (from d in db.Users
                                            where d.CompanyCode == companyCode
-                                           where d.UserPrincipalName == u
+                                           where d.UserGuid == guid
                                            select d).FirstOrDefault();
 
                             if (sqlUser != null)
                             {
                                 if (sqlUser.MailboxPlan > 0)
                                 {
-                                    logger.DebugFormat("Running diasble command for {0}", u);
-                                    powershell.Disable_Mailbox(u);
+                                    logger.DebugFormat("Running dissble command for {0}", u);
+                                    powershell.Disable_Mailbox(guid);
 
                                     logger.DebugFormat("Updating SQL values for {0}", u);
                                     sqlUser.MailboxPlan = 0;
@@ -207,7 +211,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                                     sqlUser.LitigationHoldOwner = string.Empty;
                                     db.SaveChanges();
 
-                                    results.Add(u, "SUCCESS");
+                                    results.Add(sqlUser.UserPrincipalName, "SUCCESS");
                                 }
                             }
                             else
@@ -249,7 +253,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
         /// <param name="sizeInMB"></param>
         /// <param name="domainId"></param>
         /// <returns></returns>
-        private Dictionary<string, string> EnableMailboxes(string[] userPrincipalNames, string companyCode, EmailFormat format, int mailboxPlanId, int sizeInMB, int domainId, int activeSyncPlan)
+        private Dictionary<string, string> EnableMailboxes(string[] userGuids, string companyCode, EmailFormat format, int mailboxPlanId, int sizeInMB, int domainId, int activeSyncPlan)
         {
             var results = new Dictionary<string, string>();
 
@@ -292,7 +296,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                               select d).FirstOrDefault();
 
                 powershell = ExchPowershell.GetClass();
-                foreach (var u in userPrincipalNames)
+                foreach (var u in userGuids)
                 {
                     ReverseActions reverse = new ReverseActions();
                     try
@@ -301,8 +305,9 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                         // Get the user from the database
                         //
                         logger.DebugFormat("Getting user {0} from the database", u);
+                        Guid guid = Guid.Parse(u);
                         var sqlUser = (from d in db.Users
-                                       where d.UserPrincipalName == u
+                                       where d.UserGuid == guid
                                        where d.CompanyCode == companyCode
                                        select d).FirstOrDefault();
 
@@ -321,31 +326,31 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                             #region Switch Formats for Email
                             case EmailFormat.Firstname:
                                 if (string.IsNullOrEmpty(sqlUser.Firstname))
-                                    throw new Exception("Cannot use first name format because user " + u + " does not contain a first name in the database");
+                                    throw new Exception("Cannot use first name format because user " + sqlUser.UserPrincipalName + " does not contain a first name in the database");
 
                                 sqlUser.Email = string.Format("{0}@{1}", sqlUser.Firstname.Replace(" ", string.Empty), domain.Domain);
                                 break;
                             case EmailFormat.Lastname:
                                 if (string.IsNullOrEmpty(sqlUser.Lastname))
-                                    throw new Exception("Cannot use last name format because user " + u + " does not contain a last name in the database");
+                                    throw new Exception("Cannot use last name format because user " + sqlUser.UserPrincipalName + " does not contain a last name in the database");
 
                                 sqlUser.Email = string.Format("{0}@{1}", sqlUser.Lastname.Replace(" ", string.Empty), domain.Domain);
                                 break;
                             case EmailFormat.FirstNameDotLastname:
                                 if (string.IsNullOrEmpty(sqlUser.Firstname) || string.IsNullOrEmpty(sqlUser.Lastname))
-                                    throw new Exception("Cannot use firstname.lastname format because user " + u + " does not contain a firstname or lastname in the database");
+                                    throw new Exception("Cannot use firstname.lastname format because user " + sqlUser.UserPrincipalName + " does not contain a firstname or lastname in the database");
 
                                 sqlUser.Email = string.Format("{0}.{1}@{2}", sqlUser.Firstname.Replace(" ", string.Empty), sqlUser.Lastname.Replace(" ", string.Empty), domain.Domain);
                                 break;
                             case EmailFormat.FirstnameLastname:
                                 if (string.IsNullOrEmpty(sqlUser.Firstname) || string.IsNullOrEmpty(sqlUser.Lastname))
-                                    throw new Exception("Cannot use firstnamelastname format because user " + u + " does not contain a firstname or lastname in the database");
+                                    throw new Exception("Cannot use firstnamelastname format because user " + sqlUser.UserPrincipalName + " does not contain a firstname or lastname in the database");
 
                                 sqlUser.Email = string.Format("{0}{1}@{2}", sqlUser.Firstname.Replace(" ", string.Empty), sqlUser.Lastname.Replace(" ", string.Empty), domain.Domain);
                                 break;
                             case EmailFormat.LastnameDotFirstname:
                                 if (string.IsNullOrEmpty(sqlUser.Firstname) || string.IsNullOrEmpty(sqlUser.Lastname))
-                                    throw new Exception("Cannot use lastname.firstname format because user " + u + " does not contain a firstname or lastname in the database");
+                                    throw new Exception("Cannot use lastname.firstname format because user " + sqlUser.UserPrincipalName + " does not contain a firstname or lastname in the database");
 
                                 sqlUser.Email = string.Format("{0}.{1}@{2}", sqlUser.Lastname.Replace(" ", string.Empty), sqlUser.Firstname.Replace(" ", string.Empty), domain.Domain);
                                 break;
@@ -373,10 +378,10 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                             #endregion
                         }
 
-                        logger.DebugFormat("Setting user {0}'s mailbox size to {1}", u, sizeInMB);
+                        logger.DebugFormat("Setting user {0}'s mailbox size to {1}", sqlUser.UserPrincipalName, sizeInMB);
                         sqlUser.SizeInMB = sizeInMB;
 
-                        logger.DebugFormat("Enabling user's mailbox {0} with email {1}", u, sqlUser.Email);
+                        logger.DebugFormat("Enabling user's mailbox {0} with email {1}", sqlUser.UserPrincipalName, sqlUser.Email);
                         powershell.Enable_Mailbox(sqlUser);
                         reverse.AddAction(Actions.CreateMailbox, u);
 
@@ -384,7 +389,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                         powershell.Set_Mailbox(sqlUser, mailboxPlan, new string[] { "SMTP:" + sqlUser.Email });
 
                         logger.DebugFormat("Setting CAS mailbox properties for {0}", u);
-                        powershell.Set_CASMailbox(u, mailboxPlan, asPlan);
+                        powershell.Set_CASMailbox(sqlUser.UserGuid, mailboxPlan, asPlan);
 
                         logger.DebugFormat("Successfully enabled {0} mailbox.. updating database", u);
                         sqlUser.MailboxPlan = mailboxPlanId;
@@ -429,7 +434,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
         /// <param name="url"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        private Dictionary<string, string> ModifyLitigationHold(string[] userPrincipalNames, string companyCode, bool? isEnabled = null, string url = null, string message = null)
+        private Dictionary<string, string> ModifyLitigationHold(string[] userGuids, string companyCode, bool? isEnabled = null, string url = null, string message = null)
         {
             var results = new Dictionary<string, string>();
 
@@ -441,7 +446,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                 db.Database.Connection.Open();
 
                 powershell = ExchPowershell.GetClass();
-                foreach (var u in userPrincipalNames)
+                foreach (var u in userGuids)
                 {
                     string resultName = string.Format("{0} [Litigation Hold]", u);
                     try
@@ -450,8 +455,9 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                         // Get the user from the database
                         //
                         logger.DebugFormat("Getting user {0} from the database", u);
+                        Guid guid = Guid.Parse(u);
                         var sqlUser = (from d in db.Users
-                                       where d.UserPrincipalName == u
+                                       where d.UserGuid == guid
                                        where d.CompanyCode == companyCode
                                        where d.MailboxPlan > 0
                                        select d).FirstOrDefault();
@@ -460,7 +466,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                             results.Add(resultName, "User does not appear to have a mailbox");
                         else
                         {
-                            powershell.Set_LitigationHold(u, litigationHoldEnabled: isEnabled, retentionUrl: url, retentionComment: message);
+                            powershell.Set_LitigationHold(sqlUser.UserGuid, litigationHoldEnabled: isEnabled, retentionUrl: url, retentionComment: message);
                             results.Add(resultName, "Successfully updated litigation hold settings");
                         }
                     }
@@ -498,7 +504,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
         /// <param name="archiveName"></param>
         /// <param name="archivePlan"></param>
         /// <returns></returns>
-        private Dictionary<string, string> ModifyArchiveMailbox(string[] userPrincipalNames, string companyCode, bool? isEnabled = null, string archiveName = null, int? archivePlan = null)
+        private Dictionary<string, string> ModifyArchiveMailbox(string[] userGuids, string companyCode, bool? isEnabled = null, string archiveName = null, int? archivePlan = null)
         {
             var results = new Dictionary<string, string>();
 
@@ -517,7 +523,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                                        select d.ArchiveSizeMB).First();
 
                 powershell = ExchPowershell.GetClass();
-                foreach (var u in userPrincipalNames)
+                foreach (var u in userGuids)
                 {
                     string resultName = string.Format("{0} [Archive]", u);
                     try
@@ -526,8 +532,9 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                         // Get the user from the database
                         //
                         logger.DebugFormat("Getting user {0} from the database", u);
+                        Guid guid = Guid.Parse(u);
                         var sqlUser = (from d in db.Users
-                                       where d.UserPrincipalName == u
+                                       where d.UserGuid == guid
                                        where d.CompanyCode == companyCode
                                        where d.MailboxPlan > 0
                                        select d).FirstOrDefault();
@@ -536,15 +543,17 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                             results.Add(resultName, "User does not appear to have a mailbox");
                         else
                         {
+                            resultName = string.Format("{0} [Archive]", sqlUser.UserPrincipalName);
+
                             if (isEnabled == true) // Archiving is being enabled
                             {
                                 logger.DebugFormat("Enabling archive mailbox for {0}", u);
-                                powershell.Enable_ArchiveMailbox(u, archiveName, string.Empty);
+                                powershell.Enable_ArchiveMailbox(sqlUser.UserGuid, archiveName, string.Empty);
                             }
                             else if (isEnabled == false) // Archiving is being disabled
                             {
                                 logger.DebugFormat("Disabling archive mailbox for {0}", u);
-                                powershell.Disable_ArchiveMailbox(u);
+                                powershell.Disable_ArchiveMailbox(sqlUser.UserGuid);
                                 sqlUser.ArchivePlan = 0;
                                 db.SaveChanges();
                             }
@@ -552,7 +561,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                             if (archiveName != null || archivePlanSize != null) // The name or plan has been changed.
                             {
                                 logger.DebugFormat("Updating archive settings for {0}", u);
-                                powershell.Set_ArchiveMailbox(u, archiveName, archivePlanSize);
+                                powershell.Set_ArchiveMailbox(sqlUser.UserGuid, archiveName, archivePlanSize);
                                 sqlUser.ArchivePlan = (int)archivePlan;
                                 db.SaveChanges();
                             }
@@ -592,7 +601,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
         /// <param name="companyCode"></param>
         /// <param name="planId"></param>
         /// <returns></returns>
-        private Dictionary<string, string> ModifyActiveSyncPolicy(string[] userPrincipalNames, string companyCode, int planId)
+        private Dictionary<string, string> ModifyActiveSyncPolicy(string[] userGuids, string companyCode, int planId)
         {
             var results = new Dictionary<string, string>();
 
@@ -608,7 +617,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                               select d).FirstOrDefault();
 
                 powershell = ExchPowershell.GetClass();
-                foreach (var u in userPrincipalNames)
+                foreach (var u in userGuids)
                 {
                     string resultName = string.Format("{0} [ActiveSync]", u);
                     try
@@ -617,8 +626,9 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                         // Get the user from the database
                         //
                         logger.DebugFormat("Getting user {0} from the database", u);
+                        Guid guid = Guid.Parse(u);
                         var sqlUser = (from d in db.Users
-                                       where d.UserPrincipalName == u
+                                       where d.UserGuid == guid
                                        where d.CompanyCode == companyCode
                                        where d.MailboxPlan > 0
                                        select d).FirstOrDefault();
@@ -627,8 +637,10 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                             results.Add(resultName, "User does not appear to have a mailbox");
                         else
                         {
+                            resultName = string.Format("{0} [ActiveSync]", sqlUser.UserPrincipalName);
+
                             logger.DebugFormat("Updating ActiveSync policy for {0}", u);
-                            powershell.Set_CASMailbox(u, asPlan);
+                            powershell.Set_CASMailbox(sqlUser.UserGuid, asPlan);
 
                             results.Add(resultName, "Successfully updated archive settings");
                         }

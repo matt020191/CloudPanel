@@ -437,16 +437,16 @@ namespace CloudPanel.Modules.CompanyModules
                         var asPlan = (from d in db.Plans_ExchangeActiveSync
                                       where d.ASID == asPlanId
                                       select d).First();
-                        powershell.Set_CASMailbox(boundUser.UserPrincipalName, plan, asPlan);
+                        powershell.Set_CASMailbox(boundUser.UserGuid, plan, asPlan);
                     }
                     else
-                        powershell.Set_CASMailbox(boundUser.UserPrincipalName, plan);
+                        powershell.Set_CASMailbox(boundUser.UserGuid, plan);
 
                     logger.DebugFormat("Processing full access permissions for {0}", boundUser.UserPrincipalName);
-                    ProcessFullAccess(boundUser.UserPrincipalName, ref powershell, boundUser.EmailFullAccessOriginal, boundUser.EmailFullAccess, boundUser.AutoMapping);
+                    ProcessFullAccess(boundUser.UserGuid, ref powershell, boundUser.EmailFullAccessOriginal, boundUser.EmailFullAccess, boundUser.AutoMapping);
 
                     logger.DebugFormat("Processing send as permissions for {0}", boundUser.UserPrincipalName);
-                    ProcessSendAs(sqlUser.DistinguishedName, ref powershell, boundUser.EmailSendAsOriginal, boundUser.EmailSendAs);
+                    ProcessSendAs(sqlUser.UserGuid, ref powershell, boundUser.EmailSendAsOriginal, boundUser.EmailSendAs);
 
                     logger.DebugFormat("Updating sql data");
                     sqlUser.Email = boundUser.Email;
@@ -462,7 +462,7 @@ namespace CloudPanel.Modules.CompanyModules
                 {
                     #region Disable Mailbox
                     // Disable mailbox
-                    powershell.Disable_Mailbox(boundUser.UserPrincipalName);
+                    powershell.Disable_Mailbox(boundUser.UserGuid);
 
                     // Update sql values
                     logger.DebugFormat("Updating SQL values for disabling mailbox {0}", boundUser.UserPrincipalName);
@@ -503,7 +503,7 @@ namespace CloudPanel.Modules.CompanyModules
             {
                 logger.DebugFormat("Litigation hold page was loaded. Updating values");
                 powershell = ExchPowershell.GetClass();
-                powershell.Set_LitigationHold(boundUser.UserPrincipalName, boundUser.LitigationHoldEnabled, boundUser.RetentionUrl, boundUser.RetentionComment);
+                powershell.Set_LitigationHold(boundUser.UserGuid, boundUser.LitigationHoldEnabled, boundUser.RetentionUrl, boundUser.RetentionComment);
             }
             catch (Exception ex)
             {
@@ -547,13 +547,13 @@ namespace CloudPanel.Modules.CompanyModules
 
                     if (!wasEnabled && nowEnabled) // Enabling archive 
                     {
-                        powershell.Enable_ArchiveMailbox(sqlUser.UserPrincipalName, boundUser.ArchiveName, plan.Database);
-                        reverse.AddAction(Actions.CreateArchiveMailbox, sqlUser.UserPrincipalName);
+                        powershell.Enable_ArchiveMailbox(sqlUser.UserGuid, boundUser.ArchiveName, plan.Database);
+                        reverse.AddAction(Actions.CreateArchiveMailbox, sqlUser.UserGuid);
 
-                        powershell.Set_ArchiveMailbox(sqlUser.UserPrincipalName, plan.ArchiveSizeMB);
+                        powershell.Set_ArchiveMailbox(sqlUser.UserGuid, plan.ArchiveSizeMB);
                     }
                     else // Update archive
-                        powershell.Set_ArchiveMailbox(boundUser.UserPrincipalName, plan.ArchiveSizeMB);
+                        powershell.Set_ArchiveMailbox(boundUser.UserGuid, plan.ArchiveSizeMB);
 
                     logger.DebugFormat("Updating sql data");
                     sqlUser.ArchivePlan = plan.ArchivingID;
@@ -563,7 +563,7 @@ namespace CloudPanel.Modules.CompanyModules
                     #region Disable Archive Mailbox
 
                     // Disable mailbox
-                    powershell.Disable_ArchiveMailbox(boundUser.UserPrincipalName);
+                    powershell.Disable_ArchiveMailbox(boundUser.UserGuid);
 
                     // Update sql values
                     logger.DebugFormat("Updating SQL values for disabling archive mailbox {0}", boundUser.UserPrincipalName);
@@ -595,7 +595,7 @@ namespace CloudPanel.Modules.CompanyModules
         /// <param name="original"></param>
         /// <param name="current"></param>
         /// <param name="autoMapping"></param>
-        private void ProcessFullAccess(string upn, ref dynamic powershell, string[] original, string[] current, bool autoMapping = true)
+        private void ProcessFullAccess(Guid userGuid, ref dynamic powershell, string[] original, string[] current, bool autoMapping = true)
         {
             var toAdd = new List<string>();
             var toRemove = new List<string>();
@@ -623,10 +623,10 @@ namespace CloudPanel.Modules.CompanyModules
 
             logger.DebugFormat("Continuing...");
             if (toAdd != null && toAdd.Count() > 0)
-                powershell.Add_FullAccessPermissions(upn, toAdd.ToArray(), autoMapping);
+                powershell.Add_FullAccessPermissions(userGuid, toAdd.ToArray(), autoMapping);
 
             if (toRemove != null && toRemove.Count() > 0)
-                powershell.Remove_FullAccessPermissions(upn, toRemove.ToArray());
+                powershell.Remove_FullAccessPermissions(userGuid, toRemove.ToArray());
         }
 
         /// <summary>
@@ -636,7 +636,7 @@ namespace CloudPanel.Modules.CompanyModules
         /// <param name="powershell"></param>
         /// <param name="original"></param>
         /// <param name="current"></param>
-        private void ProcessSendAs(string distinguishedName, ref dynamic powershell, string[] original, string[] current)
+        private void ProcessSendAs(Guid userGuid, ref dynamic powershell, string[] original, string[] current)
         {
             var toAdd = new List<string>();
             var toRemove = new List<string>();
@@ -664,10 +664,10 @@ namespace CloudPanel.Modules.CompanyModules
 
             logger.DebugFormat("Continuing...");
             if (toAdd != null && toAdd.Count() > 0)
-                powershell.Add_SendAsPermissions(distinguishedName, toAdd.ToArray());
+                powershell.Add_SendAsPermissions(userGuid, toAdd.ToArray());
 
             if (toRemove != null && toRemove.Count() > 0)
-                powershell.Remove_SendAsPermissions(distinguishedName, toRemove.ToArray());
+                powershell.Remove_SendAsPermissions(userGuid, toRemove.ToArray());
         }
 
         /// <summary>

@@ -50,7 +50,7 @@
                                     @foreach (var user in CloudPanel.Modules.UsersModule.GetUsers(companyCode))
                                     {
                                         <tr>
-                                            <td align="center" class="selector"><input name="CheckedUsers" type="checkbox" value="@user.UserPrincipalName"/></td>
+                                            <td align="center" class="selector"><input name="CheckedUsers" type="checkbox" value="@user.UserGuid"/></td>
                                             <td>@user.DisplayName</td>
                                             <td>@user.Firstname</td>
                                             <td>@user.Lastname</td>

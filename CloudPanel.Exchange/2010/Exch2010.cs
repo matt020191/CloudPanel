@@ -850,8 +850,8 @@ namespace CloudPanel.Exchange
         public void Enable_Mailbox(Users user)
         {
             #region Required data
-            if (string.IsNullOrEmpty(user.UserPrincipalName))
-                throw new MissingFieldException("Users", "UserPrincipalName");
+            if (user.UserGuid == null)
+                throw new MissingFieldException("Users", "UserGuid");
 
             if (string.IsNullOrEmpty(user.CompanyCode))
                 throw new MissingFieldException("Users", "CompanyCode");
@@ -862,7 +862,7 @@ namespace CloudPanel.Exchange
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Enable-Mailbox");
-            cmd.AddParameter("Identity", user.UserPrincipalName);
+            cmd.AddParameter("Identity", user.UserGuid.ToString());
             cmd.AddParameter("AddressBookPolicy", string.Format(Settings.ExchangeABPName, user.CompanyCode));
             cmd.AddParameter("PrimarySmtpAddress", user.Email);
             cmd.AddParameter("Alias", string.Format("{0}_{1}", user.EmailFirst, user.EmailDomain));
@@ -883,11 +883,11 @@ namespace CloudPanel.Exchange
         /// <param name="emailAddresses">List of email addresses including the primary and aliases</param>
         public void Enable_Mailbox(Users user, Plans_ExchangeMailbox p, string[] emailAddresses)
         {
-            logger.DebugFormat("Enabling mailbox for {0}", user.UserPrincipalName);
+            logger.DebugFormat("Enabling mailbox for {0}", user.UserGuid);
 
             #region Required data
-            if (string.IsNullOrEmpty(user.UserPrincipalName))
-                throw new MissingFieldException("Users", "UserPrincipalName");
+            if (user.UserGuid == null)
+                throw new MissingFieldException("Users", "UserGuid");
 
             if (string.IsNullOrEmpty(user.CompanyCode))
                 throw new MissingFieldException("Users", "CompanyCode");
@@ -912,7 +912,7 @@ namespace CloudPanel.Exchange
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Enable-Mailbox");
-            cmd.AddParameter("Identity", user.UserPrincipalName);
+            cmd.AddParameter("Identity", user.UserGuid.ToString());
             cmd.AddParameter("AddressBookPolicy", string.Format(Settings.ExchangeABPName, user.CompanyCode));
             cmd.AddParameter("PrimarySmtpAddress", user.Email);
             cmd.AddParameter("Alias", string.Format("{0}_{1}", user.EmailFirst, user.EmailDomain));
@@ -922,7 +922,7 @@ namespace CloudPanel.Exchange
             logger.DebugFormat("Continuing to Set-Mailbox...");
             cmd.AddStatement();
             cmd.AddCommand("Set-Mailbox");
-            cmd.AddParameter("Identity", user.UserPrincipalName);
+            cmd.AddParameter("Identity", user.UserGuid.ToString());
             cmd.AddParameter("EmailAddresses", emailAddresses);
             cmd.AddParameter("EmailAddressPolicyEnabled", false);
             cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
@@ -945,7 +945,7 @@ namespace CloudPanel.Exchange
             logger.DebugFormat("Continuing to Set-CASMailbox...");
             cmd.AddStatement();
             cmd.AddCommand("Set-CASMailbox");
-            cmd.AddParameter("Identity", user.UserPrincipalName);
+            cmd.AddParameter("Identity", user.UserGuid.ToString());
             cmd.AddParameter("ActiveSyncEnabled", p.EnableAS);
             cmd.AddParameter("ECPEnabled", p.EnableECP);
             cmd.AddParameter("ImapEnabled", p.EnableIMAP);
@@ -970,11 +970,11 @@ namespace CloudPanel.Exchange
         /// <param name="emailAddresses">List of email addresses including the primary and aliases</param>
         public void Set_Mailbox(Users user, Plans_ExchangeMailbox p, string[] emailAddresses)
         {
-            logger.DebugFormat("Updating mailbox for {0}", user.UserPrincipalName);
+            logger.DebugFormat("Updating mailbox for {0}", user.UserGuid);
 
             #region Required data
-            if (string.IsNullOrEmpty(user.UserPrincipalName))
-                throw new MissingFieldException("Users", "UserPrincipalName");
+            if (user.UserGuid == null)
+                throw new MissingFieldException("Users", "UserGuid");
 
             if (string.IsNullOrEmpty(user.CompanyCode))
                 throw new MissingFieldException("Users", "CompanyCode");
@@ -999,7 +999,7 @@ namespace CloudPanel.Exchange
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-Mailbox");
-            cmd.AddParameter("Identity", user.UserPrincipalName);
+            cmd.AddParameter("Identity", user.UserGuid.ToString());
             cmd.AddParameter("EmailAddresses", emailAddresses);
             cmd.AddParameter("EmailAddressPolicyEnabled", false);
             cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
@@ -1037,13 +1037,13 @@ namespace CloudPanel.Exchange
         /// </summary>
         /// <param name="user"></param>
         /// <param name="p"></param>
-        public void Set_CASMailbox(string userPrincipalName, Plans_ExchangeMailbox p, Plans_ExchangeActiveSync a = null)
+        public void Set_CASMailbox(Guid userGuid, Plans_ExchangeMailbox p, Plans_ExchangeActiveSync a = null)
         {
-            logger.DebugFormat("Updating CAS mailbox for {0}", userPrincipalName);
+            logger.DebugFormat("Updating CAS mailbox for {0}", userGuid);
 
             #region Required data
-            if (string.IsNullOrEmpty(userPrincipalName))
-                throw new MissingFieldException("", "UserPrincipalName");
+            if (userGuid == null)
+                throw new MissingFieldException("", "UserGuid");
 
             if (p == null)
                 throw new ArgumentNullException("Plans_ExchangeMailbox");
@@ -1051,7 +1051,7 @@ namespace CloudPanel.Exchange
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-CASMailbox");
-            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Identity", userGuid.ToString());
             cmd.AddParameter("ActiveSyncEnabled", p.EnableAS);
             cmd.AddParameter("ECPEnabled", p.EnableECP);
             cmd.AddParameter("ImapEnabled", p.EnableIMAP);
@@ -1076,20 +1076,20 @@ namespace CloudPanel.Exchange
         /// <summary>
         /// Updates the ActiveSync plan for the mailbox
         /// </summary>
-        /// <param name="userPrincipalName"></param>
+        /// <param name="userguid"></param>
         /// <param name="a"></param>
-        public void Set_CASMailbox(string userPrincipalName, Plans_ExchangeActiveSync a)
+        public void Set_CASMailbox(Guid userGuid, Plans_ExchangeActiveSync a)
         {
-            logger.DebugFormat("Updating CAS mailbox ActiveSync policy for {0}", userPrincipalName);
+            logger.DebugFormat("Updating CAS mailbox ActiveSync policy for {0}", userGuid);
 
             #region Required data
-            if (string.IsNullOrEmpty(userPrincipalName))
-                throw new MissingFieldException("", "UserPrincipalName");
+            if (userGuid == null)
+                throw new MissingFieldException("", "UserGuid");
             #endregion
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-CASMailbox");
-            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Identity", userGuid.ToString());
 
             if (a == null)
                 cmd.AddParameter("ActiveSyncMailboxPolicy", null);
@@ -1108,18 +1108,18 @@ namespace CloudPanel.Exchange
         /// <summary>
         /// Updates an Exchange mailbox litigation hold information
         /// </summary>
-        /// <param name="userPrincipalName">UPN of the user to update</param>
+        /// <param name="userGuid">Guid of the user to update</param>
         /// <param name="litigationHoldEnabled">If litigation hold is enabled or not</param>
         /// <param name="retentionUrl">The URL for information on the hold (Displayed to user)</param>
         /// <param name="retentionComment">The comment for the information on the hold (Displayed to user)</param>
-        public void Set_LitigationHold(string userPrincipalName, bool litigationHoldEnabled, string retentionUrl = "", string retentionComment = "")
+        public void Set_LitigationHold(Guid userGuid, bool litigationHoldEnabled, string retentionUrl = "", string retentionComment = "")
         {
-            logger.DebugFormat("Updating litigation hold information for {0}", userPrincipalName);
-            logger.DebugFormat("Litigation hold values are {0}, {1}, {2}, {3}", userPrincipalName, litigationHoldEnabled, retentionUrl, retentionComment);
+            logger.DebugFormat("Updating litigation hold information for {0}", userGuid);
+            logger.DebugFormat("Litigation hold values are {0}, {1}, {2}, {3}", userGuid, litigationHoldEnabled, retentionUrl, retentionComment);
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-Mailbox");
-            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Identity", userGuid.ToString());
             cmd.AddParameter("LitigationHoldEnabled", litigationHoldEnabled);
 
             if (litigationHoldEnabled)
@@ -1145,18 +1145,18 @@ namespace CloudPanel.Exchange
         /// <summary>
         /// Sets the litigation hold settings (currently used for bulk operations)
         /// </summary>
-        /// <param name="userPrincipalName"></param>
+        /// <param name="userGuid"></param>
         /// <param name="litigationHoldEnabled"></param>
         /// <param name="retentionUrl"></param>
         /// <param name="retentionComment"></param>
-        public void Set_LitigationHold(string userPrincipalName, bool? litigationHoldEnabled = null, string retentionUrl = null, string retentionComment = null)
+        public void Set_LitigationHold(Guid userGuid, bool? litigationHoldEnabled = null, string retentionUrl = null, string retentionComment = null)
         {
-            logger.DebugFormat("Updating litigation hold information for {0}", userPrincipalName);
-            logger.DebugFormat("Litigation hold values are {0}, {1}, {2}, {3}", userPrincipalName, litigationHoldEnabled, retentionUrl, retentionComment);
+            logger.DebugFormat("Updating litigation hold information for {0}", userGuid);
+            logger.DebugFormat("Litigation hold values are {0}, {1}, {2}, {3}", userGuid, litigationHoldEnabled, retentionUrl, retentionComment);
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-Mailbox");
-            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Identity", userGuid.ToString());
             
             if (litigationHoldEnabled != null)
                 cmd.AddParameter("LitigationHoldEnabled", litigationHoldEnabled);
@@ -1176,14 +1176,14 @@ namespace CloudPanel.Exchange
         /// <summary>
         /// Disables an Exchange mailbox
         /// </summary>
-        /// <param name="userPrincipalName">UserPrincipalName of the user to disable</param>
-        public void Disable_Mailbox(string userPrincipalName, bool ignoreNotFound = false)
+        /// <param name="userGuid">Guid of the user to disable</param>
+        public void Disable_Mailbox(Guid userGuid, bool ignoreNotFound = false)
         {
-            logger.DebugFormat("Removing mailbox {0}", userPrincipalName);
+            logger.DebugFormat("Removing mailbox {0}", userGuid);
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Disable-Mailbox");
-            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Identity", userGuid.ToString());
             cmd.AddParameter("Confirm", false);
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
@@ -1232,7 +1232,7 @@ namespace CloudPanel.Exchange
                 throw _powershell.Streams.Error[0].Exception;
             else
             {
-                logger.DebugFormat("Found mailbox {0}", user.UserPrincipalName);
+                logger.DebugFormat("Found mailbox {0}", user.UserGuid);
 
                 var foundUser = psObjects[0];
                 user.Email = foundUser.Properties["PrimarySmtpAddress"].Value.ToString();
@@ -1601,18 +1601,18 @@ namespace CloudPanel.Exchange
 
         #region Archive Mailbox
 
-        public virtual void Enable_ArchiveMailbox(string userPrincipalName, string archiveName, string database)
+        public virtual void Enable_ArchiveMailbox(Guid userGuid, string archiveName, string database)
         {
-            logger.DebugFormat("Enabling archive mailbox for {0}", userPrincipalName);
+            logger.DebugFormat("Enabling archive mailbox for {0}", userGuid);
 
             #region Required data
-            if (string.IsNullOrEmpty(userPrincipalName))
-                throw new MissingFieldException("", "UserPrincipalName");
+            if (userGuid == null)
+                throw new MissingFieldException("", "UserGuid");
             #endregion
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Enable-Mailbox");
-            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Identity", userGuid.ToString());
             cmd.AddParameter("Archive");
 
             if (!string.IsNullOrEmpty(archiveName))
@@ -1628,18 +1628,18 @@ namespace CloudPanel.Exchange
             HandleErrors();
         }
 
-        public virtual void Set_ArchiveMailbox(string userPrincipalName, int archiveSizeMB)
+        public virtual void Set_ArchiveMailbox(Guid userGuid, int archiveSizeMB)
         {
-            logger.DebugFormat("Settings archive mailbox for {0}", userPrincipalName);
+            logger.DebugFormat("Settings archive mailbox for {0}", userGuid);
 
             #region Required data
-            if (string.IsNullOrEmpty(userPrincipalName))
-                throw new MissingFieldException("", "UserPrincipalName");
+            if (userGuid == null)
+                throw new MissingFieldException("", "UserGuid");
             #endregion
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-Mailbox");
-            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Identity", userGuid.ToString());
             cmd.AddParameter("ArchiveQuota", string.Format("{0}MB", archiveSizeMB));
             cmd.AddParameter("ArchiveWarningQuota", string.Format("{0}MB", archiveSizeMB * .95));
             cmd.AddParameter("DomainController", this._domainController);
@@ -1653,22 +1653,22 @@ namespace CloudPanel.Exchange
         /// <summary>
         /// Archive mailbox settings. Currently used for bulk operations
         /// </summary>
-        /// <param name="userPrincipalName"></param>
+        /// <param name="userGuid"></param>
         /// <param name="archiveName"></param>
         /// <param name="archiveSizeMB"></param>
         /// <param name="?"></param>
-        public virtual void Set_ArchiveMailbox(string userPrincipalName, string archiveName = null, int? archiveSizeMB = null)
+        public virtual void Set_ArchiveMailbox(Guid userGuid, string archiveName = null, int? archiveSizeMB = null)
         {
-            logger.DebugFormat("Settings archive mailbox for {0}", userPrincipalName);
+            logger.DebugFormat("Settings archive mailbox for {0}", userGuid);
 
             #region Required data
-            if (string.IsNullOrEmpty(userPrincipalName))
-                throw new MissingFieldException("", "UserPrincipalName");
+            if (userGuid == null)
+                throw new MissingFieldException("", "UserGuid");
             #endregion
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-Mailbox");
-            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Identity", userGuid.ToString());
 
             if (!string.IsNullOrEmpty(archiveName))
                 cmd.AddParameter("ArchiveName", archiveName);
@@ -1686,18 +1686,18 @@ namespace CloudPanel.Exchange
 
         }
 
-        public virtual void Disable_ArchiveMailbox(string userPrincipalName)
+        public virtual void Disable_ArchiveMailbox(Guid userGuid)
         {
-            logger.DebugFormat("Disabling archive mailbox for {0}", userPrincipalName);
+            logger.DebugFormat("Disabling archive mailbox for {0}", userGuid);
 
             #region Required data
-            if (string.IsNullOrEmpty(userPrincipalName))
-                throw new MissingFieldException("", "UserPrincipalName");
+            if (userGuid == null)
+                throw new MissingFieldException("", "UserGuid");
             #endregion
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Disable-Mailbox");
-            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Identity", userGuid.ToString());
             cmd.AddParameter("Archive");
             cmd.AddParameter("DomainController", this._domainController);
             cmd.AddParameter("Confirm", false);
@@ -1711,11 +1711,11 @@ namespace CloudPanel.Exchange
 
         #region Resource Mailboxes
 
-        public ResourceMailboxes Get_ResourceMailbox(string userPrincipalName)
+        public ResourceMailboxes Get_ResourceMailbox(Guid resourceGuid)
         {
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Get-Mailbox");
-            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Identity", resourceGuid.ToString());
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
 
@@ -1724,13 +1724,13 @@ namespace CloudPanel.Exchange
                 throw _powershell.Streams.Error[0].Exception;
             else
             {
-                logger.DebugFormat("Found mailbox {0}", userPrincipalName);
+                logger.DebugFormat("Found mailbox {0}", resourceGuid.ToString());
 
                 var returnMailbox = new ResourceMailboxes();
                 var foundMailbox = psObjects[0];
 
                 returnMailbox.ResourceGuid = Guid.Parse(foundMailbox.Properties["Guid"].Value.ToString());
-                returnMailbox.UserPrincipalName = userPrincipalName;
+                returnMailbox.UserPrincipalName = foundMailbox.Properties["UserPrincipalName"].Value.ToString();
                 returnMailbox.PrimarySmtpAddress = foundMailbox.Properties["PrimarySmtpAddress"].Value.ToString();
                 returnMailbox.DistinguishedName = foundMailbox.Properties["DistinguishedName"].Value.ToString();
 
@@ -1809,8 +1809,8 @@ namespace CloudPanel.Exchange
         {
             logger.DebugFormat("Updating room mailbox {0}", resourceMailbox.DisplayName);
 
-            if (string.IsNullOrEmpty(resourceMailbox.UserPrincipalName))
-                throw new MissingFieldException("", "UserPrincipalName");
+            if (resourceMailbox.ResourceGuid == null)
+                throw new MissingFieldException("", "ResourceGuid");
 
             if (string.IsNullOrEmpty(resourceMailbox.CompanyCode))
                 throw new MissingFieldException("", "CompanyCode");
@@ -1828,7 +1828,7 @@ namespace CloudPanel.Exchange
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-Mailbox");
-            cmd.AddParameter("Identity", resourceMailbox.UserPrincipalName);
+            cmd.AddParameter("Identity", resourceMailbox.ResourceGuid.ToString());
             cmd.AddParameter("CustomAttribute1", resourceMailbox.CompanyCode);
             cmd.AddParameter("EmailAddresses", emailAddresses);
             cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
@@ -1854,14 +1854,14 @@ namespace CloudPanel.Exchange
         /// <summary>
         /// Deletes the room mailbox and AD object
         /// </summary>
-        /// <param name="userPrincipalName"></param>
-        public void Remove_RoomMailbox(string userPrincipalName)
+        /// <param name="resourceGuid"></param>
+        public void Remove_RoomMailbox(Guid resourceGuid)
         {
-            logger.DebugFormat("Removing room mailbox {0}", userPrincipalName);
+            logger.DebugFormat("Removing room mailbox {0}", resourceGuid);
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Remove-Mailbox");
-            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Identity", resourceGuid.ToString());
             cmd.AddParameter("Confirm", false);
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
@@ -1919,8 +1919,8 @@ namespace CloudPanel.Exchange
         {
             logger.DebugFormat("Updating equipment mailbox {0}", resourceMailbox.DisplayName);
 
-            if (string.IsNullOrEmpty(resourceMailbox.UserPrincipalName))
-                throw new MissingFieldException("", "UserPrincipalName");
+            if (resourceMailbox.ResourceGuid == null)
+                throw new MissingFieldException("", "ResourceGuid");
 
             if (string.IsNullOrEmpty(resourceMailbox.CompanyCode))
                 throw new MissingFieldException("", "CompanyCode");
@@ -1938,7 +1938,7 @@ namespace CloudPanel.Exchange
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-Mailbox");
-            cmd.AddParameter("Identity", resourceMailbox.UserPrincipalName);
+            cmd.AddParameter("Identity", resourceMailbox.ResourceGuid.ToString());
             cmd.AddParameter("CustomAttribute1", resourceMailbox.CompanyCode);
             cmd.AddParameter("EmailAddresses", emailAddresses);
             cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
@@ -1964,14 +1964,14 @@ namespace CloudPanel.Exchange
         /// <summary>
         /// Deletes the equipment mailbox and AD object
         /// </summary>
-        /// <param name="userPrincipalName"></param>
-        public void Remove_EquipmentMailbox(string userPrincipalName)
+        /// <param name="UserGuid"></param>
+        public void Remove_EquipmentMailbox(Guid resourceGuid)
         {
-            logger.DebugFormat("Removing equipment mailbox {0}", userPrincipalName);
+            logger.DebugFormat("Removing equipment mailbox {0}", resourceGuid);
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Remove-Mailbox");
-            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Identity", resourceGuid.ToString());
             cmd.AddParameter("Confirm", false);
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
@@ -2029,8 +2029,8 @@ namespace CloudPanel.Exchange
         {
             logger.DebugFormat("Updating shared mailbox {0}", resourceMailbox.DisplayName);
 
-            if (string.IsNullOrEmpty(resourceMailbox.UserPrincipalName))
-                throw new MissingFieldException("", "UserPrincipalName");
+            if (resourceMailbox.ResourceGuid == null)
+                throw new MissingFieldException("", "ResourceGuid");
 
             if (string.IsNullOrEmpty(resourceMailbox.CompanyCode))
                 throw new MissingFieldException("", "CompanyCode");
@@ -2048,7 +2048,7 @@ namespace CloudPanel.Exchange
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-Mailbox");
-            cmd.AddParameter("Identity", resourceMailbox.UserPrincipalName);
+            cmd.AddParameter("Identity", resourceMailbox.ResourceGuid.ToString());
             cmd.AddParameter("CustomAttribute1", resourceMailbox.CompanyCode);
             cmd.AddParameter("EmailAddresses", emailAddresses);
             cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
@@ -2074,14 +2074,14 @@ namespace CloudPanel.Exchange
         /// <summary>
         /// Deletes the room mailbox and AD object
         /// </summary>
-        /// <param name="userPrincipalName"></param>
-        public void Remove_SharedMailbox(string userPrincipalName)
+        /// <param name="ResourceGuid"></param>
+        public void Remove_SharedMailbox(Guid resourceGuid)
         {
-            logger.DebugFormat("Removing shared mailbox {0}", userPrincipalName);
+            logger.DebugFormat("Removing shared mailbox {0}", resourceGuid);
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Remove-Mailbox");
-            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Identity", resourceGuid.ToString());
             cmd.AddParameter("Confirm", false);
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
