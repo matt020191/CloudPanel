@@ -296,27 +296,27 @@ namespace CloudPanel.Modules
                     db.Database.Connection.Open();
 
                     logger.DebugFormat("Validating parameters");
-                    if (!Request.Form.UserPrincipalName.HasValue)
-                        throw new Exception("UserPrincipalName is a required field");
+                    if (!Request.Form.UserGuid.HasValue)
+                        throw new Exception("UserGuid is a required field");
                     else
                     {
                         logger.DebugFormat("Getting company code and userprincipalname for {0}", _.CompanyCode);
                         string companyCode = _.CompanyCode;
-                        string upn = Request.Form.UserPrincipalName;
+                        Guid userGuid = Request.Form.UserGuid;
 
-                        logger.DebugFormat("Getting user {0} from database", upn);
+                        logger.DebugFormat("Getting user {0} from database", userGuid);
                         var user = (from d in db.Users
                                     where d.CompanyCode == companyCode
-                                    where d.UserPrincipalName == upn
+                                    where d.UserGuid == userGuid
                                     select d).FirstOrDefault();
 
                         if (user == null)
                             throw new Exception("Unable to find user in database");
                         else
                         {
-                            logger.DebugFormat("Deleting {0} from Active Directory", upn);
+                            logger.DebugFormat("Deleting {0} from Active Directory", userGuid);
                             adUsers = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-                            adUsers.Delete(upn);
+                            adUsers.Delete(userGuid);
 
                             logger.DebugFormat("Removing user from database");
                             int userId = user.ID; // To perform more cleanup
@@ -326,29 +326,29 @@ namespace CloudPanel.Modules
                             logger.DebugFormat("User has been removed. Now cleaning up the database to remove all traces of the user");
 
                             logger.DebugFormat("Clearing user from citrix plans");
-                            var citrixPlans = from d in db.UserPlansCitrix where d.UserID == userId select d;
+                            var citrixPlans = (from d in db.UserPlansCitrix where d.UserID == userId select d).DefaultIfEmpty();
                             if (citrixPlans != null)
                                 db.UserPlansCitrix.RemoveRange(citrixPlans);
 
                             logger.DebugFormat("Clearing user from permissions");
-                            var permissions = from d in db.UserPermission where d.UserID == userId select d;
+                            var permissions = (from d in db.UserPermission where d.UserID == user.ID select d).DefaultIfEmpty();
                             if (permissions != null)
                                 db.UserPermission.RemoveRange(permissions);
 
                             logger.DebugFormat("Clearing user from queues");
-                            var queues = from d in db.SvcQueue where d.UserPrincipalName == upn select d;
+                            var queues = (from d in db.SvcQueue where d.UserPrincipalName == user.UserPrincipalName select d).DefaultIfEmpty();
                             if (queues != null)
                                 db.SvcQueue.RemoveRange(queues);
 
                             logger.DebugFormat("Clearing user from mailbox sizes");
-                            var mailboxSizes = from d in db.SvcMailboxSizes where d.UserPrincipalName == upn select d;
+                            var mailboxSizes = (from d in db.SvcMailboxSizes where d.UserPrincipalName == user.UserPrincipalName select d).DefaultIfEmpty();
                             if (mailboxSizes != null)
                                 db.SvcMailboxSizes.RemoveRange(mailboxSizes);
 
-                            logger.DebugFormat("Finished cleanup for {0}", upn);
+                            logger.DebugFormat("Finished cleanup for {0}", user.UserPrincipalName);
                             db.SaveChanges();
 
-                            return Negotiate.WithModel(new { success = "Deleted user " + upn });
+                            return Negotiate.WithModel(new { success = "Deleted user " + user.UserPrincipalName });
                         }
                     }
                 }

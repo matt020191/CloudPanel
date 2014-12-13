@@ -137,6 +137,11 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        /// <summary>
+        /// Get user information and properties including groups
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         public Users GetUser(string username)
         {
             UserPrincipal usr = null;
@@ -217,6 +222,11 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        /// <summary>
+        /// Get user information and properties excluding groups to speed up the call
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         public Users GetUserWithoutGroups(string username)
         {
             UserPrincipal usr = null;
@@ -281,6 +291,11 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        /// <summary>
+        /// Get user information and properties including the photo
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         public Users GetUserWithPhoto(string username)
         {
             UserPrincipal usr = null;
@@ -356,6 +371,13 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        /// <summary>
+        /// Creates a new Active Directory user
+        /// </summary>
+        /// <param name="usersOU"></param>
+        /// <param name="clearTextPassword"></param>
+        /// <param name="userObject"></param>
+        /// <returns></returns>
         public Users Create(string usersOU, string clearTextPassword, Users userObject)
         {
             PrincipalContext ctx = null;
@@ -471,6 +493,10 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        /// <summary>
+        /// Updates an Active Directory user
+        /// </summary>
+        /// <param name="userObject"></param>
         public void UpdateUser(Users userObject)
         {
             UserPrincipal usr = null;
@@ -479,9 +505,6 @@ namespace CloudPanel.ActiveDirectory
             {
                 if (string.IsNullOrEmpty(userObject.UserPrincipalName))
                     throw new MissingFieldException("User", "UserPrincipalName");
-
-                if (string.IsNullOrEmpty(userObject.Firstname))
-                    throw new MissingFieldException("User", "FirstName");
 
                 if (string.IsNullOrEmpty(userObject.DisplayName))
                     throw new MissingFieldException("User", "DisplayName");
@@ -542,6 +565,12 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        /// <summary>
+        /// Updates a specific attribute in Active Directory
+        /// </summary>
+        /// <param name="userPrincipalName"></param>
+        /// <param name="property"></param>
+        /// <param name="newValue"></param>
         public void UpdateUserAttribute(string userPrincipalName, string property, string newValue)
         {
             UserPrincipal usr = null;
@@ -569,7 +598,7 @@ namespace CloudPanel.ActiveDirectory
             }
             catch (Exception ex)
             {
-                logger.InfoFormat("Error updating user {0} property {1}.", userPrincipalName, property);
+                logger.InfoFormat("Error updating user {0} property {1}: {2}", userPrincipalName, property, ex.ToString());
                 throw;
             }
             finally
@@ -579,7 +608,77 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
-        public void Delete(string username)
+        /// <summary>
+        /// Changes the login name
+        /// </summary>
+        /// <param name="userGuid">User's GUID</param>
+        /// <param name="newUpn">New UserPrincipalNAme</param>
+        /// <param name="newSamAccountName">New SamAcocuntName. If this is null then it will automatically generate it</param>
+        /// <param name="name">"Name". If this is null then it will automatically use the new UserPrincipalName</param>
+        public Users ChangeLogin(Guid userGuid, string newUpn, string newSamAccountName = null, string name = null)
+        {
+            UserPrincipal usr = null;
+
+            try
+            {
+                if (userGuid == null)
+                    throw new MissingFieldException("", "userGuid");
+
+                if (string.IsNullOrEmpty(newUpn))
+                    throw new MissingFieldException("", "newUpn");
+
+                if (string.IsNullOrEmpty(newSamAccountName))
+                    newSamAccountName = GetAvailableSamAccountName(newUpn);
+
+                logger.DebugFormat("Changing user {0}'s login to {1}", userGuid, newUpn);
+
+                pc = GetPrincipalContext();
+                usr = UserPrincipal.FindByIdentity(pc, IdentityType.Guid, userGuid.ToString());
+                if (usr == null)
+                    throw new NoMatchingPrincipalException(userGuid.ToString());
+
+                logger.DebugFormat("Updating first two values");
+                usr.SamAccountName = newSamAccountName;
+                usr.UserPrincipalName = newUpn;
+
+                logger.DebugFormat("Saving userprincipal object");
+                usr.Save();
+
+                logger.DebugFormat("Updating 'Name' attribute");
+                var de = usr.GetUnderlyingObject() as DirectoryEntry;
+                if (!string.IsNullOrEmpty(name))
+                    de.Rename("CN=" + name);
+                else
+                    de.Rename("CN=" + newUpn);
+                de.CommitChanges();
+
+                logger.InfoFormat("Successfully updated user login name for {0} to {1} with SamAccountName {2} and name {3}.", userGuid, newUpn, newSamAccountName, name);
+
+                return new Users()
+                {
+                    UserPrincipalName = usr.UserPrincipalName,
+                    sAMAccountName = usr.SamAccountName,
+                    DistinguishedName = de.Properties["DistinguishedName"].Value.ToString()
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.InfoFormat("Error updating user login name for {0} to {1}: {2}", userGuid, newUpn, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (usr != null)
+                    usr.Dispose();
+            }
+        }
+
+
+        /// <summary>
+        /// Deletes a user from Active Directory
+        /// </summary>
+        /// <param name="username"></param>
+        public void Delete(Guid userGuid)
         {
             UserPrincipal usr = null;
 
@@ -587,20 +686,20 @@ namespace CloudPanel.ActiveDirectory
             {
                 pc = GetPrincipalContext();
 
-                logger.DebugFormat("Attempting to retrieve user {0}", username);
-                usr = UserPrincipal.FindByIdentity(pc, IdentityType.UserPrincipalName, username);
+                logger.DebugFormat("Attempting to retrieve user {0}", userGuid);
+                usr = UserPrincipal.FindByIdentity(pc, IdentityType.Guid, userGuid.ToString());
 
                 if (usr != null)
                 {
                     usr.Delete();
-                    logger.InfoFormat("Successfully deleted user {0}", username);
+                    logger.InfoFormat("Successfully deleted user {0}", userGuid);
                 }
                 else
-                    logger.InfoFormat("Attempted to delete user {0} but could not find the user in Active Directory. Assuming user was manually deleted... continuing...", username);
+                    logger.InfoFormat("Attempted to delete user {0} but could not find the user in Active Directory. Assuming user was manually deleted... continuing...", userGuid);
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Failed to delete user {0}. Exception: {1}", username, ex.ToString());
+                logger.ErrorFormat("Failed to delete user {0}. Exception: {1}", userGuid, ex.ToString());
                 throw;
             }
             finally
@@ -610,31 +709,36 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
-        public void ResetPassword(string username, string newClearTextPassword)
+        /// <summary>
+        /// Reset the user's password
+        /// </summary>
+        /// <param name="userGuid"></param>
+        /// <param name="newClearTextPassword"></param>
+        public void ResetPassword(Guid userGuid, string newClearTextPassword)
         {
             UserPrincipal usr = null;
             try
             {
-                logger.DebugFormat("Attempting to reset password for user {0}", username);
+                logger.DebugFormat("Attempting to reset password for user {0}", userGuid);
 
-                if (string.IsNullOrEmpty(username))
-                    throw new MissingFieldException("Users", "username");
+                if (userGuid == null)
+                    throw new MissingFieldException("Users", "UserGuid");
 
                 if (string.IsNullOrEmpty(newClearTextPassword))
                     throw new MissingFieldException("Users", "Password");
 
                 pc = GetPrincipalContext();
-                usr = UserPrincipal.FindByIdentity(pc, IdentityType.UserPrincipalName, username);
+                usr = UserPrincipal.FindByIdentity(pc, IdentityType.Guid, userGuid.ToString());
                 if (usr == null)
-                    throw new NoMatchingPrincipalException(username);
+                    throw new NoMatchingPrincipalException(userGuid.ToString());
 
                 usr.SetPassword(newClearTextPassword);
 
-                logger.InfoFormat("Successfully reset password for {0}", username);
+                logger.InfoFormat("Successfully reset password for {0}", userGuid);
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error resetting password for {0}. Exception {1}.", username, ex.ToString());
+                logger.ErrorFormat("Error resetting password for {0}. Exception {1}.", userGuid, ex.ToString());
                 throw;
             }
             finally
@@ -644,6 +748,11 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        /// <summary>
+        /// Adds a user to a security group
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="userPrincipalName"></param>
         public void AddToGroup(string groupName, string userPrincipalName)
         {
             GroupPrincipal gp = null;
@@ -693,6 +802,11 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        /// <summary>
+        /// Adds a user to an array of security group
+        /// </summary>
+        /// <param name="groupsName"></param>
+        /// <param name="userPrincipalName"></param>
         public void AddToGroup(string[] groupsName, string userPrincipalName)
         {
             GroupPrincipal gp = null;
@@ -748,6 +862,11 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        /// <summary>
+        /// Removes a user from a group
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="userPrincipalName"></param>
         public void RemoveFromGroup(string groupName, string userPrincipalName)
         {
             GroupPrincipal gp = null;
@@ -797,6 +916,11 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        /// <summary>
+        /// Removes a user from an array of security groups
+        /// </summary>
+        /// <param name="groupsName"></param>
+        /// <param name="userPrincipalName"></param>
         public void RemoveToGroup(string[] groupsName, string userPrincipalName)
         {
             GroupPrincipal gp = null;
@@ -852,6 +976,11 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        /// <summary>
+        /// Gets the photo from Active Directory
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         public byte[] GetPhoto(string username)
         {
             UserPrincipal usr = null;

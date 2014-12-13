@@ -39,6 +39,8 @@ namespace CloudPanel.Base.Database.Models
     {
         public int ID { get; set; }
 
+        public Guid UserGuid { get; set; }
+
         [Required]
         [StringLength(64)]
         public string UserPrincipalName { get; set; }

@@ -268,6 +268,21 @@ namespace CloudPanel
             return user.Claims.Any(x => (x.Contains("SuperAdmin") || x.Contains("ResellerAdmin")));
         }
 
+        /// <summary>
+        /// Checks if the logged in user is a super admin, reseller admin, or company admin
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static bool IsSuperResellerOrCompanyAdmin(this NancyContext context)
+        {
+            if (context.CurrentUser == null)
+                return false;
+
+            var user = context.CurrentUser as AuthenticatedUser;
+            return user.Claims.Any(x => (x.Contains("SuperAdmin") || x.Contains("ResellerAdmin") || x.Contains("CompanyAdmin")));
+        }
+
+
         public static bool HasPermission(this NancyContext context)
         {
             return false;

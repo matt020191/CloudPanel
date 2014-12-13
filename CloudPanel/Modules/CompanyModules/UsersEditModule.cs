@@ -22,7 +22,7 @@ namespace CloudPanel.Modules.CompanyModules
     {
         private static readonly ILog logger = LogManager.GetLogger(typeof(UsersEditModule));
 
-        public UsersEditModule() : base("/company/{CompanyCode}/users/{UserPrincipalName}")
+        public UsersEditModule() : base("/company/{CompanyCode}/users/{UserGuid:guid}")
         {
             this.RequiresAuthentication();
 
@@ -30,12 +30,12 @@ namespace CloudPanel.Modules.CompanyModules
             {
                 this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
 
-                logger.DebugFormat("Loading user edit page for company {0} and user {1}", _.CompanyCode, _.UserPrincipalName);
+                logger.DebugFormat("Loading user edit page for company {0} and user {1}", _.CompanyCode, _.UserGuid);
                 string companyCode = _.CompanyCode;
-                string userPrincipalName = _.UserPrincipalName;
+                string userGuid = _.UserPrincipalName;
                 return View["Company/users_edit.cshtml", new { 
                     CompanyCode = companyCode, 
-                    UserPrincipalName = userPrincipalName, 
+                    UserGuid = userGuid,
                     MailboxUsers = UsersModule.GetMailboxUsers(companyCode) 
                 }];
             };
@@ -51,14 +51,14 @@ namespace CloudPanel.Modules.CompanyModules
                     db = new CloudPanelContext(Settings.ConnectionString);
                     db.Database.Connection.Open();
 
-                    logger.DebugFormat("Getting user {0} from the system", _.UserPrincipalName);
+                    logger.DebugFormat("Getting user {0} from the system", _.UserGuid);
                     string companyCode = _.CompanyCode;
-                    string upn = _.UserPrincipalName;
+                    Guid userGuid = _.UserGuid;
 
-                    logger.DebugFormat("Querying the database for {0}", upn);
+                    logger.DebugFormat("Querying the database for {0}", userGuid);
                     var user = (from d in db.Users
                                 where d.CompanyCode == companyCode
-                                where d.UserPrincipalName == upn
+                                where d.UserGuid == userGuid
                                 select d).FirstOrDefault();
 
                     if (user == null)
@@ -71,7 +71,7 @@ namespace CloudPanel.Modules.CompanyModules
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error getting user {0}: {1}", _.UserPrincipalName, ex.ToString());
+                    logger.ErrorFormat("Error getting user {0}: {1}", _.UserGuid, ex.ToString());
                     return Negotiate.WithModel(new { error = ex.Message })
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
@@ -92,18 +92,18 @@ namespace CloudPanel.Modules.CompanyModules
                 try
                 {
                     string companyCode = _.CompanyCode;
-                    string upn = _.UserPrincipalName;
+                    Guid userGuid = _.UserGuid;
 
-                    logger.DebugFormat("Getting mailbox {0} from Exchange", _.UserPrincipalName);
+                    logger.DebugFormat("Getting mailbox {0} from Exchange", _.UserGuid);
                     powershell = ExchPowershell.GetClass();
 
-                    var mailbox = powershell.Get_Mailbox(new Users() { UserPrincipalName = upn });
+                    var mailbox = powershell.Get_Mailbox(new Users() { UserGuid = userGuid });
                     return Negotiate.WithModel(new { mailbox = mailbox })
                                     .WithStatusCode(HttpStatusCode.OK);
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error getting mailbox {0}: {1}", _.UserPrincipalName, ex.ToString());
+                    logger.ErrorFormat("Error getting mailbox {0}: {1}", _.UserGuid, ex.ToString());
                     return Negotiate.WithModel(new { error = ex.Message })
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
@@ -127,7 +127,7 @@ namespace CloudPanel.Modules.CompanyModules
                 try
                 {
                     string companyCode = _.CompanyCode;
-                    string userPrincipalName = _.UserPrincipalName;
+                    Guid userGuid = _.UserGuid;
 
                     logger.DebugFormat("Retrieving user from database");
                     db = new CloudPanelContext(Settings.ConnectionString);
@@ -135,18 +135,18 @@ namespace CloudPanel.Modules.CompanyModules
 
                     var sqlUser = (from d in db.Users
                                    where d.CompanyCode == companyCode
-                                   where d.UserPrincipalName == userPrincipalName
+                                   where d.UserGuid == userGuid
                                    select d).FirstOrDefault();
 
                     if (sqlUser == null)
-                        throw new Exception("Unable to find user in the database: " + userPrincipalName);
+                        throw new Exception("Unable to find user in the database: " + userGuid);
                     else
                     {
                         // Model bind
                         logger.DebugFormat("Binding form to class...");
 
                         var boundUser = this.Bind<Users>();
-                        boundUser.UserPrincipalName = userPrincipalName;
+                        boundUser.UserGuid = userGuid;
                         boundUser.CompanyCode = companyCode;
 
                         // Combine the old values in sql with the new values in sql
@@ -176,19 +176,22 @@ namespace CloudPanel.Modules.CompanyModules
                             sqlUser.IsResellerAdmin = boundUser.IsResellerAdmin;
                         }
 
-                        logger.DebugFormat("Checking if company admin");
-                        if (boundUser.RoleID > 0)
+                        logger.DebugFormat("Checking if company admin only if they have rights to change this");
+                        if (this.Context.IsSuperResellerOrCompanyAdmin())
                         {
-                            sqlUser.RoleID = boundUser.RoleID;
-                            sqlUser.IsCompanyAdmin = true;
-                        }
-                        else
-                        {
-                            sqlUser.RoleID = 0;
-                            sqlUser.IsCompanyAdmin = false;
+                            if (boundUser.RoleID > 0)
+                            {
+                                sqlUser.RoleID = boundUser.RoleID;
+                                sqlUser.IsCompanyAdmin = true;
+                            }
+                            else
+                            {
+                                sqlUser.RoleID = 0;
+                                sqlUser.IsCompanyAdmin = false;
+                            }
                         }
 
-                        logger.DebugFormat("Updating Active Directory for user {0}", userPrincipalName);
+                        logger.DebugFormat("Updating Active Directory for user {0}", userGuid);
                         adUser = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
                         adUser.UpdateUser(sqlUser);
 
@@ -200,13 +203,13 @@ namespace CloudPanel.Modules.CompanyModules
                         logger.DebugFormat("Checking for mailbox changes");
                         if (boundUser.IsEmailModified && isExchangeEnabled)
                         {
-                            logger.DebugFormat("It appears the user loaded the email settings for {0} or set it to change.", userPrincipalName);
+                            logger.DebugFormat("It appears the user loaded the email settings for {0} or set it to change.", sqlUser.UserPrincipalName);
                             boundUser.Email = string.Format("{0}@{1}", Request.Form.EmailFirst.Value, Request.Form.EmailDomain.Value);
 
                             ProcessMailbox(ref sqlUser, ref boundUser, ref db);                            
                         }
                         else
-                            logger.DebugFormat("Email was not changed or was not enabled in Exchange for {0}", userPrincipalName);
+                            logger.DebugFormat("Email was not changed or was not enabled in Exchange for {0}", userGuid);
 
                         // Check for litigation hold changes
                         logger.DebugFormat("Checking for litigation hold changes");
@@ -215,7 +218,7 @@ namespace CloudPanel.Modules.CompanyModules
                             ProcessLitigationHold(ref boundUser);
                         }
                         else
-                            logger.DebugFormat("Litigation hold was not changed or was not enabled in Exchange for {0}", userPrincipalName);
+                            logger.DebugFormat("Litigation hold was not changed or was not enabled in Exchange for {0}", sqlUser.UserPrincipalName);
 
                         // Check for archive changes
                         logger.DebugFormat("Checking for archive changes");
@@ -224,7 +227,7 @@ namespace CloudPanel.Modules.CompanyModules
                             ProcessArchive(ref sqlUser, ref boundUser, ref db);
                         }
                         else
-                            logger.DebugFormat("Archiving was not change or was not enabled in Exchange for {0}", userPrincipalName);
+                            logger.DebugFormat("Archiving was not change or was not enabled in Exchange for {0}", sqlUser.UserPrincipalName);
 
                         #endregion
 
@@ -232,7 +235,7 @@ namespace CloudPanel.Modules.CompanyModules
                         db.SaveChanges();
 
                         string redirectUrl = string.Format("~/company/{0}/users", companyCode);
-                        return Negotiate.WithModel(new { success = "Successfully updated user " + userPrincipalName })
+                        return Negotiate.WithModel(new { success = "Successfully updated user " + sqlUser.UserPrincipalName })
                                         .WithMediaRangeResponse("text/html", this.Response.AsRedirect(redirectUrl));
                     }
                 }
@@ -263,8 +266,8 @@ namespace CloudPanel.Modules.CompanyModules
                 this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eUsers"));
 
                 #region resets a user's password
-                string upn = _.UserPrincipalName;
                 string companyCode = _.CompanyCode;
+                Guid userGuid = _.UserGuid;
 
                 ADUsers adUser = null;
                 CloudPanelContext db = null;
@@ -273,26 +276,95 @@ namespace CloudPanel.Modules.CompanyModules
                     if (!Request.Form.Password.HasValue)
                         throw new MissingFieldException("", "Password");
 
-                    upn = Request.Form.UserPrincipalName;
                     db = new CloudPanelContext(Settings.ConnectionString);
-
                     var user = (from d in db.Users
                                 where d.CompanyCode == companyCode
-                                where d.UserPrincipalName == upn
+                                where d.UserGuid == userGuid
                                 select d).FirstOrDefault();
                     if (user == null)
                         throw new Exception("User was not found in database.");
                     else
                     {
                         adUser = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-                        adUser.ResetPassword(upn, Request.Form.Password);
+                        adUser.ResetPassword(userGuid, Request.Form.Password);
                     }
 
-                    return Negotiate.WithModel(new { success = "Successfully reset password for " + upn });
+                    return Negotiate.WithModel(new { success = "Successfully reset password for " + user.UserPrincipalName });
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error resetting user {0}'s password", upn);
+                    logger.ErrorFormat("Error resetting user {0}'s password", userGuid);
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
+                }
+                finally
+                {
+                    if (db != null)
+                        db.Dispose();
+
+                    if (adUser != null)
+                        adUser.Dispose();
+                }
+                #endregion
+            };
+
+            Post["/changelogin"] = _ =>
+            {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eUsers"));
+
+                #region change a users login name
+                Guid userGuid = _.UserGuid;
+                string companyCode = _.CompanyCode;
+
+                ADUsers adUser = null;
+                CloudPanelContext db = null;
+                try
+                {
+                    if (!Request.Form.NewUsername.HasValue)
+                        throw new MissingFieldException("", "NewUsername");
+
+                    if (!Request.Form.NewDomain.HasValue)
+                        throw new MissingFieldException("", "NewDomain");
+ 
+                    db = new CloudPanelContext(Settings.ConnectionString);
+                    var user = (from d in db.Users
+                                where d.CompanyCode == companyCode
+                                where d.UserGuid == userGuid
+                                select d).FirstOrDefault();
+                    if (user == null)
+                        throw new Exception("User " + userGuid + " was not found in database.");
+                    else
+                    {
+                        int domainId = Request.Form.NewDomain;
+
+                        var domain = (from d in db.Domains
+                                      where d.CompanyCode == companyCode
+                                      where d.DomainID == domainId
+                                      select d).FirstOrDefault();
+                        if (domain == null)
+                            throw new Exception("Unable to find domain in the database");
+
+                        logger.DebugFormat("Connecting to Active Directory..");
+                        adUser = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+
+                        logger.DebugFormat("Resetting username...");
+                        string oldUpn = user.UserPrincipalName;
+                        string newUpn = string.Format("{0}@{1}", Request.Form.NewUsername.Value, domain.Domain);
+                        Users updatedUser = adUser.ChangeLogin(userGuid, newUpn, null, user.DisplayName);
+
+                        logger.DebugFormat("Updating database with new username");
+                        user.UserPrincipalName = updatedUser.UserPrincipalName;
+                        user.sAMAccountName = updatedUser.sAMAccountName;
+                        user.DistinguishedName = updatedUser.DistinguishedName;
+
+                        db.SaveChanges();
+
+                        return Negotiate.WithModel(new { success = string.Format("Username {0} has been successfully changed to {1}", oldUpn, user.UserPrincipalName) });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error updating user {0}'s username", userGuid);
                     return Negotiate.WithModel(new { error = ex.Message })
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }

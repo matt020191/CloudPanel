@@ -40,6 +40,8 @@ namespace CloudPanel.Base.Database.Models
         [Key]
         public int ResourceID { get; set; }
 
+        public Guid ResourceGuid { get; set; }
+
         public string DistinguishedName { get; set; }
 
         [Required]

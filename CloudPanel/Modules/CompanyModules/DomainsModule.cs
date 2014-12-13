@@ -419,6 +419,73 @@ namespace CloudPanel.Modules
             };
         }
 
+        public static List<Domains> GetDomains(string companyCode)
+        {
+            CloudPanelContext db = null;
+            try
+            {
+                logger.DebugFormat("Getting company domains for {0}", companyCode);
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                // Get domains
+                var domains = (from d in db.Domains
+                               where d.CompanyCode == companyCode
+                               select d).ToList();
+
+                return domains;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting domains for {0}: {1}", companyCode, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static IHtmlString GetDomainsOptions(string companyCode, int selectedValue)
+        {
+            var returnString = new StringBuilder();
+
+            CloudPanelContext db = null;
+            try
+            {
+                logger.DebugFormat("Getting company domains for {0}", companyCode);
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                // Generate code
+                var domains = (from d in db.Domains
+                               where d.CompanyCode == companyCode
+                               select d).ToList();
+
+                if (domains != null)
+                {
+                    domains.ForEach(x =>
+                    {
+                        returnString.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
+                            x.DomainID,
+                            x.DomainID == selectedValue ? "selected" : "",
+                            x.Domain);
+                    });
+                }
+
+                return new NonEncodedHtmlString(returnString.ToString());
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting domains for {0}: {1}", companyCode, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
         public static List<Domains> GetAcceptedDomains(string companyCode)
         {
             CloudPanelContext db = null;

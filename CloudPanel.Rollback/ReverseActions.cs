@@ -127,7 +127,7 @@ namespace CloudPanel.Rollback
                         break;
                     case Actions.AddUsers:
                         usr = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-                        usr.Delete(attribute[0].ToString());
+                        usr.Delete((Guid)attribute[0]);
                         log.DebugFormat("Successfully rolled back action {0} for user {1}", action.ToString(), attribute[0].ToString());
                         break;
                     default:

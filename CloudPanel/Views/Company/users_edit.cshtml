@@ -51,9 +51,9 @@
                                                 <li class="dropdown">
                                                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">Email <span class="caret"></span></a>
                                                     <ul class="dropdown-menu">
-                                                        <li><a href="#mailbox" data-toggle="tab" onclick="javascript:Mailbox('@Model.UserPrincipalName');">Edit</a></li>
-                                                        <li><a href="#litigationhold" data-toggle="tab" onclick="javascript:LitigationHold('@Model.UserPrincipalName');">Litigation Hold</a></li>
-                                                        <li><a href="#archiving" data-toggle="tab" onclick="javascript:Archiving('@Model.UserPrincipalName');">Archiving</a></li>
+                                                        <li><a href="#mailbox" data-toggle="tab" onclick="javascript:Mailbox('@Model.UserGuid');">Edit</a></li>
+                                                        <li><a href="#litigationhold" data-toggle="tab" onclick="javascript:LitigationHold('@Model.UserGuid');">Litigation Hold</a></li>
+                                                        <li><a href="#archiving" data-toggle="tab" onclick="javascript:Archiving('@Model.UserGuid');">Archiving</a></li>
                                                     </ul>
                                                 </li>
                                             </ul>
@@ -487,7 +487,7 @@
             });
 
             // Get user properties from SQL
-            GetUser('@Model.UserPrincipalName');
+            GetUser('@Model.UserGuid');
         });
 
         //
@@ -563,44 +563,44 @@
         //
         // Get the mailbox properties from Exchange if the user was originally enabled for Exchange
         //
-        function Mailbox(upn) {
+        function Mailbox(userGuid) {
             $("#IsEmailModified").prop('checked', true);
             $("#IsEmailModified").val(true);
 
             if (originalEmailEnabled) {
-                GetMailboxValues(upn);
+                GetMailboxValues(userGuid);
             }
         }
 
         //
         // Get the litigation hold properties from Exchange if the user was originally enabled for Exchange
         //
-        function LitigationHold(upn) {
+        function LitigationHold(userGuid) {
             $("#IsLitigationHoldModified").prop('checked', true);
             $("#IsLitigationHoldModified").val(true);
             $("#LitigationHoldDate").datepicker({ startDate: "today" });
 
             if (originalEmailEnabled && mailboxRetrieved == false) { // Only get litigation hold data if user was enabled for Exchange on page load
-                GetMailboxValues(upn);
+                GetMailboxValues(userGuid);
             }
         }
 
         //
         // Get the archiving properties from Exchange if the user was originally enabled for Exchange
         //
-        function Archiving(upn) {
+        function Archiving(userGuid) {
             $("#IsArchivingModified").prop('checked', true);
             $("#IsArchivingModified").val(true);
 
             if (originalEmailEnabled && mailboxRetrieved == false) { // Only get archiving data if user was enabled for Exchange on page load
-                GetMailboxValues(upn);
+                GetMailboxValues(userGuid);
             }
         }
 
         //
         // Gets the additional values from Exchange for the mailbox
         //
-        function GetMailboxValues(upn) {
+        function GetMailboxValues(userGuid) {
             if (mailboxRetrieved == false) {
                 $("#blockui").block();
                 $.getJSON(window.location.href + "/mailbox", function (data) {

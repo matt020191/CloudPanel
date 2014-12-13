@@ -1223,7 +1223,7 @@ namespace CloudPanel.Exchange
         {
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Get-Mailbox");
-            cmd.AddParameter("Identity", user.UserPrincipalName);
+            cmd.AddParameter("Identity", user.UserGuid.ToString());
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
 
@@ -1283,11 +1283,11 @@ namespace CloudPanel.Exchange
 
                 // Get full access permissions
                 logger.DebugFormat("Retrieving full access permissions");
-                user.EmailFullAccess = Get_FullAccessPermissions(user.UserPrincipalName);
+                user.EmailFullAccess = Get_FullAccessPermissions(user.UserGuid);
 
                 // Get send as permissions
                 logger.DebugFormat("Retrieving send as permissions");
-                user.EmailSendAs = Get_SendAsPermissions(user.DistinguishedName);
+                user.EmailSendAs = Get_SendAsPermissions(user.UserGuid);
 
             }
 
@@ -1297,10 +1297,10 @@ namespace CloudPanel.Exchange
         /// <summary>
         /// Adds full access permissions to a mailbox
         /// </summary>
-        /// <param name="userPrincipalName">UPN of the user to add permissions to</param>
+        /// <param name="userGuid">Guid of the user to add permissions to</param>
         /// <param name="toAdd">string array of who we are adding to have full access permissions</param>
         /// <param name="autoMapping">If we are automapping for who is added</param>
-        public void Add_FullAccessPermissions(string userPrincipalName, string[] toAdd, bool autoMapping = true)
+        public void Add_FullAccessPermissions(Guid userGuid, string[] toAdd, bool autoMapping = true)
         {
             if (toAdd != null && toAdd.Length > 0)
             {
@@ -1308,7 +1308,7 @@ namespace CloudPanel.Exchange
                 {
                     PSCommand cmd = new PSCommand();
                     cmd.AddCommand("Add-MailboxPermission");
-                    cmd.AddParameter("Identity", userPrincipalName);
+                    cmd.AddParameter("Identity", userGuid.ToString());
                     cmd.AddParameter("User", s);
                     cmd.AddParameter("AccessRights", "FullAccess");
                     cmd.AddParameter("InheritanceType", "All");
@@ -1329,9 +1329,9 @@ namespace CloudPanel.Exchange
         /// <summary>
         /// Adds send as permissions to a mailbox
         /// </summary>
-        /// <param name="distinguishedName">DistinguishedName of the user we are adding send as permission to</param>
+        /// <param name="userGuid">Guid of the user we are adding send as permission to</param>
         /// <param name="toAdd">string array of who we are adding to have full access permissions</param>
-        public void Add_SendAsPermissions(string distinguishedName, string[] toAdd)
+        public void Add_SendAsPermissions(Guid userGuid, string[] toAdd)
         {
             if (toAdd != null && toAdd.Length > 0)
             {
@@ -1339,7 +1339,7 @@ namespace CloudPanel.Exchange
                 {
                     PSCommand cmd = new PSCommand();
                     cmd.AddCommand("Add-ADPermission");
-                    cmd.AddParameter("Identity", distinguishedName);
+                    cmd.AddParameter("Identity", userGuid.ToString());
                     cmd.AddParameter("User", s);
                     cmd.AddParameter("AccessRights", "ExtendedRight");
                     cmd.AddParameter("ExtendedRights", "Send As");
@@ -1359,9 +1359,9 @@ namespace CloudPanel.Exchange
         /// <summary>
         /// Removes full access permissions from a mailbox
         /// </summary>
-        /// <param name="userPrincipalName"></param>
+        /// <param name="userGuid"></param>
         /// <param name="toRemove"></param>
-        public void Remove_FullAccessPermissions(string userPrincipalName, string[] toRemove)
+        public void Remove_FullAccessPermissions(Guid userGuid, string[] toRemove)
         {
             if (toRemove != null && toRemove.Length > 0)
             {
@@ -1371,7 +1371,7 @@ namespace CloudPanel.Exchange
                     {
                         PSCommand cmd = new PSCommand();
                         cmd.AddCommand("Remove-MailboxPermission");
-                        cmd.AddParameter("Identity", userPrincipalName);
+                        cmd.AddParameter("Identity", userGuid.ToString());
                         cmd.AddParameter("User", s);
                         cmd.AddParameter("AccessRights", "FullAccess");
                         cmd.AddParameter("InheritanceType", "All");
@@ -1394,7 +1394,7 @@ namespace CloudPanel.Exchange
         /// </summary>
         /// <param name="distinguishedName"></param>
         /// <param name="toRemove"></param>
-        public void Remove_SendAsPermissions(string distinguishedName, string[] toRemove)
+        public void Remove_SendAsPermissions(Guid userGuid, string[] toRemove)
         {
             if (toRemove != null && toRemove.Length > 0)
             {
@@ -1404,7 +1404,7 @@ namespace CloudPanel.Exchange
                     {
                         PSCommand cmd = new PSCommand();
                         cmd.AddCommand("Remove-ADPermission");
-                        cmd.AddParameter("Identity", distinguishedName);
+                        cmd.AddParameter("Identity", userGuid.ToString());
                         cmd.AddParameter("User", s);
                         cmd.AddParameter("AccessRights", "ExtendedRight");
                         cmd.AddParameter("ExtendedRights", "Send As");
@@ -1425,13 +1425,13 @@ namespace CloudPanel.Exchange
         /// <summary>
         /// Retrieves a string array of who currently has full access permissions
         /// </summary>
-        /// <param name="userPrincipalName">UPN of the user to retrieve permissions</param>
+        /// <param name="userGuid">Guid of the user to retrieve permissions</param>
         /// <returns></returns>
-        public string[] Get_FullAccessPermissions(string userPrincipalName)
+        public string[] Get_FullAccessPermissions(Guid userGuid)
         {
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Get-MailboxPermission");
-            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Identity", userGuid.ToString());
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
 
@@ -1440,7 +1440,7 @@ namespace CloudPanel.Exchange
                 throw _powershell.Streams.Error[0].Exception;
             else
             {
-                logger.DebugFormat("Found mailbox {0}... retrieving full access permissions", userPrincipalName);
+                logger.DebugFormat("Found mailbox {0}... retrieving full access permissions", userGuid);
                 var listAccounts = new List<string>();
                 foreach (PSObject ps in _powershell.Invoke())
                 {
@@ -1474,13 +1474,13 @@ namespace CloudPanel.Exchange
         /// <summary>
         /// Retrieves a string array of who currently has send as permissions
         /// </summary>
-        /// <param name="userPrincipalName"></param>
+        /// <param name="userGuid"></param>
         /// <returns></returns>
-        public string[] Get_SendAsPermissions(string userPrincipalName)
+        public string[] Get_SendAsPermissions(Guid userGuid)
         {
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Get-ADPermission");
-            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Identity", userGuid.ToString());
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
 
@@ -1489,7 +1489,7 @@ namespace CloudPanel.Exchange
                 throw _powershell.Streams.Error[0].Exception;
             else
             {
-                logger.DebugFormat("Found mailbox {0}... retrieving send-as permissions", userPrincipalName);
+                logger.DebugFormat("Found mailbox {0}... retrieving send-as permissions", userGuid);
                 var listAccounts = new List<string>();
                 foreach (PSObject ps in _powershell.Invoke())
                 {
@@ -1523,15 +1523,15 @@ namespace CloudPanel.Exchange
         /// <summary>
         /// Gets a specific users mailbox size
         /// </summary>
-        /// <param name="userPrincipalName"></param>
+        /// <param name="userGuid"></param>
         /// <returns></returns>
-        public SvcMailboxSizes Get_MailboxSize(string userPrincipalName)
+        public SvcMailboxSizes Get_MailboxSize(Guid userGuid)
         {
-            logger.DebugFormat("Getting mailbox size for {0}", userPrincipalName);
+            logger.DebugFormat("Getting mailbox size for {0}", userGuid);
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Get-MailboxStatistics");
-            cmd.AddParameter("Identity", userPrincipalName);
+            cmd.AddParameter("Identity", userGuid.ToString());
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
             
@@ -1543,7 +1543,7 @@ namespace CloudPanel.Exchange
                 var returnSize = new SvcMailboxSizes();
                 foreach (PSObject obj in psObjects)
                 {
-                    returnSize.UserPrincipalName = userPrincipalName;
+                    returnSize.UserPrincipalName = obj.Members["UserPrincipalName"].Value.ToString();
                     returnSize.MailboxDatabase = obj.Members["Database"].Value.ToString();
                     returnSize.TotalItemSize = obj.Members["TotalItemSize"].Value.ToString();
                     returnSize.TotalItemSizeInBytes = GetExchangeBytes(returnSize.TotalItemSize);
@@ -1563,7 +1563,7 @@ namespace CloudPanel.Exchange
                 }
 
                 logger.DebugFormat("Successfully retrieves mailbox statistics for {0}: {1}, {2}, {3}, {4}, {5}, {6}, {7}",
-                    userPrincipalName, returnSize.MailboxDatabase, returnSize.TotalItemSize, returnSize.TotalItemSizeInBytes,
+                    userGuid, returnSize.MailboxDatabase, returnSize.TotalItemSize, returnSize.TotalItemSizeInBytes,
                     returnSize.TotalDeletedItemSize, returnSize.TotalDeletedItemSizeInBytes, returnSize.ItemCount, returnSize.DeletedItemCount);
 
                 return returnSize;
@@ -1573,14 +1573,14 @@ namespace CloudPanel.Exchange
         /// <summary>
         /// Gets all mailbox sizes for the list of userprincipalnames passed
         /// </summary>
-        /// <param name="userPrincipalNames"></param>
+        /// <param name="userGuids"></param>
         /// <returns></returns>
-        public List<SvcMailboxSizes> Get_AllMailboxSizes(string[] userPrincipalNames)
+        public List<SvcMailboxSizes> Get_AllMailboxSizes(Guid[] userGuids)
         {
             logger.DebugFormat("Getting all mailbox sizes");
 
             var allSizes = new List<SvcMailboxSizes>();
-            foreach (var user in userPrincipalNames)
+            foreach (var user in userGuids)
             {
                 logger.DebugFormat("Processing mailbox size for {0}", user);
                 try
@@ -1729,6 +1729,7 @@ namespace CloudPanel.Exchange
                 var returnMailbox = new ResourceMailboxes();
                 var foundMailbox = psObjects[0];
 
+                returnMailbox.ResourceGuid = Guid.Parse(foundMailbox.Properties["Guid"].Value.ToString());
                 returnMailbox.UserPrincipalName = userPrincipalName;
                 returnMailbox.PrimarySmtpAddress = foundMailbox.Properties["PrimarySmtpAddress"].Value.ToString();
                 returnMailbox.DistinguishedName = foundMailbox.Properties["DistinguishedName"].Value.ToString();
@@ -1749,11 +1750,11 @@ namespace CloudPanel.Exchange
 
                 // Get full access permissions
                 logger.DebugFormat("Retrieving full access permissions");
-                returnMailbox.EmailFullAccess = Get_FullAccessPermissions(userPrincipalName);
+                returnMailbox.EmailFullAccess = Get_FullAccessPermissions(returnMailbox.ResourceGuid);
 
                 // Get send as permissions
                 logger.DebugFormat("Retrieving send as permissions");
-                returnMailbox.EmailSendAs = Get_SendAsPermissions(returnMailbox.DistinguishedName);
+                returnMailbox.EmailSendAs = Get_SendAsPermissions(returnMailbox.ResourceGuid);
 
                 return returnMailbox;
             }

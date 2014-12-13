@@ -159,7 +159,7 @@
                             <div class="col-sm-9">
                                 <input type="password" class="form-control" id="Password" name="Password" data-parsley-required="true">
                                 <input id="GeneratePassword" name="GeneratePassword" type="checkbox" /> Generate Password
-                                <input id="UserPrincipalName" name="UserPrincipalName" type="hidden" data-parsley-required="true" />
+                                <input id="UserGuid" name="UserGuid" type="hidden" data-parsley-required="true" />
                             </div>
                         </div>
                     </div>
@@ -185,11 +185,46 @@
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to delete this user?</p>
-                    <input id="UserPrincipalName" name="UserPrincipalName" type="hidden" />
+                    <input id="UserGuid" name="UserGuid" type="hidden" />
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Reset Login Name -->
+<form id="resetUsernameForm" action="" method="post" autocomplete="off" data-parsley-validate>
+    <div id="resetUsernameModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Reset Username</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">New Username</label>
+                            <div class="col-sm-9">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="NewUsername" name="NewUsername" data-parsley-required="true">
+                                    <span class="input-group-addon">@@</span>
+                                    <select id="NewDomain" name="NewDomain" class="form-control">
+                                        @CloudPanel.Modules.DomainsModule.GetDomainsOptions(companyCode, 0)
+                                    </select>
+                                </div>
+                                <input id="UserGuid" name="UserGuid" type="hidden" data-parsley-required="true" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Reset</button>
                 </div>
             </div>
         </div>
@@ -256,7 +291,7 @@
                     { "data": "department" },
                     { "data": "userGuid", "orderable": false, "className": "text-center", "render": function (data, type, full, meta) { return GetUserFeatures(full["isEnabled"], full["isCompanyAdmin"], full["isResellerAdmin"], full["mailboxPlan"], full["archivePlan"]); } },
                     {
-                        "data": "userPrincipalName", "orderable": false, "className": "text-right", "render": function (data, type, full, meta)
+                        "data": "userGuid", "orderable": false, "className": "text-right", "render": function (data, type, full, meta)
                         {
                             return '<div class="btn-group"> \
                                             <button type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown"> \
@@ -264,6 +299,7 @@
                                             </button> \
                                             <ul class="dropdown-menu" role="menu"> \
                                                 <li><a href="@Url.Content("~/company/" + companyCode + "/users/")' + data + '">Edit</a></li> \
+                                                <li><a href="javascript:;" onclick="ShowResetUsername(\''+ data + '\');">Reset Login Name</a></li> \
                                                 <li><a href="javascript:;" onclick="DeleteUser(\''+ data + '\');">Delete</a></li> \
                                                 <li class="divider"></li> \
                                                 <li><a href="javascript:;" onclick="ShowReset(\''+ data + '\');">Reset Password</a></li> \
@@ -309,9 +345,9 @@
         //
         // Prompts the user to ask if they want to delete or not
         //
-        function DeleteUser(userPrincipalName) {
+        function DeleteUser(userGuid) {
             swal({
-                title: "Delete " + userPrincipalName + "?",
+                title: "Delete User?",
                 text: "This action is not reversable and all data for this user will be deleted permanently",
                 type: "warning",
                 showCancelButton: true,
@@ -326,7 +362,7 @@
                     $.ajax({
                         type: "DELETE",
                         dataType: "json",
-                        data: { UserPrincipalName: userPrincipalName },
+                        data: { UserGuid: userGuid },
                     }).done(function () {
                         ReloadTable("dataTable");
                         ShowAlert("Deleted!", "User was successfully deleted", "success");
@@ -340,9 +376,17 @@
         //
         // Shows the reset modal which allows the user to put in a password and reset 
         //
-        function ShowReset(upn) {
-            $("#resetModal #UserPrincipalName").val(upn);
+        function ShowReset(userGuid) {
+            $("#resetModal #UserGuid").val(userGuid);
             $("#resetModal").modal("show");
+        }
+
+        //
+        // Shows the reset username modal which allows the user to reset their login name
+        //
+        function ShowResetUsername(userGuid) {
+            $("#resetUsernameModal #UserGuid").val(userGuid);
+            $("#resetUsernameModal").modal("show");
         }
 
         //
@@ -368,11 +412,28 @@
             $("#resetForm").submit(function (event) {
                 event.preventDefault();
                 var data = $("#resetForm").serialize();
-                var url = "@Url.Content("~/company/"+companyCode+"/users/")" + $("#resetForm #userPrincipalName").val() + "/resetpassword";
+                var url = "@Url.Content("~/company/"+companyCode+"/users/")" + $("#resetForm #UserGuid").val() + "/resetpassword";
 
                 $.blockUI();
                 $.post(url, data).done(function (returnData) {
                     $("#resetModal").modal("hide");
+                    ShowSuccess(returnData.success);
+                }).fail(function (returnData) {
+                    ShowError(returnData.responseJSON.error);
+                }).always(function () {
+                    $.unblockUI();
+                });
+            });
+
+            $("#resetUsernameForm").submit(function (event) {
+                event.preventDefault();
+                var data = $("#resetUsernameForm").serialize();
+                var url = "@Url.Content("~/company/"+companyCode+"/users/")" + $("#resetUsernameModal #UserGuid").val() + "/changelogin";
+
+                $.blockUI();
+                $.post(url, data).done(function (returnData) {
+                    $("#resetUsernameModal").modal("hide");
+                    ReloadTable("dataTable");
                     ShowSuccess(returnData.success);
                 }).fail(function (returnData) {
                     ShowError(returnData.responseJSON.error);
