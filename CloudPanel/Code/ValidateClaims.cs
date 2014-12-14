@@ -50,6 +50,36 @@ namespace CloudPanel.Code
             }
         }
 
+        /// <summary>
+        /// If we allow super or reseller admins
+        /// </summary>
+        /// <param name="currentUser"></param>
+        /// <param name="companyCode"></param>
+        /// <returns></returns>
+        public static bool AllowSuperOrReseller(IUserIdentity currentUser, string companyCode)
+        {
+            logger.DebugFormat("Validating if user is super admin or reseller admin for company code {0}", companyCode);
+            if (currentUser == null)
+            {
+                logger.DebugFormat("Context was null when validating");
+                return false;
+            }
+            else
+            {
+                var authUser = currentUser as AuthenticatedUser;
+                if (authUser.Claims.Contains("SuperAdmin"))
+                    return true;
+                else
+                {
+                    return authUser.Claims.Contains("ResellerAdmin") &&
+                           new CloudPanelContext(Settings.ConnectionString)
+                                .Companies
+                                .Where(x => x.CompanyCode.Equals(companyCode) && x.ResellerCode.Equals(authUser.ResellerCode))
+                                .Count() > 0;
+                }
+            }
+        }
+
         public static bool AllowCompanyAdmin(IUserIdentity currentUser, string companyCode, string role)
         {
             logger.DebugFormat("Validating if user is super admin, reseller admin, or company admin for company code {0} and contains the permission {1}", companyCode, role);

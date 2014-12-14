@@ -54,6 +54,7 @@
     <Compile Include="AD\LdapConverters.cs" />
     <Compile Include="AD\OrganizationalUnit.cs" />
     <Compile Include="AD\SecurityGroup.cs" />
+    <Compile Include="Billing\CustomPrice.cs" />
     <Compile Include="Charting\HistoryOverview.cs" />
     <Compile Include="Charting\TopXCustomers.cs" />
     <Compile Include="Config\Settings.cs" />

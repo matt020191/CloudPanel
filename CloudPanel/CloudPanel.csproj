@@ -109,6 +109,7 @@
     <Content Include="Content\img\donate_button.png" />
     <Content Include="Content\img\donate_button_sm.png" />
     <Content Include="Content\img\error.png" />
+    <Content Include="Content\img\indicator.gif" />
     <Content Include="Content\img\install_icon.ico" />
     <Content Include="Content\img\logo-big.png" />
     <Content Include="Content\img\patterns\brickwall.png" />
@@ -339,6 +340,7 @@
     <Content Include="Content\plugins\datatables-1.10.2\extensions\FixedHeader\js\dataTables.fixedHeader.js" />
     <Content Include="Content\plugins\datatables-1.10.2\extensions\FixedHeader\js\dataTables.fixedHeader.min.js" />
     <Content Include="Content\plugins\datatables-1.10.2\extensions\FixedHeader\Readme.txt" />
+    <Content Include="Content\plugins\datatables-1.10.2\extensions\JEditable\jquery.jeditable.mini.js" />
     <Content Include="Content\plugins\datatables-1.10.2\extensions\KeyTable\css\dataTables.keyTable.css" />
     <Content Include="Content\plugins\datatables-1.10.2\extensions\KeyTable\css\dataTables.keyTable.min.css" />
     <Content Include="Content\plugins\datatables-1.10.2\extensions\KeyTable\examples\events.html" />
@@ -1121,6 +1123,7 @@
     <Compile Include="Modules\Admin\SettingsModule.cs" />
     <Compile Include="Modules\ApiModule.cs" />
     <Compile Include="Modules\CompaniesModule.cs" />
+    <Compile Include="Modules\CompanyModules\BillingModule.cs" />
     <Compile Include="Modules\CompanyModules\DomainsModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\ActiveSyncModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\BulkModule.cs" />
@@ -1424,6 +1427,7 @@
     <Content Include="Views\Error\404.cshtml" />
     <Content Include="Views\Error\500.cshtml" />
     <Content Include="Views\Error\401.cshtml" />
+    <Content Include="Views\Company\billing.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

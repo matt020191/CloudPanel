@@ -2,6 +2,7 @@
 using CloudPanel.Base.AD;
 using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
+using CloudPanel.Code;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Rollback;
 using log4net;
@@ -24,6 +25,8 @@ namespace CloudPanel.Modules
 
             Get["/", c => c.Request.Accept("text/html")] = _ =>
                 {
+                    this.RequiresValidatedClaims(x => ValidateClaims.AllowSuperOrReseller(Context.CurrentUser, _.ResellerCode));
+
                     string resellerCode = _.ResellerCode;
                     this.Context.SetResellerCode(resellerCode);
 
@@ -32,6 +35,8 @@ namespace CloudPanel.Modules
 
             Get["/", c => !c.Request.Accept("text/html")] = _ =>
             {
+                this.RequiresValidatedClaims(x => ValidateClaims.AllowSuperOrReseller(Context.CurrentUser, _.ResellerCode));
+
                 string resellerCode = _.ResellerCode;
                 this.Context.SetResellerCode(resellerCode);
 
@@ -114,6 +119,8 @@ namespace CloudPanel.Modules
 
             Post["/"] = _ =>
             {
+                this.RequiresValidatedClaims(x => ValidateClaims.AllowSuperOrReseller(Context.CurrentUser, _.ResellerCode));
+
                 #region Creates a new company
 
                 CloudPanelContext db = null;
@@ -301,6 +308,8 @@ namespace CloudPanel.Modules
 
             Put["/"] = _ =>
             {
+                this.RequiresValidatedClaims(x => ValidateClaims.AllowSuperOrReseller(Context.CurrentUser, _.ResellerCode));
+
                 #region Updates an existing company
 
                 CloudPanelContext db = null;
@@ -395,6 +404,8 @@ namespace CloudPanel.Modules
 
             Delete["/"] = _ =>
             {
+                this.RequiresValidatedClaims(x => ValidateClaims.AllowSuperOrReseller(Context.CurrentUser, _.ResellerCode));
+
                 #region Deletes a company from the database and Active Directory
                 CloudPanelContext db = null;
                 ADOrganizationalUnits org = null;
@@ -520,6 +531,8 @@ namespace CloudPanel.Modules
 
             Get["/{CompanyCode}"] = _ =>
             {
+                this.RequiresValidatedClaims(x => ValidateClaims.AllowSuperOrReseller(Context.CurrentUser, _.ResellerCode));
+
                 #region Gets a specific company
                 CloudPanelContext db = null;
                 try

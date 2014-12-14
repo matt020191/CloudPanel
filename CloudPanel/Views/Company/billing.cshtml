@@ -1,0 +1,155 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@using CloudPanel;
+
+@{
+    Layout = "__master.cshtml";
+    var companyCode = this.RenderContext.Context.GetCompanyCode();
+}
+
+@section HEAD{
+    <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
+}
+
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li><a href="~/company/@companyCode/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
+        <li class="active">Billing</li>
+    </ol>
+
+    <h1>Billing</h1>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Exchange Mailbox</div>
+                <div class="panel-body collapse in">
+                    <table cellpadding="0" cellspacing="0" border="0" class="table table-bordered datatables" id="ExchangeTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Default Price</th>
+                                <th>Custom Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var plan in CloudPanel.Modules.CompanyModules.BillingModule.GetExchange(companyCode))
+                            {
+                                <tr>
+                                    <td>@plan.Name</td>
+                                    <td>@plan.DefaultPrice</td>
+                                    <td id="@plan.ID" class="editable">@plan.Custom</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Exchange Archive Mailbox</div>
+                <div class="panel-body collapse in">
+                    <table cellpadding="0" cellspacing="0" border="0" class="table table-bordered datatables" id="ArchiveTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Default Price</th>
+                                <th>Custom Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var plan in CloudPanel.Modules.CompanyModules.BillingModule.GetExchangeArchive(companyCode))
+                            {
+                                <tr>
+                                    <td>@plan.Name</td>
+                                    <td>@plan.DefaultPrice</td>
+                                    <td id="@plan.ID" class="editable">@plan.Custom</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section JAVASCRIPT{
+    <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
+    <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
+    <script src="~/Content/plugins/datatables-1.10.2/extensions/JEditable/jquery.jeditable.mini.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $("#ExchangeTable .editable").editable(function (value, settings) {
+                    var id = $(this).attr('id');
+                    var isSuccess = false;
+
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Content("~/company/" + companyCode + "/billing/mailbox")",
+                        data: { id: id, value: value },
+                        dataType: "JSON"
+                    }).done(function() {
+                        isSuccess = true;
+                    }).fail(function(error) {
+                        ShowError(error.responseJSON.error);
+                    });
+
+                    if (isSuccess)
+                        return (value);
+                    else
+                        return (value);
+                },
+                {
+                    cancel: 'Cancel',
+                    submit: 'OK',
+                    indicator: '<img src="@Url.Content("~/Content/img/indicator.gif")">',
+                    tooltip: 'Click to edit...'
+                }
+            );
+
+            $("#ArchiveTable .editable").editable(function (value, settings) {
+                    var id = $(this).attr('id');
+                    var isSuccess = false;
+
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Content("~/company/" + companyCode + "/billing/archive")",
+                        data: { id: id, value: value },
+                        dataType: "JSON"
+                    }).done(function() {
+                        isSuccess = true;
+                    }).fail(function(error) {
+                        ShowError(error.responseJSON.error);
+                    });
+
+                    if (isSuccess)
+                        return (value);
+                    else
+                        return (value);
+                },
+                {
+                    cancel: 'Cancel',
+                    submit: 'OK',
+                    indicator: '<img src="@Url.Content("~/Content/img/indicator.gif")">',
+                    tooltip: 'Click to edit...'
+                }
+            );
+
+            $(".dataTables").DataTable({
+                "lengthChange": false,
+                "ordering": false
+            });
+        });
+    </script>
+}

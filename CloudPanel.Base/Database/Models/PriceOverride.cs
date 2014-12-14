@@ -39,6 +39,9 @@ namespace CloudPanel.Base.Database.Models
     public partial class PriceOverride
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ID { get; set; }
+
         [StringLength(255)]
         public string CompanyCode { get; set; }
 

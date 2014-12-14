@@ -466,6 +466,8 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                             results.Add(resultName, "User does not appear to have a mailbox");
                         else
                         {
+                            resultName = string.Format("{0} [Litigation Hold]", sqlUser.UserPrincipalName);
+
                             powershell.Set_LitigationHold(sqlUser.UserGuid, litigationHoldEnabled: isEnabled, retentionUrl: url, retentionComment: message);
                             results.Add(resultName, "Successfully updated litigation hold settings");
                         }
