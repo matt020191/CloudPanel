@@ -20,7 +20,6 @@ namespace CloudPanel.Modules
 
         public ResellersModule() : base("/resellers")
         {
-            this.RequiresAuthentication();
             this.RequiresAnyClaim(new[] { "SuperAdmin" });
 
             Get["/", c => c.Request.Accept("text/html")] = _ =>

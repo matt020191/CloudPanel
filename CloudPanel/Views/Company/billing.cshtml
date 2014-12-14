@@ -22,65 +22,100 @@
 </div>
 
 <div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="panel panel-primary">
-                <div class="panel-heading">Exchange Mailbox</div>
-                <div class="panel-body collapse in">
-                    <table cellpadding="0" cellspacing="0" border="0" class="table table-bordered datatables" id="ExchangeTable">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Default Price</th>
-                                <th>Custom Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var plan in CloudPanel.Modules.CompanyModules.BillingModule.GetExchange(companyCode))
-                            {
+    @if (CloudPanel.Base.Config.Settings.ExchangeModule) {
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Exchange Mailbox</div>
+                    <div class="panel-body collapse in">
+                        <table cellpadding="0" cellspacing="0" border="0" class="table table-bordered datatables" id="ExchangeTable">
+                            <thead>
                                 <tr>
-                                    <td>@plan.Name</td>
-                                    <td>@plan.DefaultPrice</td>
-                                    <td id="@plan.ID" class="editable">@plan.Custom</td>
+                                    <th>Name</th>
+                                    <th>Default Price</th>
+                                    <th>Custom Price</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach (var plan in CloudPanel.Modules.CompanyModules.BillingModule.GetExchange(companyCode))
+                                {
+                                    <tr>
+                                        <td>@plan.Name</td>
+                                        <td>@plan.DefaultPrice</td>
+                                        <td id="@plan.ID" class="editable">@plan.Custom</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="panel-footer"></div>
                 </div>
-                <div class="panel-footer"></div>
             </div>
         </div>
-    </div>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="panel panel-primary">
-                <div class="panel-heading">Exchange Archive Mailbox</div>
-                <div class="panel-body collapse in">
-                    <table cellpadding="0" cellspacing="0" border="0" class="table table-bordered datatables" id="ArchiveTable">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Default Price</th>
-                                <th>Custom Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var plan in CloudPanel.Modules.CompanyModules.BillingModule.GetExchangeArchive(companyCode))
-                            {
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Exchange Archive Mailbox</div>
+                    <div class="panel-body collapse in">
+                        <table cellpadding="0" cellspacing="0" border="0" class="table table-bordered datatables" id="ArchiveTable">
+                            <thead>
                                 <tr>
-                                    <td>@plan.Name</td>
-                                    <td>@plan.DefaultPrice</td>
-                                    <td id="@plan.ID" class="editable">@plan.Custom</td>
+                                    <th>Name</th>
+                                    <th>Default Price</th>
+                                    <th>Custom Price</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach (var plan in CloudPanel.Modules.CompanyModules.BillingModule.GetExchangeArchive(companyCode))
+                                {
+                                    <tr>
+                                        <td>@plan.Name</td>
+                                        <td>@plan.DefaultPrice</td>
+                                        <td id="@plan.ID" class="editable">@plan.Custom</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="panel-footer"></div>
                 </div>
-                <div class="panel-footer"></div>
             </div>
         </div>
-    </div>
+    }
+    
+    @if (CloudPanel.Base.Config.Settings.CitrixModule)
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Citrix</div>
+                    <div class="panel-body collapse in">
+                        <table cellpadding="0" cellspacing="0" border="0" class="table table-bordered datatables" id="CitrixTable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Default Price</th>
+                                    <th>Custom Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var plan in CloudPanel.Modules.CompanyModules.BillingModule.GetCitrix(companyCode))
+                                {
+                                    <tr>
+                                        <td>@plan.Name</td>
+                                        <td>@plan.DefaultPrice</td>
+                                        <td id="@plan.ID" class="editable">@plan.Custom</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="panel-footer"></div>
+                </div>
+            </div>
+        </div>
+    }
 </div>
 
 @section JAVASCRIPT{
@@ -89,67 +124,100 @@
     <script src="~/Content/plugins/datatables-1.10.2/extensions/JEditable/jquery.jeditable.mini.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
+            // Setup the Exchange tables
+            ExchangeTables();
 
-            $("#ExchangeTable .editable").editable(function (value, settings) {
-                    var id = $(this).attr('id');
-                    var isSuccess = false;
+            // Setup the Citrix tables
+            CitrixTables();
 
-                    $.ajax({
-                        type: "POST",
-                        url: "@Url.Content("~/company/" + companyCode + "/billing/mailbox")",
-                        data: { id: id, value: value },
-                        dataType: "JSON"
-                    }).done(function() {
-                        isSuccess = true;
-                    }).fail(function(error) {
-                        ShowError(error.responseJSON.error);
-                    });
-
-                    if (isSuccess)
-                        return (value);
-                    else
-                        return (value);
-                },
-                {
-                    cancel: 'Cancel',
-                    submit: 'OK',
-                    indicator: '<img src="@Url.Content("~/Content/img/indicator.gif")">',
-                    tooltip: 'Click to edit...'
-                }
-            );
-
-            $("#ArchiveTable .editable").editable(function (value, settings) {
-                    var id = $(this).attr('id');
-                    var isSuccess = false;
-
-                    $.ajax({
-                        type: "POST",
-                        url: "@Url.Content("~/company/" + companyCode + "/billing/archive")",
-                        data: { id: id, value: value },
-                        dataType: "JSON"
-                    }).done(function() {
-                        isSuccess = true;
-                    }).fail(function(error) {
-                        ShowError(error.responseJSON.error);
-                    });
-
-                    if (isSuccess)
-                        return (value);
-                    else
-                        return (value);
-                },
-                {
-                    cancel: 'Cancel',
-                    submit: 'OK',
-                    indicator: '<img src="@Url.Content("~/Content/img/indicator.gif")">',
-                    tooltip: 'Click to edit...'
-                }
-            );
-
+            // Setup jquery dataTables on all tables
             $(".dataTables").DataTable({
                 "lengthChange": false,
                 "ordering": false
             });
         });
+
+        function ExchangeTables() {
+            $("#ExchangeTable .editable").editable(function (value, settings) {
+                var id = $(this).attr('id');
+                var isSuccess = false;
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Content("~/company/" + companyCode + "/billing/mailbox")",
+                    data: { id: id, value: value },
+                    dataType: "JSON"
+                }).done(function () {
+                    isSuccess = true;
+                }).fail(function (error) {
+                    ShowError(error.responseJSON.error);
+                });
+
+                if (isSuccess)
+                    return (value);
+                else
+                    return (value);
+                },{
+                cancel: 'Cancel',
+                submit: 'OK',
+                indicator: '<img src="@Url.Content("~/Content/img/indicator.gif")">',
+                tooltip: 'Click to edit...'
+            });
+
+            $("#ArchiveTable .editable").editable(function (value, settings) {
+                var id = $(this).attr('id');
+                var isSuccess = false;
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Content("~/company/" + companyCode + "/billing/archive")",
+                    data: { id: id, value: value },
+                    dataType: "JSON"
+                }).done(function () {
+                    isSuccess = true;
+                }).fail(function (error) {
+                    ShowError(error.responseJSON.error);
+                });
+
+                if (isSuccess)
+                    return (value);
+                else
+                    return (value);
+                },{
+                cancel: 'Cancel',
+                submit: 'OK',
+                indicator: '<img src="@Url.Content("~/Content/img/indicator.gif")">',
+                tooltip: 'Click to edit...'
+            });
+        }
+
+        function CitrixTables()
+        {
+            $("#CitrixTable .editable").editable(function (value, settings) {
+                var id = $(this).attr('id');
+                var isSuccess = false;
+
+                $.ajax({
+                        type: "POST",
+                        url: "@Url.Content("~/company/" + companyCode + "/billing/citrix")",
+                        data: { id: id, value: value },
+                        dataType: "JSON"
+                    }).done(function() {
+                        isSuccess = true;
+                    }).fail(function(error) {
+                        ShowError(error.responseJSON.error);
+                    });
+
+                    if (isSuccess)
+                        return (value);
+                    else
+                        return (value);
+                },{
+                    cancel: 'Cancel',
+                    submit: 'OK',
+                    indicator: '<img src="@Url.Content("~/Content/img/indicator.gif")">',
+                    tooltip: 'Click to edit...'
+                });
+        }
     </script>
 }

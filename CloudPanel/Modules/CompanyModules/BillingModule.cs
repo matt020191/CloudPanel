@@ -42,6 +42,13 @@ namespace CloudPanel.Modules.CompanyModules
 
                 return Update(Request.Form.id, Request.Form.value.Value, "Archive", _.CompanyCode);
             };
+
+            Post["/citrix"] = _ =>
+            {
+                this.RequiresValidatedClaims(x => ValidateClaims.AllowSuperOrReseller(Context.CurrentUser, _.CompanyCode));
+
+                return Update(Request.Form.id, Request.Form.value.Value, "Citrix", _.CompanyCode);
+            };
         }
 
         private Negotiator Update(int id, string value, string product, string companyCode)
@@ -154,6 +161,40 @@ namespace CloudPanel.Modules.CompanyModules
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error getting Exchange billing: {0}", ex.ToString());
+                return null;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static List<CustomPrice> GetCitrix(string companyCode)
+        {
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var plan = (from d in db.Plans_Citrix
+                            join o in db.PriceOverride on d.CitrixPlanID equals o.PlanID into p1
+                            from s in p1.Where(x => (string.IsNullOrEmpty(companyCode) || x.CompanyCode == companyCode) && x.Product == "Citrix").DefaultIfEmpty()
+                            where (string.IsNullOrEmpty(d.CompanyCode) || d.CompanyCode == companyCode)
+                            orderby d.Name
+                            select new CustomPrice
+                            {
+                                ID = d.CitrixPlanID,
+                                Name = d.Name,
+                                DefaultPrice = d.Price,
+                                Custom = s.Price == null ? d.Price : s.Price
+                            }).ToList();
+
+                return plan;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting Citrix billing: {0}", ex.ToString());
                 return null;
             }
             finally
