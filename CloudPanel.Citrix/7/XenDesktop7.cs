@@ -13,6 +13,11 @@ namespace CloudPanel.Citrix
     {
         public XenDesktop7(string uri, string username, string password) : base(uri, username, password)
         {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Add-PSSnapIn");
+            cmd.AddParameter("Name", "Citrix.*.Admin.V*");
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
         }
 
         public string[] GetCatalogs()

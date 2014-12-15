@@ -33,8 +33,8 @@ namespace CloudPanel.Citrix
             _runspace = RunspaceFactory.CreateRunspace(_connection);
             _runspace.Open();
 
-            Console.WriteLine("add PSSnapin");
-            _runspace.RunspaceConfiguration.AddPSSnapIn("Citrix.*.Admin.V*", out snapinException);
+            //Console.WriteLine("add PSSnapin");
+            //_runspace.RunspaceConfiguration.AddPSSnapIn("Citrix.*.Admin.V*", out snapinException);
 
             _powershell = PowerShell.Create();
             _powershell.Runspace = _runspace;
@@ -50,9 +50,10 @@ namespace CloudPanel.Citrix
 
             PSCredential ps = new PSCredential(username, pwd);
 
-            WSManConnectionInfo wsinfo = new WSManConnectionInfo(false, "server2.domain.local", 5985, "/wsman", "http://schemas.microsoft.com/powershell/Microsoft.PowerShell", ps);
-            wsinfo.AuthenticationMechanism = AuthenticationMechanism.Basic;
+            WSManConnectionInfo wsinfo = new WSManConnectionInfo(new Uri(uri), "http://schemas.microsoft.com/powershell/Microsoft.PowerShell", ps);
+            wsinfo.AuthenticationMechanism = AuthenticationMechanism.Default;
             wsinfo.ProxyAuthentication = AuthenticationMechanism.Negotiate;
+
             return wsinfo;
         }
 
