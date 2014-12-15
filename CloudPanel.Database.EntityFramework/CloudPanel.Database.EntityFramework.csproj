@@ -72,6 +72,14 @@
     <Compile Include="Migrations\201412141816493_AddIdentityCustomPrices.Designer.cs">
       <DependentUpon>201412141816493_AddIdentityCustomPrices.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201412142105503_AddAuditTraceTable.cs" />
+    <Compile Include="Migrations\201412142105503_AddAuditTraceTable.Designer.cs">
+      <DependentUpon>201412142105503_AddAuditTraceTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201412142106439_AddUsernameAndIPToAuditTrace.cs" />
+    <Compile Include="Migrations\201412142106439_AddUsernameAndIPToAuditTrace.Designer.cs">
+      <DependentUpon>201412142106439_AddUsernameAndIPToAuditTrace.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -100,6 +108,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201412141816493_AddIdentityCustomPrices.resx">
       <DependentUpon>201412141816493_AddIdentityCustomPrices.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201412142105503_AddAuditTraceTable.resx">
+      <DependentUpon>201412142105503_AddAuditTraceTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201412142106439_AddUsernameAndIPToAuditTrace.resx">
+      <DependentUpon>201412142106439_AddUsernameAndIPToAuditTrace.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

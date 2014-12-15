@@ -204,6 +204,7 @@ namespace CloudPanel.Database.EntityFramework
 
         #region Tables
 
+        public virtual DbSet<AuditTrace> AuditTrace { get; set; }
         public virtual DbSet<Companies> Companies { get; set; }
         public virtual DbSet<Contacts> Contacts { get; set; }
         public virtual DbSet<DistributionGroups> DistributionGroups { get; set; }

@@ -193,7 +193,7 @@ namespace CloudPanel.Modules
                         };
 
                         logger.DebugFormat("Creating new organizational unit in Active Directory");
-                        var createdOrg = org.Create(reseller.DistinguishedName, newCompanyOrg); // Create the new OU and get the extra information back
+                        var createdOrg = org.Create( (Settings.ResellersEnabled ? reseller.DistinguishedName : Settings.HostingOU), newCompanyOrg); // Create the new OU and get the extra information back
                         reverse.AddAction(Actions.CreateOrganizationalUnit, createdOrg.DistinguishedName); // Add to our rollback actions in case we need to remove
 
                         logger.DebugFormat("Creating Applications organizational unit in Active Directory");

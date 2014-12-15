@@ -14,6 +14,7 @@
     using Nancy.Responses;
     using Nancy.Session;
     using Nancy.TinyIoc;
+    using System.Text;
     using Entity = System.Data.Entity;
 
     public class Bootstrapper : DefaultNancyBootstrapper
@@ -39,6 +40,35 @@
 
             // Load brandings
             BrandingModule.LoadAllBrandings();
+            
+            // Initialize auditing
+            pipelines.AfterRequest.AddItemToEndOfPipeline(ctx =>
+            {
+                if (!ctx.Request.Method.Equals("GET"))
+                {
+                    using (var db = new CloudPanelContext(Settings.ConnectionString))
+                    {
+                        var sb = new StringBuilder();
+                        if (ctx.Parameters.Count > 0)
+                        {
+                            foreach (var key in ctx.Parameters.Keys)
+                            {
+                                sb.AppendFormat("[{0}: {1}], ", key, ctx.Parameters[key].Value);
+                            }
+                        }
+
+                        db.AuditTrace.Add(new Base.Database.Models.AuditTrace()
+                            {
+                                IPAddress = ctx.Request.UserHostAddress,
+                                Method = ctx.Request.Method,
+                                Route = ctx.Request.Path,
+                                Username = ctx.CurrentUser == null ? string.Empty : ctx.CurrentUser.UserName,
+                                Parameters = sb.ToString()
+                            });
+                        db.SaveChanges();
+                    }
+                }
+            });
 
             //
             base.ApplicationStartup(container, pipelines);

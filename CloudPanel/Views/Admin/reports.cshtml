@@ -1,0 +1,135 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+@{
+    Layout = "__master.cshtml";
+}
+@section HEAD{
+    <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
+}
+
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li>Admin</li>
+        <li class="active">Reports</li>
+    </ol>
+
+    <h1>Reports</h1>
+    <div class="options">
+        <div class="btn-toolbar">
+            <div class="btn-group hidden-xs">
+                <a href="#" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><i class="fa fa-download"></i><span class="hidden-sm"> Render Report  </span><span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="javascript:;">Microsoft Exchange Overview</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="row report exchangeoverview">
+        <div class="col-md-12">
+            <div class="panel">
+                <div class="panel-body">
+                    <p>Total Users: 50</p>
+                    <div class="col-md-3 col-sm-6 col-xs-6">
+                        <div class="easypiechart" id="mailboxes" data-percent="65"><span class="percent"></span></div>
+                        <label for="newvisits">Mailboxes</label>
+                        <hr class="visible-sm visible-xs">
+                    </div>
+                    <div class="col-md-3 col-sm-6 col-xs-6">
+                        <span class="easypiechart" id="archiving" data-percent="81"><span class="percent"></span></span>
+                        <label for="bouncerate">Archiving</label>
+                        <hr class="visible-sm visible-xs">
+                    </div>
+                    <div class="col-md-3 col-sm-6 col-xs-6">
+                        <span class="easypiechart" id="clickrate" data-percent="42"><span class="percent"></span></span>
+                        <label for="clickrate">Click Rate</label>
+                        <hr class="visible-sm visible-xs">
+                    </div>
+                    <div class="col-md-3 col-sm-6 col-xs-6">
+                        <span class="easypiechart" id="covertionrate" data-percent="23"><span class="percent"></span></span>
+                        <label for="covertionrate">Convertion</label>
+                        <hr class="visible-sm visible-xs">
+                    </div>
+
+                    <hr />
+
+                    <p>Plans</p>
+                    <table cellpadding="0" cellspacing="0" border="0" class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Company Name</th>
+                                <th>Mailbox Plan</th>
+                                <th>User Count</th>
+                                <th>Cost</th>
+                                <th>Price</th>
+                                <th>Profit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var company in CloudPanel.Modules.Admin.ReportsModule.ExchangeOverview())
+                            {
+                                <tr style="background-color: aqua">
+                                    <td>@company.CompanyName</td>
+                                    <td></td>
+                                    <td>@company.UserCount</td>
+                                    <td>@company.MailboxCost</td>
+                                    <td>@company.MailboxPrice</td>
+                                    <th>@decimal.Subtract(company.MailboxPrice, company.MailboxCost).ToString("C")</th>
+                                </tr>
+                                @foreach (var plan in company.MailboxPlans)
+                                {
+                                    <tr>
+                                        <td></td>
+                                        <td>@plan.MailboxPlanName</td>
+                                        <td>@plan.UserCount</td>
+                                        <td>@plan.Cost</td>
+                                        <td>@plan.Price</td>
+                                        <th></th>
+                                    </tr>
+                                }
+                                <tr><td colspan="6"></td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section JAVASCRIPT {
+    <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
+    <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
+    <script src="~/Content/plugins/easypiechart/jquery.easypiechart.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            ExchangeOverview();
+        });
+
+        function ExchangeOverview()
+        {
+            $('.easypiechart').easyPieChart({
+                barColor: "#16a085",
+                trackColor: '#edeef0',
+                scaleColor: '#d2d3d6',
+                scaleLength: 5,
+                lineCap: 'square',
+                lineWidth: 2,
+                size: 90,
+                onStep: function (from, to, percent) {
+                    $(this.el).find('.percent').text(Math.round(percent));
+                }
+            });
+        }
+
+        function HideAll()
+        {
+            $(".report").hide();
+        }
+    </script>
+}

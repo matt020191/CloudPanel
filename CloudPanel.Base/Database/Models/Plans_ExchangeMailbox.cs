@@ -89,8 +89,13 @@ namespace CloudPanel.Base.Database.Models
         public string AdditionalGBPrice { get; set; }
 
         #region Not Mapped
+
         [NotMapped]
         public string CustomPrice { get; set; }
+
+        [NotMapped]
+        public int UserCount { get; set; }
+
         #endregion
     }
 }

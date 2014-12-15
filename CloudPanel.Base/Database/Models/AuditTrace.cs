@@ -29,52 +29,23 @@
 //
 namespace CloudPanel.Base.Database.Models
 {
-    using System;
-    using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity.Spatial;
 
-    public partial class Plans_ExchangeArchiving
+    public partial class AuditTrace
     {
         [Key]
-        public int ArchivingID { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ID { get; set; }
 
-        [Required]
-        [StringLength(50)]
-        public string DisplayName { get; set; }
+        public string Username { get; set; }
 
-        public string Database { get; set; }
+        public string IPAddress { get; set; }
 
-        [StringLength(255)]
-        public string ResellerCode { get; set; }
+        public string Method { get; set; }
 
-        [StringLength(255)]
-        public string CompanyCode { get; set; }
+        public string Route { get; set; }
 
-        [Required]
-        [Column(TypeName = "ntext")]
-        public string Description { get; set; }
-
-        [Required]
-        [StringLength(20)]
-        public string Price { get; set; }
-
-        [Required]
-        [StringLength(20)]
-        public string Cost { get; set; }
-
-        [Required]
-        public int ArchiveSizeMB { get; set; }
-
-        #region Not Mapped
-
-        [NotMapped]
-        public string CustomPrice { get; set; }
-
-        [NotMapped]
-        public int UserCount { get; set; }
-
-        #endregion
+        public string Parameters { get; set; }
     }
 }

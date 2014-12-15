@@ -90,7 +90,9 @@
                     </ul>
                 </li>
             }
-            <li><a href="~/company/@companyCode/citrix"><i class="fa fa-tablet"></i> <span>Citrix</span></a></li>
+            @if (Settings.CitrixModule) {
+                <li><a href="~/company/@companyCode/citrix"><i class="fa fa-tablet"></i> <span>Citrix</span></a></li>
+            }
             <li><a href="~/company/@companyCode/billing"><i class="fa fa-money"></i> <span>Billing</span></a></li>
         }
     </ul>

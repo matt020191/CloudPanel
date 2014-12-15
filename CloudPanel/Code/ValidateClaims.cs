@@ -80,6 +80,13 @@ namespace CloudPanel.Code
             }
         }
 
+        /// <summary>
+        /// If we allow the company admin or not. It compares the user's company code to the company code being accessed to make sure they match.
+        /// </summary>
+        /// <param name="currentUser"></param>
+        /// <param name="companyCode"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
         public static bool AllowCompanyAdmin(IUserIdentity currentUser, string companyCode, string role)
         {
             logger.DebugFormat("Validating if user is super admin, reseller admin, or company admin for company code {0} and contains the permission {1}", companyCode, role);

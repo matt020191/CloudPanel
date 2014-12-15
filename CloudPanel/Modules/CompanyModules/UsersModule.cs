@@ -1,22 +1,20 @@
-﻿using CloudPanel.Base.Config;
+﻿using CloudPanel.ActiveDirectory;
+using CloudPanel.Base.Config;
+using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Exchange;
+using CloudPanel.Code;
 using CloudPanel.Database.EntityFramework;
+using CloudPanel.Exchange;
+using CloudPanel.Rollback;
 using log4net;
 using Nancy;
 using Nancy.Security;
-using Nancy.ModelBinding;
+using Nancy.ViewEngines.Razor;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CloudPanel.Base.Database.Models;
-using CloudPanel.ActiveDirectory;
-using CloudPanel.Rollback;
-using CloudPanel.Base.Exchange;
-using CloudPanel.Exchange;
-using System.Collections.Generic;
-using Nancy.ViewEngines.Razor;
 using System.Text;
-using CloudPanel.Base.Enums;
-using CloudPanel.Code;
 
 namespace CloudPanel.Modules
 {
@@ -326,22 +324,17 @@ namespace CloudPanel.Modules
                             logger.DebugFormat("User has been removed. Now cleaning up the database to remove all traces of the user");
 
                             logger.DebugFormat("Clearing user from citrix plans");
-                            var citrixPlans = (from d in db.UserPlansCitrix where d.UserID == userId select d).DefaultIfEmpty();
+                            var citrixPlans = from d in db.UserPlansCitrix where d.UserID == userId select d;
                             if (citrixPlans != null)
                                 db.UserPlansCitrix.RemoveRange(citrixPlans);
 
-                            logger.DebugFormat("Clearing user from permissions");
-                            var permissions = (from d in db.UserPermission where d.UserID == user.ID select d).DefaultIfEmpty();
-                            if (permissions != null)
-                                db.UserPermission.RemoveRange(permissions);
-
                             logger.DebugFormat("Clearing user from queues");
-                            var queues = (from d in db.SvcQueue where d.UserPrincipalName == user.UserPrincipalName select d).DefaultIfEmpty();
+                            var queues = from d in db.SvcQueue where d.UserPrincipalName == user.UserPrincipalName select d;
                             if (queues != null)
                                 db.SvcQueue.RemoveRange(queues);
 
                             logger.DebugFormat("Clearing user from mailbox sizes");
-                            var mailboxSizes = (from d in db.SvcMailboxSizes where d.UserPrincipalName == user.UserPrincipalName select d).DefaultIfEmpty();
+                            var mailboxSizes = from d in db.SvcMailboxSizes where d.UserPrincipalName == user.UserPrincipalName select d;
                             if (mailboxSizes != null)
                                 db.SvcMailboxSizes.RemoveRange(mailboxSizes);
 

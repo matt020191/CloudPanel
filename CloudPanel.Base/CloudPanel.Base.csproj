@@ -58,6 +58,7 @@
     <Compile Include="Charting\HistoryOverview.cs" />
     <Compile Include="Charting\TopXCustomers.cs" />
     <Compile Include="Config\Settings.cs" />
+    <Compile Include="Database\Models\AuditTrace.cs" />
     <Compile Include="Database\Models\Branding.cs" />
     <Compile Include="Database\Models\Companies.cs" />
     <Compile Include="Database\Models\Contacts.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="Other\Error.cs" />
     <Compile Include="Other\UsersEditPage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reports\ExchangeOverview.cs" />
     <Compile Include="Security\DataProtection.cs" />
   </ItemGroup>
   <ItemGroup>
