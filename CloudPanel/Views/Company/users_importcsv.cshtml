@@ -265,34 +265,27 @@
             }
 
             resultTotal = results.data.length;
-            loopUsers(results.data, 0);
+            loopUsers(results.data);
         }
 
-        function loopUsers(resultData, index)
+        function loopUsers(resultData)
         {
-            $(".progress-title").html("Processing " + resultData[0].Username);
-            $(".progress-percentage").html(index + "/" + resultTotal);
-            $(".progress-bar").width(Math.floor((index * 100) / resultTotal) + "%");
+            $(".progress-title").html("Processing " + resultData[currentIndex].Username);
+            $(".progress-percentage").html(currentIndex + "/" + resultTotal);
+            $(".progress-bar").width(Math.floor((currentIndex * 100) / resultTotal) + "%");
 
-            console.log(resultData[index]);
-            if (index < resultTotal) {
-                $.when( createUser(resultData[index]) )
-                 .done(function (data) {
-                     console.log("Old: " + index + ", New: " + index++);
-                     loopUsers(resultData, index++);
-                 });
+            if (currentIndex < resultTotal) {
+                $.post("", resultData[currentIndex], function (data) {
+                    resultSuccess++;
+                    addRow(["<img src='@Url.Content("~/Content/img/success.png")' width='24px' />", resultData[currentIndex].Username, data.message], false);
+                }).fail(function (data) {
+                    resultFail++;
+                    addRow(["<img src='@Url.Content("~/Content/img/error.png")' width='24px' />", resultData[currentIndex].Username, "Error: " + data.responseJSON.error], true);
+                }).done(function () {
+                    currentIndex++;
+                    loopUsers(resultData);
+                });
             }
-        }
-
-        function createUser(user) {
-            return $.post("", user, function (data) {
-                resultSuccess++;
-                addRow(["<img src='@Url.Content("~/Content/img/success.png")' width='24px' />", user.Username, data.message], false);
-            }).fail(function (data) {
-                resultFail++;
-                addRow(["<img src='@Url.Content("~/Content/img/error.png")' width='24px' />", user.Username, "Error: " + data.responseJSON.error], true);
-            }).done(function () {
-            });
         }
 
         function addRow(data, error) {
