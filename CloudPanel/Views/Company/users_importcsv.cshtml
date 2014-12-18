@@ -166,6 +166,16 @@
                         </div>
                     </div>
 
+                    <div class="contextual-progress">
+                        <div class="clearfix">
+                            <div class="progress-title"></div>
+                            <div class="progress-percentage"></div>
+                        </div>
+                        <div class="progress progress-striped active" style="height: 10px">
+                            <div class="progress-bar progress-bar-primary" style="width: 0%"></div>
+                        </div>
+                    </div>
+
                     <hr />
 
                     <div class="row">
@@ -205,7 +215,10 @@
     <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
     <script src="~/Content/plugins/papaparse/papaparse.min.js"></script>
     <script type="text/javascript">
-        var totalRunning = 0;
+        var resultTotal = 0;
+        var resultSuccess = 0;
+        var resultFail = 0;
+        var currentIndex = 0;
 
         $(document).ready(function () {
             $("#dataTable").DataTable();
@@ -251,29 +264,51 @@
                     rowCount = results.data.length;
             }
 
-            var success = 0;
-            var fail = 0;
-            var total = results.data.length;
+            resultTotal = results.data.length;
+            loopUsers(results.data, 0);
+        }
 
-            var t = $("#dataTable").DataTable();
-            $.each(results.data, function (index, user) {
-                $.ajax({
-                    type: "POST",
-                    url: "",
-                    data: user,
-                    async: true,
-                }).success(function (data) {
-                    success++;
-                    t.row.add(["<img src='@Url.Content("~/Content/img/success.png")' width='24px' />", user.Username, data.message]).draw();
-                }).fail(function (data) {
-                    fail++;
-                    var r = t.row.add(["<img src='@Url.Content("~/Content/img/error.png")' width='24px' />", user.Username, "Error: " + data.responseJSON.error]).draw().node();
-                    $(r).css('color', 'red');
-                }).always(function () {
-                    $("#importStatus").html("Success: " + success + "/" + total + ". FAILED: " + fail);
-                });;
+        function loopUsers(resultData, index)
+        {
+            $(".progress-title").html("Processing " + resultData[0].Username);
+            $(".progress-percentage").html(index + "/" + resultTotal);
+            $(".progress-bar").width(Math.floor((index * 100) / resultTotal) + "%");
 
+            console.log(resultData[index]);
+            if (index < resultTotal) {
+                $.when( createUser(resultData[index]) )
+                 .done(function (data) {
+                     console.log("Old: " + index + ", New: " + index++);
+                     loopUsers(resultData, index++);
+                 });
+            }
+        }
+
+        function createUser(user) {
+            return $.post("", user, function (data) {
+                resultSuccess++;
+                addRow(["<img src='@Url.Content("~/Content/img/success.png")' width='24px' />", user.Username, data.message], false);
+            }).fail(function (data) {
+                resultFail++;
+                addRow(["<img src='@Url.Content("~/Content/img/error.png")' width='24px' />", user.Username, "Error: " + data.responseJSON.error], true);
+            }).done(function () {
             });
+        }
+
+        function addRow(data, error) {
+            var t = $("#dataTable").DataTable();
+
+            if (error) {
+                var row = t.row.add(data).draw().node();
+                $(row).css('color', 'red');
+            }
+            else {
+                t.row.add(data).draw();
+            }
+        }
+
+        function updateTotals() {
+            $("#importStatus").html("Success: " + resultSuccess + "/" + resultTotal + ". FAILED: " + resultFail);
         }
 
         function errorFn(err, file) {
