@@ -43,7 +43,7 @@ namespace CloudPanel.Exchange
 {
     public class Exch2010 : ExchPowershell
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(Exch2010));
+        private readonly ILog logger = LogManager.GetLogger("Exchange");
 
         public Exch2010(string uri, string username, string password, bool kerberos, string domainController) :
             base(uri, username, password, kerberos, domainController)

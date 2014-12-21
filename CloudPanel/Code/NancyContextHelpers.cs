@@ -12,7 +12,7 @@ namespace CloudPanel
 {
     public class NancyContextHelpers
     {
-        private static readonly ILog logger = log4net.LogManager.GetLogger(typeof(NancyContextHelpers));
+        private static readonly ILog logger = log4net.LogManager.GetLogger("Default");
 
         public static void SetSelectedCompanyCode(NancyContext context, string companyCode)
         {

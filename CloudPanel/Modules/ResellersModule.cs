@@ -16,7 +16,7 @@ namespace CloudPanel.Modules
 {
     public class ResellersModule : NancyModule
     {
-        private static readonly ILog logger = log4net.LogManager.GetLogger(typeof(ResellersModule));
+        private static readonly ILog logger = log4net.LogManager.GetLogger("Default");
 
         public ResellersModule() : base("/resellers")
         {

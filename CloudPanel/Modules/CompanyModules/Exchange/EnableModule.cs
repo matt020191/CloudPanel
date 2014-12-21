@@ -14,7 +14,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
 {
     public class EnableModule : NancyModule
     {
-        private static readonly ILog logger = log4net.LogManager.GetLogger(typeof(EnableModule));
+        private static readonly ILog logger = log4net.LogManager.GetLogger("Default");
 
         public EnableModule() : base("/company/{CompanyCode}/exchange/enable")
         {

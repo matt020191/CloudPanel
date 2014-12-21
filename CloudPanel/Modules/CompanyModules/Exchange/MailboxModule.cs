@@ -15,7 +15,7 @@ namespace CloudPanel.Modules
 {
     public class MailboxModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(MailboxModule));
+        private static readonly ILog logger = LogManager.GetLogger("Default");
 
         public MailboxModule() : base("/company/{CompanyCode}/exchange/mailbox")
         {

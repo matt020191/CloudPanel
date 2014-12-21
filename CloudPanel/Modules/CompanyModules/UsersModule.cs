@@ -20,7 +20,7 @@ namespace CloudPanel.Modules
 {
     public class UsersModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(UsersModule));
+        private static readonly ILog logger = LogManager.GetLogger("Default");
 
         public UsersModule() : base("/company/{CompanyCode}/users")
         {

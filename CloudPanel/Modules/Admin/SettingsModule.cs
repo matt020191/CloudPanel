@@ -10,7 +10,7 @@ namespace CloudPanel.Modules.Admin
 {
     public class SettingsModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(SettingsModule));
+        private static readonly ILog logger = LogManager.GetLogger("Default");
 
         public SettingsModule() : base("/admin/settings")
         {

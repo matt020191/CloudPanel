@@ -13,7 +13,7 @@ namespace CloudPanel.Modules
 {
     public class OverviewModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(OverviewModule));
+        private static readonly ILog logger = LogManager.GetLogger("Default");
 
         public OverviewModule() : base("/company/{CompanyCode}/overview")
         {

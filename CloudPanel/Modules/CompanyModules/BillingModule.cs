@@ -16,7 +16,7 @@ namespace CloudPanel.Modules.CompanyModules
 {
     public class BillingModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(BillingModule));
+        private static readonly ILog logger = LogManager.GetLogger("Default");
 
         public BillingModule() : base("/company/{CompanyCode}/billing")
         {

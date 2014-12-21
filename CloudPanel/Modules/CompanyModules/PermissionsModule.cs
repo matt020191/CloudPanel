@@ -14,7 +14,7 @@ namespace CloudPanel.Modules
 {
     public class PermissionsModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(PermissionsModule));
+        private static readonly ILog logger = LogManager.GetLogger("Default");
 
         public PermissionsModule() : base("/company/{CompanyCode}/permissions")
         {

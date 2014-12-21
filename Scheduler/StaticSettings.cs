@@ -6,18 +6,16 @@ using System.Linq;
 using System.Web;
 using System.Xml.Linq;
 
-namespace CloudPanel.Code
+namespace Scheduler
 {
     public class StaticSettings
     {
         private static readonly ILog logger = LogManager.GetLogger("Default");
-
-        internal static readonly string path = HttpContext.Current.Server.MapPath("~/Config/settings.xml");
         
         /// <summary>
         /// Reads the configuration file and stores the data in memory
         /// </summary>
-        public static void LoadSettings()
+        public static bool LoadSettings(string path)
         {
             try
             {
@@ -83,39 +81,13 @@ namespace CloudPanel.Code
                 Settings.SNPort = int.Parse(Read(ref x, "Notifications", "MailPort"));
                 Settings.SNUsername = Read(ref x, "Notifications", "MailUsername");
                 Settings.SNEncryptedPassword = Read(ref x, "Notifications", "MailPassword");
+
+                return true;
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error loading settings: {0}", ex.ToString());
-
-                // Set error value so people can't login // TODO
-            }
-        }
-
-        /// <summary>
-        /// Saves a specific element in a specific node with a new value
-        /// </summary>
-        /// <param name="node"></param>
-        /// <param name="element"></param>
-        /// <param name="value"></param>
-        public static void SaveSetting(string node, string element, string value)
-        {
-            try
-            {
-                logger.DebugFormat("Saving node {0} and element {1} with value {2}", node, element, value);
-
-                if (string.IsNullOrEmpty(value))
-                    value = "";
-
-                XDocument xDoc = XDocument.Load(path);
-                var x = from s in xDoc.Elements("cloudpanel") select s;
-                x.Descendants(node).Elements(element).FirstOrDefault().Value = value;
-                xDoc.Save(path);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error saving settings: {0}", ex.ToString());
-                throw;
+                return false;
             }
         }
 

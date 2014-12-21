@@ -11,7 +11,7 @@ namespace CloudPanel.Database.EntityFramework
 {
     public partial class CloudPanelContext : DbContext
     {
-        private static readonly ILog logger = log4net.LogManager.GetLogger(typeof(CloudPanelContext));
+        private static readonly ILog logger = log4net.LogManager.GetLogger("SQL");
         
         public CloudPanelContext() : base(Settings.ConnectionString)
         {

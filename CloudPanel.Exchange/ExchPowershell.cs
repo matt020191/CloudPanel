@@ -49,7 +49,7 @@ namespace CloudPanel.Exchange
 
         internal string _domainController;
 
-        private readonly ILog logger = LogManager.GetLogger(typeof(ExchPowershell));
+        private readonly ILog logger = LogManager.GetLogger("Exchange");
 
         public ExchPowershell(string uri, string username, string password, bool kerberos, string domainController)
         {

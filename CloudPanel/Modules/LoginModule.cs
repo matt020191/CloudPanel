@@ -11,7 +11,7 @@ namespace CloudPanel.Modules
 {
     public class LoginModule : NancyModule
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(LoginModule));
+        private readonly ILog logger = LogManager.GetLogger("Default");
 
         public LoginModule()
         {

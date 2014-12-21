@@ -11,7 +11,7 @@ namespace CloudPanel.Modules
 {
     public class ApiModule : NancyModule
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(ApiModule));
+        private readonly ILog logger = LogManager.GetLogger("Default");
 
         public ApiModule(Nancy.Authentication.Token.ITokenizer tokenizer) : base("/login")
         {

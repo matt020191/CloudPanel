@@ -17,7 +17,7 @@ namespace CloudPanel.Modules
 {
     public class ContactsModule : NancyModule
     {
-        private static readonly ILog logger = log4net.LogManager.GetLogger(typeof(ContactsModule));
+        private static readonly ILog logger = log4net.LogManager.GetLogger("Default");
 
         public ContactsModule() : base("/company/{CompanyCode}/exchange/contacts")
         {

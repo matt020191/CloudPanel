@@ -16,7 +16,7 @@ namespace CloudPanel.Modules.PlansModules
 {
     public class ActiveSyncPlanModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(ActiveSyncPlanModule));
+        private static readonly ILog logger = LogManager.GetLogger("Default");
 
         public ActiveSyncPlanModule() : base("/plans/exchange/activesync")
         {

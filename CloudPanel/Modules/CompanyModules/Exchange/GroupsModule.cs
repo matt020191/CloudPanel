@@ -21,7 +21,7 @@ namespace CloudPanel.Modules
 {
     public class GroupsModule : NancyModule
     {
-        private static readonly ILog logger = log4net.LogManager.GetLogger(typeof(GroupsModule));
+        private static readonly ILog logger = log4net.LogManager.GetLogger("Default");
 
         public GroupsModule() : base("/company/{CompanyCode}/exchange/groups")
         {

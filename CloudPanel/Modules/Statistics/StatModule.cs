@@ -12,7 +12,7 @@ namespace CloudPanel.Modules
 {
     public class StatModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(StatModule));
+        private static readonly ILog logger = LogManager.GetLogger("Default");
 
         public StatModule() : base("/stats")
         {

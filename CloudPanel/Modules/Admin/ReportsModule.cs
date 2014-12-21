@@ -13,7 +13,7 @@ namespace CloudPanel.Modules.Admin
 {
     public class ReportsModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(ReportsModule));
+        private static readonly ILog logger = LogManager.GetLogger("Default");
 
         public ReportsModule() : base("/admin/reports")
         {

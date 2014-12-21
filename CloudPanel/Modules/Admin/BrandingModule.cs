@@ -16,7 +16,7 @@ namespace CloudPanel.Modules
 {
     public class BrandingModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(BrandingModule));
+        private static readonly ILog logger = LogManager.GetLogger("Default");
 
         public static List<Branding> AllBrandings;
 

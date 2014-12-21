@@ -14,7 +14,7 @@ namespace CloudPanel.Modules
 {
     public class UsersImportModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(UsersImportModule));
+        private static readonly ILog logger = LogManager.GetLogger("Default");
 
         public UsersImportModule() : base("/company/{CompanyCode}/users/import")
         {

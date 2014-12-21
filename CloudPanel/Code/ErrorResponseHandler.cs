@@ -12,7 +12,7 @@ namespace CloudPanel.Code
 {
     public class ErrorResponseHandler : DefaultViewRenderer, IStatusCodeHandler
     {
-        private static readonly ILog logger = log4net.LogManager.GetLogger(typeof(ErrorResponseHandler));
+        private static readonly ILog logger = log4net.LogManager.GetLogger("Default");
 
         public ErrorResponseHandler(IViewFactory factory) : base(factory)
         {

@@ -13,7 +13,7 @@ namespace CloudPanel
 {
     public class UserMapper : IUserMapper
     {
-        private static readonly ILog logger = log4net.LogManager.GetLogger(typeof(UserMapper));
+        private static readonly ILog logger = log4net.LogManager.GetLogger("Default");
 
         public static List<AuthenticatedUser> loggedInUsers = new List<AuthenticatedUser>();
 

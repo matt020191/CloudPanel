@@ -1,6 +1,7 @@
 ﻿namespace CloudPanel
 {
     using CloudPanel.Base.Config;
+    using CloudPanel.Base.Database.Models;
     using CloudPanel.Code;
     using CloudPanel.Database.EntityFramework;
     using CloudPanel.Database.EntityFramework.Migrations;
@@ -11,15 +12,15 @@
     using Nancy.Authentication.Forms;
     using Nancy.Authentication.Token;
     using Nancy.Bootstrapper;
-    using Nancy.Responses;
     using Nancy.Session;
     using Nancy.TinyIoc;
     using System.Text;
+    using System.Threading.Tasks;
     using Entity = System.Data.Entity;
 
     public class Bootstrapper : DefaultNancyBootstrapper
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(Bootstrapper));
+        private static readonly ILog logger = LogManager.GetLogger("Default");
 
         protected override void ApplicationStartup(Nancy.TinyIoc.TinyIoCContainer container, Nancy.Bootstrapper.IPipelines pipelines)
         {
@@ -42,33 +43,33 @@
             BrandingModule.LoadAllBrandings();
             
             // Initialize auditing
-            pipelines.AfterRequest.AddItemToEndOfPipeline(ctx =>
-            {
-                if (!ctx.Request.Method.Equals("GET"))
+            pipelines.AfterRequest += async (ctx) =>
                 {
-                    using (var db = new CloudPanelContext(Settings.ConnectionString))
+                    await Task.Run(() =>
                     {
-                        var sb = new StringBuilder();
-                        if (ctx.Parameters.Count > 0)
+                        if (!ctx.Request.Method.Equals("GET"))
                         {
-                            foreach (var key in ctx.Parameters.Keys)
+                            using (var db = new CloudPanelContext(Settings.ConnectionString))
                             {
-                                sb.AppendFormat("[{0}: {1}], ", key, ctx.Parameters[key].Value);
+                                var sb = new StringBuilder();
+                                if (ctx.Parameters.Count > 0)
+                                    foreach (var k in ctx.Parameters.Keys)
+                                        sb.AppendFormat("[{0}: {1}], ", k, ctx.Parameters[k].Value);
+
+                                db.AuditTrace.Add(new AuditTrace()
+                                {
+                                    IPAddress = ctx.Request.UserHostAddress,
+                                    Method = ctx.Request.Method,
+                                    Route = ctx.Request.Path,
+                                    Username = (ctx.CurrentUser == null ? string.Empty : ctx.CurrentUser.UserName),
+                                    Parameters = sb.ToString()
+                                });
+
+                                db.SaveChanges();
                             }
                         }
-
-                        db.AuditTrace.Add(new Base.Database.Models.AuditTrace()
-                            {
-                                IPAddress = ctx.Request.UserHostAddress,
-                                Method = ctx.Request.Method,
-                                Route = ctx.Request.Path,
-                                Username = ctx.CurrentUser == null ? string.Empty : ctx.CurrentUser.UserName,
-                                Parameters = sb.ToString()
-                            });
-                        db.SaveChanges();
-                    }
-                }
-            });
+                    });
+                };
 
             //
             base.ApplicationStartup(container, pipelines);

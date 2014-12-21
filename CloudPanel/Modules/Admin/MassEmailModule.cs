@@ -15,7 +15,7 @@ namespace CloudPanel.Modules.Admin
 {
     public class MassEmailModule : NancyModule
     {
-        private static readonly ILog logger = log4net.LogManager.GetLogger(typeof(MassEmailModule));
+        private static readonly ILog logger = log4net.LogManager.GetLogger("Default");
 
         public MassEmailModule() : base("/admin/email")
         {
