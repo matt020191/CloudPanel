@@ -61,84 +61,91 @@
 <!-- Add Modal -->
 <form id="addForm" action="" method="post" data-parsley-validate>
     <div id="addModal" class="modal fade">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                     <h4 class="modal-title">Add Company</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="form-horizontal">
-                        <div class="form-group">
-                            <label for="focusedinput" class="col-sm-3 control-label">Company Name</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="CompanyName" name="CompanyName" data-parsley-required="true">
+                    <div class="row">
+                        <div class="form-horizontal">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="focusedinput" class="col-sm-4 control-label">Company Name</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="CompanyName" name="CompanyName" data-parsley-required="true">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="focusedinput" class="col-sm-4 control-label">Contact Name</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="AdminName" name="AdminName" data-parsley-required="true">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="focusedinput" class="col-sm-4 control-label">Contact Email</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="AdminEmail" name="AdminEmail" data-parsley-required="true" data-parsley-type="email">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="focusedinput" class="col-sm-4 control-label">Domain Name</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="DomainName" name="DomainName" data-parsley-required="true">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="focusedinput" class="col-sm-4 control-label">Country</label>
+                                    <div class="col-sm-8">
+                                        @CloudPanel.CPHtmlHelpers.GetCountries("")
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="focusedinput" class="col-sm-4 control-label">Plan</label>
+                                    <div class="col-sm-8">
+                                        @CloudPanel.CPHtmlHelpers.GetCompanyPlans(0, "")
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="focusedinput" class="col-sm-3 control-label">Contact Name</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="AdminName" name="AdminName" data-parsley-required="true">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="focusedinput" class="col-sm-3 control-label">Contact Email</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="AdminEmail" name="AdminEmail" data-parsley-required="true" data-parsley-type="email">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="focusedinput" class="col-sm-3 control-label">Telephone</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="PhoneNumber" name="PhoneNumber" data-parsley-required="true">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="focusedinput" class="col-sm-3 control-label">Street</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="Street" name="Street" data-parsley-required="true">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="focusedinput" class="col-sm-3 control-label">City</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="City" name="City" data-parsley-required="true">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="focusedinput" class="col-sm-3 control-label">State</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="State" name="State" data-parsley-required="true">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="focusedinput" class="col-sm-3 control-label">Postal Code</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="ZipCode" name="ZipCode" data-parsley-required="true">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="focusedinput" class="col-sm-3 control-label">Website</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="Website" name="Website" data-parsley-type="url">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="focusedinput" class="col-sm-3 control-label">Domain Name</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="DomainName" name="DomainName" data-parsley-required="true">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="focusedinput" class="col-sm-3 control-label">Country</label>
-                            <div class="col-sm-9">
-                                @CloudPanel.CPHtmlHelpers.GetCountries("")
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="focusedinput" class="col-sm-3 control-label">Plan</label>
-                            <div class="col-sm-9">
-                                @CloudPanel.CPHtmlHelpers.GetCompanyPlans(0, "")
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="focusedinput" class="col-sm-4 control-label">Telephone</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="PhoneNumber" name="PhoneNumber" data-parsley-required="true">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="focusedinput" class="col-sm-4 control-label">Street</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="Street" name="Street" data-parsley-required="true">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="focusedinput" class="col-sm-4 control-label">City</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="City" name="City" data-parsley-required="true">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="focusedinput" class="col-sm-4 control-label">State</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="State" name="State" data-parsley-required="true">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="focusedinput" class="col-sm-4 control-label">Postal Code</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="ZipCode" name="ZipCode" data-parsley-required="true">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="focusedinput" class="col-sm-4 control-label">Website</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="Website" name="Website" data-parsley-type="url">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

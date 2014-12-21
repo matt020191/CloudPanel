@@ -3,10 +3,11 @@ using CloudPanel.Base.Reports;
 using CloudPanel.Database.EntityFramework;
 using log4net;
 using Nancy;
+using Nancy.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Reflection;
 
 namespace CloudPanel.Modules.Admin
 {
@@ -16,9 +17,108 @@ namespace CloudPanel.Modules.Admin
 
         public ReportsModule() : base("/admin/reports")
         {
+            this.RequiresClaims(new[] { "SuperAdmin" });
+            
             Get["/", c => c.Request.Accept("text/html")] = _ =>
             {
                 return View["Admin/reports.cshtml"];
+            };
+
+            Get["/overview/exchange", c => !c.Request.Accept("text/html")] = _ =>
+            {
+                #region Gets exchange overview data
+                try
+                {
+                    var overviewData = ExchangeOverview();
+
+                    int draw = 0, start = 0, length = 0, recordsTotal = overviewData.Count, recordsFiltered = overviewData.Count, orderColumn = 0;
+                    string searchValue = "", orderColumnName = "";
+                    bool isAscendingOrder = true;
+
+                    if (Request.Query.draw.HasValue)
+                    {
+                        draw = Request.Query.draw;
+                        start = Request.Query.start;
+                        length = Request.Query.length;
+                        orderColumn = Request.Query["order[0][column]"];
+                        searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
+                        isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
+                        orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
+
+                        // See if we are using dataTables to search
+                        logger.DebugFormat("Search value was {0}", searchValue);
+                        if (!string.IsNullOrEmpty(searchValue))
+                        {
+                            overviewData = (from d in overviewData
+                                            where d.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                                  d.CompanyCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                                  d.MailboxPlans.Any(x => x.MailboxPlanName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1)
+                                            select d).ToList();
+
+                            recordsFiltered = overviewData.Count;
+                            logger.DebugFormat("Total records filtered was {0}", recordsFiltered);
+                        }
+
+                        if (isAscendingOrder)
+                            overviewData = overviewData.OrderBy(x => x.GetType()
+                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                    .Skip(start)
+                                                    .Take(length > 0 ? length : overviewData.Count)
+                                                    .ToList();
+                        else
+                            overviewData = overviewData.OrderByDescending(x => x.GetType()
+                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                    .Skip(start)
+                                                    .Take(length > 0 ? length : overviewData.Count)
+                                                    .ToList();
+                    }
+
+                    // Get total costs and mailbox plans
+                    Dictionary<string, int> mailboxPlans = new Dictionary<string, int>();
+                    decimal totalCost = 0, totalPrice = 0, totalProfit = 0;
+                    overviewData.ForEach(x =>
+                       {
+                           totalCost = decimal.Add(totalCost, x.MailboxCost);
+                           totalPrice = decimal.Add(totalPrice, x.MailboxPrice);
+                           totalProfit = decimal.Add(totalProfit, x.Profit);
+
+                           if (x.MailboxPlans != null)
+                           {
+                               x.MailboxPlans.ForEach(m =>
+                                   {
+                                       if (mailboxPlans.ContainsKey(m.MailboxPlanName))
+                                       {
+                                           int value = 0;
+                                           mailboxPlans.TryGetValue(m.MailboxPlanName, out value);
+
+                                           value += m.UserCount;
+                                           mailboxPlans[m.MailboxPlanName] = value;
+                                       }
+                                       else
+                                           mailboxPlans.Add(m.MailboxPlanName, m.UserCount);
+                                   });
+                           }
+                       });
+
+                    return Negotiate.WithModel(new
+                    {
+                        draw = draw,
+                        recordsTotal = recordsTotal,
+                        recordsFiltered = recordsFiltered,
+                        data = overviewData,
+                        totalCost = totalCost,
+                        totalPrice = totalPrice,
+                        totalProfit = totalProfit,
+                        mailboxPlans = mailboxPlans
+                    }).WithStatusCode(HttpStatusCode.OK);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error getting exchange overview reprot: {0}", ex.ToString());
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
+                }
+                #endregion
             };
         }
 

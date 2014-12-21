@@ -5,6 +5,18 @@
 }
 @section HEAD{
     <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
+    <style type="text/css">
+            span.tab-space {
+                padding-left: 0.5em;
+            }
+            td.details-control {
+	            background: url('@Url.Content("~/Content/img/details_open.png")') no-repeat center center;
+	            cursor: pointer;
+            }
+            tr.shown td.details-control {
+	            background: url('@Url.Content("~/Content/img/details_close.png")') no-repeat center center;
+            }
+    </style>
 }
 
 <div id="page-heading">
@@ -20,7 +32,7 @@
             <div class="btn-group hidden-xs">
                 <a href="#" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><i class="fa fa-download"></i><span class="hidden-sm"> Render Report  </span><span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                    <li><a href="javascript:;">Microsoft Exchange Overview</a></li>
+                    <li><a href="javascript:ExchangeOverview();">Microsoft Exchange Overview</a></li>
                 </ul>
             </div>
         </div>
@@ -29,72 +41,60 @@
 
 <div class="container">
 
-    <div class="row report exchangeoverview">
-        <div class="col-md-12">
-            <div class="panel">
-                <div class="panel-body">
-                    <p>Total Users: 50</p>
-                    <div class="col-md-3 col-sm-6 col-xs-6">
-                        <div class="easypiechart" id="mailboxes" data-percent="65"><span class="percent"></span></div>
-                        <label for="newvisits">Mailboxes</label>
-                        <hr class="visible-sm visible-xs">
+    <div class="row report exchangeoverview" style="display: none">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel panel-midnightblue">
+                    <div class="panel-heading">
+                        Overall Profits
                     </div>
-                    <div class="col-md-3 col-sm-6 col-xs-6">
-                        <span class="easypiechart" id="archiving" data-percent="81"><span class="percent"></span></span>
-                        <label for="bouncerate">Archiving</label>
-                        <hr class="visible-sm visible-xs">
+                    <div class="panel-body">
+                        <div id="exchangeCostPriceProfit" style="height:250px;"></div>
                     </div>
-                    <div class="col-md-3 col-sm-6 col-xs-6">
-                        <span class="easypiechart" id="clickrate" data-percent="42"><span class="percent"></span></span>
-                        <label for="clickrate">Click Rate</label>
-                        <hr class="visible-sm visible-xs">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="panel panel-midnightblue">
+                    <div class="panel-heading">
+                        Mailbox Plans
                     </div>
-                    <div class="col-md-3 col-sm-6 col-xs-6">
-                        <span class="easypiechart" id="covertionrate" data-percent="23"><span class="percent"></span></span>
-                        <label for="covertionrate">Convertion</label>
-                        <hr class="visible-sm visible-xs">
+                    <div class="panel-body">
+                        <div id="exchangeMailboxPlans" style="height:250px;"></div>
                     </div>
+                </div>
+            </div>
+        </div>
 
-                    <hr />
-
-                    <p>Plans</p>
-                    <table cellpadding="0" cellspacing="0" border="0" class="table table-condensed">
-                        <thead>
-                            <tr>
-                                <th>Company Name</th>
-                                <th>Mailbox Plan</th>
-                                <th>User Count</th>
-                                <th>Cost</th>
-                                <th>Price</th>
-                                <th>Profit</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var company in CloudPanel.Modules.Admin.ReportsModule.ExchangeOverview())
-                            {
-                                <tr style="background-color: aqua">
-                                    <td>@company.CompanyName</td>
-                                    <td></td>
-                                    <td>@company.UserCount</td>
-                                    <td>@company.MailboxCost</td>
-                                    <td>@company.MailboxPrice</td>
-                                    <th>@decimal.Subtract(company.MailboxPrice, company.MailboxCost).ToString("C")</th>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        Company Overview
+                    </div>
+                    <div class="panel-body">
+                        <table id="overviewExchangeTable" cellpadding="0" cellspacing="0" border="0" class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Company Name</th>
+                                    <th>Total Users</th>
+                                    <th>Total Cost</th>
+                                    <th>Total Price</th>
+                                    <th>Profit</th>
                                 </tr>
-                                @foreach (var plan in company.MailboxPlans)
-                                {
-                                    <tr>
-                                        <td></td>
-                                        <td>@plan.MailboxPlanName</td>
-                                        <td>@plan.UserCount</td>
-                                        <td>@plan.Cost</td>
-                                        <td>@plan.Price</td>
-                                        <th></th>
-                                    </tr>
-                                }
-                                <tr><td colspan="6"></td></tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td>Loading...</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -103,33 +103,184 @@
 </div>
 
 @section JAVASCRIPT {
+    <script src="~/Content/plugins/charts-flot/jquery.flot.min.js"></script>
+    <script src="~/Content/plugins/charts-flot/jquery.flot.orderBars.min.js"></script>
+    <script src="~/Content/plugins/charts-flot/jquery.flot.pie.min.js"></script>
     <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
     <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
-    <script src="~/Content/plugins/easypiechart/jquery.easypiechart.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            ExchangeOverview();
         });
 
         function ExchangeOverview()
         {
-            $('.easypiechart').easyPieChart({
-                barColor: "#16a085",
-                trackColor: '#edeef0',
-                scaleColor: '#d2d3d6',
-                scaleLength: 5,
-                lineCap: 'square',
-                lineWidth: 2,
-                size: 90,
-                onStep: function (from, to, percent) {
-                    $(this.el).find('.percent').text(Math.round(percent));
+            // Hide all reports
+            HideAll();
+
+            // Show the exchange report div
+            $(".exchangeoverview").show();
+
+            // Render the Exchange report
+            var overviewExchangeTable = $("#overviewExchangeTable").DataTable({
+                "dom": "<'row'<'col-xs-6'l><'col-xs-6'f>r>t<'row'<'col-xs-6'i><'col-xs-6'p>>",
+                "autoWidth": false,
+                "language": {
+                    "lengthMenu": "_MENU_ records per page",
+                    "search": ""
+                },
+                "paging": false,
+                "order": [[1, 'asc']],
+                "serverSide": true,
+                "processing": true,
+                "ajax": {
+                    type: 'GET',
+                    url: "@Url.Content("~/admin/reports/overview/exchange")",
+                    dataType: 'json',
+                    error: function (xhr) {
+                        ShowError(xhr.responseJSON.error);
+                    },
+                },
+                 "columns": [
+                    { "data": "companyCode", "class": "details-control", "orderable": false, "defaultContent": "", "render": function () { return "" } },
+                    { "data": "companyName" },
+                    { "data": "userCount" },
+                    { "data": "mailboxCost" },
+                    { "data": "mailboxPrice" },
+                    { "data": "profit" },
+                ],
+                 "createdRow": function (row, data, index) {
+                     $(row).css("background-color", "#dff0d8");
+                     $(row).find(".tooltip-ex").tooltip();
                 }
             });
+
+            // Renders child rows
+            $('#overviewExchangeTable tbody').on('click', 'td.details-control', function () {
+                var tr = $(this).closest('tr');
+                var row = overviewExchangeTable.row(tr);
+
+                if (row.child.isShown()) {
+                    row.child.hide();
+                    tr.removeClass('shown');
+                }
+                else {
+                    row.child(FormatUsersChildTable(row.data())).show();
+                    tr.addClass('shown');
+                }
+            });
+
+            $("#overviewExchangeTable").on("xhr.dt", function (e, settings, json) {
+
+                // Cost, Price, Profit bar chart
+                var names = [[0, "Cost"], [1, "Price"], [2, "Profit"]];
+                var sizes = [[0, json.totalCost], [1, json.totalPrice], [2, json.totalProfit]];
+
+                var ds = [];
+                ds.push({ data: sizes, label: "", bars: { show: true, barWidth: 0.2, order: 1 } });
+
+                $.plot($("#exchangeCostPriceProfit"), ds, {
+                    series: { bars: { show: true, fill: 0.75, 'align': "center" } },
+                    grid: { hoverable: true, clickable: false, borderWidth: 0 },
+                    xaxis: { tickColor: "transparent", ticks: names, tickDecimals: 2, font: { color: '#8c8c8c', size: 12 } },
+                    yaxis: { tickDecimals: 2 },
+                    legend: { labelBoxBorderColor: 'transparent' }
+                });
+
+                var previousPointBar = null;
+                $("#exchangeCostPriceProfit").bind("plothover", function (event, pos, item) {
+                    $("#x").text(pos.x.toFixed(2));
+                    $("#y").text(pos.y.toFixed(2));
+                    if (item) {
+                        if (previousPointBar != item.dataIndex) {
+                            previousPointBar = item.dataIndex;
+
+                            $("#tooltip").remove();
+                            var x = item.datapoint[0].toFixed(2),
+                                y = item.datapoint[1].toFixed(2);
+
+                            showTooltip(item.pageX + 20, item.pageY, y);
+
+                        }
+                    } else {
+                        $("#tooltip").remove();
+                        previousPointBar = null;
+                    }
+                });
+
+                // Mailbox Plans pie chart
+                var dsPie = [];
+                $.each(json.mailboxPlans, function (key, value) {
+                    dsPie.push({ label: key, data: value });
+                });
+
+                console.log(dsPie);
+                $.plot('#exchangeMailboxPlans', dsPie, {
+                    series: {
+                        pie: {
+                            show: true,
+                            radius: 1,
+                            label: {
+                                show: true,
+                                radius: 3 / 4,
+                                formatter: function (label, series) {
+                                    return '<div style="border:1px solid grey;font-size:8pt;text-align:center;padding:5px;color:white;">' +
+                                            label + '<br/>' +
+                                            series.data[0][1] +
+                                            '</div>';
+                                },
+                                background: {
+                                    opacity: 0.5,
+                                    color: '#000'
+                                }
+                            }
+                        }
+                    },
+                    legend: {show: false },
+                    grid: { hoverable: true, clickable: true }
+                });
+            });
+        }
+
+        function FormatUsersChildTable(d) {
+            console.log(d);
+            var table = '<table class="table table-condensed table-hover table-striped table-bordered" style="width: 70%; margin-left: 15%; margin-right: 15%"> \
+                            <thead> \
+                                <tr> \
+                                    <th>Plan</th> \
+                                    <th>User Count</th> \
+                                    <th>Cost</th> \
+                                    <th>Price</th> \
+                                </tr> \
+                            </thead> \
+                            <tbody>';
+
+            if (d.mailboxPlans.length > 0) {
+                $.each(d.mailboxPlans, function(index, value) {
+                    table += '<tr> \
+                                <td>' + value.mailboxPlanName + '</td> \
+                                <td>' + value.userCount + '</td> \
+                                <td>' + value.cost + '</td> \
+                                <td>' + (value.customPrice == null ? value.price : value.customPrice) + '</td> \
+                              </tr>';
+                });
+            }
+
+            table += '</tbody></table>';
+
+            return table;
         }
 
         function HideAll()
         {
             $(".report").hide();
+        }
+
+        function showTooltip(x, y, contents) {
+            $('<div id="tooltip" class="tooltip top in"><div class="tooltip-inner">' + contents + '<\/div><\/div>').css({
+                display: 'none',
+                top: y - 40,
+                left: x - 55,
+            }).appendTo("body").fadeIn(200);
         }
     </script>
 }

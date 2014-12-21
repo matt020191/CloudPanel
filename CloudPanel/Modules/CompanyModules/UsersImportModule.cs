@@ -18,7 +18,7 @@ namespace CloudPanel.Modules
 
         public UsersImportModule() : base("/company/{CompanyCode}/users/import")
         {
-            //this.RequiresAuthentication();
+            this.RequiresAuthentication();
 
             Get["/csv"] = _ =>
             { 

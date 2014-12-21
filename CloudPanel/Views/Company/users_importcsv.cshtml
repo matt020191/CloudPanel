@@ -270,18 +270,15 @@
 
         function loopUsers(resultData)
         {
-            $(".progress-title").html("Processing " + resultData[currentIndex].Username);
-            $(".progress-percentage").html(currentIndex + "/" + resultTotal);
-            $(".progress-bar").width(Math.floor((currentIndex * 100) / resultTotal) + "%");
-
             if (currentIndex < resultTotal) {
+                updateTotals(resultData[currentIndex].Username);
                 $.post("", resultData[currentIndex], function (data) {
                     resultSuccess++;
                     addRow(["<img src='@Url.Content("~/Content/img/success.png")' width='24px' />", resultData[currentIndex].Username, data.message], false);
                 }).fail(function (data) {
                     resultFail++;
                     addRow(["<img src='@Url.Content("~/Content/img/error.png")' width='24px' />", resultData[currentIndex].Username, "Error: " + data.responseJSON.error], true);
-                }).done(function () {
+                }).always(function () {
                     currentIndex++;
                     loopUsers(resultData);
                 });
@@ -300,8 +297,11 @@
             }
         }
 
-        function updateTotals() {
-            $("#importStatus").html("Success: " + resultSuccess + "/" + resultTotal + ". FAILED: " + resultFail);
+        function updateTotals(username) {
+            var actualCurrent = currentIndex + 1;
+            $(".progress-title").html("Processing " + username);
+            $(".progress-percentage").html(actualCurrent + "/" + resultTotal);
+            $(".progress-bar").width(Math.floor((actualCurrent * 100) / resultTotal) + "%");
         }
 
         function errorFn(err, file) {
