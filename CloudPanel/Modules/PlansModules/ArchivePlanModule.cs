@@ -15,7 +15,7 @@ namespace CloudPanel.Modules.PlansModules
 {
     public class ArchivePlanModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger("Default");
+        private static readonly ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public ArchivePlanModule() : base("/plans/exchange/archiving")
         {

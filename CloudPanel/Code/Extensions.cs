@@ -11,7 +11,7 @@ namespace CloudPanel
 {
     public static class Extensions
     {
-        private static readonly ILog logger = log4net.LogManager.GetLogger("Default");
+        private static readonly ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public static bool Accept(this Request request, string contentType)
         {

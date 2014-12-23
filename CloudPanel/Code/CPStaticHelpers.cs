@@ -16,7 +16,7 @@ namespace CloudPanel
 {
     public class CPStaticHelpers
     {
-        private static readonly ILog logger = log4net.LogManager.GetLogger("Default");
+        private static readonly ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public static string FormatBytes(long bytes)
         {

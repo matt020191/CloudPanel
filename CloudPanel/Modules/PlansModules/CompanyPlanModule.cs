@@ -15,7 +15,7 @@ namespace CloudPanel.Modules.PlansModules
 {
     public class CompanyPlanModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger("Default");
+        private static readonly ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public CompanyPlanModule() : base("/plans/company")
         {

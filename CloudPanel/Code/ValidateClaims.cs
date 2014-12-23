@@ -12,7 +12,7 @@ namespace CloudPanel.Code
 {
     public class ValidateClaims
     {
-        private static readonly ILog logger = log4net.LogManager.GetLogger("Default");
+        private static readonly ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// Checks if the user is a super admin

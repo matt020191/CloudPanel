@@ -21,7 +21,7 @@ namespace CloudPanel.Modules
 {
     public class DomainsModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger("Default");
+        private static readonly ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public DomainsModule() : base("/company/{CompanyCode}/domains")
         {

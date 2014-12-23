@@ -17,7 +17,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
 {
     public class BulkModule : NancyModule
     {
-        private static readonly ILog logger = log4net.LogManager.GetLogger("Default");
+        private static readonly ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private enum ActionToTake
         {

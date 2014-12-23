@@ -13,7 +13,7 @@ namespace CloudPanel.Modules.PlansModules
 {
     public class CitrixPlanModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger("Default");
+        private static readonly ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public CitrixPlanModule() : base("/plans/citrix")
         {

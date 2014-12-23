@@ -20,7 +20,7 @@ namespace CloudPanel.Modules.CompanyModules
 {
     public class UsersEditModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger("Default");
+        private static readonly ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public UsersEditModule() : base("/company/{CompanyCode}/users/{UserGuid:guid}")
         {

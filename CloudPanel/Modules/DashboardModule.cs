@@ -16,7 +16,7 @@ namespace CloudPanel.Modules
 {
     public class DashboardModule : NancyModule
     {
-        private readonly ILog logger = LogManager.GetLogger("Default");
+        private readonly ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public DashboardModule() : base("/dashboard")
         {

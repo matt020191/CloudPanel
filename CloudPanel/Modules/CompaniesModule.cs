@@ -17,7 +17,7 @@ namespace CloudPanel.Modules
 {
     public class CompaniesModule : NancyModule
     {
-        private static readonly ILog logger = log4net.LogManager.GetLogger("Default");
+        private static readonly ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public CompaniesModule() : base("/companies/{ResellerCode}")
         {

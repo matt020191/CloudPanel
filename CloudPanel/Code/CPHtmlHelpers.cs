@@ -12,7 +12,7 @@ namespace CloudPanel
 {
     public class CPHtmlHelpers
     {
-        private static readonly ILog logger = log4net.LogManager.GetLogger("Default");
+        private static readonly ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public static IHtmlString GetDomainTypes(int? selectedId, string insertBefore)
         {

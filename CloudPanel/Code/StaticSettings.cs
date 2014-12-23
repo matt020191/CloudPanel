@@ -10,7 +10,7 @@ namespace CloudPanel.Code
 {
     public class StaticSettings
     {
-        private static readonly ILog logger = LogManager.GetLogger("Default");
+        private static readonly ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         internal static readonly string path = HttpContext.Current.Server.MapPath("~/Config/settings.xml");
         

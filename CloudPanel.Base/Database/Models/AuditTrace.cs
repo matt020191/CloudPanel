@@ -29,6 +29,7 @@
 //
 namespace CloudPanel.Base.Database.Models
 {
+    using System;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
 
@@ -37,6 +38,8 @@ namespace CloudPanel.Base.Database.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
+
+        public DateTime TimeStamp { get; set; }
 
         public string Username { get; set; }
 

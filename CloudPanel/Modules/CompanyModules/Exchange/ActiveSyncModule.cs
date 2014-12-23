@@ -18,7 +18,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
 {
     public class ActiveSyncModule : NancyModule
     {
-        private static readonly ILog logger = LogManager.GetLogger("Default");
+        private static readonly ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public ActiveSyncModule() : base("/company/{CompanyCode}/exchange/activesync")
         {

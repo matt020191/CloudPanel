@@ -14,13 +14,14 @@
     using Nancy.Bootstrapper;
     using Nancy.Session;
     using Nancy.TinyIoc;
+    using System;
     using System.Text;
     using System.Threading.Tasks;
     using Entity = System.Data.Entity;
 
     public class Bootstrapper : DefaultNancyBootstrapper
     {
-        private static readonly ILog logger = LogManager.GetLogger("Default");
+        private static readonly ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         protected override void ApplicationStartup(Nancy.TinyIoc.TinyIoCContainer container, Nancy.Bootstrapper.IPipelines pipelines)
         {
@@ -54,10 +55,16 @@
                                 var sb = new StringBuilder();
                                 if (ctx.Parameters.Count > 0)
                                     foreach (var k in ctx.Parameters.Keys)
-                                        sb.AppendFormat("[{0}: {1}], ", k, ctx.Parameters[k].Value);
+                                        sb.AppendFormat("[{0}: {1}] ", k, ctx.Parameters[k].Value);
+
+                                if (ctx.Request.Form.Count > 0)
+                                    foreach (var k in ctx.Request.Form.Keys)
+                                        if (k != "password") // Do not capture passwords in audit trace
+                                            sb.AppendFormat("[{0}: {1}] ", k, ctx.Request.Form[k].Value);
 
                                 db.AuditTrace.Add(new AuditTrace()
                                 {
+                                    TimeStamp = DateTime.Now,
                                     IPAddress = ctx.Request.UserHostAddress,
                                     Method = ctx.Request.Method,
                                     Route = ctx.Request.Path,

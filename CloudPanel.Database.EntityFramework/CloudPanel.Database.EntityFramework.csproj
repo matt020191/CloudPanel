@@ -34,11 +34,11 @@
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\EntityFramework.6.1.1\lib\net40\EntityFramework.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.1.2\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\EntityFramework.6.1.1\lib\net40\EntityFramework.SqlServer.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.1.2\lib\net40\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
@@ -80,6 +80,10 @@
     <Compile Include="Migrations\201412142106439_AddUsernameAndIPToAuditTrace.Designer.cs">
       <DependentUpon>201412142106439_AddUsernameAndIPToAuditTrace.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201412230357160_AddTimeStampToAuditTable.cs" />
+    <Compile Include="Migrations\201412230357160_AddTimeStampToAuditTable.Designer.cs">
+      <DependentUpon>201412230357160_AddTimeStampToAuditTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -114,6 +118,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201412142106439_AddUsernameAndIPToAuditTrace.resx">
       <DependentUpon>201412142106439_AddUsernameAndIPToAuditTrace.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201412230357160_AddTimeStampToAuditTable.resx">
+      <DependentUpon>201412230357160_AddTimeStampToAuditTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
