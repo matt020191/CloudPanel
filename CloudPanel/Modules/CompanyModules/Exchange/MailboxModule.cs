@@ -36,13 +36,13 @@ namespace CloudPanel.Modules
                     powershell = ExchPowershell.GetClass();
 
                     // Get the size
-                    SvcMailboxSizes size = powershell.Get_MailboxSize(upn);
+                    StatMailboxSizes size = powershell.Get_MailboxSize(upn);
 
                     // Add to database
                     if (!string.IsNullOrEmpty(size.UserPrincipalName))
                     {
                         db = new CloudPanelContext(Settings.ConnectionString);
-                        db.SvcMailboxSizes.Add(size);
+                        db.StatMailboxSize.Add(size);
                         db.SaveChanges();
                     }
 

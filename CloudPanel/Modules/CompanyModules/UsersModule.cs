@@ -50,8 +50,10 @@ namespace CloudPanel.Modules
                                  from mailboxplan in d1.DefaultIfEmpty()
                                  join a in db.Plans_ExchangeArchiving on d.ArchivePlan equals a.ArchivingID into d4
                                  from archiveplan in d4.DefaultIfEmpty()
-                                 join s in db.SvcMailboxSizes on d.UserPrincipalName equals s.UserPrincipalName into d2
+                                 join s in db.StatMailboxSize on d.UserGuid equals s.UserGuid into d2
                                  from mailboxinfo in d2.DefaultIfEmpty().OrderByDescending(x => x.Retrieved).Take(1)
+                                 join s2 in db.StatMailboxArchiveSize on d.UserGuid equals s2.UserGuid into d5
+                                 from archiveinfo in d5.DefaultIfEmpty().OrderByDescending(x => x.Retrieved).Take(1)
                                  join p in db.UserRoles on d.RoleID equals p.RoleID into d3
                                  from permission in d3.DefaultIfEmpty().Take(1)
                                  where d.CompanyCode == companyCode
@@ -72,6 +74,7 @@ namespace CloudPanel.Modules
                                      Email = d.Email,
                                      MailboxPlan = mailboxplan,
                                      MailboxInfo = mailboxinfo,
+                                     ArchiveInfo = archiveinfo,
                                      Permission = permission,
                                      ArchivePlan = archiveplan
                                  }).ToList();
@@ -334,9 +337,9 @@ namespace CloudPanel.Modules
                                 db.SvcQueue.RemoveRange(queues);
 
                             logger.DebugFormat("Clearing user from mailbox sizes");
-                            var mailboxSizes = from d in db.SvcMailboxSizes where d.UserPrincipalName == user.UserPrincipalName select d;
+                            var mailboxSizes = from d in db.StatMailboxSize where d.UserPrincipalName == user.UserPrincipalName select d;
                             if (mailboxSizes != null)
-                                db.SvcMailboxSizes.RemoveRange(mailboxSizes);
+                                db.StatMailboxSize.RemoveRange(mailboxSizes);
 
                             logger.DebugFormat("Finished cleanup for {0}", user.UserPrincipalName);
                             db.SaveChanges();

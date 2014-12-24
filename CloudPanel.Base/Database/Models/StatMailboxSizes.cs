@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
 //
@@ -27,18 +27,17 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
+
 namespace CloudPanel.Base.Database.Models
 {
     using System;
-    using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity.Spatial;
 
-    public partial class SvcMailboxSizes
+    public partial class StatMailboxSizes
     {
         public int ID { get; set; }
 
+        [Required]
         public Guid UserGuid { get; set; }
 
         [Required]

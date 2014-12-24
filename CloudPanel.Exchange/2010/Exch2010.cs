@@ -1525,7 +1525,7 @@ namespace CloudPanel.Exchange
         /// </summary>
         /// <param name="userGuid"></param>
         /// <returns></returns>
-        public SvcMailboxSizes Get_MailboxSize(Guid userGuid)
+        public StatMailboxSizes Get_MailboxSize(Guid userGuid)
         {
             logger.DebugFormat("Getting mailbox size for {0}", userGuid);
 
@@ -1534,16 +1534,18 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("Identity", userGuid.ToString());
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
-            
+
             var psObjects = _powershell.Invoke();
-            if (_powershell.HadErrors)
-                throw _powershell.Streams.Error[0].Exception;
-            else
+
+            // Handle the errors
+            HandleErrors();
+
+            if (psObjects.Count > 0)
             {
-                var returnSize = new SvcMailboxSizes();
+                var returnSize = new StatMailboxSizes();
                 foreach (PSObject obj in psObjects)
                 {
-                    returnSize.UserPrincipalName = obj.Members["UserPrincipalName"].Value.ToString();
+                    returnSize.UserGuid = userGuid;
                     returnSize.MailboxDatabase = obj.Members["Database"].Value.ToString();
                     returnSize.TotalItemSize = obj.Members["TotalItemSize"].Value.ToString();
                     returnSize.TotalItemSizeInBytes = GetExchangeBytes(returnSize.TotalItemSize);
@@ -1568,18 +1570,20 @@ namespace CloudPanel.Exchange
 
                 return returnSize;
             }
+            else
+                throw new ArgumentNullException("psObjects");
         }
 
         /// <summary>
-        /// Gets all mailbox sizes for the list of userprincipalnames passed
+        /// Gets all mailbox sizes for the list of guids provided
         /// </summary>
         /// <param name="userGuids"></param>
         /// <returns></returns>
-        public List<SvcMailboxSizes> Get_AllMailboxSizes(Guid[] userGuids)
+        public List<StatMailboxSizes> Get_AllMailboxSizes(Guid[] userGuids)
         {
             logger.DebugFormat("Getting all mailbox sizes");
 
-            var allSizes = new List<SvcMailboxSizes>();
+            var allSizes = new List<StatMailboxSizes>();
             foreach (var user in userGuids)
             {
                 logger.DebugFormat("Processing mailbox size for {0}", user);
@@ -1591,6 +1595,88 @@ namespace CloudPanel.Exchange
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Failed to process mailbox size for {0}: {1}", user, ex.ToString());
+                }
+            }
+
+            return allSizes;
+        }
+
+        /// <summary>
+        /// Gets the mailbox archive size
+        /// </summary>
+        /// <param name="userGuid"></param>
+        /// <returns></returns>
+        public StatMailboxArchiveSizes Get_MailboxArchiveSize(Guid userGuid)
+        {
+            logger.DebugFormat("Getting archive mailbox size for {0}", userGuid);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-MailboxStatistics");
+            cmd.AddParameter("Identity", userGuid.ToString());
+            cmd.AddParameter("Archive");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            var psObjects = _powershell.Invoke();
+
+            // Handle the errors
+            HandleErrors();
+
+            if (psObjects.Count > 0)
+            {
+                var returnSize = new StatMailboxArchiveSizes();
+                foreach (PSObject obj in psObjects)
+                {
+                    returnSize.UserGuid = userGuid;
+                    returnSize.MailboxDatabase = obj.Members["Database"].Value.ToString();
+                    returnSize.TotalItemSize = obj.Members["TotalItemSize"].Value.ToString();
+                    returnSize.TotalItemSizeInBytes = GetExchangeBytes(returnSize.TotalItemSize);
+                    returnSize.TotalDeletedItemSize = obj.Members["TotalDeletedItemSize"].Value.ToString();
+                    returnSize.TotalDeletedItemSizeInBytes = GetExchangeBytes(returnSize.TotalDeletedItemSize);
+
+                    int itemCount = 0;
+                    int.TryParse(obj.Members["ItemCount"].Value.ToString(), out itemCount);
+                    returnSize.ItemCount = itemCount;
+
+                    int deletedItemCount = 0;
+                    int.TryParse(obj.Members["DeletedItemCount"].Value.ToString(), out deletedItemCount);
+                    returnSize.DeletedItemCount = deletedItemCount;
+
+                    returnSize.Retrieved = DateTime.Now;
+                    break;
+                }
+
+                logger.DebugFormat("Successfully retrieved archive mailbox statistics for {0}: {1}, {2}, {3}, {4}, {5}, {6}, {7}",
+                    userGuid, returnSize.MailboxDatabase, returnSize.TotalItemSize, returnSize.TotalItemSizeInBytes,
+                    returnSize.TotalDeletedItemSize, returnSize.TotalDeletedItemSizeInBytes, returnSize.ItemCount, returnSize.DeletedItemCount);
+
+                return returnSize;
+            }
+            else
+                throw new ArgumentNullException("psObjects");
+        }
+
+        /// <summary>
+        /// Get all mailbox archive sizes for the list of guids provided
+        /// </summary>
+        /// <param name="userGuids"></param>
+        /// <returns></returns>
+        public List<StatMailboxArchiveSizes> Get_AllMailboxArchiveSizes(Guid[] userGuids)
+        {
+            logger.DebugFormat("Getting all archive mailbox sizes");
+
+            var allSizes = new List<StatMailboxArchiveSizes>();
+            foreach (var user in userGuids)
+            {
+                logger.DebugFormat("Processing archive mailbox size for {0}", user);
+                try
+                {
+                    var size = Get_MailboxArchiveSize(user);
+                    allSizes.Add(size);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Failed to process archive mailbox size for {0}: {1}", user, ex.ToString());
                 }
             }
 

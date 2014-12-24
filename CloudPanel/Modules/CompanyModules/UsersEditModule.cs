@@ -461,6 +461,7 @@ namespace CloudPanel.Modules.CompanyModules
                 else if (wasEnabled && !nowEnabled)
                 {
                     #region Disable Mailbox
+
                     // Disable mailbox
                     powershell.Disable_Mailbox(boundUser.UserGuid);
 
@@ -473,6 +474,7 @@ namespace CloudPanel.Modules.CompanyModules
                     sqlUser.LitigationHoldDate = string.Empty;
                     sqlUser.LitigationHoldEnabled = false;
                     sqlUser.LitigationHoldOwner = string.Empty;
+
                     #endregion
                 }
                 else

@@ -65,13 +65,13 @@ namespace CloudPanel.Exchange
 
         internal void HandleErrors(bool ignoredNotFound = false, bool ignoreAlreadyExist = false)
         {
-            if (_powershell != null && _powershell.HadErrors)
+            if (_powershell != null)
             {
                 // Log the debug messages
                 if (_powershell.Streams.Debug.Count > 0)
                 {
                     foreach (var debug in _powershell.Streams.Debug)
-                        logger.DebugFormat("PSDEBUG: {0}", debug.Message);
+                        logger.DebugFormat("PSDEBUG: {0}", debug.ToString());
 
                     _powershell.Streams.Debug.Clear();
                 }
@@ -80,7 +80,7 @@ namespace CloudPanel.Exchange
                 if (_powershell.Streams.Warning.Count > 0)
                 {
                     foreach (var warn in _powershell.Streams.Warning)
-                        logger.WarnFormat("PSWARN: {0}", warn.Message);
+                        logger.WarnFormat("PSWARN: {0}", warn.ToString());
 
                     _powershell.Streams.Warning.Clear();
                 }
@@ -100,11 +100,13 @@ namespace CloudPanel.Exchange
                     else
                     {
                         logger.ErrorFormat("PSERROR Reason: {0}", reason);
-                        throw _powershell.Streams.Error[0].Exception;
+
+                        var exception = _powershell.Streams.Error[0].Exception;
+                        _powershell.Streams.Error.Clear();
+
+                        throw exception;
                     }
                 }
-
-               
             }
         }
 

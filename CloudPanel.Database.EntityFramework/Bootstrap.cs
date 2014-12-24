@@ -26,155 +26,6 @@ namespace CloudPanel.Database.EntityFramework
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             //modelBuilder.Conventions.Remove<PluralizingTableNameConvention>(); 
-
-            /*
-            modelBuilder.Entity<Companies>()
-                .Property(e => e.Country)
-                .IsUnicode(false);
-            
-            modelBuilder.Entity<Contacts>()
-                .Property(e => e.DistinguishedName)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Contacts>()
-                .Property(e => e.CompanyCode)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Contacts>()
-                .Property(e => e.DisplayName)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Contacts>()
-                .Property(e => e.Email)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<DistributionGroups>()
-                .Property(e => e.DistinguishedName)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<DistributionGroups>()
-                .Property(e => e.CompanyCode)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<DistributionGroups>()
-                .Property(e => e.DisplayName)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<DistributionGroups>()
-                .Property(e => e.Email)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Domains>()
-                .Property(e => e.CompanyCode)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Plans_Citrix>()
-                .Property(e => e.Name)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Plans_Citrix>()
-                .Property(e => e.GroupName)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Plans_Citrix>()
-                .Property(e => e.CompanyCode)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Plans_Citrix>()
-                .Property(e => e.PictureURL)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Plans_ExchangeActiveSync>()
-                .Property(e => e.CompanyCode)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Plans_ExchangeActiveSync>()
-                .Property(e => e.DisplayName)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Plans_ExchangeActiveSync>()
-                .Property(e => e.ExchangeName)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Plans_ExchangeActiveSync>()
-                .Property(e => e.IncludePastCalendarItems)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Plans_ExchangeActiveSync>()
-                .Property(e => e.IncludePastEmailItems)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Plans_ExchangeActiveSync>()
-                .Property(e => e.AllowBluetooth)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Plans_ExchangeMailbox>()
-                .Property(e => e.ResellerCode)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Plans_ExchangeMailbox>()
-                .Property(e => e.CompanyCode)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Plans_Organization>()
-                .Property(e => e.ResellerCode)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Prices>()
-                .Property(e => e.CompanyCode)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Prices>()
-                .Property(e => e.Price)
-                .HasPrecision(19, 4);
-
-            modelBuilder.Entity<ResourceMailboxes>()
-                .Property(e => e.CompanyCode)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<ResourceMailboxes>()
-                .Property(e => e.ResourceType)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<SvcMailboxSizes>()
-                .Property(e => e.UserPrincipalName)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<SvcMailboxSizes>()
-                .Property(e => e.MailboxDatabase)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<SvcQueue>()
-                .Property(e => e.UserPrincipalName)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<SvcQueue>()
-                .Property(e => e.CompanyCode)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Users>()
-                .Property(e => e.CompanyCode)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Users>()
-                .Property(e => e.DistinguishedName)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Plans_TerminalServices>()
-                .Property(e => e.ResellerCode)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<PriceOverride>()
-                .Property(e => e.CompanyCode)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<PriceOverride>()
-                .Property(e => e.Product)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<UserPlans>()
-                .Property(e => e.CompanyCode)
-                .IsUnicode(false);*/
         }
 
         public override int SaveChanges()
@@ -218,7 +69,6 @@ namespace CloudPanel.Database.EntityFramework
         public virtual DbSet<ResourceMailboxes> ResourceMailboxes { get; set; }
         public virtual DbSet<Statistics> Statistics { get; set; }
         public virtual DbSet<SvcMailboxDatabaseSizes> SvcMailboxDatabaseSizes { get; set; }
-        public virtual DbSet<SvcMailboxSizes> SvcMailboxSizes { get; set; }
         public virtual DbSet<SvcQueue> SvcQueue { get; set; }
         public virtual DbSet<SvcTask> SvcTask { get; set; }
         public virtual DbSet<UserPermission> UserPermission { get; set; }
@@ -229,6 +79,8 @@ namespace CloudPanel.Database.EntityFramework
         public virtual DbSet<PriceOverride> PriceOverride { get; set; }
         public virtual DbSet<UserPlans> UserPlans { get; set; }
         public virtual DbSet<Branding> Brandings { get; set; }
+        public virtual DbSet<StatMailboxSizes> StatMailboxSize { get; set; }
+        public virtual DbSet<StatMailboxArchiveSizes> StatMailboxArchiveSize { get; set; }
         #endregion
     }
 }

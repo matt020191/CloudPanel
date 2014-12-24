@@ -84,6 +84,10 @@
     <Compile Include="Migrations\201412230357160_AddTimeStampToAuditTable.Designer.cs">
       <DependentUpon>201412230357160_AddTimeStampToAuditTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201412240407584_AddNewMailboxSizeTables.cs" />
+    <Compile Include="Migrations\201412240407584_AddNewMailboxSizeTables.Designer.cs">
+      <DependentUpon>201412240407584_AddNewMailboxSizeTables.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -121,6 +125,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201412230357160_AddTimeStampToAuditTable.resx">
       <DependentUpon>201412230357160_AddTimeStampToAuditTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201412240407584_AddNewMailboxSizeTables.resx">
+      <DependentUpon>201412240407584_AddNewMailboxSizeTables.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

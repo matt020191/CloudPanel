@@ -73,7 +73,7 @@ namespace CloudPanel.Modules
                         sqlMailboxes.ForEach(x =>
                                     {
                                         long total = 0;
-                                        total = (from d in db.SvcMailboxSizes
+                                        total = (from d in db.StatMailboxSize
                                                  where d.UserPrincipalName == x.UserPrincipalName
                                                  orderby d.Retrieved descending
                                                  select d.TotalItemSizeInBytes).FirstOrDefault();
@@ -164,7 +164,7 @@ namespace CloudPanel.Modules
                             sqlMailboxes.ForEach(x =>
                             {
                                 long total = 0;
-                                total = (from d in db.SvcMailboxSizes
+                                total = (from d in db.StatMailboxSize
                                          where d.UserPrincipalName == x.UserPrincipalName
                                          orderby d.Retrieved descending
                                          select d.TotalItemSizeInBytes).FirstOrDefault();
@@ -244,7 +244,7 @@ namespace CloudPanel.Modules
                         sqlMailboxes.ForEach(x =>
                         {
                             long total = 0;
-                            total = (from d in db.SvcMailboxSizes
+                            total = (from d in db.StatMailboxSize
                                      where d.UserPrincipalName == x.UserPrincipalName
                                      orderby d.Retrieved descending
                                      select d.TotalItemSizeInBytes).FirstOrDefault();
@@ -614,7 +614,7 @@ namespace CloudPanel.Modules
                 sqlMailboxes.ForEach(x =>
                 {
                     long total = 0;
-                    total = (from d in db.SvcMailboxSizes
+                    total = (from d in db.StatMailboxSize
                              where d.UserPrincipalName == x.UserPrincipalName
                              orderby d.Retrieved descending
                              select d.TotalItemSizeInBytes).FirstOrDefault();
