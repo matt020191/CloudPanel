@@ -168,7 +168,7 @@
                 }).done(function () {
                     ShowSuccess("Successfully updated company");
                 }).fail(function (returnData) {
-                    ShowError(returnData.responseJSON.error);
+                    ShowError(returnData);
                 }).always(function () {
                     $.unblockUI();
                 });;

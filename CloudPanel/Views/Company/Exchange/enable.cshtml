@@ -56,7 +56,7 @@
                         document.location.href = "@Url.Content("~/company/"+this.RenderContext.Context.GetCompanyCode()+"/exchange/disable")";
                     });
                 }, 'json').fail(function (returnData) {
-                    ShowError(returnData.responseJSON.error);
+                    ShowError(returnData);
                 }).always(function () {
                     $.unblockUI();
                 });

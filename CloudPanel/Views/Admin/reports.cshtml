@@ -137,7 +137,7 @@
                     url: "@Url.Content("~/admin/reports/overview/exchange")",
                     dataType: 'json',
                     error: function (xhr) {
-                        ShowError(xhr.responseJSON.error);
+                        ShowError(xhr);
                     },
                 },
                  "columns": [

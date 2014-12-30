@@ -281,7 +281,7 @@
                     type: 'GET',
                     dataType: 'json',
                     error: function (xhr) {
-                        ShowError(xhr.responseJSON.error);
+                        ShowError(xhr);
                     },
                 },
                 "columns": [
@@ -367,7 +367,7 @@
                         ReloadTable("dataTable");
                         ShowAlert("Deleted!", "User was successfully deleted", "success");
                     }).fail(function (returnData) {
-                        ShowError(returnData.responseJSON.error);
+                        ShowError(returnData);
                     });
                 }
             });
@@ -403,7 +403,7 @@
                     ReloadTable("dataTable");
                     ShowSuccess(returnData.success);
                 }).fail(function (returnData) {
-                    ShowError(returnData.responseJSON.error);
+                    ShowError(returnData);
                 }).always(function () {
                     $.unblockUI();
                 });
@@ -419,7 +419,7 @@
                     $("#resetModal").modal("hide");
                     ShowSuccess(returnData.success);
                 }).fail(function (returnData) {
-                    ShowError(returnData.responseJSON.error);
+                    ShowError(returnData);
                 }).always(function () {
                     $.unblockUI();
                 });
@@ -436,7 +436,7 @@
                     ReloadTable("dataTable");
                     ShowSuccess(returnData.success);
                 }).fail(function (returnData) {
-                    ShowError(returnData.responseJSON.error);
+                    ShowError(returnData);
                 }).always(function () {
                     $.unblockUI();
                 });

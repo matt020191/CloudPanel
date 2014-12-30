@@ -619,7 +619,7 @@
                 });
             })
             .fail(function (data) {
-                ShowError(data.responseJSON.error);
+                ShowError(data);
             })
             .always(function (data) {
                 $(".panel").unblock();
@@ -652,7 +652,7 @@
                 $.post("", data).done(function (returnData) {
                     ShowSuccess(returnData.success);
                 }).fail(function (returnData) {
-                    ShowError(returnData.responseJSON.error);
+                    ShowError(returnData);
                 }).always(function () {
                     $(".panel").unblock();
                 });

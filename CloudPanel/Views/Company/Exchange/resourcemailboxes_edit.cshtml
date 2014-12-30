@@ -238,7 +238,7 @@
                 })
                 .fail(function (data) {
                     $('#submit').attr('disabled', 'disabled');
-                    ShowError(data.responseJSON.error);
+                    ShowError(data);
                 })
                 .always(function (data) {
                     $(".panel").unblock();

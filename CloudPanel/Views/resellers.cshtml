@@ -249,7 +249,7 @@
                     type: 'GET',
                     dataType: 'json',
                     error: function (xhr) {
-                        ShowError(xhr.responseJSON.error);
+                        ShowError(xhr);
                     },
                 },
                 "columns": [
@@ -292,7 +292,7 @@
 
                 $("#editModal").modal();
             }).fail(function (data) {
-                ShowError(data.responseJSON.error);
+                ShowError(data);
             }).always(function (data) {
                 $(".panel").unblock();
             });
@@ -309,7 +309,7 @@
                     ReloadResellers();
                     ShowSuccess(returnData.success);
                 }).fail(function (returnData) {
-                    ShowError(returnData.responseJSON.error);
+                    ShowError(returnData);
                 }).always(function () {
                     $.unblockUI();
                 });
@@ -328,7 +328,7 @@
                     ReloadResellers();
                     ShowSuccess("Successfully updated reseller");
                 }).fail(function (returnData) {
-                    ShowError(returnData.responseJSON.error);
+                    ShowError(returnData);
                 });
             });
         }
@@ -354,7 +354,7 @@
                         ReloadResellers();
                         ShowAlert("Deleted!", "Reseller was successfully deleted", "success");
                     }).fail(function (returnData) {
-                        ShowError(returnData.responseJSON.error);
+                        ShowError(returnData);
                     });
                 }
             });

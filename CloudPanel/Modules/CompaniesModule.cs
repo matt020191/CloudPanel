@@ -44,6 +44,8 @@ namespace CloudPanel.Modules
                 CloudPanelContext db = null;
                 try
                 {
+                    logger.DebugFormat("Retrieving companies from database");
+
                     db = new CloudPanelContext(Settings.ConnectionString);
                     db.Database.Connection.Open();
 
@@ -525,45 +527,6 @@ namespace CloudPanel.Modules
                     logger.ErrorFormat("Error deleting company: {0}", ex.ToString());
                     return Negotiate.WithModel(new { error = ex.Message })
                                     .WithView("companies.cshtml")
-                                    .WithStatusCode(HttpStatusCode.InternalServerError);
-                }
-                finally
-                {
-                    if (db != null)
-                        db.Dispose();
-                }
-                #endregion
-            };
-
-            Get["/{CompanyCode}"] = _ =>
-            {
-                this.RequiresValidatedClaims(x => ValidateClaims.AllowSuperOrReseller(Context.CurrentUser, _.ResellerCode));
-
-                #region Gets a specific company
-                CloudPanelContext db = null;
-                try
-                {
-                    db = new CloudPanelContext(Settings.ConnectionString);
-
-                    // Make sure there are no companies assigned to this reseller
-                    string companyCode = _.CompanyCode;
-                    var company = (from d in db.Companies
-                                    where !d.IsReseller
-                                    where d.CompanyCode == companyCode
-                                    select d).FirstOrDefault();
-
-                    if (company == null)
-                        throw new Exception("Unable to find company " + companyCode);
-                    else
-                    {
-                        return Negotiate.WithModel(new { resellerCode = _.ResellerCode, company = company })
-                                        .WithStatusCode(HttpStatusCode.OK);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error retrieving company {0} from the database. Error: {1}", _.CompanyCode, ex.ToString());
-                    return Negotiate.WithModel(new { resellerCode = _.ResellerCode, error = ex.Message })
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
                 }
                 finally

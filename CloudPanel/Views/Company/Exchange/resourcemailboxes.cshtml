@@ -255,7 +255,7 @@
                         ReloadTable("dataTable");
                         ShowAlert("Deleted!", "Resource was successfully deleted", "success");
                     }).fail(function (returnData) {
-                        ShowError(returnData.responseJSON.error);
+                        ShowError(returnData);
                     }).always(function () {
                         $.unblockUI();
                     });

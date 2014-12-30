@@ -266,7 +266,7 @@
                 type: 'GET',
                 dataType: 'json',
                 error: function (xhr) {
-                    ShowError(xhr.responseJSON.error);
+                    ShowError(xhr);
                 },
             },
             "columns": [
@@ -296,7 +296,7 @@
                     ReloadCompanies();
                     ShowSuccess(returnData.success);
                 }).fail(function (returnData) {
-                    ShowError(returnData.responseJSON.error);
+                    ShowError(returnData);
                 }).always(function () {
                     $.unblockUI();
                 });
@@ -315,7 +315,7 @@
                     ReloadCompanies();
                     ShowSuccess("Successfully updated company");
                 }).fail(function (returnData) {
-                    ShowError(returnData.responseJSON.error);
+                    ShowError(returnData);
                 });
             });
         }
@@ -323,7 +323,7 @@
         function GetCompany(companyCode, resellerCode) {
             $.blockUI();
 
-            var url = "@Url.Content(RenderContext.Context.Request.Url.Path)" + "/" + companyCode;
+            var url = "@Url.Content("~/company/")" + companyCode + "";
             $.getJSON(url, function (data) {
                 $('#editForm input[name="CompanyCode"]').val(companyCode);
                 $('#editForm input[name="CompanyName"]').val(data.company.companyName);
@@ -345,7 +345,8 @@
 
                 $("#editModal").modal();
             }).fail(function (data) {
-                ShowError(data.responseJSON.error);
+                console.log(data);
+                AlertError(data);
             }).always(function (data) {
                 $(".panel").unblock();
             });
@@ -372,8 +373,8 @@
                     }).done(function () {
                         ReloadCompanies();
                         ShowAlert("Deleted!", "Company was successfully deleted", "success");
-                    }).fail(function (returnData) {
-                        ShowError(returnData.responseJSON.error);
+                    }).fail(function (data) {
+                        ShowError(data);
                     });
                 }
             });

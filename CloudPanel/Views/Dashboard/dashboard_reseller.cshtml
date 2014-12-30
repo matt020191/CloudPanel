@@ -183,7 +183,7 @@
                 $("#badgeMailboxUsed").text(stats.totalMailboxUsed);
             })
             .fail(function (data) {
-                ShowError(data.responseJSON.error);
+                ShowError(data);
             })
             .always(function (data) {
                 $("#badgeRow").unblock();
@@ -222,7 +222,7 @@
                 areaChart.redraw();
             })
             .fail(function (data) {
-                ShowError(data.responseJSON.error);
+                ShowError(data);
             })
             .always(function (data) {
                 $("#historyOverview").unblock();
@@ -238,7 +238,7 @@
                 });
             })
                 .fail(function (data) {
-                    ShowError(data.responseJSON.error);
+                    ShowError(data);
                 })
                 .always(function (data) {
                     $(".topXCustomers").unblock();
@@ -275,7 +275,7 @@
                 });
             })
                 .fail(function (data) {
-                    ShowError(data.responseJSON.error);
+                    ShowError(data);
                 })
                 .always(function (data) {
                     $(".topMailboxes").unblock();

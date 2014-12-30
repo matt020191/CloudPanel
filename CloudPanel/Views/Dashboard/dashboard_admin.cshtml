@@ -174,7 +174,7 @@
                     areaChart.redraw();
                 })
                 .fail(function (data) {
-                    ShowError(data.responseJSON.error);
+                    ShowError(data);
                 })
                 .always(function (data) {
                     $("#historyOverview").unblock();

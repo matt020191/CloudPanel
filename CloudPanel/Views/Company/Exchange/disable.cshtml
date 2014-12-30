@@ -83,7 +83,7 @@
                         document.location.href = "@Url.Content("~/company/" + this.RenderContext.Context.GetCompanyCode() + "/exchange/enable")";
                     });
                 }).fail(function (returnData) {
-                    ShowError(returnData.responseJSON.error);
+                    ShowError(returnData);
                 }).always(function () {
                     $.unblockUI();
                 });

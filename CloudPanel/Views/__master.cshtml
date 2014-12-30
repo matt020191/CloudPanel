@@ -163,8 +163,14 @@
             swal("Warning!", message, "warning");
         }
 
-        function ShowError(message) {
-            swal("Error!", message, "error");
+        function ShowError(data) {
+            if (data.hasOwnProperty("responseJSON")) {
+                swal("Error!", data.responseJSON.error, "error");
+            } else if (data.hasOwnProperty("statusText")) {
+                swal("Error!", data.status + ": " + data.statusText, "error");
+            } else {
+                swal("Error!", data, "error");
+            }
         }
 
         function ShowAlert(title, message, type) {

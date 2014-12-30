@@ -363,7 +363,7 @@
                                 data.members[index].objectType);
                     });
                 }).fail(function (returnData) {
-                    ShowError(returnData.responseJSON.error);
+                    ShowError(returnData);
                 }).always(function () {
                     $("#membersPanel").unblock();
                 });
