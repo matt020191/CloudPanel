@@ -19,7 +19,7 @@ namespace CloudPanel.Modules
     {
         private static readonly ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public CompaniesModule() : base("/companies/{ResellerCode}")
+        public CompaniesModule() : base("/companies/{ResellerCode?}")
         {
             this.RequiresAuthentication();
 
@@ -27,8 +27,11 @@ namespace CloudPanel.Modules
                 {
                     this.RequiresValidatedClaims(x => ValidateClaims.AllowSuperOrReseller(Context.CurrentUser, _.ResellerCode));
 
-                    string resellerCode = _.ResellerCode;
-                    this.Context.SetResellerCode(resellerCode);
+                    if (Settings.ResellersEnabled)
+                    {
+                        string resellerCode = _.ResellerCode;
+                        this.Context.SetResellerCode(resellerCode);
+                    }
 
                     return View["companies.cshtml"];
                 };
@@ -36,9 +39,6 @@ namespace CloudPanel.Modules
             Get["/", c => !c.Request.Accept("text/html")] = _ =>
             {
                 this.RequiresValidatedClaims(x => ValidateClaims.AllowSuperOrReseller(Context.CurrentUser, _.ResellerCode));
-
-                string resellerCode = _.ResellerCode;
-                this.Context.SetResellerCode(resellerCode);
 
                 #region Returns the companies json data based on the request
                 CloudPanelContext db = null;
@@ -50,9 +50,11 @@ namespace CloudPanel.Modules
                     // Retrieve all resellers from the database
                     var companies = (from d in db.Companies
                                      where !d.IsReseller
-                                     where d.ResellerCode == resellerCode
                                      orderby d.CompanyName
                                      select d).ToList();
+
+                    if (Settings.ResellersEnabled) // If resellers are enabled then trim the results
+                        companies = companies.Where(x => x.ResellerCode == _.ResellerCode).ToList();
 
                     int draw = 0, start = 0, length = 0, recordsTotal = companies.Count, recordsFiltered = companies.Count, orderColumn = 0;
                     string searchValue = "", orderColumnName = "";
@@ -167,120 +169,124 @@ namespace CloudPanel.Modules
                     //
                     // Create the organizational units
                     //
-                    logger.DebugFormat("Retrieving reseller information for {0}", _.ResellerCode);
-                    string resellerCode = _.ResellerCode;
-                    var reseller = (from d in db.Companies
+                    Companies reseller = null;
+                    if (Settings.ResellersEnabled)
+                    {
+                        logger.DebugFormat("Retrieving reseller information for {0}", _.ResellerCode);
+
+                        string resellerCode = _.ResellerCode;
+                        reseller = (from d in db.Companies
                                     where d.IsReseller
                                     where d.CompanyCode == resellerCode
                                     select d).FirstOrDefault();
-                    if (reseller == null)
-                        throw new Exception("Unable to find reseller.");
-                    else
-                    {
-                        logger.DebugFormat("Populating OrganizationalUnit object");
-                        var newCompanyOrg = new OrganizationalUnit()
-                        {
-                            Name = Settings.UseNameInsteadOfCompanyCode ? newCompany.CompanyName : companyCode,
-                            Street = newCompany.Street,
-                            City = newCompany.City,
-                            State = newCompany.State,
-                            PostalCode = newCompany.ZipCode,
-                            Country = newCompany.Country,
-                            DisplayName = newCompany.CompanyName,
-                            AdminDisplayName = newCompany.AdminName,
-                            AdminDescription = newCompany.AdminEmail,
-                            UPNSuffixes = new string[] { Request.Form.DomainName }
-                        };
 
-                        logger.DebugFormat("Creating new organizational unit in Active Directory");
-                        var createdOrg = org.Create( (Settings.ResellersEnabled ? reseller.DistinguishedName : Settings.HostingOU), newCompanyOrg); // Create the new OU and get the extra information back
-                        reverse.AddAction(Actions.CreateOrganizationalUnit, createdOrg.DistinguishedName); // Add to our rollback actions in case we need to remove
-
-                        logger.DebugFormat("Creating Applications organizational unit in Active Directory");
-                        var appOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.ApplicationsOUName, UPNSuffixes = createdOrg.UPNSuffixes });
-                        org.RemoveRights(appOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
-
-                        logger.DebugFormat("Creating groups organizational unit in Active Directory");
-                        var grpOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.ExchangeGroupsOU, UPNSuffixes = createdOrg.UPNSuffixes });
-                        org.RemoveRights(grpOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
-
-                        logger.DebugFormat("Creating contacts organizational unit in Active Directory");
-                        var contactOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.ExchangeContactsOU, UPNSuffixes = createdOrg.UPNSuffixes });
-                        org.RemoveRights(contactOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
-
-                        logger.DebugFormat("Creating rooms organizational unit in Active Directory");
-                        var roomOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.ExchangeRoomsOU, UPNSuffixes = createdOrg.UPNSuffixes });
-                        org.RemoveRights(roomOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
-
-                        logger.DebugFormat("Creating resource organizational unit in Active Directory");
-                        var resourceOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.ExchangeResourceOU, UPNSuffixes = createdOrg.UPNSuffixes });
-                        org.RemoveRights(resourceOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
-
-                        if (!string.IsNullOrEmpty(Settings.UsersOU))
-                        {
-                            // May have chosen to put users in a different organizational unit
-                            logger.DebugFormat("Creating Users organizational unit called {0}", Settings.UsersOU);
-                            var userOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.UsersOU, UPNSuffixes = createdOrg.UPNSuffixes });
-                            org.RemoveRights(userOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
-                        }
-
-                        //
-                        // Create Security Groups
-                        //
-                        logger.DebugFormat("Creating Admins security group");
-                        groups = new ADGroups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-                        groups.Create(createdOrg.DistinguishedName, new SecurityGroup() { Name = "Admins@" + companyCode, SamAccountName = "Admins@" + companyCode });
-
-                        logger.DebugFormat("Creating AllTSUsers security group");
-                        groups.Create(createdOrg.DistinguishedName, new SecurityGroup() { Name = "AllTSUsers@" + companyCode, SamAccountName = "AllTSUsers@" + companyCode });
-
-                        logger.DebugFormat("Creating AllUsers security group");
-                        groups.Create(createdOrg.DistinguishedName, new SecurityGroup() { Name = "AllUsers@" + companyCode, SamAccountName = "AllUsers@" + companyCode });
-
-                        // Add AllTSUsers@ company group to the hosting group and GPOAccess group
-                        logger.DebugFormat("Adding terminal server group to hosting group");
-                        groups.AddGroup("AllTSUsers@Hosting", "AllTSUsers@" + companyCode);
-
-                        logger.DebugFormat("Adding terminal server group to gpo access group");
-                        groups.AddGroup("GPOAccess@" + reseller.CompanyCode, "AllTSUsers@" + companyCode);
-
-
-                        // Remove authenticated users rights and add AllUsers read rights
-                        logger.DebugFormat("Setting company rights to the organizational unit");
-                        org.SetCompanyRights(createdOrg.DistinguishedName, "AllUsers@" + companyCode);
-
-                        //
-                        // Add domain to database
-                        //
-                        logger.DebugFormat("Adding domain {0} to the database", Request.Form.DomainName);
-                        db.Domains.Add(new Domains()
-                        {
-                            CompanyCode = companyCode,
-                            Domain = Request.Form.DomainName,
-                            IsAcceptedDomain = false,
-                            IsLyncDomain = false,
-                            IsDefault = true,
-                            IsSubDomain = false
-                        });
-
-                        //
-                        // Add company to database
-                        //
-                        logger.DebugFormat("Adding company {0} to the database", newCompany.CompanyName);
-                        newCompany.CompanyCode = companyCode;
-                        newCompany.Created = DateTime.Now;
-                        newCompany.DistinguishedName = createdOrg.DistinguishedName;
-                        db.Companies.Add(newCompany);
-
-                        // Save
-                        logger.DebugFormat("Saving database changes");
-                        db.SaveChanges();
-
-                        logger.InfoFormat("Successfully created new company {0}", newCompany.CompanyName);
-                        return Negotiate.WithModel(new { success = "Successfully created new company", resellerCode = _.ResellerCode })
-                                        .WithView("companies.cshtml")
-                                        .WithStatusCode(HttpStatusCode.OK);
+                        if (reseller == null)
+                            throw new Exception("Unable to find reseller.");
                     }
+
+                    logger.DebugFormat("Populating OrganizationalUnit object");
+                    var newCompanyOrg = new OrganizationalUnit()
+                    {
+                        Name = Settings.UseNameInsteadOfCompanyCode ? newCompany.CompanyName : companyCode,
+                        Street = newCompany.Street,
+                        City = newCompany.City,
+                        State = newCompany.State,
+                        PostalCode = newCompany.ZipCode,
+                        Country = newCompany.Country,
+                        DisplayName = newCompany.CompanyName,
+                        AdminDisplayName = newCompany.AdminName,
+                        AdminDescription = newCompany.AdminEmail,
+                        UPNSuffixes = new string[] { Request.Form.DomainName }
+                    };
+
+                    logger.DebugFormat("Creating new organizational unit in Active Directory");
+                    var createdOrg = org.Create((Settings.ResellersEnabled ? reseller.DistinguishedName : Settings.HostingOU), newCompanyOrg); // Create the new OU and get the extra information back
+                    reverse.AddAction(Actions.CreateOrganizationalUnit, createdOrg.DistinguishedName); // Add to our rollback actions in case we need to remove
+
+                    logger.DebugFormat("Creating Applications organizational unit in Active Directory");
+                    var appOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.ApplicationsOUName, UPNSuffixes = createdOrg.UPNSuffixes });
+                    org.RemoveRights(appOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
+
+                    logger.DebugFormat("Creating groups organizational unit in Active Directory");
+                    var grpOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.ExchangeGroupsOU, UPNSuffixes = createdOrg.UPNSuffixes });
+                    org.RemoveRights(grpOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
+
+                    logger.DebugFormat("Creating contacts organizational unit in Active Directory");
+                    var contactOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.ExchangeContactsOU, UPNSuffixes = createdOrg.UPNSuffixes });
+                    org.RemoveRights(contactOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
+
+                    logger.DebugFormat("Creating rooms organizational unit in Active Directory");
+                    var roomOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.ExchangeRoomsOU, UPNSuffixes = createdOrg.UPNSuffixes });
+                    org.RemoveRights(roomOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
+
+                    logger.DebugFormat("Creating resource organizational unit in Active Directory");
+                    var resourceOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.ExchangeResourceOU, UPNSuffixes = createdOrg.UPNSuffixes });
+                    org.RemoveRights(resourceOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
+
+                    if (!string.IsNullOrEmpty(Settings.UsersOU))
+                    {
+                        // May have chosen to put users in a different organizational unit
+                        logger.DebugFormat("Creating Users organizational unit called {0}", Settings.UsersOU);
+                        var userOrg = org.Create(createdOrg.DistinguishedName, new OrganizationalUnit() { Name = Settings.UsersOU, UPNSuffixes = createdOrg.UPNSuffixes });
+                        org.RemoveRights(userOrg.DistinguishedName, @"NT AUTHORITY\Authenticated Users");
+                    }
+
+                    //
+                    // Create Security Groups
+                    //
+                    logger.DebugFormat("Creating Admins security group");
+                    groups = new ADGroups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                    groups.Create(createdOrg.DistinguishedName, new SecurityGroup() { Name = "Admins@" + companyCode, SamAccountName = "Admins@" + companyCode });
+
+                    logger.DebugFormat("Creating AllTSUsers security group");
+                    groups.Create(createdOrg.DistinguishedName, new SecurityGroup() { Name = "AllTSUsers@" + companyCode, SamAccountName = "AllTSUsers@" + companyCode });
+
+                    logger.DebugFormat("Creating AllUsers security group");
+                    groups.Create(createdOrg.DistinguishedName, new SecurityGroup() { Name = "AllUsers@" + companyCode, SamAccountName = "AllUsers@" + companyCode });
+
+                    // Add AllTSUsers@ company group to the hosting group and GPOAccess group
+                    logger.DebugFormat("Adding terminal server group to hosting group");
+                    groups.AddGroup("AllTSUsers@Hosting", "AllTSUsers@" + companyCode);
+
+                    logger.DebugFormat("Adding terminal server group to gpo access group");
+                    groups.AddGroup("GPOAccess@" + (Settings.ResellersEnabled ? reseller.CompanyCode : "Hosting"), "AllTSUsers@" + companyCode);
+
+
+                    // Remove authenticated users rights and add AllUsers read rights
+                    logger.DebugFormat("Setting company rights to the organizational unit");
+                    org.SetCompanyRights(createdOrg.DistinguishedName, "AllUsers@" + companyCode);
+
+                    //
+                    // Add domain to database
+                    //
+                    logger.DebugFormat("Adding domain {0} to the database", Request.Form.DomainName);
+                    db.Domains.Add(new Domains()
+                    {
+                        CompanyCode = companyCode,
+                        Domain = Request.Form.DomainName,
+                        IsAcceptedDomain = false,
+                        IsLyncDomain = false,
+                        IsDefault = true,
+                        IsSubDomain = false
+                    });
+
+                    //
+                    // Add company to database
+                    //
+                    logger.DebugFormat("Adding company {0} to the database", newCompany.CompanyName);
+                    newCompany.CompanyCode = companyCode;
+                    newCompany.Created = DateTime.Now;
+                    newCompany.DistinguishedName = createdOrg.DistinguishedName;
+                    db.Companies.Add(newCompany);
+
+                    // Save
+                    logger.DebugFormat("Saving database changes");
+                    db.SaveChanges();
+
+                    logger.InfoFormat("Successfully created new company {0}", newCompany.CompanyName);
+                    return Negotiate.WithModel(new { success = "Successfully created new company", resellerCode = _.ResellerCode })
+                                    .WithView("companies.cshtml")
+                                    .WithStatusCode(HttpStatusCode.OK);
                 }
                 catch (Exception ex)
                 {

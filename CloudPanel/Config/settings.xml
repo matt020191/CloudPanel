@@ -38,7 +38,7 @@
   </Exchange>
   <Modules>
     <ExchangeModule>true</ExchangeModule>
-    <CitrixModule>false</CitrixModule>
+    <CitrixModule>true</CitrixModule>
     <LyncModule>False</LyncModule>
   </Modules>
   <Citrix>

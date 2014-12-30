@@ -26,15 +26,6 @@ namespace Scheduler.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1440")]
-        public double Exchange_RetrieveMailboxSizes {
-            get {
-                return ((double)(this["Exchange_RetrieveMailboxSizes"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1440")]
         public double Exchange_RetrieveDatabaseSizes {
             get {
                 return ((double)(this["Exchange_RetrieveDatabaseSizes"]));
@@ -43,7 +34,16 @@ namespace Scheduler.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\jdixon\\Documents\\GitHub\\CloudPanel\\CloudPanel\\Config\\settings.xml")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1440")]
+        public double Exchange_RetrieveMailboxSizes {
+            get {
+                return ((double)(this["Exchange_RetrieveMailboxSizes"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\Jacob\\Source\\Repos\\CloudPanel\\CloudPanel\\Config\\settings.xml")]
         public string Settings_Path {
             get {
                 return ((string)(this["Settings_Path"]));

@@ -132,7 +132,7 @@
                     <div class="panel-heading">
                         <h4>Mailbox Databases</h4>
                         <div class="options">
-                            <a href="javascript:GetExchangeDatabases()"><i class="fa fa-refresh"></i></a>
+                            <a href="javascript:GetExchangeDatabases(true)"><i class="fa fa-refresh"></i></a>
                         </div>
                     </div>
                     <div class="panel-body mailboxDatabases">
@@ -187,7 +187,7 @@
         if (exchangeModule) {
             GetTopMailboxes(5);
 
-            GetExchangeDatabases();
+            GetExchangeDatabases(false);
         }
     });
 
@@ -297,48 +297,50 @@
             });
     }
 
-    function GetExchangeDatabases() {
+    function GetExchangeDatabases(queryNow) {
         $(".mailboxDatabases").block();
-        $.getJSON("@Url.Content("~/dashboard/exchange/databases")", function (data) {
+        $.getJSON("@Url.Content("~/exchange/databases")" + (queryNow == true ? "/now" : ""), function (data) {
 
-                var names = [];
-                var sizes = [];
-                $.each(data.databases, function (index, database) {
-                    names.push(new Array(index, database.identity));
-                    sizes.push(new Array(index, database.databaseSizeInGB));
-                });
+            if (data.databases.length > 0) {
+                    var names = [];
+                    var sizes = [];
+                    $.each(data.databases, function (index, database) {
+                        names.push(new Array(index, database.identity));
+                        sizes.push(new Array(index, database.databaseSizeInGB));
+                    });
 
-                var ds = [];
-                ds.push({ data: sizes, label: "Size In GB", bars: { show: true, barWidth: 0.2, order: 1 } });
+                    var ds = [];
+                    ds.push({ data: sizes, label: "Size In GB", bars: { show: true, barWidth: 0.2, order: 1 } });
 
-                $.plot($("#exchangeDatabases"), ds, {
-                    series: { bars: { show: true, fill: 0.75, 'align': "center" } },
-                    grid: { hoverable: true, clickable: false, borderWidth: 0 },
-                    xaxis: { tickColor: "transparent", ticks: names, tickDecimals: 2, font: { color: '#8c8c8c', size: 12 } },
-                    yaxis: { tickDecimals: 2 },
-                    legend: { labelBoxBorderColor: 'transparent' }
-                });
+                    $.plot($("#exchangeDatabases"), ds, {
+                        series: { bars: { show: true, fill: 0.75, 'align': "center" } },
+                        grid: { hoverable: true, clickable: false, borderWidth: 0 },
+                        xaxis: { tickColor: "transparent", ticks: names, tickDecimals: 2, font: { color: '#8c8c8c', size: 12 } },
+                        yaxis: { tickDecimals: 2 },
+                        legend: { labelBoxBorderColor: 'transparent' }
+                    });
 
-                var previousPointBar = null;
-                $("#exchangeDatabases").bind("plothover", function (event, pos, item) {
-                    $("#x").text(pos.x.toFixed(2));
-                    $("#y").text(pos.y.toFixed(2));
-                    if (item) {
-                        if (previousPointBar != item.dataIndex) {
-                            previousPointBar = item.dataIndex;
+                    var previousPointBar = null;
+                    $("#exchangeDatabases").bind("plothover", function (event, pos, item) {
+                        $("#x").text(pos.x.toFixed(2));
+                        $("#y").text(pos.y.toFixed(2));
+                        if (item) {
+                            if (previousPointBar != item.dataIndex) {
+                                previousPointBar = item.dataIndex;
 
+                                $("#tooltip").remove();
+                                var x = item.datapoint[0].toFixed(2),
+                                    y = item.datapoint[1].toFixed(2);
+
+                                showTooltip(item.pageX + 20, item.pageY, item.series.label + ": " + y + "<br/>" + moment(data.databases[0].retrieved).format('lll'));
+
+                            }
+                        } else {
                             $("#tooltip").remove();
-                            var x = item.datapoint[0].toFixed(2),
-                                y = item.datapoint[1].toFixed(2);
-
-                            showTooltip(item.pageX + 20, item.pageY, item.series.label + ": " + y);
-
+                            previousPointBar = null;
                         }
-                    } else {
-                        $("#tooltip").remove();
-                        previousPointBar = null;
-                    }
-                });
+                    });
+                }
             })
             .fail(function (data) {
                 ShowError(data.responseJSON.error);

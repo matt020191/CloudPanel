@@ -285,57 +285,6 @@ namespace CloudPanel.Modules
                     #endregion
                 };
 
-            Get["/exchange/databases"] = _ =>
-                {
-                    this.RequiresAnyClaim(new[] { "SuperAdmin" });
-
-                    #region Gets the mailbox database sizes from Exchange
-                    dynamic powershell = null;
-                    CloudPanelContext db = null;
-                    try
-                    {
-                        powershell = ExchPowershell.GetClass();
-
-                        List<MailboxDatabase> databases = powershell.Get_MailboxDatabases();
-                        if (databases != null)
-                        {
-                            db = new CloudPanelContext(Settings.ConnectionString);
-                            foreach (var d in databases)
-                            {
-                                db.SvcMailboxDatabaseSizes.Add(new SvcMailboxDatabaseSizes()
-                                    {
-                                         DatabaseName = d.Identity,
-                                         Server = d.Server,
-                                         DatabaseSizeInBytes = d.DatabaseSizeInBytes,
-                                         DatabaseSize = d.DatabaseSize,
-                                         Retrieved = d.Retrieved
-                                    });
-
-                                logger.DebugFormat("Processed database name {0}", d.Identity);
-                            }
-
-                            db.SaveChanges();
-                        }
-
-                        return Negotiate.WithModel(new { databases = databases });
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.ErrorFormat("Error getting exchange databases: {0}", ex.ToString());
-                        return Negotiate.WithModel(new { error = ex.Message })
-                                        .WithStatusCode(HttpStatusCode.InternalServerError);
-                    }
-                    finally
-                    {
-                        if (db != null)
-                            db.Dispose();
-
-                        if (powershell != null)
-                            powershell.Dispose();
-                    }
-                    #endregion
-                };
-
             Get["/customers/top/{X:int}"] = _ =>
                 {
                     this.RequiresAnyClaim(new[] { "SuperAdmin", "ResellerAdmin" });

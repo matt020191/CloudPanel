@@ -29,7 +29,7 @@
                     <div class="list-group">
                         @foreach (var plan in CloudPanel.Modules.PlansModules.MailboxPlanModule.GetMailboxPlans(""))
                         {
-                            <a href="~/plans/exchange/mailbox/@plan.MailboxPlanID" class="list-group-item"><i class="fa fa-mail-forward"></i> @plan.MailboxPlanName <span class="badge badge-inverse">@plan.CompanyCode</span></a>
+                            <a href="~/plans/exchange/mailbox/@plan.MailboxPlanID" class="list-group-item"><i class="fa fa-envelope"></i> @plan.MailboxPlanName <span class="badge badge-inverse">@plan.CompanyCode</span></a>
                         }
                     </div>
                 </div>

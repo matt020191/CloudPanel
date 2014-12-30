@@ -1,9 +1,13 @@
 ﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
 @using CloudPanel
+@using CloudPanel.Base.Config
 
 @{
     Layout = "__master.cshtml";
+
+    bool isResellersEnabled = Settings.ResellersEnabled;
 }
+
 @section HEAD{
     <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
     <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
@@ -13,7 +17,7 @@
 <div id="page-heading">
     <ol class="breadcrumb">
         <li><a href="~/dashboard">Dashboard</a></li>
-        <li><a href="~/resellers">@this.RenderContext.Context.GetResellerName()</a></li>
+        @if (isResellersEnabled) { <li><a href="~/resellers">@this.RenderContext.Context.GetResellerName()</a></li> }
         <li class="active">Companies</li>
     </ol>
 
@@ -319,7 +323,7 @@
         function GetCompany(companyCode, resellerCode) {
             $.blockUI();
 
-            var url = "@Url.Content("~/companies/")" + resellerCode + "/" + companyCode;
+            var url = "@Url.Content(RenderContext.Context.Request.Url.Path)" + "/" + companyCode;
             $.getJSON(url, function (data) {
                 $('#editForm input[name="CompanyCode"]').val(companyCode);
                 $('#editForm input[name="CompanyName"]').val(data.company.companyName);

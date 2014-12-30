@@ -1,10 +1,12 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Exchange;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Exchange;
 using log4net;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,7 +26,6 @@ namespace Scheduler
             CloudPanelContext db = null;
             try
             {
-                logger.DebugFormat("Retrieving mailbox sizes");
                 db = new CloudPanelContext(Settings.ConnectionString);
                 db.Database.Connection.Open();
 
@@ -33,27 +34,20 @@ namespace Scheduler
                                  select d).ToList();
 
                 if (mailboxes == null)
-                    logger.WarnFormat("No mailboxes were found to retrieve the mailbox sizes");
+                    EventLog.WriteEntry("CloudPanel Scheduler", "No mailboxes were found to retrieve the mailbox sizes.", EventLogEntryType.Warning);
                 else
                 {
                     var archives = (from d in mailboxes
                                     where d.ArchivePlan > 0
                                     select d).ToList();
 
-                    logger.DebugFormat("Gathering all the user Guids");
                     Guid[] mailboxGuids = (from d in mailboxes select d.UserGuid).ToArray();
                     Guid[] mailboxArchiveGuids = (from d in archives select d.UserGuid).ToArray();
 
-                    logger.DebugFormat("Found a total of {0} mailboxes to query", mailboxGuids.Length);
                     powershell = ExchPowershell.GetClass();
-
-                    logger.DebugFormat("Querying mailbox sizes");
                     List<StatMailboxSizes> mbxSizes = powershell.Get_AllMailboxSizes(mailboxGuids);
-
-                    logger.DebugFormat("Querying archive sizes");
                     List<StatMailboxArchiveSizes> mbxArchiveSizes = powershell.Get_AllMailboxArchiveSizes(mailboxArchiveGuids);
 
-                    logger.DebugFormat("Adding mailbox sizes to database");
                     if (mbxSizes.Count > 0)
                     {
                         mbxSizes.ForEach(x =>
@@ -68,12 +62,12 @@ namespace Scheduler
                                 }
                                 catch (Exception ex)
                                 {
-                                    logger.ErrorFormat("Error adding {0} mailbox size to database: {1}", x.UserPrincipalName, ex.ToString());
+                                    EventLog.WriteEntry("CloudPanel Scheduler", string.Format("Error adding {0} mailbox size to database: {1}", x.UserPrincipalName, ex.ToString()) );
                                 }
                             });
                     }
 
-                    logger.DebugFormat("Adding mailbox archive sizes to database");
+
                     if (mbxArchiveSizes.Count > 0)
                     {
                         mbxArchiveSizes.ForEach(x =>
@@ -88,7 +82,7 @@ namespace Scheduler
                                 }
                                 catch (Exception ex)
                                 {
-                                    logger.ErrorFormat("Error adding {0} mailbox archive size to database: {1}", x.UserPrincipalName, ex.ToString());
+                                    EventLog.WriteEntry("CloudPanel Scheduler", string.Format("Error adding {0} mailbox archive size to database: {1}", x.UserPrincipalName, ex.ToString()) );
                                 }
                             });
                     }
@@ -96,7 +90,50 @@ namespace Scheduler
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error querying mailbox sizes: {0}", ex.ToString());
+                EventLog.WriteEntry("CloudPanel Scheduler", string.Format("Error querying mailbox sizes: {0}", ex.ToString()) );
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+
+                if (powershell != null)
+                    powershell.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Gets the mailbox database sizes from Exchange
+        /// </summary>
+        public static void GetMailboxDatabaseSizes()
+        {
+            dynamic powershell = null;
+            CloudPanelContext db = null;
+            try
+            {
+                powershell = ExchPowershell.GetClass();
+
+                List<MailboxDatabase> databases = powershell.Get_MailboxDatabases();
+                if (databases != null)
+                {
+                    db = new CloudPanelContext(Settings.ConnectionString);
+                    foreach (var d in databases)
+                    {
+                        db.SvcMailboxDatabaseSizes.Add(new SvcMailboxDatabaseSizes()
+                        {
+                            DatabaseName = d.Identity,
+                            Server = d.Server,
+                            DatabaseSizeInBytes = d.DatabaseSizeInBytes,
+                            DatabaseSize = d.DatabaseSize,
+                            Retrieved = d.Retrieved
+                        });
+                    }
+
+                    db.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
             }
             finally
             {

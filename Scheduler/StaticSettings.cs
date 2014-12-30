@@ -10,8 +10,8 @@ namespace Scheduler
 {
     public class StaticSettings
     {
-        private static readonly ILog logger = LogManager.GetLogger("Default");
-        
+        private static readonly ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         /// <summary>
         /// Reads the configuration file and stores the data in memory
         /// </summary>
@@ -22,11 +22,9 @@ namespace Scheduler
                 XDocument xDoc = XDocument.Load(path);
 
                 /* Load CloudPanel Settings */
-                logger.Debug("Populating settings from config file");
                 var x = from s in xDoc.Elements("cloudpanel") select s;
 
                 // Settings node
-                logger.DebugFormat("Loading settings node");
                 Settings.ConnectionString = Read(ref x, "Settings", "Database");
                 Settings.CompanyName = Read(ref x, "Settings", "CompanyName");
                 Settings.HostingOU = Read(ref x, "Settings", "HostingOU");
@@ -40,7 +38,6 @@ namespace Scheduler
                 Settings.SaltKey = Read(ref x, "Settings", "SaltKey");
 
                 // Exchange node
-                logger.DebugFormat("Loading exchange node");
                 Settings.ExchangeRoleAssignment = Read(ref x, "Exchange", "ExchangeRoleAssignment");
                 Settings.ExchangeServer = Read(ref x, "Exchange", "ExchangeServer");
                 Settings.ExchangePFServer = Read(ref x, "Exchange", "ExchangePFServer");
@@ -63,17 +60,14 @@ namespace Scheduler
                 Settings.ExchangeOUName = Read(ref x, "Exchange", "ExchangeOUName");
 
                 // Modules node
-                logger.DebugFormat("Loading modules node");
                 Settings.ExchangeModule = bool.Parse(Read(ref x, "Modules", "ExchangeModule"));
                 Settings.CitrixModule = bool.Parse(Read(ref x, "Modules", "CitrixModule"));
                 Settings.LyncModule = bool.Parse(Read(ref x, "Modules", "LyncModule"));
 
                 // Citrix node
-                logger.DebugFormat("Loading citrix node");
                 Settings.ApplicationsOUName = Read(ref x, "Citrix", "ApplicationsOUName");
 
                 // Support Notifications
-                logger.DebugFormat("Loading support notifications node");
                 Settings.SNEnabled = bool.Parse(Read(ref x, "Notifications", "Enabled"));
                 Settings.SNFrom = Read(ref x, "Notifications", "FromAddress");
                 Settings.SNTo = Read(ref x, "Notifications", "ToAddress");
@@ -100,11 +94,8 @@ namespace Scheduler
         /// <returns></returns>
         private static string Read(ref IEnumerable<XElement> x, string node, string element)
         {
-            logger.DebugFormat("Reading node {0} and element {1} from the config file", node, element);
-
+            logger.DebugFormat("Reading node {0} and element {1}", node, element);
             var value = x.Descendants(node).Elements(element).FirstOrDefault().Value;
-            logger.DebugFormat("Node {0} and element {1} value is {2}", node, element, value);
-
             return value;
         }
     }

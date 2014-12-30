@@ -37,7 +37,6 @@
 <body class="@(branding.MenuType > 0 ? "horizontal-nav" : "")">
     <header class="navbar navbar-inverse navbar-fixed-top hidden-print" role="banner">
         <a id="leftmenu-trigger" class="tooltips" data-toggle="tooltip" data-placement="right" title="Toggle Sidebar"></a>
-        <a id="rightmenu-trigger" class="tooltips" data-toggle="tooltip" data-placement="left" title="Toggle Infobar"></a>
 
         <div class="navbar-header pull-left">
             <a class="navbar-brand" href="~/" style="background: url('@Url.Content(branding.HeaderLogo)') no-repeat center center;">@branding.Name</a>
@@ -50,15 +49,11 @@
                     <li class="username">
                         <a href="#">
                             <div class="pull-left"><i class="fa fa-user"></i></div>
-                            <div class="pull-right"><small>Logged in as <span>@if (this.RenderContext.Context.CurrentUser != null) { @RenderContext.Context.CurrentUser.UserName }</span></small></div>
+                            <div class="pull-right"><small><span>@if (this.RenderContext.Context.CurrentUser != null) { @RenderContext.Context.CurrentUser.UserName }</span></small></div>
                         </a>
                     </li>
                     <li class="userlinks">
                         <ul class="dropdown-menu">
-                            <li><a href="#">Edit Profile <i class="pull-right fa fa-pencil"></i></a></li>
-                            <li><a href="#">Account <i class="pull-right fa fa-cog"></i></a></li>
-                            <li><a href="#">Help <i class="pull-right fa fa-question-circle"></i></a></li>
-                            <li class="divider"></li>
                             <li><a href="~/logout" class="text-right">Sign Out</a></li>
                         </ul>
                     </li>

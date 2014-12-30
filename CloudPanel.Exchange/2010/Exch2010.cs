@@ -2194,6 +2194,7 @@ namespace CloudPanel.Exchange
             else
             {
                 logger.DebugFormat("Found Exchange databases");
+                var retrieved = DateTime.Now;
 
                 var listDatabases = new List<MailboxDatabase>();
                 foreach (PSObject ps in psObjects)
@@ -2205,7 +2206,7 @@ namespace CloudPanel.Exchange
                     newDb.LogFilePrefix = ps.Members["LogFilePrefix"].Value.ToString();
                     newDb.LogFolderPath = ps.Members["LogFolderPath"].Value.ToString();
                     newDb.Server = ps.Members["Server"].Value.ToString();
-                    newDb.Retrieved = DateTime.Now;
+                    newDb.Retrieved = retrieved;
 
                     string size = "0 MB (0 bytes)";
                     long sizeInBytes = 0;

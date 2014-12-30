@@ -5,6 +5,7 @@
 @{
     bool isSuperAdmin = this.RenderContext.Context.IsSuperAdmin();
     bool isResellerAdmin = this.RenderContext.Context.IsResellerAdmin();
+    bool isResellersEnabled = Settings.ResellersEnabled;
 
     string resellerCode = this.RenderContext.Context.GetResellerCode();
     string companyCode = this.RenderContext.Context.GetCompanyCode();
@@ -21,13 +22,13 @@
             <li><a href="~/dashboard"><i class="fa fa-home"></i> <span>Dashboard</span></a></li>
             @if (isSuperAdmin || isResellerAdmin)
             {
-                @if (isSuperAdmin)
+                @if (isSuperAdmin && isResellersEnabled)
                 {
                     <li><a href="~/resellers"><i class="fa fa-users"></i> <span>Resellers</span></a></li>
                 }
-                @if (!string.IsNullOrEmpty(resellerCode))
+                @if (!string.IsNullOrEmpty(resellerCode) || !isResellersEnabled)
                 {
-                    <li><a href="@Url.Content("~/companies/" + resellerCode)"><i class="fa fa-building"></i> <span>Companies</span></a></li>
+                    <li><a href="@Url.Content("~/companies" + (isResellersEnabled ? resellerCode : ""))"><i class="fa fa-building"></i> <span>Companies</span></a></li>
                 }
                 @if (isSuperAdmin)
                 {

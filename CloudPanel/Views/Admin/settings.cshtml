@@ -597,6 +597,14 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $("#form").parsley();
+
+            $("input[type=checkbox]").click(function () {
+                if ($(this).is(':checked')) {
+                    $(this).val("true");
+                } else {
+                    $(this).val("false");
+                }
+            });
         });
 
         function GetExchangeDatabases()

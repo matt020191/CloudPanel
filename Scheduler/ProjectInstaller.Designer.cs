@@ -33,18 +33,16 @@
             // 
             // serviceProcessInstaller1
             // 
-            this.serviceProcessInstaller1.Account = System.ServiceProcess.ServiceAccount.LocalService;
+            this.serviceProcessInstaller1.Account = System.ServiceProcess.ServiceAccount.LocalSystem;
             this.serviceProcessInstaller1.Password = null;
             this.serviceProcessInstaller1.Username = null;
             // 
             // serviceInstaller1
             // 
-            this.serviceInstaller1.Description = "Maintains the CloudPanel database and executes long running tasks and queued item" +
-    "s.";
+            this.serviceInstaller1.Description = "CloudPanel service that gathers information and performs tasks";
             this.serviceInstaller1.DisplayName = "CloudPanel Scheduler";
             this.serviceInstaller1.ServiceName = "CloudPanel Scheduler";
             this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
-            this.serviceInstaller1.AfterInstall += new System.Configuration.Install.InstallEventHandler(this.serviceInstaller1_AfterInstall);
             // 
             // ProjectInstaller
             // 

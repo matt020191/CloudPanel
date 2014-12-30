@@ -97,6 +97,9 @@ namespace CloudPanel.Modules.Admin
                             StaticSettings.SaveSetting("Exchange", "ExchangeResourceOU", Request.Form.ExchangeResourceOU.Value);
                             StaticSettings.SaveSetting("Exchange", "ExchangeOUName", "Exchange");
 
+                            // Citrix Settings
+                            StaticSettings.SaveSetting("Citrix", "ApplicationsOUName", Request.Form.ApplicationsOU.Value);
+
                             // Feature settings
                             logger.DebugFormat("Saving feature settings");
                             StaticSettings.SaveSetting("Modules", "ExchangeModule", Request.Form.ExchangeModule.HasValue ? (string)Request.Form.ExchangeModule.Value : "false");
