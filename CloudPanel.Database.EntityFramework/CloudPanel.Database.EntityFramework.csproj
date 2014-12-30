@@ -88,6 +88,10 @@
     <Compile Include="Migrations\201412240407584_AddNewMailboxSizeTables.Designer.cs">
       <DependentUpon>201412240407584_AddNewMailboxSizeTables.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201412300503585_AddCitrixTables.cs" />
+    <Compile Include="Migrations\201412300503585_AddCitrixTables.Designer.cs">
+      <DependentUpon>201412300503585_AddCitrixTables.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -128,6 +132,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201412240407584_AddNewMailboxSizeTables.resx">
       <DependentUpon>201412240407584_AddNewMailboxSizeTables.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201412300503585_AddCitrixTables.resx">
+      <DependentUpon>201412300503585_AddCitrixTables.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

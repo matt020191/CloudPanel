@@ -6,6 +6,8 @@ using log4net;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Security;
+using CloudPanel.Base.Database.Models;
+using System.Collections;
 
 namespace CloudPanel.Citrix
 {
@@ -20,22 +22,89 @@ namespace CloudPanel.Citrix
             _powershell.Invoke();
         }
 
-        public string[] GetCatalogs()
+        public List<CitrixDesktopGroups> GetDesktopGroups()
         {
-            Console.WriteLine("Getting catalogs");
-
             PSCommand cmd = new PSCommand();
-            cmd.AddCommand("Get-BrokerCatalog");
+            cmd.AddCommand("Get-BrokerDesktopGroup");
             _powershell.Commands = cmd;
 
-            List<string> catalogs = new List<string>();
+            List<CitrixDesktopGroups> desktopGroups = new List<CitrixDesktopGroups>();
+
             var objects = _powershell.Invoke();
-            foreach (var o in objects)
+            foreach (PSObject desktopGroup in objects)
             {
-                catalogs.Add(o.Properties["Name"].Value.ToString());
+                var newDesktopGroup = new CitrixDesktopGroups();
+                newDesktopGroup.Uid = (int)desktopGroup.Properties["Uid"].Value;
+                newDesktopGroup.UUID = (Guid)desktopGroup.Properties["UUID"].Value;
+                newDesktopGroup.Name = desktopGroup.Properties["Name"].Value.ToString();
+                newDesktopGroup.PublishedName = desktopGroup.Properties["PublishedName"].Value.ToString();
+                newDesktopGroup.IsEnabled = (bool)desktopGroup.Properties["Enabled"].Value;
+
+                if (desktopGroup.Properties["Description"].Value != null)
+                    newDesktopGroup.Description = desktopGroup.Properties["Description"].Value.ToString();
+
+                desktopGroups.Add(newDesktopGroup);
             }
 
-            return catalogs.ToArray();
+            return desktopGroups;
+        }
+
+        public List<CitrixDesktops> GetDesktops(int desktopGroupUid)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-BrokerDesktop");
+            cmd.AddParameter("DesktopGroupUid", desktopGroupUid);
+            _powershell.Commands = cmd;
+
+            List<CitrixDesktops> desktops = new List<CitrixDesktops>();
+
+            var objects = _powershell.Invoke();
+            foreach (PSObject desktop in objects)
+            {
+                var newDesktop = new CitrixDesktops();
+                newDesktop.Uid = (int)desktop.Properties["Uid"].Value;
+                newDesktop.SID = desktop.Properties["SID"].Value.ToString();
+                newDesktop.OSType = desktop.Properties["OSType"].Value.ToString();
+                newDesktop.OSVersion = desktop.Properties["OSVersion"].Value.ToString();
+                newDesktop.MachineUid = (int)desktop.Properties["MachineUid"].Value;
+                newDesktop.MachineName = desktop.Properties["MachineName"].Value.ToString();
+                newDesktop.IPAddress = desktop.Properties["IPAddress"].Value.ToString();
+                newDesktop.DesktopGroupID = desktopGroupUid;
+                newDesktop.DNSName = desktop.Properties["DNSName"].Value.ToString();
+                newDesktop.CatalogUid = (int)desktop.Properties["CatalogUid"].Value;
+                newDesktop.CatalogName = desktop.Properties["CatalogName"].Value.ToString();
+                newDesktop.AgentVersion = desktop.Properties["AgentVersion"].Value.ToString();
+
+                desktops.Add(newDesktop);
+            }
+
+            return desktops;
+        }
+
+        public List<CitrixApplications> GetApplications(int desktopGroupUid)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-BrokerApplication");
+            cmd.AddParameter("DesktopGroupUid", desktopGroupUid);
+            _powershell.Commands = cmd;
+
+            List<CitrixApplications> applications = new List<CitrixApplications>();
+
+            var objects = _powershell.Invoke();
+            foreach (PSObject application in objects)
+            {
+                var newApp = new CitrixApplications();
+                newApp.Uid = (int)application.Properties["Uid"].Value;
+                newApp.UUID = (Guid)application.Properties["UUID"].Value;
+                newApp.Name = application.Properties["Name"].Value.ToString();
+                newApp.PublishedName = application.Properties["PublishedName"].Value.ToString();
+                newApp.IsEnabled = (bool)application.Properties["Enabled"].Value;
+                newApp.ApplicationName = application.Properties["ApplicationName"].Value.ToString();
+
+                applications.Add(newApp);
+            }
+
+            return applications;
         }
     }
 }

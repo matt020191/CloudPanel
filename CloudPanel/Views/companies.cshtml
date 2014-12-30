@@ -323,7 +323,7 @@
         function GetCompany(companyCode, resellerCode) {
             $.blockUI();
 
-            var url = "@Url.Content("~/company/")" + companyCode + "";
+            var url = "@Url.Content("~/company/")" + companyCode + "/overview";
             $.getJSON(url, function (data) {
                 $('#editForm input[name="CompanyCode"]').val(companyCode);
                 $('#editForm input[name="CompanyName"]').val(data.company.companyName);

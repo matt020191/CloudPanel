@@ -30,8 +30,9 @@
 namespace CloudPanel.Base.Database.Models
 {
     using System;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
     public partial class Users
     {
@@ -130,6 +131,10 @@ namespace CloudPanel.Base.Database.Models
         /// Permissions the user has (this is for company admin permissions)
         /// </summary>
         public int? RoleID { get; set; }
+
+        public virtual ICollection<CitrixDesktopGroups> CitrixDesktopGroups { get; set; }
+
+        public virtual ICollection<CitrixApplications> CitrixApplications { get; set; }
 
         #region Not Mapped AD Settings
 

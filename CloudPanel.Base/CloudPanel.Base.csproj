@@ -57,9 +57,12 @@
     <Compile Include="Billing\CustomPrice.cs" />
     <Compile Include="Charting\HistoryOverview.cs" />
     <Compile Include="Charting\TopXCustomers.cs" />
+    <Compile Include="Citrix\DeliveryType.cs" />
     <Compile Include="Config\Settings.cs" />
     <Compile Include="Database\Models\AuditTrace.cs" />
     <Compile Include="Database\Models\Branding.cs" />
+    <Compile Include="Database\Models\CitrixApplications.cs" />
+    <Compile Include="Database\Models\CitrixDesktops.cs" />
     <Compile Include="Database\Models\Companies.cs" />
     <Compile Include="Database\Models\Contacts.cs" />
     <Compile Include="Database\Models\DistributionGroups.cs" />
@@ -84,6 +87,7 @@
     <Compile Include="Database\Models\UserPlansCitrix.cs" />
     <Compile Include="Database\Models\UserRoles.cs" />
     <Compile Include="Database\Models\Users.cs" />
+    <Compile Include="Database\Models\CitrixDesktopGroups.cs" />
     <Compile Include="Enums\DomainType.cs" />
     <Compile Include="Enums\ExchangeValues.cs" />
     <Compile Include="Enums\SelectValueType.cs" />

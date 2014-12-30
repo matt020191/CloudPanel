@@ -6,6 +6,8 @@ using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Security;
 using System.Text;
+using CloudPanel.Base.Citrix;
+using CloudPanel.Base.Database.Models;
 
 namespace CloudPanel.Demo.Citrix.Client
 {
@@ -17,12 +19,24 @@ namespace CloudPanel.Demo.Citrix.Client
 
             try
             {
-                XenDesktop7 xd = new XenDesktop7("http://server2.domain.local:5985/wsman", @"DOMAIN\Administrator", "#######");
-                string[] blah = xd.GetCatalogs();
+                Console.WriteLine("Connecting to Citrix");
+                XenDesktop7 xd = new XenDesktop7("http://##########.cloud.local:5985/wsman", @"###############", "##########################");
 
-                foreach (var b in blah)
+                Console.WriteLine("Getting desktop groups");
+                var desktopGroups = xd.GetDesktopGroups();
+
+                Console.WriteLine("Found a total of {0} desktop groups", desktopGroups.Count);
+                foreach (var desktopGroup in desktopGroups)
                 {
-                    Console.WriteLine(b);
+                    Console.WriteLine("Getting desktops for {0}", desktopGroup.Name);
+                    var desktops = xd.GetDesktops(desktopGroup.Uid);
+
+                    Console.WriteLine("Found a total of {0} desktops for group {1}", desktops.Count, desktopGroup.Name);
+
+                    Console.WriteLine("Getting applications for {0}", desktopGroup.Name);
+                    var applications = xd.GetApplications(desktopGroup.Uid);
+
+                    Console.WriteLine("Found a total of {0} applications for group {1}", applications.Count, desktopGroup.Name);
                 }
             }
             catch (Exception ex)

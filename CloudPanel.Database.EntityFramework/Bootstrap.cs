@@ -26,6 +26,23 @@ namespace CloudPanel.Database.EntityFramework
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             //modelBuilder.Conventions.Remove<PluralizingTableNameConvention>(); 
+            // One to many
+            modelBuilder.Entity<CitrixDesktops>()
+                        .HasRequired<CitrixDesktopGroups>(x => x.DesktopGroup)
+                        .WithMany(x => x.Desktops)
+                        .HasForeignKey(x => x.DesktopGroupID);
+
+            // Many to many
+            modelBuilder.Entity<CitrixApplications>()
+                        .HasMany<CitrixDesktopGroups>(x => x.DesktopGroups)
+                        .WithMany(x => x.Applications)
+                        .Map(x =>
+                                {
+                                    x.MapLeftKey("ApplicationRefId");
+                                    x.MapRightKey("DesktopGroupRefId");
+                                    x.ToTable("AppDesktop");
+                                });
+
         }
 
         public override int SaveChanges()
@@ -81,6 +98,9 @@ namespace CloudPanel.Database.EntityFramework
         public virtual DbSet<Branding> Brandings { get; set; }
         public virtual DbSet<StatMailboxSizes> StatMailboxSize { get; set; }
         public virtual DbSet<StatMailboxArchiveSizes> StatMailboxArchiveSize { get; set; }
+        public virtual DbSet<CitrixDesktopGroups> CitrixDesktopGroup { get; set; }
+        public virtual DbSet<CitrixDesktops> CitrixDesktop { get; set; }
+        public virtual DbSet<CitrixApplications> CitrixApplication { get; set; }
         #endregion
     }
 }
