@@ -20,7 +20,7 @@ namespace CloudPanel.Demo.Citrix.Client
             try
             {
                 Console.WriteLine("Connecting to Citrix");
-                XenDesktop7 xd = new XenDesktop7("http://##########.cloud.local:5985/wsman", @"###############", "##########################");
+                XenDesktop7 xd = new XenDesktop7("http://xendesktop.lab.local:5985/wsman", @"LAB\Administrator", "Password1");
 
                 Console.WriteLine("Getting desktop groups");
                 var desktopGroups = xd.GetDesktopGroups();

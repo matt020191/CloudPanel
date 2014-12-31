@@ -64,16 +64,26 @@ namespace CloudPanel.Citrix
                 var newDesktop = new CitrixDesktops();
                 newDesktop.Uid = (int)desktop.Properties["Uid"].Value;
                 newDesktop.SID = desktop.Properties["SID"].Value.ToString();
-                newDesktop.OSType = desktop.Properties["OSType"].Value.ToString();
-                newDesktop.OSVersion = desktop.Properties["OSVersion"].Value.ToString();
                 newDesktop.MachineUid = (int)desktop.Properties["MachineUid"].Value;
                 newDesktop.MachineName = desktop.Properties["MachineName"].Value.ToString();
-                newDesktop.IPAddress = desktop.Properties["IPAddress"].Value.ToString();
                 newDesktop.DesktopGroupID = desktopGroupUid;
-                newDesktop.DNSName = desktop.Properties["DNSName"].Value.ToString();
                 newDesktop.CatalogUid = (int)desktop.Properties["CatalogUid"].Value;
                 newDesktop.CatalogName = desktop.Properties["CatalogName"].Value.ToString();
-                newDesktop.AgentVersion = desktop.Properties["AgentVersion"].Value.ToString();
+                
+                if (desktop.Properties["IPAddress"].Value != null)
+                    newDesktop.IPAddress = desktop.Properties["IPAddress"].Value.ToString();
+
+                if (desktop.Properties["DNSName"].Value != null)
+                newDesktop.DNSName = desktop.Properties["DNSName"].Value.ToString();
+
+                if (desktop.Properties["OSType"].Value != null)
+                    newDesktop.OSType = desktop.Properties["OSType"].Value.ToString();
+
+                if (desktop.Properties["OSVersion"].Value != null)
+                    newDesktop.OSVersion = desktop.Properties["OSVersion"].Value.ToString();
+
+                if (desktop.Properties["AgentVersion"].Value != null)
+                    newDesktop.AgentVersion = desktop.Properties["AgentVersion"].Value.ToString();
 
                 desktops.Add(newDesktop);
             }
