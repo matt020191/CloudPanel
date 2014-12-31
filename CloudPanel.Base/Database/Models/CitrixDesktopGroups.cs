@@ -37,6 +37,8 @@ namespace CloudPanel.Base.Database.Models
 
         public virtual ICollection<CitrixApplications> Applications { get; set; }
 
+        public virtual ICollection<Companies> Companies { get; set; }
+
         public virtual ICollection<Users> Users { get; set; }
 
         public int ApplicationId { get; set; }

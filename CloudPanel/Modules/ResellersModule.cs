@@ -91,13 +91,13 @@ namespace CloudPanel.Modules
                                 resellers = resellers.OrderBy(x => x.GetType()
                                                         .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
                                                         .Skip(start)
-                                                        .Take(length)
+                                                        .Take( (length > 0 ? length : resellers.Count) )
                                                         .ToList();
                             else
                                 resellers = resellers.OrderByDescending(x => x.GetType()
                                                         .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
                                                         .Skip(start)
-                                                        .Take(length)
+                                                        .Take( (length > 0 ? length : resellers.Count) )
                                                         .ToList();
                         }
 

@@ -112,13 +112,13 @@ namespace CloudPanel.Modules
                             users = users.OrderBy(x => x.GetType()
                                                     .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
                                                     .Skip(start)
-                                                    .Take(length)
+                                                    .Take( (length > 0 ? length : users.Count) )
                                                     .ToList();
                         else
                             users = users.OrderByDescending(x => x.GetType()
                                                     .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
                                                     .Skip(start)
-                                                    .Take(length)
+                                                    .Take( (length > 0 ? length : users.Count) )
                                                     .ToList();
                     }
 

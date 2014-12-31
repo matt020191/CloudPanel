@@ -104,7 +104,7 @@ namespace CloudPanel.Base.Config
 
         #endregion
 
-        #region Exchange Settings
+        #region Exchange
 
         public static string ExchangeRoleAssignment { get; set; }
 
@@ -133,7 +133,16 @@ namespace CloudPanel.Base.Config
             }
         }
 
+        public static string ExchangeUri
+        {
+            get
+            {
+                return string.Format("https://{0}/powershell", ExchangeServer);
+            }
+        }
+
         private static string _exchangegalname;
+
         public static string ExchangeGALName
         {
             get { return string.IsNullOrEmpty(_exchangegalname) ? "{0} GAL" : _exchangegalname; }
@@ -270,6 +279,20 @@ namespace CloudPanel.Base.Config
 
         #endregion
 
+        #region Citrix Settings
+
+        public static string CitrixDeliveryController { get; set; }
+
+        public static string CitrixUri
+        {
+            get
+            {
+                return string.Format("http://{0}:5985/wsman", CitrixDeliveryController);
+            }
+        }
+
+        #endregion
+
         #region Support Notifications
 
         public static bool SNEnabled { get; set; }
@@ -300,14 +323,6 @@ namespace CloudPanel.Base.Config
         #endregion
 
         #region Other Getters & Setters
-
-        public static string ExchangeUri
-        {
-            get
-            {
-                return string.Format("https://{0}/powershell", ExchangeServer);
-            }
-        }
 
         public static string OUPath(string childOUName, string parentOu)
         {

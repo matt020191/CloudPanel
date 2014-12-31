@@ -42,7 +42,8 @@
     <LyncModule>False</LyncModule>
   </Modules>
   <Citrix>
-    <ApplicationsOUName>ApplicationsOU</ApplicationsOUName>
+    <ApplicationsOUName>Applications</ApplicationsOUName>
+    <DeliveryController>xendesktop.lab.local</DeliveryController>
   </Citrix>
   <Notifications>
     <Enabled>false</Enabled>

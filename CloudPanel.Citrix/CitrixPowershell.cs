@@ -17,9 +17,7 @@ namespace CloudPanel.Citrix
         internal Runspace _runspace;
         internal PowerShell _powershell;
 
-        internal string _domainController;
-
-        private readonly ILog logger = LogManager.GetLogger(typeof(CitrixPowershell));
+        private readonly ILog logger = LogManager.GetLogger("Citrix");
 
         public CitrixPowershell(string uri, string username, string password)
         {

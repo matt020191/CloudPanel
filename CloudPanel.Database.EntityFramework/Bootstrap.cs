@@ -26,6 +26,7 @@ namespace CloudPanel.Database.EntityFramework
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             //modelBuilder.Conventions.Remove<PluralizingTableNameConvention>(); 
+
             // One to many
             modelBuilder.Entity<CitrixDesktops>()
                         .HasRequired<CitrixDesktopGroups>(x => x.DesktopGroup)
@@ -38,9 +39,39 @@ namespace CloudPanel.Database.EntityFramework
                         .WithMany(x => x.Applications)
                         .Map(x =>
                                 {
-                                    x.MapLeftKey("ApplicationRefId");
-                                    x.MapRightKey("DesktopGroupRefId");
-                                    x.ToTable("AppDesktop");
+                                    x.MapLeftKey("ApplicationRefDesktopGroupId");
+                                    x.MapRightKey("DesktopGroupRefApplicationId");
+                                    x.ToTable("CitrixApplicationsToDesktop");
+                                });
+
+            modelBuilder.Entity<Users>()
+                        .HasMany<CitrixDesktopGroups>(x => x.CitrixDesktopGroups)
+                        .WithMany(x => x.Users)
+                        .Map(x =>
+                                {
+                                    x.MapLeftKey("UserRefDesktopGroupId");
+                                    x.MapRightKey("DesktopGroupRefUserId");
+                                    x.ToTable("CitrixUserToDesktopGroup");
+                                });
+
+            modelBuilder.Entity<Users>()
+                        .HasMany<CitrixApplications>(x => x.CitrixApplications)
+                        .WithMany(x => x.Users)
+                        .Map(x =>
+                                {
+                                    x.MapLeftKey("UserRefApplicationId");
+                                    x.MapRightKey("ApplicationRefUserId");
+                                    x.ToTable("CitrixUserToApplications");
+                                });
+
+            modelBuilder.Entity<Companies>()
+                        .HasMany<CitrixDesktopGroups>(x => x.CitrixDesktopGroups)
+                        .WithMany(x => x.Companies)
+                        .Map(x =>
+                                {
+                                    x.MapLeftKey("CompanyRefDesktopGroupId");
+                                    x.MapRightKey("DesktopGroupRefCompanyId");
+                                    x.ToTable("CitrixCompanyToDesktopGroup");
                                 });
 
         }

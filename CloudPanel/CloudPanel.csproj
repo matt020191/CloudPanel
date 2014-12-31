@@ -1442,6 +1442,7 @@
     <Content Include="Views\Error\401.cshtml" />
     <Content Include="Views\Company\billing.cshtml" />
     <Content Include="Views\Admin\reports.cshtml" />
+    <Content Include="Views\Plans\citrix.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -1461,6 +1462,10 @@
     <ProjectReference Include="..\CloudPanel.Base\CloudPanel.Base.csproj">
       <Project>{5c2b5fc4-0814-47c0-b371-0bc299e433e0}</Project>
       <Name>CloudPanel.Base</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CloudPanel.Citrix\CloudPanel.Citrix.csproj">
+      <Project>{1b3cc43a-22e9-4d8a-a77b-12fb7adf195c}</Project>
+      <Name>CloudPanel.Citrix</Name>
     </ProjectReference>
     <ProjectReference Include="..\CloudPanel.Database.EntityFramework\CloudPanel.Database.EntityFramework.csproj">
       <Project>{6144303a-7153-4938-8ab5-02bb0cf8f2a4}</Project>

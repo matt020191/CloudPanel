@@ -13,8 +13,12 @@ namespace CloudPanel.Citrix
 {
     public class XenDesktop7 : CitrixPowershell
     {
+        private readonly ILog logger = LogManager.GetLogger("Citrix");
+
         public XenDesktop7(string uri, string username, string password) : base(uri, username, password)
         {
+            logger.DebugFormat("Opening XenDesktop7 class with {0}, {1}, <password not shown>", uri, username);
+
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Add-PSSnapIn");
             cmd.AddParameter("Name", "Citrix.*.Admin.V*");
@@ -24,6 +28,8 @@ namespace CloudPanel.Citrix
 
         public List<CitrixDesktopGroups> GetDesktopGroups()
         {
+            logger.DebugFormat("Querying desktop groups from Citrix");
+
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Get-BrokerDesktopGroup");
             _powershell.Commands = cmd;
@@ -33,12 +39,15 @@ namespace CloudPanel.Citrix
             var objects = _powershell.Invoke();
             foreach (PSObject desktopGroup in objects)
             {
+                logger.DebugFormat("Found a total of {0} desktop groups", objects.Count);
+
                 var newDesktopGroup = new CitrixDesktopGroups();
                 newDesktopGroup.Uid = (int)desktopGroup.Properties["Uid"].Value;
                 newDesktopGroup.UUID = (Guid)desktopGroup.Properties["UUID"].Value;
                 newDesktopGroup.Name = desktopGroup.Properties["Name"].Value.ToString();
                 newDesktopGroup.PublishedName = desktopGroup.Properties["PublishedName"].Value.ToString();
                 newDesktopGroup.IsEnabled = (bool)desktopGroup.Properties["Enabled"].Value;
+                newDesktopGroup.LastRetrieved = DateTime.Now;
 
                 if (desktopGroup.Properties["Description"].Value != null)
                     newDesktopGroup.Description = desktopGroup.Properties["Description"].Value.ToString();
@@ -69,6 +78,7 @@ namespace CloudPanel.Citrix
                 newDesktop.DesktopGroupID = desktopGroupUid;
                 newDesktop.CatalogUid = (int)desktop.Properties["CatalogUid"].Value;
                 newDesktop.CatalogName = desktop.Properties["CatalogName"].Value.ToString();
+                newDesktop.LastRetrieved = DateTime.Now;
                 
                 if (desktop.Properties["IPAddress"].Value != null)
                     newDesktop.IPAddress = desktop.Properties["IPAddress"].Value.ToString();
@@ -110,6 +120,7 @@ namespace CloudPanel.Citrix
                 newApp.PublishedName = application.Properties["PublishedName"].Value.ToString();
                 newApp.IsEnabled = (bool)application.Properties["Enabled"].Value;
                 newApp.ApplicationName = application.Properties["ApplicationName"].Value.ToString();
+                newApp.LastRetrieved = DateTime.Now;
 
                 applications.Add(newApp);
             }

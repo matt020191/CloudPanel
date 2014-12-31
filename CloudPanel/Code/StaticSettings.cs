@@ -73,6 +73,7 @@ namespace CloudPanel.Code
                 // Citrix node
                 logger.DebugFormat("Loading citrix node");
                 Settings.ApplicationsOUName = Read(ref x, "Citrix", "ApplicationsOUName");
+                Settings.CitrixDeliveryController = Read(ref x, "Citrix", "DeliveryController");
 
                 // Support Notifications
                 logger.DebugFormat("Loading support notifications node");

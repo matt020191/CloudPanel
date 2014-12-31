@@ -1,13 +1,5 @@
 ﻿using CloudPanel.Citrix;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Management.Automation;
-using System.Management.Automation.Runspaces;
-using System.Security;
-using System.Text;
-using CloudPanel.Base.Citrix;
-using CloudPanel.Base.Database.Models;
 
 namespace CloudPanel.Demo.Citrix.Client
 {

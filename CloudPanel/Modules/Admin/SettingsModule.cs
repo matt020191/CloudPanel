@@ -99,6 +99,7 @@ namespace CloudPanel.Modules.Admin
 
                             // Citrix Settings
                             StaticSettings.SaveSetting("Citrix", "ApplicationsOUName", Request.Form.ApplicationsOU.Value);
+                            StaticSettings.SaveSetting("Citrix", "DeliveryController", Request.Form.CitrixDeliveryController.Value);
 
                             // Feature settings
                             logger.DebugFormat("Saving feature settings");

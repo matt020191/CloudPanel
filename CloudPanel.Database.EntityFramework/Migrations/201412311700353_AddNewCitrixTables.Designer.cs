@@ -7,13 +7,13 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.2-31219")]
-    public sealed partial class AddCitrixTables : IMigrationMetadata
+    public sealed partial class AddNewCitrixTables : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddCitrixTables));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AddNewCitrixTables));
         
         string IMigrationMetadata.Id
         {
-            get { return "201412300503585_AddCitrixTables"; }
+            get { return "201412311700353_AddNewCitrixTables"; }
         }
         
         string IMigrationMetadata.Source

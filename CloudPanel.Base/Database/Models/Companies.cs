@@ -108,6 +108,8 @@ namespace CloudPanel.Base.Database.Models
 
         public bool? ExchPermFixed { get; set; }
 
+        public ICollection<CitrixDesktopGroups> CitrixDesktopGroups { get; set; }
+
         #region Not Mapped
 
         [NotMapped]
