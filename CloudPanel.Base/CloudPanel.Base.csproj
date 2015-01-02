@@ -57,6 +57,7 @@
     <Compile Include="Billing\CustomPrice.cs" />
     <Compile Include="Charting\HistoryOverview.cs" />
     <Compile Include="Charting\TopXCustomers.cs" />
+    <Compile Include="Citrix\BrokerSession.cs" />
     <Compile Include="Citrix\DeliveryType.cs" />
     <Compile Include="Config\Settings.cs" />
     <Compile Include="Database\Models\AuditTrace.cs" />
@@ -97,6 +98,7 @@
     <Compile Include="Exchange\ExchangeGroupSelectors.cs" />
     <Compile Include="Exchange\GroupObjectSelector.cs" />
     <Compile Include="Exchange\MailboxDatabase.cs" />
+    <Compile Include="Other\DynamicHandlers.cs" />
     <Compile Include="Other\Error.cs" />
     <Compile Include="Other\UsersEditPage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

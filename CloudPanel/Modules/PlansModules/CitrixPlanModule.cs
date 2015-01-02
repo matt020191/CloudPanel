@@ -8,8 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Web;
 using System.Data.Entity;
+using CloudPanel.Base.Database.Models;
+using Nancy.ViewEngines.Razor;
+using System.Text;
+using CloudPanel.Code;
 
 namespace CloudPanel.Modules.PlansModules
 {
@@ -21,11 +24,12 @@ namespace CloudPanel.Modules.PlansModules
         {
             Get["/", c => c.Request.Accept("text/html")] = _ =>
                 {
-                    return View["Plans/citrix.cshtml"];
+                    return View["Plans/Citrix/citrix.cshtml"];
                 };
 
             Get["/", c => !c.Request.Accept("text/html")] = _ =>
                 {
+                    #region Get the desktop groups, its companies, and users from the database
                     CloudPanelContext db = null;
                     try
                     {
@@ -34,8 +38,6 @@ namespace CloudPanel.Modules.PlansModules
 
                         logger.DebugFormat("Retrieving the desktop groups");
                         var desktopGroups = (from d in db.CitrixDesktopGroup
-                                                         .Include(x => x.Companies)
-                                                         .Include(x => x.Users)
                                              orderby d.Name
                                              select new
                                              {
@@ -46,6 +48,9 @@ namespace CloudPanel.Modules.PlansModules
                                                  PublishedName = d.PublishedName,
                                                  Description = d.Description,
                                                  LastRetrieved = d.LastRetrieved,
+                                                 ApplicationCount = d.Applications.Count,
+                                                 DesktopCount = d.Desktops.Count,
+                                                 CompanyCount = d.Companies.Count,
                                                  Companies = (from d2 in d.Companies
                                                               select new 
                                                               { 
@@ -118,40 +123,184 @@ namespace CloudPanel.Modules.PlansModules
                         if (db != null)
                             db.Dispose();
                     }
+                    #endregion
                 };
 
-            Get["/all"] = _ =>
+            Get["/groups/{GroupID:guid}"] = _ =>
                 {
+                    #region Get the desktop groups, its companies, and users from the database
                     CloudPanelContext db = null;
-                    XenDesktop7 xd7 = null;
-
                     try
                     {
                         db = new CloudPanelContext(Settings.ConnectionString);
                         db.Database.Connection.Open();
 
+                        logger.DebugFormat("Retrieving the desktop groups");
+                        Guid desktopUUID = _.GroupID;
+                        var desktopGroups = (from d in db.CitrixDesktopGroup
+                                                         .Include(x => x.Companies)
+                                                         .Include(x => x.Users)
+                                                         .Include(x => x.Applications)
+                                                         .Include(x => x.Desktops)
+                                             where d.UUID == desktopUUID
+                                             select new
+                                             {
+                                                 Uid = d.Uid,
+                                                 UUID = d.UUID,
+                                                 DesktopGroupID = d.DesktopGroupID,
+                                                 Name = d.Name,
+                                                 PublishedName = d.PublishedName,
+                                                 Description = d.Description,
+                                                 LastRetrieved = d.LastRetrieved,
+                                                 Applications = (from app in d.Applications
+                                                                 select new
+                                                                 {
+                                                                     Uid = app.Uid,
+                                                                     UUID = app.UUID,
+                                                                     ApplicationName = app.ApplicationName,
+                                                                     PublishedName = app.PublishedName,
+                                                                     Description = app.Description,
+                                                                     IsEnabled = app.IsEnabled,
+                                                                     LastRetrieved = app.LastRetrieved
+                                                                 }).ToList(),
+                                                 Desktops = (from desktop in d.Desktops
+                                                             select new
+                                                             {
+                                                                 Uid = desktop.Uid,
+                                                                 SID = desktop.SID,
+                                                                 DNSName = desktop.DNSName,
+                                                                 IPAddress = desktop.IPAddress,
+                                                                 InMaintenanceMode = desktop.InMaintenanceMode,
+                                                                 MachineName = desktop.MachineName
+                                                             }).ToList(),
+                                                 Companies = (from d2 in d.Companies
+                                                              select new
+                                                              {
+                                                                  CompanyCode = d2.CompanyCode,
+                                                                  CompanyName = d2.CompanyName,
+                                                                  TotalUsers = d.Users.Where(x => x.CompanyCode == d2.CompanyCode).Count()
+                                                              }).ToList(),
+                                                 TotalUsers = d.Users.Count
+                                             }).First();
+                        
+                        logger.DebugFormat("Completed getting Citrix data");
+                        return Negotiate.WithView("Plans/Citrix/groups.cshtml")
+                                        .WithModel(desktopGroups)
+                                        .WithStatusCode(HttpStatusCode.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error getting citrix data: {0}", ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError)
+                                        .WithView("Error/500.cshtml");
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+                    }
+                    #endregion
+                };
+
+            Get["/groups/{GroupID:guid}/{DesktopUid:int}/sessions"] = _ =>
+                {
+                    #region Gets the sessions for a specific desktop group
+                    XenDesktop7 xd7 = null;
+                    try
+                    {
+                        xd7 = new XenDesktop7(Settings.CitrixUri, Settings.Username, Settings.DecryptedPassword);
+
+                        int uid = _.DesktopUid;
+                        var sessions = xd7.GetSessions(uid);
+
+                        int draw = 0, start = 0, length = 0, recordsTotal = sessions.Count, recordsFiltered = sessions.Count, orderColumn = 0;
+                        string searchValue = "", orderColumnName = "";
+                        bool isAscendingOrder = true;
+
+                        if (Request.Query.draw.HasValue)
+                        {
+                            draw = Request.Query.draw;
+                            start = Request.Query.start;
+                            length = Request.Query.length;
+                            orderColumn = Request.Query["order[0][column]"];
+                            searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
+                            isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
+                            orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
+
+                            // See if we are using dataTables to search
+                            if (!string.IsNullOrEmpty(searchValue))
+                            {
+                                sessions = (from d in sessions
+                                            where d.UserName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
+                                            select d).ToList();
+                                recordsFiltered = sessions.Count;
+                            }
+
+                            if (isAscendingOrder)
+                                sessions = sessions.OrderBy(x => x.GetType()
+                                                        .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                        .Skip(start)
+                                                        .Take((length > 0 ? length : sessions.Count))
+                                                        .ToList();
+                            else
+                                sessions = sessions.OrderByDescending(x => x.GetType()
+                                                        .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                        .Skip(start)
+                                                        .Take((length > 0 ? length : sessions.Count))
+                                                        .ToList();
+                        }
+
+                        logger.DebugFormat("Completed getting citrix session data");
+                        return Negotiate.WithModel(new
+                        {
+                            draw = draw,
+                            recordsTotal = recordsTotal,
+                            recordsFiltered = recordsFiltered,
+                            data = sessions
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error getting citrix session data: {0}", ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (xd7 != null)
+                            xd7.Dispose();
+                    }
+                    #endregion
+                };
+
+            Get["/all"] = _ =>
+                {
+                    #region Queries Citrix and adds/updates all data 
+                    XenDesktop7 xd7 = null;
+                    try
+                    {
                         xd7 = new XenDesktop7(Settings.CitrixUri, Settings.Username, Settings.DecryptedPassword);
 
                         // Get desktop groups
                         var desktopGroups = xd7.GetDesktopGroups();
-
-                        if (desktopGroups == null)
-                            logger.WarnFormat("No desktop groups were found.");
-                        else
+                        if (desktopGroups != null)
                         {
-                            logger.DebugFormat("Found a total of {0} desktop groups", desktopGroups.Count);
-                            foreach (var group in desktopGroups)
-                            {
-                                if (!db.CitrixDesktopGroup.Select(x => x.UUID == group.UUID).Any())
+                            desktopGroups.ForEach(x =>
                                 {
-                                    db.CitrixDesktopGroup.Add(group);
-                                }
-                            }
+                                    var desktops = xd7.GetDesktops(x.Uid);
+                                    if (desktops != null)
+                                        x.Desktops = desktops;
 
-                            db.SaveChanges();
+                                    var apps = xd7.GetApplications(x.Uid);
+                                    if (apps != null)
+                                        x.Applications = apps;
+
+                                    AddDesktopGroup(x);
+                                });
                         }
 
-                        return Negotiate.WithModel(new { success = "" })
+                        return Negotiate.WithModel(new { success = "Successfully reloaded data from Citrix" })
                                         .WithStatusCode(HttpStatusCode.OK);
                     }
                     catch (Exception ex)
@@ -164,178 +313,122 @@ namespace CloudPanel.Modules.PlansModules
                     {
                         if (xd7 != null)
                             xd7.Dispose();
-
-                        if (db != null)
-                            db.Dispose();
                     }
+                    #endregion
                 };
+        }
 
-            /*this.RequiresAnyClaim(new[] { "SuperAdmin" });
-            
-
-            Get["/"] = _ =>
+        public static void AddDesktopGroup(CitrixDesktopGroups desktopGroup)
+        {
+            CloudPanelContext db = null;
+            try
             {
-                #region Returns the citrix applications and servers
-                CloudPanelContext db = null;
-                try
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                var existingGroup = (from d in db.CitrixDesktopGroup
+                                                 .Include(x => x.Applications)
+                                                 .Include(x => x.Desktops)
+                                     where d.UUID == desktopGroup.UUID
+                                     select d).FirstOrDefault();
+
+                if (existingGroup == null)
                 {
-                    db = new CloudPanelContext(Settings.ConnectionString);
-                    db.Database.Connection.Open();
+                    logger.DebugFormat("Desktop group is new. Adding to database");
+                    db.CitrixDesktopGroup.Add(desktopGroup);
+                }
+                else
+                {
+                    logger.DebugFormat("Updating desktop group {0}", desktopGroup.Name);
+                    existingGroup.Name = desktopGroup.Name;
+                    existingGroup.PublishedName = desktopGroup.PublishedName;
+                    existingGroup.IsEnabled = desktopGroup.IsEnabled;
+                    existingGroup.Description = desktopGroup.Description;
+                    existingGroup.LastRetrieved = desktopGroup.LastRetrieved;
 
-                    // Retrieve all citrix plans from the database not assigned to a company
-                    var plans = (from d in db.Plans_Citrix
-                                     orderby d.Name
-                                     orderby d.IsServer
-                                     select d).ToList();
-
-                    int draw = 0, start = 0, length = 0, recordsTotal = plans.Count, recordsFiltered = plans.Count, orderColumn = 0;
-                    string searchValue = "", orderColumnName = "";
-                    bool isAscendingOrder = true;
-
-                    // Check for dataTables and process the values
-                    if (Request.Query.draw.HasValue)
+                    if (desktopGroup.Desktops != null && desktopGroup.Desktops.Count > 0)
                     {
-                        draw = Request.Query.draw;
-                        start = Request.Query.start;
-                        length = Request.Query.length;
-                        orderColumn = Request.Query["order[0][column]"];
-                        searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
-                        isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
-                        orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
+                        logger.DebugFormat("Updating total of {0} desktops", desktopGroup.Desktops.Count);
 
-                        // See if we are using dataTables to search
-                        if (!string.IsNullOrEmpty(searchValue))
+                        var deletedDesktops = existingGroup.Desktops.Except(desktopGroup.Desktops, x => x.SID).ToList<CitrixDesktops>();
+                        logger.DebugFormat("Removing a total of {0} desktops", deletedDesktops.Count);
+                        deletedDesktops.ForEach(x =>
                         {
-                            plans = (from d in plans
-                                         where d.CompanyCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.Name.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.GroupName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.Description.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
-                                         select d).ToList();
-                            recordsFiltered = plans.Count;
-                        }
+                            var child = existingGroup.Desktops.Where(a => a.SID == x.SID).First();
+                            var ef = db.Entry(child);
+                            ef.State = EntityState.Deleted;
+                        });
 
-                        if (isAscendingOrder)
-                            plans = plans.OrderBy(x => x.GetType()
-                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                    .Skip(start)
-                                                    .Take(length)
-                                                    .ToList();
-                        else
-                            plans = plans.OrderByDescending(x => x.GetType()
-                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                    .Skip(start)
-                                                    .Take(length)
-                                                    .ToList();
-                    }
-
-                    return Negotiate.WithModel(new { count = plans.Count })
-                                    .WithMediaRangeModel("application/json", new
-                                    {
-                                        draw = draw,
-                                        recordsTotal = recordsTotal,
-                                        recordsFiltered = recordsFiltered,
-                                        data = plans
-                                    })
-                                    .WithView("Plans/plans_citrix.cshtml");
-                }
-                catch (Exception ex)
-                {
-                    return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithMediaRangeModel("application/json", new { error = ex.Message })
-                                    .WithView("Plans/plans_citrix.cshtml");
-                }
-                finally
-                {
-                    if (db != null)
-                        db.Dispose();
-                }
-                #endregion
-            };
-
-            Post["/"] = _ =>
-            {
-                CloudPanelContext db = null;
-                try
-                {
-                    db = new CloudPanelContext(Settings.ConnectionString);
-                    db.Database.Connection.Open();
-
-                    var applications = (from d in db.Plans_Citrix
-                                        where d.IsServer != true
-                                        where string.IsNullOrEmpty(d.CompanyCode)
-                                        orderby d.Name
-                                        select d).ToList();
-
-                    var servers = (from d in db.Plans_Citrix
-                                   where d.IsServer == true
-                                   where string.IsNullOrEmpty(d.CompanyCode)
-                                   orderby d.Name
-                                   select d).ToList();
-
-                    return Negotiate.WithModel(new { applications = applications, servers = servers })
-                                    .WithMediaRangeModel("application/json", new { applications = applications, servers = servers })
-                                    .WithView("Plans/plans_citrix.cshtml");
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error creating Citrix plan: {0}", ex.ToString());
-                    throw;
-                }
-                finally
-                {
-                    if (db != null)
-                        db.Dispose();
-                }
-            };
-
-            Delete["/"] = _ =>
-            {
-                CloudPanelContext db = null;
-                try
-                {
-                    logger.DebugFormat("Preparing to delete Citrix plan");
-
-                    int id = Request.Form.CitrixPlanID.HasValue ? Request.Form.CitrixPlanID : 0;
-                    if (id > 0)
-                    {
-
+                        var addedDesktops = desktopGroup.Desktops.Except(existingGroup.Desktops, x => x.SID).ToList<CitrixDesktops>();
+                        logger.DebugFormat("Adding a total of {0} desktops", addedDesktops.Count);
+                        addedDesktops.ForEach(x => existingGroup.Desktops.Add(x));
                     }
                     else
+                        logger.DebugFormat("Desktop group desktops was null");
+
+                    if (desktopGroup.Applications != null & desktopGroup.Applications.Count > 0)
                     {
-
+                        logger.DebugFormat("Updating total of {0} applications", desktopGroup.Applications.Count);
+                        existingGroup.Applications = desktopGroup.Applications;
                     }
-
-                    db = new CloudPanelContext(Settings.ConnectionString);
-                    db.Database.Connection.Open();
-
-                    var applications = (from d in db.Plans_Citrix
-                                        where d.IsServer != true
-                                        where string.IsNullOrEmpty(d.CompanyCode)
-                                        orderby d.Name
-                                        select d).ToList();
-
-                    var servers = (from d in db.Plans_Citrix
-                                   where d.IsServer == true
-                                   where string.IsNullOrEmpty(d.CompanyCode)
-                                   orderby d.Name
-                                   select d).ToList();
-
-                    return Negotiate.WithModel(new { applications = applications, servers = servers })
-                                    .WithMediaRangeModel("application/json", new { applications = applications, servers = servers })
-                                    .WithView("Plans/plans_citrix.cshtml");
+                    else
+                        logger.DebugFormat("Desktop group applications were null");
                 }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error deleting Citrix plan: {0}", ex.ToString());
-                    throw;
-                }
-                finally
-                {
-                    if (db != null)
-                        db.Dispose();
-                }
-            };*/
+
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
         }
+
+        public static void AddDesktop(CitrixDesktops desktop)
+        {
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                var existingDesktop = (from d in db.CitrixDesktop
+                                       where d.SID == desktop.SID
+                                       select d).FirstOrDefault();
+
+                if (existingDesktop == null)
+                    db.CitrixDesktop.Add(desktop);
+                else
+                {
+                    existingDesktop.MachineName = desktop.MachineName;
+                    existingDesktop.IPAddress = desktop.IPAddress;
+                    existingDesktop.OSVersion = desktop.OSVersion;
+                    existingDesktop.OSType = desktop.OSType;
+                    existingDesktop.InMaintenanceMode = desktop.InMaintenanceMode;
+                    existingDesktop.DNSName = desktop.DNSName;
+                    existingDesktop.CatalogName = desktop.CatalogName;
+                    existingDesktop.AgentVersion = desktop.AgentVersion;
+
+                    if (desktop.DesktopGroup != null)
+                        existingDesktop.DesktopGroup = desktop.DesktopGroup;
+                }
+
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
     }
 }

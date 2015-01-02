@@ -18,7 +18,7 @@
         tr.shown td.details-control {
 	        background: url('@Url.Content("~/Content/img/details_close.png")') no-repeat center center;
         }
-</style>
+    </style>
 }
 
 <div id="page-heading">
@@ -35,14 +35,22 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-primary">
-                    <div class="panel-heading">Desktop Groups</div>
-                    <div class="panel-body">
-                        <table id="desktopGroupTable" cellpadding="0" cellspacing="0" border="0" class="table table-bordered datatables">
+                    <div class="panel-heading">
+                        Desktop Groups
+                        <div class="options">
+                            <a href="javascript:ReloadAll();"><i class="fa fa-refresh"></i></a>
+                        </div>
+                    </div>
+                    <div class="panel-body collapse in">
+                        <table id="groupsTable" cellpadding="0" cellspacing="0" border="0" class="table table-bordered datatables">
                             <thead>
                                 <tr>
                                     <th></th>
                                     <th>Name</th>
-                                    <th>Description</th>
+                                    <th>Companies</th>
+                                    <th>Desktops</th>
+                                    <th>Applications</th>
+                                    <th>Total Users</th>
                                     <th>Last Retrieved</th>
                                 </tr>
                             </thead>
@@ -52,10 +60,14 @@
                                     <td>Loading...</td>
                                     <td></td>
                                     <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
+                    <div class="panel-footer"></div>
                 </div>
             </div>
         </div>
@@ -67,13 +79,14 @@
     <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
     <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
     <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
+    <script src="~/Content/js/cloudpanel.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             LoadCitrixPlans();
         });
 
         function LoadCitrixPlans() {
-            var desktopGroupTable = $("#desktopGroupTable").DataTable({
+            var groupsTable = $("#groupsTable").DataTable({
                 "dom": "<'row'<'col-xs-6'l><'col-xs-6'f>r>t<'row'<'col-xs-6'i><'col-xs-6'p>>",
                 "autoWidth": false,
                 "language": {
@@ -86,7 +99,7 @@
                 "processing": true,
                 "ajax": {
                     type: 'GET',
-                    url: "@Url.Content("~/plans/citrix")",
+                    url: "",
                     dataType: 'json',
                     error: function (xhr) {
                         console.log(xhr);
@@ -95,20 +108,19 @@
                 },
                 "columns": [
                    { "data": "desktopGroupID", "class": "details-control", "orderable": false, "defaultContent": "", "render": function () { return "" } },
-                   { "data": "name" },
-                   { "data": "description" },
-                   { "data": "lastRetrieved", "render": function (data, type, full, meta) { return moment(data).format('LLLL'); } },
-                ],
-                "createdRow": function (row, data, index) {
-                    $(row).css("background-color", "#dff0d8");
-                    $(row).find(".tooltip-ex").tooltip();
-                }
+                   { "data": "name", "render": function (data, type, full, meta) { return '<a href="@Url.Content("~/plans/citrix/groups/")'+full["uUID"]+'">'+data+'</a>' } },
+                   { "data": "companyCount" },
+                   { "data": "desktopCount" },
+                   { "data": "applicationCount" },
+                   { "data": "totalUsers" },
+                   { "data": "lastRetrieved", "render": function (data, type, full, meta) { return moment(data).format('lll'); } },
+                ]
             });
 
             // Renders child rows
-            $('#desktopGroupTable tbody').on('click', 'td.details-control', function () {
+            $('#groupsTable tbody').on('click', 'td.details-control', function () {
                 var tr = $(this).closest('tr');
-                var row = desktopGroupTable.row(tr);
+                var row = groupsTable.row(tr);
 
                 if (row.child.isShown()) {
                     row.child.hide();
@@ -123,27 +135,25 @@
 
         function FormatChildTable(d) {
             console.log(d);
-            var table = '<table class="table table-condensed table-hover table-striped table-bordered" style="width: 70%; margin-left: 15%; margin-right: 15%"> \
-                            <thead> \
-                                <tr> \
-                                    <th>Company</th> \
-                                    <th>User Count</th> \
-                                </tr> \
-                            </thead> \
-                            <tbody>';
 
-            if (d.companies.length > 0) {
-                $.each(d.companies, function (index, value) {
-                    table += '<tr> \
-                                <td>' + value.companyName + '</td> \
-                                <td>' + value.totalUsers + '</td> \
-                              </tr>';
+            var companyPanel = '<h3>Companies</h3><div class="panel-body"><div class="list-group">';
+            if (d.companies.length) {
+                $.each(d.companies, function (k, v) {
+                    companyPanel += '<a href="@Url.Content("~/company/")' + v.companyCode + '/overview" class="list-group-item"><span class="badge">' + v.totalUsers + '</span> <i class="fa fa-building"></i> ' + v.companyName + ' </a>';
                 });
             }
+            companyPanel += '</div></div><br/><br/>';
 
-            table += '</tbody></table>';
+            return companyPanel;
+        }
 
-            return table;
+        function ReloadAll() {
+            $.getJSON(window.location.href + "/all", function () {
+                ReloadTable("groupsTable");
+            })
+            .fail(function (data) {
+                ShowError(data);
+            });
         }
     </script>
 }

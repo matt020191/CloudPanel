@@ -1442,7 +1442,8 @@
     <Content Include="Views\Error\401.cshtml" />
     <Content Include="Views\Company\billing.cshtml" />
     <Content Include="Views\Admin\reports.cshtml" />
-    <Content Include="Views\Plans\citrix.cshtml" />
+    <Content Include="Views\Plans\Citrix\citrix.cshtml" />
+    <Content Include="Views\Plans\Citrix\groups.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

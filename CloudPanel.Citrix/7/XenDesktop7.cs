@@ -8,6 +8,7 @@ using System.Management.Automation.Runspaces;
 using System.Security;
 using CloudPanel.Base.Database.Models;
 using System.Collections;
+using CloudPanel.Base.Citrix;
 
 namespace CloudPanel.Citrix
 {
@@ -26,6 +27,10 @@ namespace CloudPanel.Citrix
             _powershell.Invoke();
         }
 
+        /// <summary>
+        /// Gets the desktop groups in Citrix
+        /// </summary>
+        /// <returns></returns>
         public List<CitrixDesktopGroups> GetDesktopGroups()
         {
             logger.DebugFormat("Querying desktop groups from Citrix");
@@ -37,6 +42,8 @@ namespace CloudPanel.Citrix
             List<CitrixDesktopGroups> desktopGroups = new List<CitrixDesktopGroups>();
 
             var objects = _powershell.Invoke();
+            HandleErrors();
+
             foreach (PSObject desktopGroup in objects)
             {
                 logger.DebugFormat("Found a total of {0} desktop groups", objects.Count);
@@ -58,8 +65,15 @@ namespace CloudPanel.Citrix
             return desktopGroups;
         }
 
+        /// <summary>
+        /// Gets the desktops that belong to a specific desktop group
+        /// </summary>
+        /// <param name="desktopGroupUid"></param>
+        /// <returns></returns>
         public List<CitrixDesktops> GetDesktops(int desktopGroupUid)
         {
+            logger.DebugFormat("Querying desktops for desktop group uid {0}", desktopGroupUid);
+
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Get-BrokerDesktop");
             cmd.AddParameter("DesktopGroupUid", desktopGroupUid);
@@ -68,6 +82,8 @@ namespace CloudPanel.Citrix
             List<CitrixDesktops> desktops = new List<CitrixDesktops>();
 
             var objects = _powershell.Invoke();
+            HandleErrors();
+
             foreach (PSObject desktop in objects)
             {
                 var newDesktop = new CitrixDesktops();
@@ -82,27 +98,45 @@ namespace CloudPanel.Citrix
                 
                 if (desktop.Properties["IPAddress"].Value != null)
                     newDesktop.IPAddress = desktop.Properties["IPAddress"].Value.ToString();
+                else
+                    newDesktop.IPAddress = "Unknown";
 
                 if (desktop.Properties["DNSName"].Value != null)
-                newDesktop.DNSName = desktop.Properties["DNSName"].Value.ToString();
+                    newDesktop.DNSName = desktop.Properties["DNSName"].Value.ToString();
+                else
+                    newDesktop.DNSName = "Unknown";
 
                 if (desktop.Properties["OSType"].Value != null)
                     newDesktop.OSType = desktop.Properties["OSType"].Value.ToString();
+                else
+                    newDesktop.OSType= "Unknown";
 
                 if (desktop.Properties["OSVersion"].Value != null)
                     newDesktop.OSVersion = desktop.Properties["OSVersion"].Value.ToString();
+                else
+                    newDesktop.OSVersion = "Unknown";
 
                 if (desktop.Properties["AgentVersion"].Value != null)
                     newDesktop.AgentVersion = desktop.Properties["AgentVersion"].Value.ToString();
+                else
+                    newDesktop.AgentVersion = "Unknown";
 
                 desktops.Add(newDesktop);
             }
 
+            logger.DebugFormat("Returning a total of {0} desktops", desktops.Count);
             return desktops;
         }
 
+        /// <summary>
+        /// Gets the applications that belong to a specific desktop group
+        /// </summary>
+        /// <param name="desktopGroupUid"></param>
+        /// <returns></returns>
         public List<CitrixApplications> GetApplications(int desktopGroupUid)
         {
+            logger.DebugFormat("Querying applications for desktop group uid {0}", desktopGroupUid);
+
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Get-BrokerApplication");
             cmd.AddParameter("DesktopGroupUid", desktopGroupUid);
@@ -111,6 +145,8 @@ namespace CloudPanel.Citrix
             List<CitrixApplications> applications = new List<CitrixApplications>();
 
             var objects = _powershell.Invoke();
+            HandleErrors();
+
             foreach (PSObject application in objects)
             {
                 var newApp = new CitrixApplications();
@@ -125,7 +161,60 @@ namespace CloudPanel.Citrix
                 applications.Add(newApp);
             }
 
+            logger.DebugFormat("Returning a total of {0} applications", applications.Count);
             return applications;
+        }
+
+        /// <summary>
+        /// Gets all sessions for a specific desktop
+        /// </summary>
+        /// <param name="desktopUid"></param>
+        /// <returns></returns>
+        public List<BrokerSession> GetSessions(int desktopUid)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-BrokerSession");
+            cmd.AddParameter("DesktopUid", desktopUid);
+            _powershell.Commands = cmd;
+
+            List<BrokerSession> sessions = new List<BrokerSession>();
+
+            var objects = _powershell.Invoke();
+            HandleErrors();
+
+            foreach (PSObject session in objects)
+            {
+                var newSession = new BrokerSession();
+                newSession.Uid = (long)session.Properties["Uid"].Value;
+
+                if (session.Properties["UserName"].Value != null)
+                    newSession.UserName = session.Properties["UserName"].Value.ToString();
+
+                if (session.Properties["UserFullName"].Value != null)
+                    newSession.UserFullName = session.Properties["UserFullName"].Value.ToString();
+
+                if (session.Properties["UserUPN"].Value != null)
+                    newSession.UserUPN = session.Properties["UserUPN"].Value.ToString();
+
+                if (session.Properties["UserSID"].Value != null)
+                    newSession.UserSID = session.Properties["UserSID"].Value.ToString();
+
+                if (session.Properties["UntrustedUserName"].Value != null)
+                    newSession.UntrustedUserName = session.Properties["UntrustedUserName"].Value.ToString();
+
+                if (session.Properties["SessionKey"].Value != null)
+                    newSession.SessionKey = (Guid)session.Properties["SessionKey"].Value;
+
+                if (session.Properties["SessionState"].Value != null)
+                    newSession.SessionState = session.Properties["SessionState"].Value.ToString();
+
+                if (session.Properties["StartTime"].Value != null)
+                    newSession.StartTime = (DateTime)session.Properties["StartTime"].Value;
+
+                sessions.Add(newSession);
+            }
+
+            return sessions;
         }
     }
 }
