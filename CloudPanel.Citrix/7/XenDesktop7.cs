@@ -22,7 +22,7 @@ namespace CloudPanel.Citrix
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Add-PSSnapIn");
-            cmd.AddParameter("Name", "Citrix.*.Admin.V*");
+            cmd.AddParameter("Name", "Citrix.Broker.Admin.V2");
             _powershell.Commands = cmd;
             _powershell.Invoke();
         }
@@ -215,6 +215,60 @@ namespace CloudPanel.Citrix
             }
 
             return sessions;
+        }
+
+        /// <summary>
+        /// Logs off all users 
+        /// </summary>
+        /// <param name="values"></param>
+        public void LogOffSessionsBySessionKeys(string[] sessionKeys)
+        {
+            logger.DebugFormat("Logging off {0} sessions", sessionKeys.Length);
+            foreach (var s in sessionKeys)
+            {
+                logger.DebugFormat("Logging off session {0}", s);
+
+                PSCommand cmd = new PSCommand();
+                cmd.AddCommand("Get-BrokerSession");
+                cmd.AddArgument(s);
+                cmd.AddCommand("Stop-BrokerSession");
+                _powershell.Commands = cmd;
+                _powershell.Invoke();
+
+                HandleErrors();
+            }
+        }
+
+        /// <summary>
+        /// Sends messages by session keys
+        /// </summary>
+        /// <param name="sessionKeys"></param>
+        /// <param name="messageStyle"></param>
+        /// <param name="title"></param>
+        /// <param name="text"></param>
+        public void SendMessageBySessionKeys(string[] sessionKeys, string messageStyle, string title, string text)
+        {
+            logger.DebugFormat("Sending message to {0} sessions with style {1}, title {2}, and text {3}", sessionKeys.Length, messageStyle, title, text);
+
+            foreach (var s in sessionKeys)
+            {
+                logger.DebugFormat("Sending message to {0}", s);
+
+                if (!string.IsNullOrEmpty(s))
+                {
+                    PSCommand cmd = new PSCommand();
+                    cmd.AddCommand("Get-BrokerSession");
+                    cmd.AddArgument(s);
+                    cmd.AddCommand("Send-BrokerSessionMessage");
+                    cmd.AddParameter("MessageStyle", messageStyle);
+                    cmd.AddParameter("Title", title);
+                    cmd.AddParameter("Text", text);
+                    _powershell.Commands = cmd;
+                    _powershell.Invoke();
+
+                    HandleErrors();
+                }
+            }
         }
     }
 }

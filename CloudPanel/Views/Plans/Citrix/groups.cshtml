@@ -84,12 +84,59 @@
     </div>
 </div>
 
+<form id="sendMessage" action="@Url.Content("~/plans/citrix/groups/" + Model.UUID +"/sendmessage")" method="post" autocomplete="off" data-parsley-validate="true">
+    <div id="sendMessageModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Send Message</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Title</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="Title" name="Title" data-parsley-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Message Style</label>
+                            <div class="col-sm-9">
+                                <select id="MessageStyle" name="MessageStyle" class="form-control" data-parsley-required="true">
+                                    <option value="Information">Information</option>
+                                    <option value="Exclamation">Exclamation</option>
+                                    <option value="Question">Question</option>
+                                    <option value="Critical">Critical</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Message</label>
+                            <div class="col-sm-9">
+                                <textarea id="Message" name="Message" rows="2" cols="20" class="form-control" data-parsley-required="true"></textarea>
+                                <input id="SessionKeys[]" name="SessionKeys[]" type="hidden" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
 @section JAVASCRIPT{
     <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
     <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
     <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
+
+            AddFormHandlers();
 
             var desktopsTable = $("#desktopsTable").DataTable({ "ordering": false, "searching": false, "lengthChange": false, "paging": false });
 
@@ -122,8 +169,8 @@
 
                     var table = $("#" + uid).DataTable({ "dom": "<'row'<'col-xs-6 toolbar'l><'col-xs-6'f>r>t<'row'<'col-xs-6'i><'col-xs-6'p>>", "ordering": false, "paging": false });
                     $("div.toolbar").html('<div class="btn-group">\
-                                              <a href="javascript:LogOff('+ uid + ');" class="btn btn-primary btn-sm">Send Message</a>\
-                                              <a href="#" class="btn btn-primary btn-sm">Log Off</a>\
+                                              <a href="javascript:SendMessage('+uid+');" class="btn btn-primary btn-sm">Send Message</a>\
+                                              <a href="javascript:LogOff(' + uid + ');" class="btn btn-primary btn-sm">Log Off</a>\
                                            </div>');
 
                     $("#" + uid).block();
@@ -152,9 +199,40 @@
             $(cells).find(":checkbox").prop("checked", $(source).is(":checked"));
         }
 
-        function LogOff(tableId) {
+        function AddFormHandlers() {
+            $("#sendMessage").submit(function (event) {
+                event.preventDefault();
+                var data = $("#sendMessage").serialize();
+
+                $.blockUI();
+                $.post($(this).attr('action'), data).done(function (data) {
+                    $("#sendMessageModal").modal("hide");
+                    ShowSuccess(data.success);
+                }).fail(function (returnData) {
+                    ShowError(returnData);
+                }).always(function () {
+                    $.unblockUI();
+                });
+            });
+        }
+
+        function SendMessage(tableId)
+        {
             var id = "#" + tableId + " input[name=CheckedUsers]";
 
+            var keys = [];
+            $(id).each(function () {
+                if ($(this).is(":checked")) {
+                    keys.push($(this).val());
+                }
+            });
+
+            $('#SessionKeys').val(keys.join(","));
+            $('#sendMessageModal').modal('show')
+        }
+
+        function LogOff(tableId) {
+            var id = "#" + tableId + " input[name=CheckedUsers]";
             var keys = [];
             $(id).each(function () {
                 if ($(this).is(":checked")) {
@@ -168,11 +246,19 @@
                 type: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#DD6B55",
-                confirmButtonText: "Yes, delete it!",
+                confirmButtonText: "Yes, log off!",
                 closeOnConfirm: false
             }, function () {
+                $.post(window.location.href + "/logoff", { 'values': keys })
+                 .fail(function (data) {
+                     ShowError(data);
+                 })
+                 .done(function () {
+                     swal("Logged Off", "Submitted command to log off users", "success");
+                 })
+                 .always(function () {
 
-                swal("Deleted!", "Your imaginary file has been deleted.", "success");
+                 });
             });
         }
     </script>
