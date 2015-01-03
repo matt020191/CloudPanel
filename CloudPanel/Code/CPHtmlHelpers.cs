@@ -471,7 +471,7 @@ namespace CloudPanel
         public static IHtmlString GetCountries(string selectedCountry)
         {
             var sb = new StringBuilder();
-            sb.Append(@"<select name='Country' id='Country' class='populate' style='width: 100%'>
+            sb.Append(@"<select name='Country' id='Country' class='form-control' style='width: 100%'>
                     <optgroup id='country-optgroup-Africa' label='Africa'>
                     <option value='DZ' label='Algeria'>Algeria</option>
                     <option value='AO' label='Angola'>Angola</option>

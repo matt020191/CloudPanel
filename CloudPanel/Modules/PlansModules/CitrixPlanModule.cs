@@ -20,7 +20,8 @@ namespace CloudPanel.Modules.PlansModules
     {
         private static readonly ILog logger = LogManager.GetLogger("Citrix");
 
-        public CitrixPlanModule() : base("/plans/citrix")
+        public CitrixPlanModule()
+            : base("/plans/citrix")
         {
             Get["/", c => c.Request.Accept("text/html")] = _ =>
                 {
@@ -52,11 +53,11 @@ namespace CloudPanel.Modules.PlansModules
                                                  DesktopCount = d.Desktops.Count,
                                                  CompanyCount = d.Companies.Count,
                                                  Companies = (from d2 in d.Companies
-                                                              select new 
-                                                              { 
-                                                                    CompanyCode = d2.CompanyCode, 
-                                                                    CompanyName = d2.CompanyName, 
-                                                                    TotalUsers = d.Users.Where(x => x.CompanyCode == d2.CompanyCode).Count()
+                                                              select new
+                                                              {
+                                                                  CompanyCode = d2.CompanyCode,
+                                                                  CompanyName = d2.CompanyName,
+                                                                  TotalUsers = d.Users.Where(x => x.CompanyCode == d2.CompanyCode).Count()
                                                               }).ToList(),
                                                  TotalUsers = d.Users.Count
                                              }).ToList();
@@ -79,13 +80,13 @@ namespace CloudPanel.Modules.PlansModules
                             if (!string.IsNullOrEmpty(searchValue))
                             {
                                 desktopGroups = (from d in desktopGroups
-                                                    where d.Name.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                                          d.PublishedName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                                          d.Companies.Any(x => 
-                                                                            x.CompanyCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) > 0 ||
-                                                                            x.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) > 0
-                                                                          )
-                                                    select d).ToList();
+                                                 where d.Name.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                                       d.PublishedName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                                       d.Companies.Any(x =>
+                                                                         x.CompanyCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) > 0 ||
+                                                                         x.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) > 0
+                                                                       )
+                                                 select d).ToList();
                                 recordsFiltered = desktopGroups.Count;
                             }
 
@@ -93,13 +94,13 @@ namespace CloudPanel.Modules.PlansModules
                                 desktopGroups = desktopGroups.OrderBy(x => x.GetType()
                                                         .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
                                                         .Skip(start)
-                                                        .Take( (length > 0 ? length : desktopGroups.Count) )
+                                                        .Take((length > 0 ? length : desktopGroups.Count))
                                                         .ToList();
                             else
                                 desktopGroups = desktopGroups.OrderByDescending(x => x.GetType()
                                                         .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
                                                         .Skip(start)
-                                                        .Take( (length > 0 ? length : desktopGroups.Count) )
+                                                        .Take((length > 0 ? length : desktopGroups.Count))
                                                         .ToList();
                         }
 
@@ -126,7 +127,7 @@ namespace CloudPanel.Modules.PlansModules
                     #endregion
                 };
 
-            Get["/groups/{GroupID:guid}"] = _ =>
+            Get["/groups/{GroupID:int}"] = _ =>
                 {
                     #region Get the desktop groups, its companies, and users from the database
                     CloudPanelContext db = null;
@@ -136,13 +137,13 @@ namespace CloudPanel.Modules.PlansModules
                         db.Database.Connection.Open();
 
                         logger.DebugFormat("Retrieving the desktop groups");
-                        Guid desktopUUID = _.GroupID;
+                        int desktopUid = _.GroupID;
                         var desktopGroups = (from d in db.CitrixDesktopGroup
                                                          .Include(x => x.Companies)
                                                          .Include(x => x.Users)
                                                          .Include(x => x.Applications)
                                                          .Include(x => x.Desktops)
-                                             where d.UUID == desktopUUID
+                                             where d.Uid == desktopUid
                                              select new
                                              {
                                                  Uid = d.Uid,
@@ -182,9 +183,9 @@ namespace CloudPanel.Modules.PlansModules
                                                               }).ToList(),
                                                  TotalUsers = d.Users.Count
                                              }).First();
-                        
+
                         logger.DebugFormat("Completed getting Citrix data");
-                        return Negotiate.WithView("Plans/Citrix/groups.cshtml")
+                        return Negotiate.WithView("Plans/Citrix/group.cshtml")
                                         .WithModel(desktopGroups)
                                         .WithStatusCode(HttpStatusCode.OK);
                     }
@@ -203,7 +204,78 @@ namespace CloudPanel.Modules.PlansModules
                     #endregion
                 };
 
-            Get["/groups/{GroupID:guid}/{DesktopUid:int}/sessions"] = _ =>
+            Get["/groups/{GroupID:int}/sessions"] = _ =>
+                {
+                    #region Gets the sessions for a specific desktop group
+                    XenDesktop7 xd7 = null;
+                    try
+                    {
+                        xd7 = new XenDesktop7(Settings.CitrixUri, Settings.Username, Settings.DecryptedPassword);
+
+                        int uid = _.GroupID;
+                        var sessions = xd7.GetSessionsByDesktopGroup(uid);
+
+                        int draw = 0, start = 0, length = 0, recordsTotal = sessions.Count, recordsFiltered = sessions.Count, orderColumn = 0;
+                        string searchValue = "", orderColumnName = "";
+                        bool isAscendingOrder = true;
+
+                        if (Request.Query.draw.HasValue)
+                        {
+                            draw = Request.Query.draw;
+                            start = Request.Query.start;
+                            length = Request.Query.length;
+                            orderColumn = Request.Query["order[0][column]"];
+                            searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
+                            isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
+                            orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
+
+                            // See if we are using dataTables to search
+                            if (!string.IsNullOrEmpty(searchValue))
+                            {
+                                sessions = (from d in sessions
+                                            where d.UserName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
+                                            select d).ToList();
+                                recordsFiltered = sessions.Count;
+                            }
+
+                            if (isAscendingOrder)
+                                sessions = sessions.OrderBy(x => x.GetType()
+                                                        .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                        .Skip(start)
+                                                        .Take((length > 0 ? length : sessions.Count))
+                                                        .ToList();
+                            else
+                                sessions = sessions.OrderByDescending(x => x.GetType()
+                                                        .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                        .Skip(start)
+                                                        .Take((length > 0 ? length : sessions.Count))
+                                                        .ToList();
+                        }
+
+                        logger.DebugFormat("Completed getting citrix session data");
+                        return Negotiate.WithModel(new
+                        {
+                            draw = draw,
+                            recordsTotal = recordsTotal,
+                            recordsFiltered = recordsFiltered,
+                            data = sessions
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error getting citrix session data: {0}", ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (xd7 != null)
+                            xd7.Dispose();
+                    }
+                    #endregion
+                };
+
+            Get["/groups/{GroupID:int}/{DesktopUid:int}/sessions"] = _ =>
                 {
                     #region Gets the sessions for a specific desktop group
                     XenDesktop7 xd7 = null;
@@ -212,7 +284,7 @@ namespace CloudPanel.Modules.PlansModules
                         xd7 = new XenDesktop7(Settings.CitrixUri, Settings.Username, Settings.DecryptedPassword);
 
                         int uid = _.DesktopUid;
-                        var sessions = xd7.GetSessions(uid);
+                        var sessions = xd7.GetSessionsByDesktop(uid);
 
                         int draw = 0, start = 0, length = 0, recordsTotal = sessions.Count, recordsFiltered = sessions.Count, orderColumn = 0;
                         string searchValue = "", orderColumnName = "";
@@ -276,7 +348,7 @@ namespace CloudPanel.Modules.PlansModules
 
             Get["/all"] = _ =>
                 {
-                    #region Queries Citrix and adds/updates all data 
+                    #region Queries Citrix and adds/updates all data
                     XenDesktop7 xd7 = null;
                     try
                     {
@@ -317,7 +389,7 @@ namespace CloudPanel.Modules.PlansModules
                     #endregion
                 };
 
-            Post["/groups/{GroupID:guid}/logoff"] = _ =>
+            Post["/logoff"] = _ =>
                 {
                     #region Logs off users
                     XenDesktop7 xd7 = null;
@@ -348,45 +420,45 @@ namespace CloudPanel.Modules.PlansModules
                     #endregion
                 };
 
-            Post["/groups/{GroupID:guid}/sendmessage"] = _ =>
-            {
-                #region Send message to users
-                XenDesktop7 xd7 = null;
-                try
+            Post["/sendmessage"] = _ =>
                 {
-                    if (!Request.Form.Title.HasValue)
-                        throw new MissingFieldException("", "Title");
+                    #region Send message to users
+                    XenDesktop7 xd7 = null;
+                    try
+                    {
+                        if (!Request.Form.Title.HasValue)
+                            throw new MissingFieldException("", "Title");
 
-                    if (!Request.Form.MessageStyle.HasValue)
-                        throw new MissingFieldException("", "MessageStyle");
+                        if (!Request.Form.MessageStyle.HasValue)
+                            throw new MissingFieldException("", "MessageStyle");
 
-                    if (!Request.Form.Message.HasValue)
-                        throw new MissingFieldException("", " Message");
+                        if (!Request.Form.Message.HasValue)
+                            throw new MissingFieldException("", " Message");
 
-                    if (!Request.Form["SessionKeys[]"].HasValue)
-                        throw new MissingFieldException("", "SessionKeys");
+                        if (!Request.Form["SessionKeys[]"].HasValue)
+                            throw new MissingFieldException("", "SessionKeys");
 
-                    xd7 = new XenDesktop7(Settings.CitrixUri, Settings.Username, Settings.DecryptedPassword);
+                        xd7 = new XenDesktop7(Settings.CitrixUri, Settings.Username, Settings.DecryptedPassword);
 
-                    string[] sessionKeys = Request.Form["SessionKeys[]"].Value.Split(',');
-                    xd7.SendMessageBySessionKeys(sessionKeys, Request.Form.MessageStyle.Value, Request.Form.Title.Value, Request.Form.Message.Value);
+                        string[] sessionKeys = Request.Form["SessionKeys[]"].Value.Split(',');
+                        xd7.SendMessageBySessionKeys(sessionKeys, Request.Form.MessageStyle.Value, Request.Form.Title.Value, Request.Form.Message.Value);
 
-                    return Negotiate.WithModel(new { success = "Successfully sent message to users" })
-                                    .WithStatusCode(HttpStatusCode.OK);
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error sending message to users: {0}", ex.ToString());
-                    return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithStatusCode(HttpStatusCode.InternalServerError);
-                }
-                finally
-                {
-                    if (xd7 != null)
-                        xd7.Dispose();
-                }
-                #endregion
-            };
+                        return Negotiate.WithModel(new { success = "Successfully sent message to users" })
+                                        .WithStatusCode(HttpStatusCode.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error sending message to users: {0}", ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (xd7 != null)
+                            xd7.Dispose();
+                    }
+                    #endregion
+                };
         }
 
         public static void AddDesktopGroup(CitrixDesktopGroups desktopGroup)

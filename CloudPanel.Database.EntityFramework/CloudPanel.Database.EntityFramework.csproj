@@ -92,6 +92,10 @@
     <Compile Include="Migrations\201412311700353_AddNewCitrixTables.Designer.cs">
       <DependentUpon>201412311700353_AddNewCitrixTables.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201501030321522_AddNewColumnsToUserTables.cs" />
+    <Compile Include="Migrations\201501030321522_AddNewColumnsToUserTables.Designer.cs">
+      <DependentUpon>201501030321522_AddNewColumnsToUserTables.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -135,6 +139,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201412311700353_AddNewCitrixTables.resx">
       <DependentUpon>201412311700353_AddNewCitrixTables.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201501030321522_AddNewColumnsToUserTables.resx">
+      <DependentUpon>201501030321522_AddNewColumnsToUserTables.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -24,8 +24,86 @@ namespace CloudPanel.Modules.CompanyModules
 
         public UsersEditModule() : base("/company/{CompanyCode}/users/{UserGuid:guid}")
         {
-            this.RequiresAuthentication();
+            //this.RequiresAuthentication();
 
+            Get["/"] = _ =>
+                {
+                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
+
+                    #region Gets a specific user
+                    CloudPanelContext db = null;
+                    try
+                    {
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
+
+                        logger.DebugFormat("Getting user {0} from the system", _.UserGuid);
+                        string companyCode = _.CompanyCode;
+                        Guid userGuid = _.UserGuid;
+
+                        logger.DebugFormat("Querying the database for {0}", userGuid);
+                        var user = (from d in db.Users
+                                    where d.CompanyCode == companyCode
+                                    where d.UserGuid == userGuid
+                                    select new
+                                    {
+                                        UserGuid = d.UserGuid,
+                                        CompanyCode = d.CompanyCode,
+                                        sAMAccountName = d.sAMAccountName,
+                                        UserPrincipalName = d.UserPrincipalName,
+                                        DistinguishedName = d.DistinguishedName,
+                                        DisplayName = d.DisplayName,
+                                        Firstname = d.Firstname,
+                                        Middlename = d.Middlename,
+                                        Lastname = d.Lastname,
+                                        Email = d.Email,
+                                        Company = d.Company,
+                                        TelephoneNumber = d.TelephoneNumber,
+                                        JobTitle = d.JobTitle,
+                                        Department = d.Department,
+                                        HomePhone = d.HomePhone,
+                                        MobilePhone = d.MobilePhone,
+                                        Street = d.Street,
+                                        City = d.City,
+                                        State = d.State,
+                                        PostalCode = d.PostalCode,
+                                        Country = d.Country,
+                                        Fax = d.Fax,
+                                        IsEnabled = d.IsEnabled,
+                                        Skype = d.Skype,
+                                        Facebook = d.Facebook,
+                                        Twitter = d.Twitter,
+                                        Dribbble = d.Dribbble,
+                                        Tumblr = d.Tumblr,
+                                        LinkedIn = d.LinkedIn,
+                                        MailboxPlan = d.MailboxPlan
+                                    }).FirstOrDefault();
+
+                        if (user == null)
+                            throw new Exception("Unable to find user in database");
+                        else
+                        {
+                            return Negotiate.WithModel(user)
+                                            .WithStatusCode(HttpStatusCode.OK)
+                                            .WithView("Company/user_edit.cshtml");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error getting user {0}: {1}", _.UserGuid, ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError)
+                                        .WithView("Error/500.cshtml");
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+                    }
+                    #endregion
+                };
+
+            /*
             Get["/", c => c.Request.Accept("text/html")] = _ =>
             {
                 this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
@@ -81,7 +159,7 @@ namespace CloudPanel.Modules.CompanyModules
                         db.Dispose();
                 }
                 #endregion
-            };
+            };*/
 
             Get["/mailbox", c => c.Request.Accept("application/json")] = _ =>
             {

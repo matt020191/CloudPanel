@@ -1420,7 +1420,7 @@
     <Content Include="Views\Company\Exchange\enable.cshtml" />
     <Content Include="Views\Company\Exchange\disable.cshtml" />
     <Content Include="Views\Company\Exchange\contacts_edit.cshtml" />
-    <Content Include="Views\Company\users_edit.cshtml" />
+    <Content Include="Views\Company\user_edit.cshtml" />
     <Content Include="Views\Company\Exchange\groups_edit.cshtml" />
     <Content Include="Views\Plans\plans_citrix.cshtml" />
     <Content Include="Views\Admin\brandings.cshtml" />
@@ -1443,7 +1443,7 @@
     <Content Include="Views\Company\billing.cshtml" />
     <Content Include="Views\Admin\reports.cshtml" />
     <Content Include="Views\Plans\Citrix\citrix.cshtml" />
-    <Content Include="Views\Plans\Citrix\groups.cshtml" />
+    <Content Include="Views\Plans\Citrix\group.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -1,38 +1,9 @@
-//
-// Copyright (c) 2014, Jacob Dixon
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-// 1. Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-// 3. All advertising materials mentioning features or use of this software
-//    must display the following acknowledgement:
-//    This product includes software developed by KnowMoreIT and Compsys.
-// 4. Neither the name of KnowMoreIT and Compsys nor the
-//    names of its contributors may be used to endorse or promote products
-//    derived from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY Jacob Dixon ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL Jacob Dixon BE LIABLE FOR ANY
-// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
 namespace CloudPanel.Base.Database.Models
 {
     using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
 
     public partial class Users
     {
@@ -40,42 +11,45 @@ using System.ComponentModel.DataAnnotations.Schema;
         public int ID { get; set; }
 
         [Key]
+        [Required]
         public Guid UserGuid { get; set; }
 
-        [StringLength(255)]
+        [Required]
         public string CompanyCode { get; set; }
 
-        [StringLength(255)]
+        [Required]
         public string sAMAccountName { get; set; }
 
         [Required]
-        [StringLength(255)]
         public string UserPrincipalName { get; set; }
 
-        [StringLength(255)]
+        [Required]
         public string DistinguishedName { get; set; }
 
         [Required]
-        [StringLength(100)]
         public string DisplayName { get; set; }
 
-        [StringLength(50)]
         public string Firstname { get; set; }
 
-        [StringLength(50)]
         public string Middlename { get; set; }
 
-        [StringLength(50)]
         public string Lastname { get; set; }
 
-        /// <summary>
-        /// Email field is only used when they are enabled for Exchange.
-        /// </summary>
-        [StringLength(255)]
         public string Email { get; set; }
 
-        [StringLength(255)]
         public string Department { get; set; }
+
+        public string Skype { get; set; }
+
+        public string Facebook { get; set; }
+
+        public string Twitter { get; set; }
+
+        public string Dribbble { get; set; }
+
+        public string Tumblr { get; set; }
+
+        public string LinkedIn { get; set; }
 
         /// <summary>
         /// If the user is a reseller admin. Only super admins should be able to modify this value
@@ -91,6 +65,8 @@ using System.ComponentModel.DataAnnotations.Schema;
         /// If the user is enabled or disabled
         /// </summary>
         public bool? IsEnabled { get; set; }
+
+        #region Plans
 
         /// <summary>
         /// Exchange mailbox plan the user is associated with
@@ -113,6 +89,13 @@ using System.ComponentModel.DataAnnotations.Schema;
         public int? LyncPlan { get; set; }
 
         /// <summary>
+        /// Activesync plan the user is associated with
+        /// </summary>
+        public int? ActiveSyncPlan { get; set; }
+
+        #endregion
+
+        /// <summary>
         /// When the user was created
         /// </summary>
         public DateTime? Created { get; set; }
@@ -121,11 +104,6 @@ using System.ComponentModel.DataAnnotations.Schema;
         /// How many additional MB that was added to the mailbox plan
         /// </summary>
         public int? AdditionalMB { get; set; }
-
-        /// <summary>
-        /// Activesync plan the user is associated with
-        /// </summary>
-        public int? ActiveSyncPlan { get; set; }
 
         /// <summary>
         /// Permissions the user has (this is for company admin permissions)

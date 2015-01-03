@@ -9,6 +9,7 @@ using System.Security;
 using CloudPanel.Base.Database.Models;
 using System.Collections;
 using CloudPanel.Base.Citrix;
+using System.Reflection;
 
 namespace CloudPanel.Citrix
 {
@@ -166,11 +167,146 @@ namespace CloudPanel.Citrix
         }
 
         /// <summary>
+        /// Gets a specific session by the session key
+        /// </summary>
+        /// <param name="sessionKey"></param>
+        /// <returns></returns>
+        public BrokerSession GetSession(Guid sessionKey)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-BrokerSession");
+            cmd.AddParameter("SessionKey", sessionKey);
+            _powershell.Commands = cmd;
+
+            BrokerSession newSession = new BrokerSession();
+            var objects = _powershell.Invoke();
+            HandleErrors();
+
+            foreach (PSObject s in objects)
+            {
+                foreach (var prop in s.Properties)
+                {
+                    if (prop.Value != null)
+                    {
+                        logger.DebugFormat("Found property {0}", prop.Name);
+                        var newSessionProp = (from p in newSession.GetType().GetProperties()
+                                              where p.Name == prop.Name
+                                              select p).FirstOrDefault();
+
+                        if (newSessionProp != null)
+                        {
+                            logger.DebugFormat("New session property {0} exists with type {1}. Setting value to {2} with type of {3}",
+                                                newSessionProp.Name,
+                                                newSessionProp.PropertyType.FullName,
+                                                prop.Value,
+                                                prop.TypeNameOfValue);
+                            newSessionProp.SetValue(newSession, prop.Value, null);
+                        }
+                    }
+                }
+            }
+
+            return newSession;
+        }
+
+        /// <summary>
+        /// Gets all sessions in Citrix
+        /// </summary>
+        /// <returns></returns>
+        public List<BrokerSession> GetSessions()
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-BrokerSession");
+            _powershell.Commands = cmd;
+
+            List<BrokerSession> sessions = new List<BrokerSession>();
+
+            var objects = _powershell.Invoke();
+            HandleErrors();
+
+            foreach (PSObject s in objects)
+            {
+                var newSession = new BrokerSession();
+                foreach (var prop in s.Properties)
+                {
+                    if (prop.Value != null)
+                    {
+                        logger.DebugFormat("Found property {0}", prop.Name);
+                        var newSessionProp = (from p in newSession.GetType().GetProperties()
+                                              where p.Name == prop.Name
+                                              select p).FirstOrDefault();
+
+                        if (newSessionProp != null)
+                        {
+                            logger.DebugFormat("New session property {0} exists with type {1}. Setting value to {2} with type of {3}", 
+                                                newSessionProp.Name,
+                                                newSessionProp.PropertyType.FullName,
+                                                prop.Value,
+                                                prop.TypeNameOfValue);
+                            newSessionProp.SetValue(newSession, prop.Value, null);
+                        }
+                    }
+                }
+
+                sessions.Add(newSession);
+            }
+
+            return sessions;
+        }
+
+        /// <summary>
+        /// Gets sessions from a specific desktop group
+        /// </summary>
+        /// <param name="desktopGroupUid"></param>
+        /// <returns></returns>
+        public List<BrokerSession> GetSessionsByDesktopGroup(int desktopGroupUid)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-BrokerSession");
+            cmd.AddParameter("DesktopGroupUid", desktopGroupUid);
+            _powershell.Commands = cmd;
+
+            List<BrokerSession> sessions = new List<BrokerSession>();
+
+            var objects = _powershell.Invoke();
+            HandleErrors();
+
+            foreach (PSObject s in objects)
+            {
+                var newSession = new BrokerSession();
+                foreach (var prop in s.Properties)
+                {
+                    if (prop.Value != null)
+                    {
+                        logger.DebugFormat("Found property {0}", prop.Name);
+                        var newSessionProp = (from p in newSession.GetType().GetProperties()
+                                              where p.Name == prop.Name
+                                              select p).FirstOrDefault();
+
+                        if (newSessionProp != null)
+                        {
+                            logger.DebugFormat("New session property {0} exists with type {1}. Setting value to {2} with type of {3}",
+                                                newSessionProp.Name,
+                                                newSessionProp.PropertyType.FullName,
+                                                prop.Value,
+                                                prop.TypeNameOfValue);
+                            newSessionProp.SetValue(newSession, prop.Value, null);
+                        }
+                    }
+                }
+
+                sessions.Add(newSession);
+            }
+
+            return sessions;
+        }
+
+        /// <summary>
         /// Gets all sessions for a specific desktop
         /// </summary>
-        /// <param name="desktopUid"></param>
+        /// <param name="desktopUid">Desktop Uid to query the sessions for.</param>
         /// <returns></returns>
-        public List<BrokerSession> GetSessions(int desktopUid)
+        public List<BrokerSession> GetSessionsByDesktop(int desktopUid)
         {
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Get-BrokerSession");
@@ -182,34 +318,29 @@ namespace CloudPanel.Citrix
             var objects = _powershell.Invoke();
             HandleErrors();
 
-            foreach (PSObject session in objects)
+            foreach (PSObject s in objects)
             {
                 var newSession = new BrokerSession();
-                newSession.Uid = (long)session.Properties["Uid"].Value;
+                foreach (var prop in s.Properties)
+                {
+                    if (prop.Value != null)
+                    {
+                        logger.DebugFormat("Found property {0}", prop.Name);
+                        var newSessionProp = (from p in newSession.GetType().GetProperties()
+                                              where p.Name == prop.Name
+                                              select p).FirstOrDefault();
 
-                if (session.Properties["UserName"].Value != null)
-                    newSession.UserName = session.Properties["UserName"].Value.ToString();
-
-                if (session.Properties["UserFullName"].Value != null)
-                    newSession.UserFullName = session.Properties["UserFullName"].Value.ToString();
-
-                if (session.Properties["UserUPN"].Value != null)
-                    newSession.UserUPN = session.Properties["UserUPN"].Value.ToString();
-
-                if (session.Properties["UserSID"].Value != null)
-                    newSession.UserSID = session.Properties["UserSID"].Value.ToString();
-
-                if (session.Properties["UntrustedUserName"].Value != null)
-                    newSession.UntrustedUserName = session.Properties["UntrustedUserName"].Value.ToString();
-
-                if (session.Properties["SessionKey"].Value != null)
-                    newSession.SessionKey = (Guid)session.Properties["SessionKey"].Value;
-
-                if (session.Properties["SessionState"].Value != null)
-                    newSession.SessionState = session.Properties["SessionState"].Value.ToString();
-
-                if (session.Properties["StartTime"].Value != null)
-                    newSession.StartTime = (DateTime)session.Properties["StartTime"].Value;
+                        if (newSessionProp != null)
+                        {
+                            logger.DebugFormat("New session property {0} exists with type {1}. Setting value to {2} with type of {3}", 
+                                                newSessionProp.Name,
+                                                newSessionProp.PropertyType.FullName,
+                                                prop.Value,
+                                                prop.TypeNameOfValue);
+                            newSessionProp.SetValue(newSession, prop.Value, null);
+                        }
+                    }
+                }
 
                 sessions.Add(newSession);
             }

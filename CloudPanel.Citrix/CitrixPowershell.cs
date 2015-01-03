@@ -39,6 +39,27 @@ namespace CloudPanel.Citrix
             
         }
 
+        /// <summary>
+        /// Gets the value of a string
+        /// </summary>
+        /// <param name="ps"></param>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        internal string GetStringValue(ref PSObject ps, string property)
+        {
+            if (ps.Properties[property].Value != null)
+            {
+                return ps.Properties[property].Value.ToString();
+            }
+            else
+                return string.Empty;
+        }
+
+        /// <summary>
+        /// Handle any errors that occur by logging them.
+        /// </summary>
+        /// <param name="ignoredNotFound"></param>
+        /// <param name="ignoreAlreadyExist"></param>
         internal void HandleErrors(bool ignoredNotFound = false, bool ignoreAlreadyExist = false)
         {
             if (_powershell != null)

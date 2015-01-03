@@ -107,8 +107,8 @@
                     }
                 },
                 "columns": [
-                   { "data": "desktopGroupID", "class": "details-control", "orderable": false, "defaultContent": "", "render": function () { return "" } },
-                   { "data": "name", "render": function (data, type, full, meta) { return '<a href="@Url.Content("~/plans/citrix/groups/")'+full["uUID"]+'">'+data+'</a>' } },
+                   { "data": "uid", "class": "details-control", "orderable": false, "defaultContent": "", "render": function () { return "" } },
+                   { "data": "name", "render": function (data, type, full, meta) { return '<a href="@Url.Content("~/plans/citrix/group/")'+full["uid"]+'">'+data+'</a>' } },
                    { "data": "companyCount" },
                    { "data": "desktopCount" },
                    { "data": "applicationCount" },
@@ -134,8 +134,6 @@
         }
 
         function FormatChildTable(d) {
-            console.log(d);
-
             var companyPanel = '<h3>Companies</h3><div class="panel-body"><div class="list-group">';
             if (d.companies.length) {
                 $.each(d.companies, function (k, v) {
