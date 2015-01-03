@@ -83,6 +83,7 @@
     <Compile Include="Database\Models\SvcMailboxDatabaseSizes.cs" />
     <Compile Include="Database\Models\SvcQueue.cs" />
     <Compile Include="Database\Models\SvcTask.cs" />
+    <Compile Include="Database\Models\UserActiveSyncDevices.cs" />
     <Compile Include="Database\Models\UserPermission.cs" />
     <Compile Include="Database\Models\UserPlans.cs" />
     <Compile Include="Database\Models\UserPlansCitrix.cs" />

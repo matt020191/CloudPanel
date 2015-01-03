@@ -33,6 +33,11 @@ namespace CloudPanel.Database.EntityFramework
                         .WithMany(x => x.Desktops)
                         .HasForeignKey(x => x.DesktopGroupID);
 
+            modelBuilder.Entity<UserActiveSyncDevices>()
+                        .HasRequired<Users>(x => x.User)
+                        .WithMany(x => x.ActiveSyncDevices)
+                        .HasForeignKey(x => x.UserGuid);
+
             // Many to many
             modelBuilder.Entity<CitrixApplications>()
                         .HasMany<CitrixDesktopGroups>(x => x.DesktopGroups)
@@ -132,6 +137,7 @@ namespace CloudPanel.Database.EntityFramework
         public virtual DbSet<CitrixDesktopGroups> CitrixDesktopGroup { get; set; }
         public virtual DbSet<CitrixDesktops> CitrixDesktop { get; set; }
         public virtual DbSet<CitrixApplications> CitrixApplication { get; set; }
+        public virtual DbSet<UserActiveSyncDevices> UserActiveSyncDevice { get; set; }
         #endregion
     }
 }

@@ -114,7 +114,9 @@ namespace CloudPanel.Base.Database.Models
 
         public virtual ICollection<CitrixApplications> CitrixApplications { get; set; }
 
-        #region Not Mapped AD Settings
+        public virtual ICollection<UserActiveSyncDevices> ActiveSyncDevices { get; set; }
+
+        #region AD Settings
 
         /// <summary>
         /// Property: description
@@ -301,7 +303,7 @@ namespace CloudPanel.Base.Database.Models
 
         #endregion
 
-        #region Not Mapped Exchange Settings
+        #region Exchange Settings
 
         [NotMapped]
         public bool IsEmailEnabled

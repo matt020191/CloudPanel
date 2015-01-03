@@ -1,6 +1,6 @@
 /*!
  * jQuery blockUI plugin
- * Version 2.66.0-2013.10.09
+ * Version 2.70.0-2014.11.23
  * Requires jQuery v1.7 or later
  *
  * Examples at: http://malsup.com/jquery/block/
@@ -107,7 +107,7 @@
 			});
 		};
 
-		$.blockUI.version = 2.66; // 2nd generation blocking at no extra cost!
+		$.blockUI.version = 2.70; // 2nd generation blocking at no extra cost!
 
 		// override these in your code to change the default behavior and style
 		$.blockUI.defaults = {
@@ -122,31 +122,46 @@
 			// styles for the message when blocking; if you wish to disable
 			// these and use an external stylesheet then do this in your code:
 			// $.blockUI.defaults.css = {};
+			/*css: {
+				padding:	0,
+				margin:		0,
+				width:		'30%',
+				top:		'40%',
+				left:		'35%',
+				textAlign:	'center',
+				color:		'#000',
+				border:		'3px solid #aaa',
+				backgroundColor:'#fff',
+				cursor:		'wait'
+			},*/
 			css: {
-			    padding: 0,
-			    margin: 0,
-			    width: '30%',
-			    top: '40%',
-			    left: '35%',
-			    textAlign: 'center',
-			    color: '#000',
-			    border: '3px solid #aaa',
-			    backgroundColor: '#fff',
-			    cursor: 'wait'
+			    margin:		0,
+			    width:		'30%',
+			    top:		'40%',
+			    left:		'35%',
+			    textAlign:	'center',
+			    cursor:		'wait',
+		        border: 'none',
+		        padding: '15px',
+		        backgroundColor: '#000',
+		        '-webkit-border-radius': '10px',
+		        '-moz-border-radius': '10px',
+		        opacity: .5,
+		        color: '#fff'
 			},
 
 			// minimal style set used when themes are used
 			themedCSS: {
-			    width: '30%',
-			    top: '40%',
-			    left: '35%'
+				width:	'30%',
+				top:	'40%',
+				left:	'35%'
 			},
 
 			// styles for the overlay
-			overlayCSS: {
-			    backgroundColor: '#000',
-			    opacity: 0.6,
-			    cursor: 'wait'
+			overlayCSS:  {
+				backgroundColor:	'#000',
+				opacity:			0.6,
+				cursor:				'wait'
 			},
 
 			// style to replace wait cursor before unblocking to correct issue
@@ -179,7 +194,7 @@
 			forceIframe: false,
 
 			// z-index for the blocking overlay
-			baseZ: 2000,
+			baseZ: 1000,
 
 			// set these to true to have the message automatically centered
 			centerX: true, // <-- only effects element blocking (page block controlled via css above)
@@ -426,7 +441,7 @@
 				if (msg)
 					lyr3.show();
 				if (opts.onBlock)
-					opts.onBlock();
+					opts.onBlock.bind(lyr3)();
 			}
 
 			// bind key and mouse events
@@ -515,6 +530,7 @@
 			if (data && data.el) {
 				data.el.style.display = data.display;
 				data.el.style.position = data.position;
+				data.el.style.cursor = 'default'; // #59
 				if (data.parent)
 					data.parent.appendChild(data.el);
 				$el.removeData('blockUI.history');

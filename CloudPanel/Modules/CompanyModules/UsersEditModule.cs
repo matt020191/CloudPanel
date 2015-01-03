@@ -76,7 +76,8 @@ namespace CloudPanel.Modules.CompanyModules
                                         Dribbble = d.Dribbble,
                                         Tumblr = d.Tumblr,
                                         LinkedIn = d.LinkedIn,
-                                        MailboxPlan = d.MailboxPlan
+                                        MailboxPlan = d.MailboxPlan,
+                                        Notes = d.Notes
                                     }).FirstOrDefault();
 
                         if (user == null)
@@ -193,6 +194,82 @@ namespace CloudPanel.Modules.CompanyModules
                 #endregion
             };
 
+            Put["/"] = _ =>
+                {
+                    CloudPanelContext db = null;
+                    ADUsers adUsers = null;
+                    try
+                    {
+                        string companyCode = _.CompanyCode;
+                        Guid userGuid = _.UserGuid;
+
+                        logger.DebugFormat("Retrieving user {0} in company {1} from database", userGuid, companyCode);
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        var user = (from d in db.Users
+                                    where d.UserGuid == userGuid
+                                    where d.CompanyCode == companyCode
+                                    select d).FirstOrDefault();
+
+                        if (user == null)
+                            throw new ArgumentNullException("User");
+
+                        logger.DebugFormat("Binding to form and updating data");
+                        var boundUser = this.Bind<Users>();
+
+                        logger.DebugFormat("Setting SQL values");
+                        user.sAMAccountName = boundUser.sAMAccountName;
+                        user.DistinguishedName = boundUser.DistinguishedName;
+                        user.DisplayName = boundUser.DisplayName;
+                        user.Firstname = boundUser.Firstname;
+                        user.Middlename = boundUser.Middlename;
+                        user.Lastname = boundUser.Lastname;
+                        user.Department = boundUser.Department;
+                        user.Skype = boundUser.Skype;
+                        user.Facebook = boundUser.Facebook;
+                        user.Twitter = boundUser.Twitter;
+                        user.Dribbble = boundUser.Dribbble;
+                        user.Tumblr = boundUser.Tumblr;
+                        user.LinkedIn = boundUser.LinkedIn;
+                        user.Street = boundUser.Street;
+                        user.City = boundUser.City;
+                        user.State = boundUser.State;
+                        user.PostalCode = boundUser.PostalCode;
+                        user.Country = boundUser.Country;
+                        user.Company = boundUser.Company;
+                        user.JobTitle = boundUser.JobTitle;
+                        user.TelephoneNumber = boundUser.TelephoneNumber;
+                        user.Fax = boundUser.Fax;
+                        user.HomePhone = boundUser.HomePhone;
+                        user.MobilePhone = boundUser.MobilePhone;
+                        user.Notes = boundUser.Notes;
+
+                        logger.DebugFormat("Setting Active Directory values");
+                        adUsers = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                        adUsers.UpdateUser(user);
+
+                        db.SaveChanges();
+
+
+                        return Negotiate.WithModel(new { success = "Successfully updated user values" })
+                                        .WithStatusCode(HttpStatusCode.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error updating user values: {0}", ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (adUsers != null)
+                            adUsers.Dispose();
+
+                        if (db != null)
+                            db.Dispose();
+                    }
+                };
+
+            /*
             Put["/"] = _ =>
             {
                 this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eUsers"));
@@ -455,7 +532,7 @@ namespace CloudPanel.Modules.CompanyModules
                         adUser.Dispose();
                 }
                 #endregion
-            };
+            };*/
         }
 
         #region Exchange Methods

@@ -96,6 +96,10 @@
     <Compile Include="Migrations\201501030321522_AddNewColumnsToUserTables.Designer.cs">
       <DependentUpon>201501030321522_AddNewColumnsToUserTables.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201501031959538_AddActiveSyncTableAndRelationships.cs" />
+    <Compile Include="Migrations\201501031959538_AddActiveSyncTableAndRelationships.Designer.cs">
+      <DependentUpon>201501031959538_AddActiveSyncTableAndRelationships.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -142,6 +146,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201501030321522_AddNewColumnsToUserTables.resx">
       <DependentUpon>201501030321522_AddNewColumnsToUserTables.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201501031959538_AddActiveSyncTableAndRelationships.resx">
+      <DependentUpon>201501031959538_AddActiveSyncTableAndRelationships.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
