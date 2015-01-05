@@ -1,4 +1,5 @@
 ﻿using CloudPanel.ActiveDirectory;
+using CloudPanel.Base.AD;
 using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
 using CloudPanel.Base.Exchange;
@@ -561,6 +562,14 @@ namespace CloudPanel.Modules
                              where u.MailboxPlan > 0
                              orderby u.DisplayName
                              select u).ToList();
+
+                if (users != null)
+                {
+                    users.ForEach(x =>
+                        {
+                            x.CanoncialName = LdapConverters.ToCanonicalName(x.DistinguishedName);
+                        });
+                }
 
                 logger.DebugFormat("Found a total of {0} mailbox users", users.Count());
                 return users;

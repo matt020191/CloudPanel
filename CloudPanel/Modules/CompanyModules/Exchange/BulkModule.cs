@@ -434,7 +434,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
         /// <param name="url"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        private Dictionary<string, string> ModifyLitigationHold(string[] userGuids, string companyCode, bool? isEnabled = null, string url = null, string message = null)
+        private Dictionary<string, string> ModifyLitigationHold(string[] userGuids, string companyCode, bool? isEnabled = null, string url = "", string message = "", string owner = "")
         {
             var results = new Dictionary<string, string>();
 
@@ -468,7 +468,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                         {
                             resultName = string.Format("{0} [Litigation Hold]", sqlUser.UserPrincipalName);
 
-                            powershell.Set_LitigationHold(sqlUser.UserGuid, litigationHoldEnabled: isEnabled, retentionUrl: url, retentionComment: message);
+                            powershell.Set_LitigationHold(sqlUser.UserGuid, litigationHoldEnabled: isEnabled, retentionUrl: url, retentionComment: message, ownerName: owner);
                             results.Add(resultName, "Successfully updated litigation hold settings");
                         }
                     }

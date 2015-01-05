@@ -77,7 +77,9 @@ namespace CloudPanel.Modules.CompanyModules
                                         Tumblr = d.Tumblr,
                                         LinkedIn = d.LinkedIn,
                                         MailboxPlan = d.MailboxPlan,
-                                        Notes = d.Notes
+                                        ArchivePlan = d.ArchivePlan,
+                                        Notes = d.Notes,
+                                        AdditionalMB = d.AdditionalMB == null ? 0 : d.AdditionalMB
                                     }).FirstOrDefault();
 
                         if (user == null)
@@ -104,98 +106,43 @@ namespace CloudPanel.Modules.CompanyModules
                     #endregion
                 };
 
-            /*
-            Get["/", c => c.Request.Accept("text/html")] = _ =>
-            {
-                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
-
-                logger.DebugFormat("Loading user edit page for company {0} and user {1}", _.CompanyCode, _.UserGuid);
-                string companyCode = _.CompanyCode;
-                string userGuid = _.UserPrincipalName;
-                return View["Company/users_edit.cshtml", new { 
-                    CompanyCode = companyCode, 
-                    UserGuid = userGuid,
-                    MailboxUsers = UsersModule.GetMailboxUsers(companyCode) 
-                }];
-            };
-
-            Get["/", c => c.Request.Accept("application/json")] = _ =>
-            {
-                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
-
-                #region Gets a specific user
-                CloudPanelContext db = null;
-                try
+            Get["/mailbox"] = _ =>
                 {
-                    db = new CloudPanelContext(Settings.ConnectionString);
-                    db.Database.Connection.Open();
+                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
 
-                    logger.DebugFormat("Getting user {0} from the system", _.UserGuid);
+                    #region Gets a specific user's mailbox
                     string companyCode = _.CompanyCode;
                     Guid userGuid = _.UserGuid;
 
-                    logger.DebugFormat("Querying the database for {0}", userGuid);
-                    var user = (from d in db.Users
-                                where d.CompanyCode == companyCode
-                                where d.UserGuid == userGuid
-                                select d).FirstOrDefault();
-
-                    if (user == null)
-                        throw new Exception("Unable to find user in database");
-                    else
+                    dynamic powershell = null;
+                    try
                     {
-                        return Negotiate.WithModel(new { user = user })
+                        logger.DebugFormat("Getting mailbox {0} from Exchange", _.UserGuid);
+                        powershell = ExchPowershell.GetClass();
+
+                        var mailbox = powershell.Get_Mailbox(new Users() { UserGuid = userGuid });
+                        return Negotiate.WithModel(new { mailbox = mailbox })
                                         .WithStatusCode(HttpStatusCode.OK);
                     }
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error getting user {0}: {1}", _.UserGuid, ex.ToString());
-                    return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithStatusCode(HttpStatusCode.InternalServerError);
-                }
-                finally
-                {
-                    if (db != null)
-                        db.Dispose();
-                }
-                #endregion
-            };*/
-
-            Get["/mailbox", c => c.Request.Accept("application/json")] = _ =>
-            {
-                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
-
-                #region Gets a specific user's mailbox
-                dynamic powershell = null;
-                try
-                {
-                    string companyCode = _.CompanyCode;
-                    Guid userGuid = _.UserGuid;
-
-                    logger.DebugFormat("Getting mailbox {0} from Exchange", _.UserGuid);
-                    powershell = ExchPowershell.GetClass();
-
-                    var mailbox = powershell.Get_Mailbox(new Users() { UserGuid = userGuid });
-                    return Negotiate.WithModel(new { mailbox = mailbox })
-                                    .WithStatusCode(HttpStatusCode.OK);
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error getting mailbox {0}: {1}", _.UserGuid, ex.ToString());
-                    return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithStatusCode(HttpStatusCode.InternalServerError);
-                }
-                finally
-                {
-                    if (powershell != null)
-                        powershell.Dispose();
-                }
-                #endregion
-            };
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error getting mailbox {0}: {1}", _.UserGuid, ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (powershell != null)
+                            powershell.Dispose();
+                    }
+                    #endregion
+                };
 
             Put["/"] = _ =>
                 {
+                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eUsers"));
+
+                    #region Updates a specific user's information
                     CloudPanelContext db = null;
                     ADUsers adUsers = null;
                     try
@@ -267,7 +214,384 @@ namespace CloudPanel.Modules.CompanyModules
                         if (db != null)
                             db.Dispose();
                     }
+                    #endregion
                 };
+
+            Put["/mailbox"] = _ =>
+                {
+                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eUsers"));
+                    string companyCode = _.CompanyCode;
+                    Guid userGuid = _.UserGuid;
+
+                    #region Updates a specific user's mailbox
+                    CloudPanelContext db = null;
+                    dynamic powershell = null;
+
+                    ReverseActions reverse = new ReverseActions();
+                    try
+                    {
+                        logger.DebugFormat("Getting user {0} from database", userGuid);
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
+
+                        var user = (from d in db.Users
+                                    where d.CompanyCode == companyCode
+                                    where d.UserGuid == userGuid
+                                    select d).FirstOrDefault();
+
+                        logger.DebugFormat("Binding the user to the form");
+                        var boundUser = this.Bind<Users>();
+                        boundUser.UserGuid = userGuid;
+
+                        // Only make email changes if it was changed
+                        #region Mailbox Changes
+                        logger.DebugFormat("Determining the status of the mailbox");
+                        powershell = ExchPowershell.GetClass();
+                        if (user.MailboxPlan > 0 && !boundUser.IsMailboxEnabled)
+                        {
+                            #region Disable Mailbox
+                            logger.InfoFormat("Disabling mailbox for {0}", userGuid);
+                            powershell.Disable_Mailbox(userGuid);
+
+                            user.MailboxPlan = 0;
+                            user.AdditionalMB = 0;
+                            user.ArchivePlan = 0;
+                            user.LitigationHoldEnabled = false;
+                            user.ActiveSyncDevices = null;
+
+                            db.SaveChanges();
+                            #endregion
+                        }
+                        else
+                        {
+                            #region Additional form validation
+
+                            if (!Request.Form.EmailFirst.HasValue)
+                                throw new MissingFieldException("", "EmailFirst");
+
+                            if (!Request.Form.EmailDomain.HasValue)
+                                throw new MissingFieldException("", "EmailDomain");
+
+                            if (!Request.Form.MailboxPlan.HasValue)
+                                throw new MissingFieldException("", "MailboxPlan");
+
+                            if (!Request.Form.SizeInMB.HasValue)
+                                throw new MissingFieldException("", "SizeInMB");
+
+                            #endregion
+
+                            // Get the primary email address
+                            boundUser.Email = string.Format("{0}@{1}", Request.Form.EmailFirst.Value, Request.Form.EmailDomain.Value);
+
+                            // Validate that the domains are for this company
+                            var validatedEmails = ValidateEmails(ref boundUser, (from d in db.Domains
+                                                                                 where d.CompanyCode == companyCode
+                                                                                 where d.IsAcceptedDomain
+                                                                                 select d).ToList());
+                            // Get the plan chosen
+                            var plan = (from d in db.Plans_ExchangeMailbox
+                                        where d.MailboxPlanID == boundUser.MailboxPlan
+                                        where (d.CompanyCode == companyCode || string.IsNullOrEmpty(d.CompanyCode))
+                                        select d).First();
+
+                            if (user.MailboxPlan > 0 && boundUser.IsMailboxEnabled)
+                            {
+                                #region Update Mailbox
+                                // Update mailbox
+                                logger.InfoFormat("Updating mailbox for {0}", userGuid);
+
+                                powershell.Set_Mailbox(boundUser, plan, validatedEmails.ToArray());
+                                powershell.Set_CASMailbox(boundUser.UserGuid, plan, null);
+
+                                user.MailboxPlan = plan.MailboxPlanID;
+                                user.Email = boundUser.Email;
+                                user.AdditionalMB = (plan.MailboxSizeMB > 0 ? (boundUser.SizeInMB - plan.MailboxSizeMB) : 0);
+                                db.SaveChanges();
+                                #endregion
+                            }
+                            else if (user.MailboxPlan < 1 && boundUser.IsMailboxEnabled)
+                            {
+                                #region Enable Mailbox
+                                // Enable mailbox
+                                logger.InfoFormat("Enabling mailbox for {0}", userGuid);
+
+                                powershell.Enable_Mailbox(boundUser);
+                                reverse.AddAction(Actions.CreateMailbox, userGuid);
+
+                                powershell.Set_Mailbox(boundUser, plan, validatedEmails.ToArray());
+                                powershell.Set_CASMailbox(boundUser.UserGuid, plan, null);
+
+                                user.MailboxPlan = plan.MailboxPlanID;
+                                user.Email = boundUser.Email;
+                                user.AdditionalMB = (plan.MailboxSizeMB > 0 ? (boundUser.SizeInMB - plan.MailboxSizeMB) : 0);
+                                db.SaveChanges();
+                                #endregion
+                            }
+
+                            #region Full Access and SendAs Permissions
+                            // Update full access
+                            logger.DebugFormat("Updating full access permissions");
+                            if (boundUser.EmailFullAccess != null) // If it is null then we can't be adding anything
+                            {
+                                var addFullAccess = boundUser.EmailFullAccess; boundUser.EmailFullAccess.Except(
+                                                    boundUser.EmailFullAccessOriginal == null ?
+                                                    new string[] { "" } : boundUser.EmailFullAccessOriginal);
+                                if (addFullAccess.Count() > 0)
+                                {
+                                    logger.DebugFormat("Adding full access permission to {0} for {1}", userGuid, String.Join(",", addFullAccess));
+                                    powershell.Add_FullAccessPermissions(userGuid, addFullAccess.ToArray(), boundUser.AutoMapping);
+                                }
+                            }
+
+                            if (boundUser.EmailFullAccessOriginal != null) // If the original is null then we cannot be removing anything
+                            {
+                                var removeFullAccess = boundUser.EmailFullAccessOriginal.Except(
+                                                       boundUser.EmailFullAccess == null ?
+                                                       new string[] { "" } : boundUser.EmailFullAccess);
+                                if (removeFullAccess.Count() > 0)
+                                {
+                                    logger.DebugFormat("Removing full access permission from {0} for {1}", String.Join(",", removeFullAccess), userGuid);
+                                    powershell.Remove_FullAccessPermissions(userGuid, removeFullAccess.ToArray());
+                                }
+                            }
+
+                            // Update send as access
+                            logger.DebugFormat("Updating send as permissions");
+                            if (boundUser.EmailSendAs != null) // If its null then we can't be adding anything
+                            {
+                                var addSendAsAccess = boundUser.EmailSendAs.Except(
+                                                      boundUser.EmailSendAsOriginal == null ?
+                                                      new string[] { "" } : boundUser.EmailSendAsOriginal);
+                                if (addSendAsAccess.Count() > 0)
+                                {
+                                    logger.DebugFormat("Adding send-as permission to {0} for {1}", userGuid, String.Join(",", addSendAsAccess));
+                                    powershell.Add_SendAsPermissions(userGuid, addSendAsAccess.ToArray());
+                                }
+                            }
+
+                            if (boundUser.EmailSendAsOriginal != null) // If the original is null then we cannot be removing anything
+                            {
+                                var removeSendAsAccess = boundUser.EmailSendAsOriginal.Except(
+                                                         boundUser.EmailSendAs == null ?
+                                                         new string[] { "" } : boundUser.EmailSendAs);
+                                if (removeSendAsAccess.Count() > 0)
+                                {
+                                    logger.DebugFormat("Removing send-as permission from {0} for {1}", String.Join(",", removeSendAsAccess), userGuid);
+                                    powershell.Remove_SendAsPermissions(userGuid, removeSendAsAccess.ToArray());
+                                }
+                            }
+                            #endregion
+                        }
+                        #endregion
+
+                        logger.InfoFormat("Successfully updated {0} mailbox settings", userGuid);
+                        return Negotiate.WithModel(new { success = "Successfully updated mailbox settings" })
+                                        .WithStatusCode(HttpStatusCode.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error updating user {0} mailbox information: {1}", userGuid, ex.ToString());
+
+                        reverse.RollbackNow();
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (powershell != null)
+                            powershell.Dispose();
+
+                        if (db != null)
+                            db.Dispose();
+                    }
+                    #endregion
+                };
+
+            Put["/mailbox/litigationhold"] = _ =>
+                {
+                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eUsers"));
+                    string companyCode = _.CompanyCode;
+                    Guid userGuid = _.UserGuid;
+
+                    #region Updates a specific user's mailbox litigation hold settings
+                    CloudPanelContext db = null;
+                    dynamic powershell = null;
+                    try
+                    {
+                        logger.DebugFormat("Getting user {0} from database for litigation hold", userGuid);
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
+
+                        var user = (from d in db.Users
+                                    where d.CompanyCode == companyCode
+                                    where d.UserGuid == userGuid
+                                    select d).FirstOrDefault();
+
+                        logger.DebugFormat("Binding the user to the form for litigation hold");
+                        var boundUser = this.Bind<Users>();
+                        boundUser.UserGuid = userGuid;
+
+                        // Check litigation hold
+                        #region Litigation Hold
+                        if (user.MailboxPlan > 0)
+                        {
+                            powershell = ExchPowershell.GetClass();
+
+                            int? litigationHoldDuration = null;
+                            if (Request.Form.LitigationHoldDuration.HasValue)
+                            {
+                                DateTime duration = DateTime.Parse(Request.Form.LitigationHoldDuration.Value);
+                                litigationHoldDuration = (int)duration.Subtract(DateTime.Now).TotalDays;
+                            }
+
+                            powershell.Set_LitigationHold(userGuid, boundUser.LitigationHoldEnabled, boundUser.RetentionUrl, boundUser.RetentionComment, Context.CurrentUser.UserName, litigationHoldDuration);
+                            user.LitigationHoldEnabled = boundUser.LitigationHoldEnabled;
+                            db.SaveChanges();
+                        }
+                        #endregion
+
+                        logger.InfoFormat("Successfully updated {0} litigation hold settings", userGuid);
+                        return Negotiate.WithModel(new { success = "Successfully updated litigation settings" })
+                                        .WithStatusCode(HttpStatusCode.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error updating user {0} litigation hold information: {1}", userGuid, ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (powershell != null)
+                            powershell.Dispose();
+
+                        if (db != null)
+                            db.Dispose();
+                    }
+                    #endregion
+                };
+
+            Put["/mailbox/archive"] = _ =>
+                {
+                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eUsers"));
+                    string companyCode = _.CompanyCode;
+                    Guid userGuid = _.UserGuid;
+
+                    #region Updates a specific user's mailbox
+                    CloudPanelContext db = null;
+                    dynamic powershell = null;
+                    try
+                    {
+                        logger.DebugFormat("Getting user {0} from database for litigation hold", userGuid);
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
+
+                        var user = (from d in db.Users
+                                    where d.CompanyCode == companyCode
+                                    where d.UserGuid == userGuid
+                                    select d).FirstOrDefault();
+
+                        logger.DebugFormat("Binding the user to the form for litigation hold");
+                        var boundUser = this.Bind<Users>();
+                        boundUser.UserGuid = userGuid;
+
+                        // Check litigation hold
+                        #region Litigation Hold
+                        if (user.MailboxPlan > 0)
+                        {
+                            powershell = ExchPowershell.GetClass();
+
+                            int? litigationHoldDuration = null;
+                            if (Request.Form.LitigationHoldDuration.HasValue)
+                            {
+                                DateTime duration = DateTime.Parse(Request.Form.LitigationHoldDuration.Value);
+                                litigationHoldDuration = (int)duration.Subtract(DateTime.Now).TotalDays;
+                            }
+
+                            powershell.Set_LitigationHold(userGuid, boundUser.LitigationHoldEnabled, boundUser.RetentionUrl, boundUser.RetentionComment, Context.CurrentUser.UserName, litigationHoldDuration);
+                            user.LitigationHoldEnabled = boundUser.LitigationHoldEnabled;
+                            db.SaveChanges();
+                        }
+                        #endregion
+
+                        logger.InfoFormat("Successfully updated {0} litigation hold settings", userGuid);
+                        return Negotiate.WithModel(new { success = "Successfully updated litigation settings" })
+                                        .WithStatusCode(HttpStatusCode.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error updating user {0} litigation hold information: {1}", userGuid, ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (powershell != null)
+                            powershell.Dispose();
+
+                        if (db != null)
+                            db.Dispose();
+                    }
+                    #endregion
+                };
+
+            /*
+            Get["/", c => c.Request.Accept("text/html")] = _ =>
+            {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
+
+                logger.DebugFormat("Loading user edit page for company {0} and user {1}", _.CompanyCode, _.UserGuid);
+                string companyCode = _.CompanyCode;
+                string userGuid = _.UserPrincipalName;
+                return View["Company/users_edit.cshtml", new { 
+                    CompanyCode = companyCode, 
+                    UserGuid = userGuid,
+                    MailboxUsers = UsersModule.GetMailboxUsers(companyCode) 
+                }];
+            };
+
+            Get["/", c => c.Request.Accept("application/json")] = _ =>
+            {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
+
+                #region Gets a specific user
+                CloudPanelContext db = null;
+                try
+                {
+                    db = new CloudPanelContext(Settings.ConnectionString);
+                    db.Database.Connection.Open();
+
+                    logger.DebugFormat("Getting user {0} from the system", _.UserGuid);
+                    string companyCode = _.CompanyCode;
+                    Guid userGuid = _.UserGuid;
+
+                    logger.DebugFormat("Querying the database for {0}", userGuid);
+                    var user = (from d in db.Users
+                                where d.CompanyCode == companyCode
+                                where d.UserGuid == userGuid
+                                select d).FirstOrDefault();
+
+                    if (user == null)
+                        throw new Exception("Unable to find user in database");
+                    else
+                    {
+                        return Negotiate.WithModel(new { user = user })
+                                        .WithStatusCode(HttpStatusCode.OK);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error getting user {0}: {1}", _.UserGuid, ex.ToString());
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
+                }
+                finally
+                {
+                    if (db != null)
+                        db.Dispose();
+                }
+                #endregion
+            };*/
 
             /*
             Put["/"] = _ =>
@@ -538,296 +862,6 @@ namespace CloudPanel.Modules.CompanyModules
         #region Exchange Methods
 
         /// <summary>
-        /// Processes the mailbox for the user
-        /// </summary>
-        /// <param name="sqlUser"></param>
-        /// <param name="boundUser"></param>
-        /// <param name="db"></param>
-        private void ProcessMailbox(ref Users sqlUser, ref Users boundUser, ref CloudPanelContext db)
-        {
-            bool wasEnabled = sqlUser.MailboxPlan > 0 ? true : false;
-            bool nowEnabled = boundUser.EmailEnabledCheck;
-
-            ReverseActions reverse = new ReverseActions();
-            dynamic powershell = null;
-            try
-            {
-                powershell = ExchPowershell.GetClass();
-
-                string userPrincipalName = boundUser.UserPrincipalName;
-                if ((!wasEnabled && nowEnabled) || (wasEnabled && nowEnabled))
-                {
-                    logger.DebugFormat("We are either enabling or updating the mailbox for {0}", userPrincipalName);
-                    int mailboxPlan = (int)boundUser.MailboxPlan;
-                    var plan = (from d in db.Plans_ExchangeMailbox
-                                where d.MailboxPlanID == mailboxPlan
-                                select d).FirstOrDefault();
-
-                    if (plan == null)
-                        throw new Exception("Unable to find mailbox plan " + boundUser.MailboxPlan);
-
-                    logger.DebugFormat("Processing email addresses...");
-                    var acceptedDomains = GetAcceptedDomains(boundUser.CompanyCode, ref db);
-                    var emailAddresses = ValidateEmails(ref boundUser, acceptedDomains);
-
-                    if (!wasEnabled && nowEnabled)
-                    {
-                        if (!CloudPanel.CPStaticHelpers.IsUnderLimit(sqlUser.CompanyCode, "mailbox"))
-                            throw new Exception("You have reached the mailbox limit.");
-
-                        // Enables mailbox
-                        powershell.Enable_Mailbox(boundUser);
-                        reverse.AddAction(Actions.CreateMailbox, userPrincipalName);
-                    }
-
-                    // Update mailbox settings
-                    powershell.Set_Mailbox(boundUser, plan, emailAddresses.ToArray());
-
-                    // Update CAS mailbox
-                    logger.DebugFormat("New Activesync plan is {0}", boundUser.ActiveSyncPlan);
-                    if (boundUser.ActiveSyncPlan > 0)
-                    {
-                        logger.DebugFormat("Activesync plan is not setting the default for {0}. Settings to {1}", userPrincipalName, boundUser.ActiveSyncPlan);
-                        int asPlanId = boundUser.ActiveSyncPlan.Value;
-                        var asPlan = (from d in db.Plans_ExchangeActiveSync
-                                      where d.ASID == asPlanId
-                                      select d).First();
-                        powershell.Set_CASMailbox(boundUser.UserGuid, plan, asPlan);
-                    }
-                    else
-                        powershell.Set_CASMailbox(boundUser.UserGuid, plan);
-
-                    logger.DebugFormat("Processing full access permissions for {0}", boundUser.UserPrincipalName);
-                    ProcessFullAccess(boundUser.UserGuid, ref powershell, boundUser.EmailFullAccessOriginal, boundUser.EmailFullAccess, boundUser.AutoMapping);
-
-                    logger.DebugFormat("Processing send as permissions for {0}", boundUser.UserPrincipalName);
-                    ProcessSendAs(sqlUser.UserGuid, ref powershell, boundUser.EmailSendAsOriginal, boundUser.EmailSendAs);
-
-                    logger.DebugFormat("Updating sql data");
-                    sqlUser.Email = boundUser.Email;
-                    sqlUser.MailboxPlan = plan.MailboxPlanID;
-                    sqlUser.ActiveSyncPlan = boundUser.ActiveSyncPlan > 0 ? boundUser.ActiveSyncPlan : 0;
-
-                    if (plan.MailboxSizeMB > 0)
-                        sqlUser.AdditionalMB = (boundUser.SizeInMB - plan.MailboxSizeMB);
-                    else
-                        sqlUser.AdditionalMB = 0;
-                }
-                else if (wasEnabled && !nowEnabled)
-                {
-                    #region Disable Mailbox
-
-                    // Disable mailbox
-                    powershell.Disable_Mailbox(boundUser.UserGuid);
-
-                    // Update sql values
-                    logger.DebugFormat("Updating SQL values for disabling mailbox {0}", boundUser.UserPrincipalName);
-                    sqlUser.MailboxPlan = 0;
-                    sqlUser.AdditionalMB = 0;
-                    sqlUser.ActiveSyncPlan = 0;
-                    sqlUser.Email = string.Empty;
-                    sqlUser.LitigationHoldDate = string.Empty;
-                    sqlUser.LitigationHoldEnabled = false;
-                    sqlUser.LitigationHoldOwner = string.Empty;
-
-                    #endregion
-                }
-                else
-                    logger.InfoFormat("Processing mailbox returned an unknown result.");
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error processing mailbox for {0}: {1}", sqlUser.UserPrincipalName, ex.ToString());
-                reverse.RollbackNow();
-                throw;
-            }
-            finally
-            {
-                if (powershell != null)
-                    powershell.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Processes the litigation hold settings for the user
-        /// </summary>
-        /// <param name="boundUser"></param>
-        private void ProcessLitigationHold(ref Users boundUser)
-        {
-            logger.DebugFormat("Processing litigation hold section...");
-            dynamic powershell = null;
-            try
-            {
-                logger.DebugFormat("Litigation hold page was loaded. Updating values");
-                powershell = ExchPowershell.GetClass();
-                powershell.Set_LitigationHold(boundUser.UserGuid, boundUser.LitigationHoldEnabled, boundUser.RetentionUrl, boundUser.RetentionComment);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error processing litigation hold for {0}: {1}", boundUser.UserPrincipalName, ex.ToString());
-                throw;
-            }
-            finally
-            {
-                if (powershell != null)
-                    powershell.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Processes the archive mailbox settings for the user
-        /// </summary>
-        /// <param name="sqlUser"></param>
-        /// <param name="boundUser"></param>
-        /// <param name="db"></param>
-        private void ProcessArchive(ref Users sqlUser, ref Users boundUser, ref CloudPanelContext db)
-        {
-            logger.DebugFormat("Processing Exchange archiving");
-            dynamic powershell = null;
-            ReverseActions reverse = new ReverseActions();
-            try
-            {
-                bool wasEnabled = sqlUser.ArchivePlan > 0 ? true : false;
-                bool nowEnabled = boundUser.ArchivingEnabledChecked;
-
-                powershell = ExchPowershell.GetClass();
-                if ((!wasEnabled && nowEnabled) || (wasEnabled && nowEnabled))
-                {
-                    logger.DebugFormat("We are either enabling or updating the archive mailbox for {0}", boundUser.UserPrincipalName);
-                    int archivePlan = (int)boundUser.ArchivePlan;
-                    var plan = (from d in db.Plans_ExchangeArchiving
-                                where d.ArchivingID == archivePlan
-                                select d).First();
-
-                    if (plan == null)
-                        throw new Exception("Unable to find archive mailbox plan " + archivePlan);
-
-                    if (!wasEnabled && nowEnabled) // Enabling archive 
-                    {
-                        powershell.Enable_ArchiveMailbox(sqlUser.UserGuid, boundUser.ArchiveName, plan.Database);
-                        reverse.AddAction(Actions.CreateArchiveMailbox, sqlUser.UserGuid);
-
-                        powershell.Set_ArchiveMailbox(sqlUser.UserGuid, plan.ArchiveSizeMB);
-                    }
-                    else // Update archive
-                        powershell.Set_ArchiveMailbox(boundUser.UserGuid, plan.ArchiveSizeMB);
-
-                    logger.DebugFormat("Updating sql data");
-                    sqlUser.ArchivePlan = plan.ArchivingID;
-                }
-                else if (wasEnabled && !nowEnabled)
-                {
-                    #region Disable Archive Mailbox
-
-                    // Disable mailbox
-                    powershell.Disable_ArchiveMailbox(boundUser.UserGuid);
-
-                    // Update sql values
-                    logger.DebugFormat("Updating SQL values for disabling archive mailbox {0}", boundUser.UserPrincipalName);
-                    sqlUser.ArchivePlan = 0;
-                    #endregion
-                }
-                else
-                    logger.InfoFormat("Processing archive mailbox returned an unknown result.");
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error processing litigation hold for {0}: {1}", boundUser.UserPrincipalName, ex.ToString());
-                reverse.RollbackNow();
-
-                throw;
-            }
-            finally
-            {
-                if (powershell != null)
-                    powershell.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Adds or removes full access permissions
-        /// </summary>
-        /// <param name="upn"></param>
-        /// <param name="powershell"></param>
-        /// <param name="original"></param>
-        /// <param name="current"></param>
-        /// <param name="autoMapping"></param>
-        private void ProcessFullAccess(Guid userGuid, ref dynamic powershell, string[] original, string[] current, bool autoMapping = true)
-        {
-            var toAdd = new List<string>();
-            var toRemove = new List<string>();
-
-            logger.DebugFormat("Processing full access permissions");
-            if (original != null && current != null)
-            {
-                logger.DebugFormat("Both original and current were not null");
-                toAdd = (from c in current
-                         where !original.Contains(c)
-                         select c).ToList();
-
-                toRemove = (from c in original
-                            where !current.Contains(c)
-                            select c).ToList();
-            }
-
-            logger.DebugFormat("Checking if all values were removed");
-            if (original != null && current == null)
-                toRemove.AddRange(original);
-
-            logger.DebugFormat("Checking is original was null");
-            if (original == null && current != null)
-                toAdd.AddRange(current);
-
-            logger.DebugFormat("Continuing...");
-            if (toAdd != null && toAdd.Count() > 0)
-                powershell.Add_FullAccessPermissions(userGuid, toAdd.ToArray(), autoMapping);
-
-            if (toRemove != null && toRemove.Count() > 0)
-                powershell.Remove_FullAccessPermissions(userGuid, toRemove.ToArray());
-        }
-
-        /// <summary>
-        /// Adds or removes send as permissions
-        /// </summary>
-        /// <param name="distinguishedName"></param>
-        /// <param name="powershell"></param>
-        /// <param name="original"></param>
-        /// <param name="current"></param>
-        private void ProcessSendAs(Guid userGuid, ref dynamic powershell, string[] original, string[] current)
-        {
-            var toAdd = new List<string>();
-            var toRemove = new List<string>();
-
-            logger.DebugFormat("Processing send as permissions");
-            if (original != null && current != null)
-            {
-                logger.DebugFormat("Both original and current were not null");
-                toAdd = (from c in current
-                         where !original.Contains(c)
-                         select c).ToList();
-
-                toRemove = (from c in original
-                            where !current.Contains(c)
-                            select c).ToList();
-            }
-
-            logger.DebugFormat("Checking if all values were removed");
-            if (original != null && current == null)
-                toRemove.AddRange(original);
-
-            logger.DebugFormat("Checking is original was null");
-            if (original == null && current != null)
-                toAdd.AddRange(current);
-
-            logger.DebugFormat("Continuing...");
-            if (toAdd != null && toAdd.Count() > 0)
-                powershell.Add_SendAsPermissions(userGuid, toAdd.ToArray());
-
-            if (toRemove != null && toRemove.Count() > 0)
-                powershell.Remove_SendAsPermissions(userGuid, toRemove.ToArray());
-        }
-
-        /// <summary>
         /// Validates that the emails end with a domain the company has access to
         /// </summary>
         /// <param name="boundUser"></param>
@@ -835,31 +869,36 @@ namespace CloudPanel.Modules.CompanyModules
         /// <returns></returns>
         private List<string> ValidateEmails(ref Users boundUser, List<Domains> validDomains)
         {
-            var validatedList = new List<string>() { "SMTP:" + boundUser.Email };
+            var validatedList = new List<string>();
+            string primaryDomain = boundUser.Email.Split('@')[1];
 
-            if (boundUser.EmailAliases != null)
+            if (validDomains.Any(x => x.Domain.Equals(primaryDomain, StringComparison.InvariantCultureIgnoreCase)))
             {
-                foreach (var email in boundUser.EmailAliases)
+                validatedList.Add("SMTP:" + boundUser.Email);
+                if (boundUser.EmailAliases != null)
                 {
-                    logger.DebugFormat("Validating alias {0} but removing spaces first", email);
-                    var e = email.Replace(" ", string.Empty);
-
-                    string[] split = e.Split('@');
-                    var findDomain = (from d in validDomains
-                                      where d.Domain.Equals(split[1], StringComparison.CurrentCultureIgnoreCase)
-                                      select d).FirstOrDefault();
-
-                    if (findDomain == null)
-                        throw new Exception("Domain " + split[1] + " is not a valid domain for this company");
-                    else
+                    foreach (var alias in boundUser.EmailAliases)
                     {
-                        if (!e.StartsWith("sip:") && !e.StartsWith("X500") && !e.StartsWith("X400"))
-                            validatedList.Add("smtp:" + e);
+                        // Remove whitespace characters (not allowed)
+                        string adjustedAlias = alias.Replace(" ", string.Empty);
+
+                        var aliasDomain = adjustedAlias.Split('@')[1];
+                        if (validDomains.Any(x => x.Domain.Equals(aliasDomain, StringComparison.InvariantCultureIgnoreCase)))
+                        {
+                            if (!alias.StartsWith("sip:") && !alias.StartsWith("X500") && !alias.StartsWith("X400"))
+                                validatedList.Add("smtp:" + adjustedAlias);
+                            else
+                                validatedList.Add(adjustedAlias);
+                        }
                         else
-                            validatedList.Add(e);
+                            throw new Exception("Alias " + alias + " is not a valid domain for this company");
                     }
                 }
+                else
+                    logger.DebugFormat("No email aliases to validate.");
             }
+            else
+                throw new Exception("Domain " + primaryDomain + " is not a valid domain for this company");
 
             return validatedList;
         }

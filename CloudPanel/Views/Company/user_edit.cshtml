@@ -5,7 +5,10 @@
     Layout = "__master.cshtml";
     string companyCode = this.RenderContext.Context.GetCompanyCode();
 
-    var mailboxUsers = CloudPanel.Modules.UsersModule.GetMailboxUsers(companyCode);
+    var mailboxUsers = CloudPanel.Modules.UsersModule.GetMailboxUsers(Model.CompanyCode);
+    var resourceMailboxes = CloudPanel.Modules.ResourceModule.GetResources(companyCode);
+    var groups = CloudPanel.Modules.GroupsModule.GetGroups(companyCode);
+    var contacts = CloudPanel.Modules.ContactsModule.GetContacts(companyCode);
 }
 
 @section HEAD{
@@ -103,14 +106,16 @@
                             <div class="tab-container tab-success">
                                 <ul class="nav nav-tabs">
                                     <li class="active"><a href="#user" data-toggle="tab">User</a></li>
-                                    <li class="dropdown">
-                                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Email <span class="caret"></span></a>
-                                        <ul class="dropdown-menu">
-                                            <li><a href="#mailbox" data-toggle="tab" onclick="">Edit</a></li>
-                                            <li><a href="#litigationhold" data-toggle="tab" onclick="">Litigation Hold</a></li>
-                                            <li><a href="#archiving" data-toggle="tab" onclick="">Archiving</a></li>
-                                        </ul>
-                                    </li>
+                                    @CloudPanel.CPStaticHelpers.IsExchangeEnabled(companyCode) {
+                                        <li class="dropdown">
+                                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Email <span class="caret"></span></a>
+                                            <ul class="dropdown-menu">
+                                                <li><a href="#mailbox" data-toggle="tab" onclick="javascript:GetMailbox();">Edit</a></li>
+                                                <li><a href="#litigationhold" data-toggle="tab" onclick="javascript:GetLitigationHold();">Litigation Hold</a></li>
+                                                <li><a href="#archiving" data-toggle="tab" onclick="javascript:GetArchiving();">Archiving</a></li>
+                                            </ul>
+                                        </li>
+                                    }
                                 </ul>
                                 <div class="tab-content">
                                     <!-- USER SECTION -->
@@ -178,7 +183,7 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-group">
-                                                                    <label for="smallinput" class="col-sm-3 control-label">JobTitle</label>
+                                                                    <label for="smallinput" class="col-sm-3 control-label">Job Title</label>
                                                                     <div class="col-sm-6">
                                                                         <input id="JobTitle" name="JobTitle" type="text" value="@Model.JobTitle" class="form-control input-sm">
                                                                     </div>
@@ -326,24 +331,26 @@
 
                                     <!-- MAILBOX SECTION -->
                                     <div class="tab-pane clearfix" id="mailbox">
-                                        <div class="col-md-12">
-                                            <form id="mailboxForm" action="" method="post" class="form-horizontal" data-parsley-validate="true">
+                                        <form id="mailboxForm" action="" method="post" class="form-horizontal" data-parsley-validate="true">
+                                            <div class="col-md-12">
                                                 <div class="form-group">
                                                     <label class="col-sm-10 control-label">Mailbox Enabled:</label>
                                                     <div class="col-sm-2 control-label">
                                                         <div id="IsMailboxEnabledToggle" class="toggle toggle-modern"></div>
-                                                        <input id="IsMailboxEnabled" name="IsMailboxEnabled" type="checkbox" value="@(Model.MailboxPlan > 0 ? "true" : "false")" hidden />
+                                                        <div style="display: none">
+                                                            <input id="IsMailboxEnabled" name="IsMailboxEnabled" type="checkbox" value="false" />
+                                                        </div>
                                                     </div>
                                                 </div>
 
-                                                <div id="MailboxEnabledDiv">
+                                                <div id="MailboxEnabledDiv" style="display: none">
                                                     <div class="form-group">
                                                         <label class="col-sm-3 control-label">Primary Email</label>
                                                         <div class="col-sm-8">
                                                             <div class="input-daterange input-group">
                                                                 <input id="EmailFirst" name="EmailFirst" type="text" class="form-control input-small">
                                                                 <span class="input-group-addon">@@</span>
-                                                                <select id="EmailLast" name="EmailLast" class="form-control input-small">
+                                                                <select id="EmailDomain" name="EmailDomain" class="form-control input-small">
                                                                     @foreach (var domain in CloudPanel.Modules.DomainsModule.GetAcceptedDomains(Model.CompanyCode))
                                                                     {
                                                                         <option value="@domain.Domain">@domain.Domain</option>
@@ -356,12 +363,15 @@
                                                         <label for="smallinput" class="col-sm-3 control-label">Plan</label>
                                                         <div class="col-sm-6">
                                                             <select id="MailboxPlan" name="MailboxPlan" class="form-control input-sm">
-                                                                @foreach (CloudPanel.Base.Database.Models.Plans_ExchangeMailbox plan in CloudPanel.Modules.PlansModules.MailboxPlanModule.GetMailboxPlans(Model.CompanyCode))
+                                                                @foreach (var plan in CloudPanel.Modules.PlansModules.MailboxPlanModule.GetMailboxPlans(Model.CompanyCode))
                                                                 {
-                                                                    <option value="@plan.MailboxPlanID" 
-                                                                            data-min="@plan.MailboxSizeMB" 
+                                                                    <option value="@plan.MailboxPlanID"
+                                                                            data-min="@plan.MailboxSizeMB"
                                                                             data-max="@(plan.MaxMailboxSizeMB > plan.MailboxSizeMB ? plan.MaxMailboxSizeMB : plan.MailboxSizeMB)"
-                                                                            data-description="@plan.MailboxPlanDesc">@plan.MailboxPlanName</option>
+                                                                            data-description="@plan.MailboxPlanDesc"
+                                                                            @(Model.MailboxPlan == plan.MailboxPlanID ? "selected" : "" )>
+                                                                        @plan.MailboxPlanName
+                                                                    </option>
                                                                 }
                                                             </select>
                                                         </div>
@@ -374,6 +384,7 @@
                                                                 <input type="text" id="MailboxSize" name="MailboxSize" readonly style="border:0; color:#f6931f; font-weight:bold;">
                                                             </p>
                                                             <div id="MailboxPlanSlider"></div>
+                                                            <input id="SizeInMB" name="SizeInMB" type="hidden" />
                                                         </div>
                                                     </div>
 
@@ -389,48 +400,164 @@
                                                     </div>
 
                                                     <hr />
-                                                    <h3>Modify Mailbox Permissions</h3>
+                                                    <h4>Modify Mailbox Permissions</h4>
                                                     <p><small>Give the ability for other people to access this mailbox.</small></p><br />
 
                                                     <div class="form-group">
                                                         <label for="smallinput" class="col-sm-3 control-label">Full Access</label>
                                                         <div class="col-sm-6">
-                                                            <select id="FullAccess" name="FullAccess" class="populate" style="width: 100%" multiple>
+                                                            <select id="EmailFullAccess" name="EmailFullAccess" class="populate" style="width: 100%" multiple>
                                                                 @foreach (var user in mailboxUsers)
                                                                 {
-                                                                    <option value="@user.CanoncialName">@user.DisplayName</option>
+                                                                if (!string.IsNullOrEmpty(user.sAMAccountName))
+                                                                    <option value="@user.sAMAccountName">@user.DisplayName</option>
                                                                 }
                                                             </select>
+                                                            <br />
+                                                            <input id="AutoMapping" name="AutoMapping" type="checkbox" value="true" checked /> Auto Mapping Enabled
+                                                            <input id="EmailFullAccessOriginal" name="EmailFullAccessOriginal" type="hidden" value="" />
                                                         </div>
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="smallinput" class="col-sm-3 control-label">Send-As Access</label>
                                                         <div class="col-sm-6">
-                                                            <select id="SendAsAccess" name="SendAsAccess" class="populate" style="width: 100%" multiple>
+                                                            <select id="EmailSendAs" name="EmailSendAs" class="populate" style="width: 100%" multiple>
                                                                 @foreach (var user in mailboxUsers)
                                                                 {
-                                                                    <option value="@user.CanoncialName">@user.DisplayName</option>
+                                                                if (!string.IsNullOrEmpty(user.sAMAccountName))
+                                                                    <option value="@user.sAMAccountName">@user.DisplayName</option>
                                                                 }
                                                             </select>
+                                                            <input id="EmailSendAsOriginal" name="EmailSendAsOriginal" type="hidden" value="" />
                                                         </div>
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="smallinput" class="col-sm-3 control-label">Send-On-Behalf Access</label>
                                                         <div class="col-sm-6">
-                                                            <select id="SendOnBehalf" name="SendOnBehalf" class="populate" style="width: 100%" multiple>
+                                                            <select id="EmailSendOnBehalf" name="EmailSendOnBehalf" class="populate" style="width: 100%" multiple>
                                                                 @foreach (var user in mailboxUsers)
                                                                 {
+                                                                if (!string.IsNullOrEmpty(user.sAMAccountName))
                                                                     <option value="@user.CanoncialName">@user.DisplayName</option>
                                                                 }
                                                             </select>
                                                         </div>
                                                     </div>
 
+                                                    <hr />
+                                                    <h4>Forward Email</h4>
+                                                    <p><small>Choose to forward your email to another person or not</small></p><br />
+                                                    <div class="form-group">
+                                                        <label for="smallinput" class="col-sm-3 control-label">Full Access</label>
+                                                        <div class="col-sm-6">
+                                                            <select id="ForwardTo" name="ForwardTo" class="populate" style="width: 100%">
+                                                                <option value="0">Forwarding Disabled</option>
+                                                                <optgroup label="Users">
+                                                                    @if (mailboxUsers != null) {
+                                                                    foreach (var user in mailboxUsers)
+                                                                    {
+                                                                        <option value="@user.CanoncialName">@user.DisplayName</option>
+                                                                    }
+                                                                    }
+                                                                </optgroup>
+                                                                <optgroup label="Contacts">
+                                                                    @if (contacts != null ) {
+                                                                    foreach (var contact in contacts)
+                                                                    {
+                                                                        <option value="@contact.CanoncialName">@contact.DisplayName</option>
+                                                                    }
+                                                                    }
+                                                                </optgroup>
+                                                                <optgroup label="Groups">
+                                                                    @if (groups != null) {
+                                                                    foreach (var group in groups)
+                                                                    {
+                                                                        <option value="@group.CanonicalName">@group.DisplayName</option>
+                                                                    }
+                                                                    }
+                                                                </optgroup>
+                                                                <optgroup label="Resources">
+                                                                    @if (resourceMailboxes != null) {
+                                                                    foreach (var resource in resourceMailboxes)
+                                                                    {
+                                                                        <option value="@resource.CanonicalName">@resource.DisplayName</option>
+                                                                    }
+                                                                    }
+                                                                </optgroup>
+                                                            </select>
+                                                            <br />
+                                                            <input id="DeliverToMailboxAndForward" name="DeliverToMailboxAndForward" value="false" type="checkbox" /> Deliver to Mailbox and Forward
+                                                        </div>
+                                                    </div>
+
                                                 </div>
-                                            </form>
-                                        </div>
+
+                                            </div>
+                                        </form>
                                     </div>
                                     <!-- END MAILBOX SECTION -->
+
+                                    <!-- LITIGATION HOLD SECTION -->
+                                    <div class="tab-pane clearfix" id="litigationhold">
+                                        <form id="litigationholdForm" action="" method="post" class="form-horizontal" data-parsley-validate="true">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label class="col-sm-11 control-label">Litigation Hold Enabled:</label>
+                                                    <div class="col-sm-1 control-label">
+                                                        <input id="LitigationHoldEnabled" name="LitigationHoldEnabled" type="checkbox" value="false" />
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="smallinput" class="col-sm-3 control-label">Hold until</label>
+                                                    <div class="col-sm-6">
+                                                        <input id="LitigationHoldDuration" name="LitigationHoldDuration" type="text" value="" class="form-control input-sm">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="smallinput" class="col-sm-3 control-label">Url</label>
+                                                    <div class="col-sm-6">
+                                                        <input id="RetentionUrl" name="RetentionUrl" type="text" value="" class="form-control input-sm">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="smallinput" class="col-sm-3 control-label">Message</label>
+                                                    <div class="col-sm-6">
+                                                        <textarea id="RetentionComment" name="RetentionComment" rows="2" cols="20" class="form-control"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- END LITIGATION HOLD SECTION -->
+
+                                    <!-- ARCHIVING SECTION -->
+                                    <div class="tab-pane clearfix" id="archiving">
+                                        <form id="archivingForm" action="" method="post" class="form-horizontal" data-parsley-validate="true">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label class="col-sm-11 control-label">Archiving Enabled:</label>
+                                                    <div class="col-sm-1 control-label">
+                                                        <input id="ArchivingEnabled" name="ArchivingEnabled" type="checkbox" @( (Model.MailboxPlan > 0 && Model.ArchivePlan) > 0 ? "value='true' checked": "false") />
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="smallinput" class="col-sm-3 control-label">Plan</label>
+                                                    <div class="col-sm-6">
+                                                        <select id="ArchivePlan" name="ArchivePlan" class="form-control input-sm">
+                                                            @foreach (var plan in CloudPanel.Modules.PlansModules.ArchivePlanModule.GetArchivePlans(companyCode))
+                                                            {
+                                                                <option value="@plan.ArchivingID" 
+                                                                        data-size="@plan.ArchiveSizeMB" 
+                                                                        data-description="@plan.Description"
+                                                                        @(plan.ArchivingID == Model.ArchivePlan ? "selected" : "")>@plan.DisplayName</option>
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- END ARCHIVING SECTION -->
                                 </div>
                             </div>
                             
@@ -440,7 +567,7 @@
                 <div class="panel-footer">
                     <div class="row">
                         <div class="btn-toolbar text-right">
-                            <button id="submit" class="btn-primary btn" type="button" onclick="javascript:SubmitUser();">Save</button>
+                            <button id="submit" class="btn-primary btn" type="button" onclick="javascript:Submit();">Save</button>
                         </div>
                     </div>
                 </div>
@@ -454,10 +581,13 @@
     <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
     <script src="~/Content/plugins/form-tokenfield/bootstrap-tokenfield.min.js"></script>
     <script src="~/Content/plugins/form-select2/select2.min.js"></script>
-    <script src="~/Content/plugins/form-toggle/toggles.min.js"></script>
+    <script src="~/Content/plugins/form-toggle/toggles.js"></script>
     <script src="~/Content/plugins/form-datepicker/js/bootstrap-datepicker.js"></script>
     <script src="~/Content/plugins/form-ckeditor/ckeditor.js"></script>
     <script type="text/javascript">
+        var mailboxUpdated = false;
+        var litigationHoldUpdated = false;
+        var archivingUpdated = false;
 
         $(document).ready(function () {
 
@@ -469,6 +599,9 @@
                     $(this).val("false");
                 }
             });
+
+            // Date picker for litigation hold
+            $('#LitigationHoldDuration').datepicker({startDate: "+1d"});
 
             // Select2 for full access, send-as, and send on behalf
             $(".populate").select2({
@@ -482,77 +615,12 @@
             MailboxToggle();
 
             // Slider for mailbox plans
-            SetSlider(null);
+            SetSlider(@Model.AdditionalMB);
             $("#MailboxPlan").change(function() {
-                SetSlider();
+                SetSlider(0);
             });
 
             // Tokenfield for email aliases
-            SetEmailAliases("");
-        });
-
-        function MailboxToggle() {
-            $('#IsMailboxEnabledToggle').toggles({
-                checkbox: $("#IsMailboxEnabled"),
-                on: @(Model.MailboxPlan > 0 ? "true" : "false")
-            });
-
-            $('#IsMailboxEnabledToggle').on('toggle', function (e, active) {
-                if (active) {
-                    $("#MailboxEnabledDiv").show();
-                } else {
-                    $("#MailboxEnabledDiv").hide();
-
-                    var myToggle = $('#IsMailboxEnabledToggle').data('toggles');
-                    swal({ 
-                        title: "Are you sure?",   
-                        text: "Disabling a mailbox will delete all emails and data from the mailbox.",   
-                        type: "warning",   
-                        showCancelButton: true,   
-                        confirmButtonColor: "#DD6B55",   
-                        confirmButtonText: "Yes, disable it!",   
-                        cancelButtonText: "No!",   
-                        closeOnConfirm: true,   
-                        closeOnCancel: true 
-                    }, function(isConfirm){   
-                        if (isConfirm) {    
-                            myToggle.toggle(false);
-                        } 
-                        else {     
-                            myToggle.toggle(true);
-                        } 
-                    });
-                }
-            });
-        }
-
-        function SetSlider(value) {
-            var select = $("#MailboxPlan option:selected");
-            var min = $(select).data("min");
-            var max = $(select).data("max");
-
-            if (value == null)
-                value = min;
-
-            if (min > 0) {
-                $(".slidergroup").show();
-                $("#MailboxPlanSlider").slider({
-                    value: value,
-                    min: min,
-                    max: max,
-                    step: 256,
-                    slide: function( event, ui ) {
-                        $( "#MailboxSize" ).val( ui.value );
-                    }
-                });
-                $( "#MailboxSize" ).val( $( "#MailboxPlanSlider" ).slider( "value" ) );
-            } else {
-                $(".slidergroup").hide();
-            }
-        }
-
-        function SetEmailAliases(aliases)
-        {
             $('#EmailAliases')
               .on('beforeCreateToken', function (e) {
                   var token = e.token.value.split('|');
@@ -573,26 +641,203 @@
                   }
               })
               .tokenfield();
+        });
+
+        // Toggle for the mailbox enabled or not
+        function MailboxToggle() {
+            var isEnabled = @(Model.MailboxPlan > 0 ? "true" : "false");
+            $('#IsMailboxEnabledToggle').toggles({
+                checkbox: $("#IsMailboxEnabled"),
+                on: isEnabled
+            });
+
+            if (isEnabled) {
+                $("#MailboxEnabledDiv").show();
+                $("#IsMailboxEnabled").val("true");
+            }
+
+            $('#IsMailboxEnabledToggle').on('toggle', function (e, active) {
+                if (active) {
+                    $("#MailboxEnabledDiv").show();
+                    $("#IsMailboxEnabled").val("true");
+                } else {
+                    $("#MailboxEnabledDiv").hide();
+                    swal({ 
+                        title: "Are you sure?",   
+                        text: "Disabling a mailbox will delete all emails and data from the mailbox.",   
+                        type: "warning",   
+                        showCancelButton: true,   
+                        confirmButtonColor: "#DD6B55",   
+                        confirmButtonText: "Yes, disable it!",   
+                        cancelButtonText: "No!",   
+                        closeOnConfirm: true,   
+                        closeOnCancel: true 
+                    }, function(isConfirm){
+                        var myToggle = $('#IsMailboxEnabledToggle').data('toggles');
+                        if (isConfirm) {    
+                            myToggle.toggle(false);
+                            $("#IsMailboxEnabled").val("false");
+                        } 
+                        else {     
+                            myToggle.toggle(true);
+                            $("#IsMailboxEnabled").val("true");
+                        } 
+                    });
+                }
+            });
         }
 
-        function SubmitUser() {
-            $.blockUI();
+        // Slider for the mailbox plan. Will not show if value is zero
+        function SetSlider(value) {
+            var select = $("#MailboxPlan option:selected");
+            var min = $(select).data("min");
+            var max = $(select).data("max");
 
+            if (value == 0)
+                value = min;
+            else
+                value = value + min;
+
+            if (min > 0) {
+                $(".slidergroup").show();
+                $("#MailboxPlanSlider").slider({
+                    value: value,
+                    min: min,
+                    max: max,
+                    step: 256,
+                    slide: function( event, ui ) {
+                        $("#MailboxSize").val(ui.value);
+                        $("#SizeInMB").val(ui.value);
+                    }
+                });
+                $("#MailboxSize").val(value);
+                $("#SizeInMB").val(value);
+            } else {
+                $(".slidergroup").hide();
+            }
+        }
+
+        // Query data from Exchange for the mailbox
+        function GetMailbox() {
+            var isEnabledOriginal = @Model.MailboxPlan;
+            if (mailboxUpdated == false && isEnabledOriginal > 0) {
+                $.blockUI();
+                $("#WaitMessage #message").text("Retrieving mailbox information");
+
+                $.ajax({ 
+                    type: "GET",
+                    url: "@Html.RenderContext.Context.Request.Url/mailbox",
+                  })
+                  .done(function(data) {
+                      console.log(data);
+
+                      $("#EmailFirst").val(data.mailbox.emailFirst);
+                      $("#EmailDomain").val(data.mailbox.emailDomain);
+                      $("#EmailAliases").tokenfield('setTokens', data.mailbox.emailAliases);
+
+                      $("#EmailFullAccess").select2("val", data.mailbox.emailFullAccess);
+                      $.each(data.mailbox.emailFullAccess, function (i, val) {
+                          if ($("#EmailFullAccess option[value='" + val + "']").length > 0) {
+                              $("#EmailFullAccessOriginal").val($("#EmailFullAccessOriginal").val() + val + ",");
+                          }
+                      });
+
+                      $("#EmailSendAs").select2("val", data.mailbox.emailSendAs);
+                      $.each(data.mailbox.emailSendAs, function (i, val) {
+                          if ($("#EmailSendAs option[value='" + val + "']").length > 0) {
+                              $("#EmailSendAsOriginal").val($("#EmailSendAsOriginal").val() + val + ",");
+                          }
+                      });
+
+                      $("#EmailSendOnBehalf").select2("val", data.mailbox.emailSendOnBehalf);
+                      $("#DeliverToMailboxAndForward").val(data.mailbox.deliverToMailboxAndForward);
+                      $("#DeliverToMailboxAndForward").prop("checked", data.mailbox.deliverToMailboxAndForward);
+
+                      // Litigation HoldLitigationHoldEnabled
+                      $("#LitigationHoldEnabled").val(data.mailbox.litigationHoldEnabled);
+                      $("#RetentionComment").val(data.mailbox.retentionComment);
+                      $("#RetentionUrl").val(data.mailbox.retentionUrl);
+
+                      mailboxUpdated = true;
+                  })
+                  .fail(function(data) {
+                      ShowError(data);
+                  })
+                  .always(function() {
+                      $.unblockUI();
+                  });
+            }
+            else
+                mailboxAlreadyRetrieved = true;
+        }
+
+        // Query data from Exchange and set litigation hold
+        function GetLitigationHold() {
+            if (mailboxUpdated == false)
+                GetMailbox();
+
+            litigationHoldUpdated = true;
+        }
+
+        // Query data from Exchange for archive mailbox settings
+        function GetArchiving() {
+            archivingUpdated = true;
+        }
+
+        // Submit our chain requests
+        function Submit() {
+            $.blockUI();
+            SubmitUser().then(SubmitMailbox)
+                        .then(SubmitLitigation)
+                        .fail(function (data) {
+                            ShowError(data);
+                        })
+                        .always(function () {
+                            $.unblockUI();
+                        })
+                        .done(function () {
+                            window.location.href = "@Url.Content("~/company/" + Model.CompanyCode +"/users")";
+                        });
+
+        }
+
+        // Submits the new user
+        function SubmitUser() {
+            $("#WaitMessage #message").text("Updating user settings");
             var userForm = $("#userForm").serialize();
-            $.ajax({ 
+            return $.ajax({ 
                 type: "PUT",
                 data: userForm
-              })
-              .done(function(data) {
-                  ShowSuccess(data.success);
-              })
-              .fail(function(data) {
-                  ShowError(data);
-              })
-              .always(function() {
-                  $.unblockUI();
-              });
-
+            });
         }
+
+        function SubmitMailbox() {
+            if (mailboxUpdated) {
+                $("#WaitMessage #message").text("Updating mailbox settings");
+                var mailboxForm = $("#mailboxForm").serialize();
+                return $.ajax({ 
+                    type: "PUT",
+                    url: "@Html.RenderContext.Context.Request.Url/mailbox",
+                    data: mailboxForm
+                });
+            }
+            else
+                return;
+        }
+
+        function SubmitLitigation() {
+            if (litigationHoldUpdated) {
+                $("#WaitMessage #message").text("Updating litigation hold settings");
+                var litigationholdForm = $("#litigationholdForm").serialize();
+                return $.ajax({ 
+                    type: "PUT",
+                    url: "@Html.RenderContext.Context.Request.Url/mailbox/litigationhold",
+                    data: litigationholdForm
+                });
+            }
+            else
+                return;
+        }
+
     </script>
 }

@@ -133,6 +133,7 @@
     <Content Include="Content\img\patterns\wild_oliva.png" />
     <Content Include="Content\img\sidebar-toggle.png" />
     <Content Include="Content\img\success.png" />
+    <Content Include="Content\img\wait_animation.gif" />
     <Content Include="Content\js\application.js" />
     <Content Include="Content\js\bootstrap.js" />
     <Content Include="Content\js\bootstrap.min.js" />

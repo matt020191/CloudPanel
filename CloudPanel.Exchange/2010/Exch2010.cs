@@ -1112,7 +1112,7 @@ namespace CloudPanel.Exchange
         /// <param name="litigationHoldEnabled">If litigation hold is enabled or not</param>
         /// <param name="retentionUrl">The URL for information on the hold (Displayed to user)</param>
         /// <param name="retentionComment">The comment for the information on the hold (Displayed to user)</param>
-        public void Set_LitigationHold(Guid userGuid, bool litigationHoldEnabled, string retentionUrl = "", string retentionComment = "")
+        public void Set_LitigationHold(Guid userGuid, bool litigationHoldEnabled, string retentionUrl = "", string retentionComment = "", string ownerName = "", int? holdUntilDate = null)
         {
             logger.DebugFormat("Updating litigation hold information for {0}", userGuid);
             logger.DebugFormat("Litigation hold values are {0}, {1}, {2}, {3}", userGuid, litigationHoldEnabled, retentionUrl, retentionComment);
@@ -1129,6 +1129,12 @@ namespace CloudPanel.Exchange
 
                 if (!string.IsNullOrEmpty(retentionUrl))
                     cmd.AddParameter("RetentionUrl", retentionUrl);
+
+                if (!string.IsNullOrEmpty(ownerName))
+                    cmd.AddParameter("LitigationHoldOwner", ownerName);
+
+                if (holdUntilDate != null)
+                    cmd.AddParameter("LitigationHoldDuration", holdUntilDate);
             }
             else
             {

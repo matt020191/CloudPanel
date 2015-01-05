@@ -1,17 +1,18 @@
-﻿using CloudPanel.Base.Config;
-using CloudPanel.Database.EntityFramework;
-using log4net;
-using Nancy;
-using Nancy.Security;
-using Nancy.ModelBinding;
-using System;
-using System.Linq;
-using System.Reflection;
+﻿using CloudPanel.Base.AD;
+using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
+using CloudPanel.Code;
+using CloudPanel.Database.EntityFramework;
 using CloudPanel.Exchange;
 using CloudPanel.Rollback;
+using log4net;
+using Nancy;
+using Nancy.ModelBinding;
+using Nancy.Security;
+using System;
 using System.Collections.Generic;
-using CloudPanel.Code;
+using System.Linq;
+using System.Reflection;
 
 namespace CloudPanel.Modules
 {
@@ -359,6 +360,14 @@ namespace CloudPanel.Modules
                                 where d.CompanyCode == companyCode
                                 orderby d.DisplayName
                                 select d).ToList();
+
+                if (contacts != null)
+                {
+                    contacts.ForEach(x =>
+                        {
+                            x.CanoncialName = LdapConverters.ToCanonicalName(x.DistinguishedName);
+                        });
+                }
 
                 return contacts;
             }

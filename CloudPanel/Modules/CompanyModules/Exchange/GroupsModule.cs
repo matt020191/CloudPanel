@@ -476,9 +476,17 @@ namespace CloudPanel.Modules
                 db = new CloudPanelContext(Settings.ConnectionString);
 
                 var groups = (from d in db.DistributionGroups
-                                where d.CompanyCode == companyCode
-                                orderby d.DisplayName
-                                select d).ToList();
+                              where d.CompanyCode == companyCode
+                              orderby d.DisplayName
+                              select d).ToList();
+
+                if (groups != null)
+                {
+                    groups.ForEach(x =>
+                        {
+                            x.CanonicalName = LdapConverters.ToCanonicalName(x.DistinguishedName);
+                        });
+                }
 
                 return groups;
             }

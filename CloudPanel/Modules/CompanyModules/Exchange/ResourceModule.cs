@@ -1,4 +1,5 @@
-﻿using CloudPanel.Base.Config;
+﻿using CloudPanel.Base.AD;
+using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
 using CloudPanel.Code;
 using CloudPanel.Database.EntityFramework;
@@ -491,6 +492,42 @@ namespace CloudPanel.Modules
                 }
                 #endregion
             };
+        }
+
+        public static List<ResourceMailboxes> GetResources(string companyCode)
+        {
+            CloudPanelContext db = null;
+            try
+            {
+                logger.DebugFormat("Retrieving Exchange resources for {0}", companyCode);
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var resources = (from d in db.ResourceMailboxes
+                              where d.CompanyCode == companyCode
+                              orderby d.DisplayName
+                              select d).ToList();
+
+                if (resources != null)
+                {
+                    resources.ForEach(x =>
+                        {
+                            if (!string.IsNullOrEmpty(x.DistinguishedName))
+                                x.CanonicalName = LdapConverters.ToCanonicalName(x.DistinguishedName);
+                        });
+                }
+
+                return resources;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error retrieving Exchange resources for {0}: {1}", companyCode, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
         }
 
         private List<string> ValidateEmails(ref ResourceMailboxes boundMailbox, List<Domains> validDomains)

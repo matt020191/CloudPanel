@@ -321,6 +321,9 @@ namespace CloudPanel.Base.Database.Models
         public string ArchiveName { get; set; }
 
         [NotMapped]
+        public bool ArchivingEnabled { get; set; }
+
+        [NotMapped]
         public string EmailDomain
         {
             get
@@ -403,10 +406,7 @@ namespace CloudPanel.Base.Database.Models
         #region Modified notifications
 
         [NotMapped]
-        public bool EmailEnabledCheck { get; set; }
-
-        [NotMapped]
-        public bool ArchivingEnabledChecked { get; set; }
+        public bool IsMailboxEnabled { get; set; }
 
         [NotMapped]
         public bool IsEmailModified { get; set; }

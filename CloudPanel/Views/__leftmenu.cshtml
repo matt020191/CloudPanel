@@ -22,7 +22,7 @@
             }
             @if (!string.IsNullOrEmpty(resellerCode) || !isResellersEnabled)
             {
-                <li><a href="@Url.Content("~/companies" + (isResellersEnabled ? resellerCode : ""))"><i class="fa fa-building"></i> <span>Companies</span></a></li>
+                <li><a href="@Url.Content("~/companies/" + (isResellersEnabled ? resellerCode : ""))"><i class="fa fa-building"></i> <span>Companies</span></a></li>
             }
             @if (isSuperAdmin)
             {

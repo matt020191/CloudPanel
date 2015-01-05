@@ -115,6 +115,9 @@ namespace CloudPanel.Base.Database.Models
         [NotMapped]
         public bool AutoMapping { get; set; }
 
+        [NotMapped]
+        public string CanonicalName { get; set; }
+
         #endregion
     }
 }
