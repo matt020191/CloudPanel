@@ -401,6 +401,12 @@ namespace CloudPanel.Base.Database.Models
         [NotMapped]
         public bool DeliverToMailboxAndForward { get; set; }
 
+        [NotMapped] // Used on reports
+        public long MailboxSizeInBytes { get; set; }
+
+        [NotMapped] // Used on reports
+        public long ArchiveSizeInBytes { get; set; }
+
         #endregion
 
         #region Modified notifications

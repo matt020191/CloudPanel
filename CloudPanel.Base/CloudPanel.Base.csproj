@@ -104,6 +104,9 @@
     <Compile Include="Other\UsersEditPage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reports\ExchangeOverview.cs" />
+    <Compile Include="Reports\ExchangeOverviewReport.cs" />
+    <Compile Include="Reports\ExchangeOverviewUserReport.cs" />
+    <Compile Include="Reports\UserForReport.cs" />
     <Compile Include="Security\DataProtection.cs" />
   </ItemGroup>
   <ItemGroup>

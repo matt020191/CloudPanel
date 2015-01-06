@@ -79,7 +79,7 @@ namespace CloudPanel.Modules.CompanyModules
                                         MailboxPlan = d.MailboxPlan,
                                         ArchivePlan = d.ArchivePlan,
                                         Notes = d.Notes,
-                                        AdditionalMB = d.AdditionalMB == null ? 0 : d.AdditionalMB
+                                        AdditionalMB = d.AdditionalMB == null ? 0 : (int)d.AdditionalMB
                                     }).FirstOrDefault();
 
                         if (user == null)
@@ -480,9 +480,11 @@ namespace CloudPanel.Modules.CompanyModules
                     #region Updates a specific user's mailbox
                     CloudPanelContext db = null;
                     dynamic powershell = null;
+
+                    ReverseActions reverse = new ReverseActions();
                     try
                     {
-                        logger.DebugFormat("Getting user {0} from database for litigation hold", userGuid);
+                        logger.DebugFormat("Getting user {0} from database for archive", userGuid);
                         db = new CloudPanelContext(Settings.ConnectionString);
                         db.Database.Connection.Open();
 
@@ -495,32 +497,65 @@ namespace CloudPanel.Modules.CompanyModules
                         var boundUser = this.Bind<Users>();
                         boundUser.UserGuid = userGuid;
 
-                        // Check litigation hold
-                        #region Litigation Hold
-                        if (user.MailboxPlan > 0)
+                        if (user.ArchivePlan > 0 && boundUser.ArchivePlan == 0)
                         {
+                            logger.DebugFormat("Disabling archive mailbox for {0}", userGuid);
                             powershell = ExchPowershell.GetClass();
+                            powershell.Disable_ArchiveMailbox(userGuid);
 
-                            int? litigationHoldDuration = null;
-                            if (Request.Form.LitigationHoldDuration.HasValue)
-                            {
-                                DateTime duration = DateTime.Parse(Request.Form.LitigationHoldDuration.Value);
-                                litigationHoldDuration = (int)duration.Subtract(DateTime.Now).TotalDays;
-                            }
-
-                            powershell.Set_LitigationHold(userGuid, boundUser.LitigationHoldEnabled, boundUser.RetentionUrl, boundUser.RetentionComment, Context.CurrentUser.UserName, litigationHoldDuration);
-                            user.LitigationHoldEnabled = boundUser.LitigationHoldEnabled;
+                            user.ArchivePlan = 0;
                             db.SaveChanges();
                         }
-                        #endregion
+                        else if (user.ArchivePlan > 0 && boundUser.ArchivePlan > 0)
+                        {
+                            logger.DebugFormat("Updating archive mailbox for {0}", userGuid);
+                            var plan = (from d in db.Plans_ExchangeArchiving
+                                        where d.ArchivingID == boundUser.ArchivePlan
+                                        where (d.CompanyCode == companyCode || string.IsNullOrEmpty(d.CompanyCode))
+                                        select d).FirstOrDefault();
 
-                        logger.InfoFormat("Successfully updated {0} litigation hold settings", userGuid);
-                        return Negotiate.WithModel(new { success = "Successfully updated litigation settings" })
+                            if (plan == null)
+                                throw new ArgumentNullException("Plans_ExchangeArchiving");
+                            else
+                            {
+                                powershell = ExchPowershell.GetClass();
+                                powershell.Set_ArchiveMailbox(userGuid, null, plan.ArchiveSizeMB);
+
+                                user.ArchivePlan = plan.ArchivingID;
+                                db.SaveChanges();
+                            }
+                        }
+                        else if (user.ArchivePlan < 1 && boundUser.ArchivePlan > 0)
+                        {
+                            logger.DebugFormat("Enabling archive mailbox for {0}", userGuid);
+                            var plan = (from d in db.Plans_ExchangeArchiving
+                                        where d.ArchivingID == boundUser.ArchivePlan
+                                        where (d.CompanyCode == companyCode || string.IsNullOrEmpty(d.CompanyCode))
+                                        select d).FirstOrDefault();
+
+                            if (plan == null)
+                                throw new ArgumentNullException("Plans_ExchangeArchiving");
+                            else
+                            {
+                                powershell = ExchPowershell.GetClass();
+                                powershell.Enable_ArchiveMailbox(userGuid, null, null);
+                                reverse.AddAction(Actions.CreateArchiveMailbox, userGuid);
+
+                                powershell.Set_ArchiveMailbox(userGuid, plan.ArchiveSizeMB);
+
+                                user.ArchivePlan = plan.ArchivingID;
+                                db.SaveChanges();
+                            }
+                        }
+
+
+                        logger.InfoFormat("Successfully updated {0} archiving settings", userGuid);
+                        return Negotiate.WithModel(new { success = "Successfully updated archive settings" })
                                         .WithStatusCode(HttpStatusCode.OK);
                     }
                     catch (Exception ex)
                     {
-                        logger.ErrorFormat("Error updating user {0} litigation hold information: {1}", userGuid, ex.ToString());
+                        logger.ErrorFormat("Error updating user {0} archive settings: {1}", userGuid, ex.ToString());
                         return Negotiate.WithModel(new { error = ex.Message })
                                         .WithStatusCode(HttpStatusCode.InternalServerError);
                     }

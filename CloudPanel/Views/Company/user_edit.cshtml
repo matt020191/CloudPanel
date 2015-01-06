@@ -106,7 +106,7 @@
                             <div class="tab-container tab-success">
                                 <ul class="nav nav-tabs">
                                     <li class="active"><a href="#user" data-toggle="tab">User</a></li>
-                                    @CloudPanel.CPStaticHelpers.IsExchangeEnabled(companyCode) {
+                                    @if (CloudPanel.CPStaticHelpers.IsExchangeEnabled(companyCode)) {
                                         <li class="dropdown">
                                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">Email <span class="caret"></span></a>
                                             <ul class="dropdown-menu">
@@ -454,18 +454,18 @@
                                                                 <option value="0">Forwarding Disabled</option>
                                                                 <optgroup label="Users">
                                                                     @if (mailboxUsers != null) {
-                                                                    foreach (var user in mailboxUsers)
-                                                                    {
-                                                                        <option value="@user.CanoncialName">@user.DisplayName</option>
-                                                                    }
+                                                                        foreach (var user in mailboxUsers)
+                                                                        {
+                                                                            <option value="@user.CanoncialName">@user.DisplayName</option>
+                                                                        }
                                                                     }
                                                                 </optgroup>
                                                                 <optgroup label="Contacts">
                                                                     @if (contacts != null ) {
-                                                                    foreach (var contact in contacts)
-                                                                    {
-                                                                        <option value="@contact.CanoncialName">@contact.DisplayName</option>
-                                                                    }
+                                                                        foreach (var contact in contacts)
+                                                                        {
+                                                                            <option value="@contact.CanoncialName">@contact.DisplayName</option>
+                                                                        }
                                                                     }
                                                                 </optgroup>
                                                                 <optgroup label="Groups">
@@ -478,10 +478,10 @@
                                                                 </optgroup>
                                                                 <optgroup label="Resources">
                                                                     @if (resourceMailboxes != null) {
-                                                                    foreach (var resource in resourceMailboxes)
-                                                                    {
-                                                                        <option value="@resource.CanonicalName">@resource.DisplayName</option>
-                                                                    }
+                                                                        foreach (var resource in resourceMailboxes)
+                                                                        {
+                                                                            <option value="@resource.CanonicalName">@resource.DisplayName</option>
+                                                                        }
                                                                     }
                                                                 </optgroup>
                                                             </select>
@@ -537,13 +537,14 @@
                                                 <div class="form-group">
                                                     <label class="col-sm-11 control-label">Archiving Enabled:</label>
                                                     <div class="col-sm-1 control-label">
-                                                        <input id="ArchivingEnabled" name="ArchivingEnabled" type="checkbox" @( (Model.MailboxPlan > 0 && Model.ArchivePlan) > 0 ? "value='true' checked": "false") />
+                                                        <input id="ArchivingEnabled" name="ArchivingEnabled" type="checkbox" @( (Model.MailboxPlan > 0 && Model.ArchivePlan > 0) ? "value='true' checked": "false") />
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="smallinput" class="col-sm-3 control-label">Plan</label>
                                                     <div class="col-sm-6">
                                                         <select id="ArchivePlan" name="ArchivePlan" class="form-control input-sm">
+                                                            <option value="0">Archiving Disabled</option>
                                                             @foreach (var plan in CloudPanel.Modules.PlansModules.ArchivePlanModule.GetArchivePlans(companyCode))
                                                             {
                                                                 <option value="@plan.ArchivingID" 
@@ -789,6 +790,7 @@
             $.blockUI();
             SubmitUser().then(SubmitMailbox)
                         .then(SubmitLitigation)
+                        .then(SubmitArchive)
                         .fail(function (data) {
                             ShowError(data);
                         })
@@ -833,6 +835,20 @@
                     type: "PUT",
                     url: "@Html.RenderContext.Context.Request.Url/mailbox/litigationhold",
                     data: litigationholdForm
+                });
+            }
+            else
+                return;
+        }
+
+        function SubmitArchive() {
+            if (archivingUpdated) {
+                $("#WaitMessage #message").text("Updating archiving settings");
+                var archivingForm = $("#archivingForm").serialize();
+                return $.ajax({ 
+                    type: "PUT",
+                    url: "@Html.RenderContext.Context.Request.Url/mailbox/archive",
+                    data: archivingForm
                 });
             }
             else
