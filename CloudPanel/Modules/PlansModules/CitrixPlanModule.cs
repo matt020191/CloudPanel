@@ -1,18 +1,13 @@
 ﻿using CloudPanel.Base.Config;
+using CloudPanel.Base.Database.Models;
 using CloudPanel.Citrix;
 using CloudPanel.Database.EntityFramework;
 using log4net;
 using Nancy;
-using Nancy.Security;
 using System;
-using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Reflection;
-using System.Data.Entity;
-using CloudPanel.Base.Database.Models;
-using Nancy.ViewEngines.Razor;
-using System.Text;
-using CloudPanel.Code;
 
 namespace CloudPanel.Modules.PlansModules
 {
