@@ -20,8 +20,7 @@ namespace CloudPanel.Modules.PlansModules
     {
         private static readonly ILog logger = LogManager.GetLogger("Citrix");
 
-        public CitrixPlanModule()
-            : base("/plans/citrix")
+        public CitrixPlanModule() : base("/plans/citrix")
         {
             Get["/", c => c.Request.Accept("text/html")] = _ =>
                 {
@@ -127,7 +126,7 @@ namespace CloudPanel.Modules.PlansModules
                     #endregion
                 };
 
-            Get["/groups/{GroupID:int}"] = _ =>
+            Get["/group/{GroupID:int}"] = _ =>
                 {
                     #region Get the desktop groups, its companies, and users from the database
                     CloudPanelContext db = null;
@@ -204,7 +203,7 @@ namespace CloudPanel.Modules.PlansModules
                     #endregion
                 };
 
-            Get["/groups/{GroupID:int}/sessions"] = _ =>
+            Get["/group/{GroupID:int}/sessions"] = _ =>
                 {
                     #region Gets the sessions for a specific desktop group
                     XenDesktop7 xd7 = null;
@@ -275,7 +274,7 @@ namespace CloudPanel.Modules.PlansModules
                     #endregion
                 };
 
-            Get["/groups/{GroupID:int}/{DesktopUid:int}/sessions"] = _ =>
+            Get["/group/{GroupID:int}/{DesktopUid:int}/sessions"] = _ =>
                 {
                     #region Gets the sessions for a specific desktop group
                     XenDesktop7 xd7 = null;

@@ -49,6 +49,31 @@
     <div id="page-container">
         <div id="page-content">
             <div id="wrap">
+                <div class="row report exchangeoverview" style="display: none">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="panel panel-midnightblue">
+                                <div class="panel-heading">
+                                    Overall Profits
+                                </div>
+                                <div class="panel-body">
+                                    <div id="exchangeCostPriceProfit" style="height:250px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="panel panel-midnightblue">
+                                <div class="panel-heading">
+                                    Mailbox Plans
+                                </div>
+                                <div class="panel-body">
+                                    <div id="exchangeMailboxPlans" style="height:250px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row">
                     <div class="col-md-12">
                         <div class="panel panel-primary">
@@ -134,6 +159,11 @@
                 }
             });
 
+            $('#overviewTable').on('draw.dt', function (data) {
+                console.log('Redraw occurred at: ' + new Date().getTime());
+                console.log(data);
+            });
+
             $('#overviewTable tbody').on('click', 'td.details-control', function () {
                 var tr = $(this).closest('tr');
                 var row = overviewTable.row(tr);
@@ -182,6 +212,43 @@
             table += '</tbody></table>';
 
             return header + table;
+        }
+
+        function ProfitBarChart(d) {
+            var names = [[0, "Cost"], [1, "Price"], [2, "Profit"]];
+            var sizes = [[0, d.totalCost], [1, d.totalPrice], [2, d.totalProfit]];
+
+            var ds = [];
+            ds.push({ data: sizes, label: "", bars: { show: true, barWidth: 0.2, order: 1 } });
+
+            $.plot($("#exchangeCostPriceProfit"), ds, {
+                series: { bars: { show: true, fill: 0.75, 'align': "center" } },
+                grid: { hoverable: true, clickable: false, borderWidth: 0 },
+                xaxis: { tickColor: "transparent", ticks: names, tickDecimals: 2, font: { color: '#8c8c8c', size: 12 } },
+                yaxis: { tickDecimals: 2 },
+                legend: { labelBoxBorderColor: 'transparent' }
+            });
+
+            var previousPointBar = null;
+            $("#exchangeCostPriceProfit").bind("plothover", function (event, pos, item) {
+                $("#x").text(pos.x.toFixed(2));
+                $("#y").text(pos.y.toFixed(2));
+                if (item) {
+                    if (previousPointBar != item.dataIndex) {
+                        previousPointBar = item.dataIndex;
+
+                        $("#tooltip").remove();
+                        var x = item.datapoint[0].toFixed(2),
+                            y = item.datapoint[1].toFixed(2);
+
+                        showTooltip(item.pageX + 20, item.pageY, y);
+
+                    }
+                } else {
+                    $("#tooltip").remove();
+                    previousPointBar = null;
+                }
+            });
         }
 
         function ShowError(data) {

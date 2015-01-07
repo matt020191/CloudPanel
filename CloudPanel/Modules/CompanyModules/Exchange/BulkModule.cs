@@ -1,17 +1,13 @@
-﻿using Nancy;
+﻿using CloudPanel.Base.Config;
+using CloudPanel.Database.EntityFramework;
+using CloudPanel.Exchange;
+using CloudPanel.Rollback;
+using log4net;
+using Nancy;
 using Nancy.Security;
-using Nancy.ModelBinding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using log4net;
-using CloudPanel.Database.EntityFramework;
-using CloudPanel.Base.Config;
-using CloudPanel.Exchange;
-using System.Text;
-using CloudPanel.Rollback;
-using CloudPanel.Base.Database.Models;
 
 namespace CloudPanel.Modules.CompanyModules.Exchange
 {
@@ -468,7 +464,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                         {
                             resultName = string.Format("{0} [Litigation Hold]", sqlUser.UserPrincipalName);
 
-                            powershell.Set_LitigationHold(sqlUser.UserGuid, litigationHoldEnabled: isEnabled, retentionUrl: url, retentionComment: message, ownerName: owner);
+                            powershell.Set_LitigationHold(sqlUser.UserGuid, isEnabled, url, message, owner, null);
                             results.Add(resultName, "Successfully updated litigation hold settings");
                         }
                     }

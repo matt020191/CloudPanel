@@ -26,6 +26,8 @@ namespace CloudPanel.Base.Reports
 
         public long TotalMailboxSizeUsed { get; set; }
 
+        public long TotalMailboxSizeAllocated { get; set; }
+
         public long TotalArchiveSizeUsed { get; set; }
 
         public int TotalMailboxSizeAllocatedInMB { get; set; }

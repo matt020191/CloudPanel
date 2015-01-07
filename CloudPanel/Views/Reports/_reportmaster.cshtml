@@ -1,0 +1,108 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CloudPanel">
+
+    <!-- <link href="~/content/less/styles.less" rel="stylesheet/less" media="all">  -->
+    <link rel="stylesheet" href="~/content/css/styles.css?=121">
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
+
+    <link href="~/Content/plugins/pines-notify/jquery.pnotify.default.css" rel="stylesheet" />
+    <link href="~/Content/plugins/sweetalert/lib/sweet-alert.css" rel="stylesheet" />
+
+    <style type="text/css">
+        #WaitMessage {
+            display: none;
+            text-align: center;
+        }
+    </style>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries. Placeholdr.js enables the placeholder attribute -->
+    <!--[if lt IE 9]>
+        <link rel="stylesheet" href="~/content/css/ie8.css">
+        <script type="text/javascript" src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/respond.js/1.1.0/respond.min.js"></script>
+        <script type="text/javascript" src="~/content/plugins/charts-flot/excanvas.min.js"></script>
+    <![endif]-->
+    <!-- The following CSS are included as plugins and can be removed if unused-->
+    <!-- <script type="text/javascript" src="~/content/js/less.js"></script> -->
+    @RenderSection("HEAD", false)
+</head>
+
+<body class="horizontal-nav">
+    <header class="navbar navbar-inverse navbar-fixed-top hidden-print" role="banner">
+        <div class="navbar-header pull-left">
+            <a class="navbar-brand" href="#" style="">Reports</a>
+        </div>
+    </header>
+
+    @Html.Partial("Reports/_reportmenu.cshtml")
+
+    <div id="page-container">
+        <div id="page-content">
+            <div id="wrap">
+                @RenderBody()
+            </div>
+        </div>
+
+        <footer role="contentinfo" class="hidden-print">
+            <div class="clearfix">
+                <ul class="list-unstyled list-inline pull-left">
+                    <li><a href="http://www.knowmoreit.com/">KnowMoreIT &copy; 2014</a></li>
+                </ul>
+                <button class="pull-right btn btn-inverse-alt btn-xs hidden-print" id="back-to-top"><i class="fa fa-arrow-up"></i></button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Wait message for BlockUI -->
+    <div id="WaitMessage">
+        <p><img src="~/Content/img/wait_animation.gif" /></p>
+        <div id="message">Please Wait</div>
+    </div>
+
+    <!--
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+    <script>!window.jQuery && document.write(unescape('%3Cscript src="~/content/js/jquery-1.10.2.min.js"%3E%3C/script%3E'))</script>
+    <script type="text/javascript">!window.jQuery.ui && document.write(unescape('%3Cscript src="~/content/js/jqueryui-1.10.3.min.js'))</script>
+    -->
+
+    <script type="text/javascript" src="~/content/js/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="~/content/js/jqueryui-1.10.3.min.js"></script>
+    <script type="text/javascript" src="~/content/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="~/content/js/enquire.js"></script>
+    <script type="text/javascript" src="~/content/js/jquery.cookie.js"></script>
+    <script type="text/​javascript" src="~/content/​js/​placeholdr.js">​</script>
+    <script type="text/javascript" src="~/content/js/jquery.nicescroll.min.js"></script>
+    <script type="text/javascript" src="~/content/js/application.js"></script>
+    <script type="text/javascript" src="~/Content/plugins/pines-notify/jquery.pnotify.min.js"></script>
+    <script type="text/javascript" src="~/Content/plugins/sweetalert/lib/sweet-alert.js"></script>
+    <script type="text/javascript" src="~/Content/plugins/blockUI/jquery.blockUI.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".tooltip-ex").tooltip();
+            $.blockUI.defaults.message = $("#WaitMessage");
+        });
+
+        function ShowError(data) {
+            if (data.hasOwnProperty("responseJSON")) {
+                swal("Error!", data.responseJSON.error, "error");
+            } else if (data.hasOwnProperty("statusText")) {
+                swal("Error!", data.status + ": " + data.statusText, "error");
+            } else {
+                swal("Error!", data, "error");
+            }
+        }
+    </script>
+
+    @RenderSection("JAVASCRIPT", false)
+</body>
+</html>

@@ -1167,6 +1167,7 @@
     <Compile Include="Modules\PlansModules\ArchivePlanModule.cs" />
     <Compile Include="Modules\PlansModules\CitrixPlanModule.cs" />
     <Compile Include="Modules\Reports\ExchangeReportsOverviewModule.cs" />
+    <Compile Include="Modules\Reports\Exchange\ExecutiveSummary.cs" />
     <Compile Include="Modules\ResellersModule.cs" />
     <Compile Include="Modules\LoginModule.cs" />
     <Compile Include="Modules\PlansModules\CompanyPlanModule.cs" />
@@ -1468,6 +1469,9 @@
     <Content Include="Views\Plans\Citrix\citrix.cshtml" />
     <Content Include="Views\Plans\Citrix\group.cshtml" />
     <Content Include="Views\Reports\ExchangeReportsOverview.cshtml" />
+    <Content Include="Views\Reports\_reportmaster.cshtml" />
+    <Content Include="Views\Reports\_reportmenu.cshtml" />
+    <Content Include="Views\Reports\Exchange\ExecutiveSummary.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
