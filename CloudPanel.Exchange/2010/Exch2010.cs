@@ -3,35 +3,6 @@ using CloudPanel.Base.Database.Models;
 using CloudPanel.Base.Enums;
 using CloudPanel.Base.Exchange;
 using log4net;
-//
-// Copyright (c) 2014, Jacob Dixon
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-// 1. Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyrighft
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-// 3. All advertising materials mentioning features or use of this software
-//    must display the following acknowledgement
-//    This product includes software developed by KnowMoreIT and Compsys.
-// 4. Neither the name of KnowMoreIT and Compsys nor the
-//    names of its contributors may be used to endorse or promote products
-//    derived from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY Jacob Dixon ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL Jacob Dixon BE LIABLE FOR ANY
-// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -1803,11 +1774,11 @@ namespace CloudPanel.Exchange
 
         #region Resource Mailboxes
 
-        public ResourceMailboxes Get_ResourceMailbox(Guid resourceGuid)
+        public ResourceMailboxes Get_ResourceMailbox(Guid resourceIdentity)
         {
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Get-Mailbox");
-            cmd.AddParameter("Identity", resourceGuid.ToString());
+            cmd.AddParameter("Identity", resourceIdentity.ToString());
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
 
@@ -1816,12 +1787,12 @@ namespace CloudPanel.Exchange
                 throw _powershell.Streams.Error[0].Exception;
             else
             {
-                logger.DebugFormat("Found mailbox {0}", resourceGuid.ToString());
+                logger.DebugFormat("Found mailbox {0}", resourceIdentity.ToString());
 
                 var returnMailbox = new ResourceMailboxes();
                 var foundMailbox = psObjects[0];
 
-                returnMailbox.ResourceGuid = Guid.Parse(foundMailbox.Properties["Guid"].Value.ToString());
+                returnMailbox.ResourceGuid = (Guid)foundMailbox.Properties["Guid"].Value;
                 returnMailbox.UserPrincipalName = foundMailbox.Properties["UserPrincipalName"].Value.ToString();
                 returnMailbox.PrimarySmtpAddress = foundMailbox.Properties["PrimarySmtpAddress"].Value.ToString();
                 returnMailbox.DistinguishedName = foundMailbox.Properties["DistinguishedName"].Value.ToString();
@@ -1920,7 +1891,7 @@ namespace CloudPanel.Exchange
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-Mailbox");
-            cmd.AddParameter("Identity", resourceMailbox.ResourceGuid.ToString());
+            cmd.AddParameter("Identity", resourceMailbox.UserPrincipalName);
             cmd.AddParameter("CustomAttribute1", resourceMailbox.CompanyCode);
             cmd.AddParameter("EmailAddresses", emailAddresses);
             cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
@@ -1947,13 +1918,13 @@ namespace CloudPanel.Exchange
         /// Deletes the room mailbox and AD object
         /// </summary>
         /// <param name="resourceGuid"></param>
-        public void Remove_RoomMailbox(Guid resourceGuid)
+        public void Remove_RoomMailbox(string resourceIdentity)
         {
-            logger.DebugFormat("Removing room mailbox {0}", resourceGuid);
+            logger.DebugFormat("Removing room mailbox {0}", resourceIdentity);
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Remove-Mailbox");
-            cmd.AddParameter("Identity", resourceGuid.ToString());
+            cmd.AddParameter("Identity", resourceIdentity);
             cmd.AddParameter("Confirm", false);
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
@@ -2030,7 +2001,7 @@ namespace CloudPanel.Exchange
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-Mailbox");
-            cmd.AddParameter("Identity", resourceMailbox.ResourceGuid.ToString());
+            cmd.AddParameter("Identity", resourceMailbox.UserPrincipalName);
             cmd.AddParameter("CustomAttribute1", resourceMailbox.CompanyCode);
             cmd.AddParameter("EmailAddresses", emailAddresses);
             cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
@@ -2057,13 +2028,13 @@ namespace CloudPanel.Exchange
         /// Deletes the equipment mailbox and AD object
         /// </summary>
         /// <param name="UserGuid"></param>
-        public void Remove_EquipmentMailbox(Guid resourceGuid)
+        public void Remove_EquipmentMailbox(string resourceIdentity)
         {
-            logger.DebugFormat("Removing equipment mailbox {0}", resourceGuid);
+            logger.DebugFormat("Removing equipment mailbox {0}", resourceIdentity);
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Remove-Mailbox");
-            cmd.AddParameter("Identity", resourceGuid.ToString());
+            cmd.AddParameter("Identity", resourceIdentity);
             cmd.AddParameter("Confirm", false);
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
@@ -2140,7 +2111,7 @@ namespace CloudPanel.Exchange
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-Mailbox");
-            cmd.AddParameter("Identity", resourceMailbox.ResourceGuid.ToString());
+            cmd.AddParameter("Identity", resourceMailbox.UserPrincipalName);
             cmd.AddParameter("CustomAttribute1", resourceMailbox.CompanyCode);
             cmd.AddParameter("EmailAddresses", emailAddresses);
             cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
@@ -2167,13 +2138,13 @@ namespace CloudPanel.Exchange
         /// Deletes the room mailbox and AD object
         /// </summary>
         /// <param name="ResourceGuid"></param>
-        public void Remove_SharedMailbox(Guid resourceGuid)
+        public void Remove_SharedMailbox(string resourceIdentity)
         {
-            logger.DebugFormat("Removing shared mailbox {0}", resourceGuid);
+            logger.DebugFormat("Removing shared mailbox {0}", resourceIdentity);
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Remove-Mailbox");
-            cmd.AddParameter("Identity", resourceGuid.ToString());
+            cmd.AddParameter("Identity", resourceIdentity);
             cmd.AddParameter("Confirm", false);
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;

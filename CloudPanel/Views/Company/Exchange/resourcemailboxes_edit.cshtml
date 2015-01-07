@@ -3,6 +3,8 @@
 
 @{
     Layout = "__master.cshtml";
+
+    string companyCode = this.RenderContext.Context.Parameters.CompanyCode;;
 }
 @section HEAD{
     <link href="~/Content/js/jqueryui.min.css" rel="stylesheet" />
@@ -14,7 +16,7 @@
 <div id="page-heading">
     <ol class="breadcrumb">
         <li><a href="~/dashboard">Dashboard</a></li>
-        <li><a href="~/company/@this.RenderContext.Context.GetCompanyCode()/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
+        <li><a href="~/company/@companyCode/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
         <li><a href="#">Exchange</a></li>
         <li class="active">Resource Mailboxes</li>
     </ol>
@@ -34,7 +36,16 @@
                             <label class="col-sm-3 control-label">Plan</label>
                             <div class="col-sm-6">
                                 <select id="MailboxPlan" name="MailboxPlan" class="form-control">
-                                    @CloudPanel.Modules.PlansModules.MailboxPlanModule.GetMailboxPlansOptions(this.RenderContext.Context.GetCompanyCode(), 0)
+                                    @foreach (var plan in CloudPanel.Modules.PlansModules.MailboxPlanModule.GetMailboxPlans(companyCode)) {
+                                        <option value="@plan.MailboxPlanID"
+                                                data-size="@plan.MailboxSizeMB"
+                                                data-maxsize="@plan.MaxMailboxSizeMB"
+                                                data-description="@plan.MailboxPlanDesc"
+                                                data-price="@plan.Price"
+                                                data-additionalprice="@plan.Price"
+                                                >@plan.MailboxPlanName</option>
+                                    }
+
                                 </select>
                                 <p id="mailboxPlanDescription"></p>
                             </div>
@@ -43,26 +54,15 @@
                             <label class="col-sm-3 control-label">Email</label>
                             <div class="col-sm-6">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="EmailFirst" name="EmailFirst">
+                                    <input type="text" class="form-control" id="EmailFirst" name="EmailFirst" value="">
                                     <span class="input-group-addon">@@</span>
                                     <select id="EmailDomain" name="EmailDomain" class="form-control">
-                                        @CloudPanel.Modules.DomainsModule.GetAcceptedDomainsOptions(this.RenderContext.Context.GetCompanyCode(), 0)
+                                        @foreach (var domain in CloudPanel.Modules.DomainsModule.GetAcceptedDomains(companyCode))
+                                        {
+                                            <option value="@domain.Domain">@domain.Domain</option>
+                                        }
                                     </select>
                                 </div>
-                            </div>
-                        </div>
-                        <div id="sliderDiv" class="form-group">
-                            <label class="col-sm-3 control-label">Size</label>
-                            <div class="col-sm-6" style="padding-top: 13px">
-                                <div id="slider-range-min" class="slider bg-yellow"></div>
-                            </div>
-                            <div class="col-sm-3">
-                                <p class="help-block">
-                                    <div class="slider-value">
-                                        <span class="slider-value" id="slider-range-min-amount"></span>
-                                        <input id="SizeInMB" name="SizeInMB" type="hidden" />
-                                    </div>
-                                </p>
                             </div>
                         </div>
                     </div>
@@ -73,7 +73,7 @@
                             <label class="col-sm-3 control-label">Email Aliases</label>
                             <div class="col-sm-6">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="EmailAliases" name="EmailAliases" data-limit="10" />
+                                    <input type="text" class="form-control" id="EmailAliases" name="EmailAliases" data-limit="10" value="" />
                                     <span class="input-group-addon"><span class="fa fa-envelope"></span></span>
                                 </div>
                             </div>
@@ -86,25 +86,25 @@
                             <label class="col-sm-3 control-label">Full Access</label>
                             <div class="col-sm-6">
                                 <select id="EmailFullAccess" name="EmailFullAccess" style="width: 100%" class="populate" multiple>
-                                    @if (Model.MailboxUsers != null)
+                                    @if (Model.mailboxusers != null)
                                         {
-                                            foreach (var u in Model.MailboxUsers)
+                                            foreach (var u in Model.mailboxusers)
                                             {
                                                 <option value="@u.sAMAccountName">@u.DisplayName</option>
                                             }
                                         }
                                 </select>
                                 <input id="AutoMapping" name="AutoMapping" type="checkbox" value="true" checked/> Auto Mapping
-                                <input id="EmailFullAccessOriginal" name="EmailFullAccessOriginal" type="hidden" />
+                                <input id="EmailFullAccessOriginal" name="EmailFullAccessOriginal" type="hidden" value="" />
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Send As</label>
                             <div class="col-sm-6">
                                 <select id="EmailSendAs" name="EmailSendAs" style="width: 100%" class="populate" multiple>
-                                    @if (Model.MailboxUsers != null)
+                                    @if (Model.mailboxusers != null)
                                         {
-                                            foreach (var u in Model.MailboxUsers)
+                                            foreach (var u in Model.mailboxusers)
                                             {
                                                 <option value="@u.sAMAccountName">@u.DisplayName</option>
                                             }
@@ -143,42 +143,14 @@
                 width: 'resolve'
             });
 
+            // Show info about the plan
             $("#MailboxPlan").change(function () {
                 var option = $("#MailboxPlan option:selected");
-                SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
             });
 
-            var option = $("#MailboxPlan option:selected");
-            SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
-
-            GetResource("@Model.upn");
+            // Get the resource
+            GetResource("@this.RenderContext.Context.Parameters.UserPrincipalName");
         });
-
-        function SetSlider(min, max, selectedValue, description) {
-            if (min == 0) {
-                $("#sliderDiv").hide();
-                $("#SizeInMB").val("0");
-            }
-            else {
-                $("#sliderDiv").show();
-                $("#slider-range-min").slider({
-                    range: "min",
-                    value: selectedValue,
-                    step: 256,
-                    min: min,
-                    max: max,
-                    change: function (event, ui) {
-                        $("#slider-range-min-amount").text(ui.value + "MB");
-                        $("#SizeInMB").val(ui.value);
-                    }
-                });
-
-                $("#slider-range-min-amount").text(selectedValue + "MB");
-                $("#SizeInMB").val(selectedValue);
-            }
-
-            $("#mailboxPlanDescription").text(description)
-        }
 
         function SetupEmailTokenField() {
             $('#EmailAliases')
@@ -204,23 +176,15 @@
         }
 
         function GetResource(upn) {
-            $(".panel").block();
+            $.blockUI();
             $.getJSON("", function (data) {
                     $("#MailboxPlan").val(data.mailbox.mailboxPlan);
                     $("#EmailFirst").val(data.mailbox.emailFirst);
+                    $("#EmailAliases").tokenfield("setTokens", data.mailbox.emailAliases);
 
                     $("#EmailDomain option").filter(function () {
                         return $(this).text() == data.mailbox.emailDomain;
                     }).prop('selected', true);
-
-                    var option = $("#MailboxPlan option:selected");
-                    if (data.mailbox.additionalMB > 0) {
-                        SetSlider(option.data("size"), option.data("maxsize"), option.data("size") + data.mailbox.additionalMB, option.data("description"));
-                    } else {
-                        SetSlider(option.data("size"), option.data("maxsize"), option.data("size"), option.data("description"));
-                    }
-
-                    $("#EmailAliases").tokenfield("setTokens", data.mailbox.emailAliases);
 
                     $("#EmailFullAccess").select2("val", data.mailbox.emailFullAccess);
                     $.each(data.mailbox.emailFullAccess, function (i, val) {
@@ -241,7 +205,7 @@
                     ShowError(data);
                 })
                 .always(function (data) {
-                    $(".panel").unblock();
+                    $.unblockUI();
                 });
         }
     </script>

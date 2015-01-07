@@ -544,7 +544,6 @@
                                                     <label for="smallinput" class="col-sm-3 control-label">Plan</label>
                                                     <div class="col-sm-6">
                                                         <select id="ArchivePlan" name="ArchivePlan" class="form-control input-sm">
-                                                            <option value="0">Archiving Disabled</option>
                                                             @foreach (var plan in CloudPanel.Modules.PlansModules.ArchivePlanModule.GetArchivePlans(companyCode))
                                                             {
                                                                 <option value="@plan.ArchivingID" 
