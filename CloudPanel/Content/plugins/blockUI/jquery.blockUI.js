@@ -148,7 +148,7 @@
 		        '-moz-border-radius': '10px',
 		        opacity: .5,
 		        color: '#fff',
-		        baseZ: 2000
+		        'z-index': 2000
 			},
 
 			// minimal style set used when themes are used

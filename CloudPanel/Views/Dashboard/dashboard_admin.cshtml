@@ -133,6 +133,11 @@
     <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
     <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
     <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
+
+    <!-- Charting -->
+    <script src="~/Content/plugins/amcharts/amcharts/amcharts.js"></script>
+    <script src="~/Content/plugins/amcharts/amcharts/serial.js"></script>
+
     <script type="text/javascript">
         var exchangeModule = @CloudPanel.Base.Config.Settings.ExchangeModule.ToString().ToLower()
 
@@ -143,8 +148,101 @@
         });
 
         function GetHistoryOverview(pastMonths) {
+            AmCharts.makeChart("historyOverview",
+				{
+				    "type": "serial",
+				    "pathToImages": "http://cdn.amcharts.com/lib/3/images/",
+				    "categoryField": "date",
+				    "dataDateFormat": "YYYY-MM",
+				    "angle": 13,
+				    "depth3D": 50,
+				    "theme": "default",
+				    "categoryAxis": {
+				        "minPeriod": "MM",
+				        "parseDates": true
+				    },
+				    "chartCursor": {
+				        "categoryBalloonDateFormat": "MMM YYYY"
+				    },
+				    "chartScrollbar": {},
+				    "trendLines": [],
+				    "graphs": [
+						{
+						    "fillAlphas": 0.7,
+						    "id": "AmGraph-1",
+						    "lineAlpha": 0,
+						    "title": "graph 1",
+						    "valueField": "column-1"
+						},
+						{
+						    "fillAlphas": 0.7,
+						    "id": "AmGraph-2",
+						    "lineAlpha": 0,
+						    "title": "graph 2",
+						    "valueField": "column-2"
+						}
+				    ],
+				    "guides": [],
+				    "valueAxes": [
+						{
+						    "id": "ValueAxis-1",
+						    "title": "Axis title"
+						}
+				    ],
+				    "allLabels": [],
+				    "balloon": {},
+				    "legend": {},
+				    "titles": [
+						{
+						    "id": "Title-1",
+						    "size": 15,
+						    "text": "Chart Title"
+						}
+				    ],
+				    "dataProvider": [
+						{
+						    "date": "2014-01",
+						    "column-1": 8,
+						    "column-2": 5
+						},
+						{
+						    "date": "2014-02",
+						    "column-1": 6,
+						    "column-2": 7
+						},
+						{
+						    "date": "2014-03",
+						    "column-1": 2,
+						    "column-2": 3
+						},
+						{
+						    "date": "2014-04",
+						    "column-1": 1,
+						    "column-2": 3
+						},
+						{
+						    "date": "2014-05",
+						    "column-1": 2,
+						    "column-2": 1
+						},
+						{
+						    "date": "2014-06",
+						    "column-1": 3,
+						    "column-2": 2
+						},
+						{
+						    "date": "2014-07",
+						    "column-1": 6,
+						    "column-2": 8
+						}
+				    ]
+				}
+			);
+        }
+
+        /*function GetHistoryOverview(pastMonths) {
             $("#historyOverview").block();
-            $.getJSON("@Url.Content("~/dashboard/history/months/")" + pastMonths, function (data) {
+            $.getJSON("Url.Content("~/dashboard/history/months/")" + pastMonths, function (data) {
                     var areaChart = new Highcharts.Chart({
                         chart: {
                             renderTo: 'historyOverview',
@@ -179,7 +277,7 @@
                 .always(function (data) {
                     $("#historyOverview").unblock();
                 });
-        }
+        }*/
 
         function showTooltip(x, y, contents) {
             $('<div id="tooltip" class="tooltip top in"><div class="tooltip-inner">' + contents + '<\/div><\/div>').css({

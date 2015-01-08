@@ -86,7 +86,7 @@
 
     <!-- Graphs -->
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12">
             <div class="panel panel-info">
                 <div class="panel-body">
                     <div class="row">
@@ -101,24 +101,6 @@
                         <div class="col-md-12">
                             <div id="historyOverview" style="height:250px;"></div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="panel panel-grape">
-                <div class="panel-heading">
-                    <h4>Top Customers by Users</h4>
-                    <div class="options">
-                        <div class="btn-group">
-                            <button class="btn btn-default btn-xs" onclick="javascript: GetTopCustomers(5);"> Top 5 </button>
-                            <button class="btn btn-default btn-xs" onclick="javascript: GetTopCustomers(10);"> Top 10 </button>
-                            <button class="btn btn-default btn-xs" onclick="javascript: GetTopCustomers(15);"> Top 15 </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="list-group topXCustomers">
                     </div>
                 </div>
             </div>
@@ -169,6 +151,11 @@
     <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
     <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
     <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
+
+    <!-- Charting -->
+    <script src="~/Content/plugins/amcharts/amcharts/amcharts.js"></script>
+    <script src="~/Content/plugins/amcharts/amcharts/serial.js"></script>
+
     <script type="text/javascript">
     var exchangeModule = @CloudPanel.Base.Config.Settings.ExchangeModule.ToString().ToLower()
 
@@ -177,9 +164,6 @@
         // Get the tiles data at the top
         GetTiles();
 
-        // Get the top 8 customers
-        GetTopCustomers(8);
-
         // Get the overview chart
         GetHistoryOverview(6);
 
@@ -187,7 +171,7 @@
         if (exchangeModule) {
             GetTopMailboxes(5);
 
-            GetExchangeDatabases(false);
+            GetExchangeDatabases();
         }
     });
 
@@ -207,59 +191,104 @@
             });
     }
 
-    function randValue() {
-        return (Math.floor(Math.random() * (2)));
+    function GetExchangeDatabases() {
+        $.getJSON("@Url.Content("~/dashboard/exchange/databases")", function (data) {
+            var GB = 1073741824;
+            var MB = 1048576;
+            var KB = 1024;
+
+            var bar = new Highcharts.Chart({
+                chart: { type: 'column', renderTo: 'exchangeDatabases' },
+                title: { text: '' },
+                xAxis: { type: 'category', labels: { style: { fontFamily: 'Verdana, sans-serif' } } },
+                yAxis: {
+                    min: 0, 
+                    title: { text: '' }, 
+                    labels: {
+                        formatter: function () {
+                            var maxElement = this.axis.max;
+                            if (maxElement >= GB) {
+                                return (this.value / GB).toFixed(1) + " GB";
+                            } else if (maxElement >= MB) {
+                                return (this.value / MB).toFixed(1) + " MB";
+                            } else if (maxElement >= KB) {
+                                return (this.value / KB).toFixed(1) + " KB";
+                            } else {
+                                return (this.value) + " B";
+                            }
+                        }
+                    }
+                },
+                legend: { enabled: false },
+                tooltip: {
+                    formatter: function () {
+                        var maxElement = this.y;
+                        if (maxElement >= GB) {
+                            return this.key + "<br/>Size: " + (this.y / GB).toFixed(1) + " GB";
+                        } else if (maxElement >= MB) {
+                            return this.key + "<br/>Size: " + (this.y / MB).toFixed(1) + " MB";
+                        } else if (maxElement >= KB) {
+                            return this.key + "<br/>Size: " + (this.y / KB).toFixed(1) + " KB";
+                        } else {
+                            return this.key + "<br/>Size: " + (this.y) + " B";
+                        }
+                    }
+                }
+            });
+
+            var databases = [];
+            $.each(data, function (i, val) {
+                databases.push([val.databaseName, val.databaseSizeInBytes]);
+            });
+            bar.addSeries({ name: '', data: databases });
+            bar.redraw();
+        });
     }
 
     function GetHistoryOverview(pastMonths) {
-        $.getJSON("@Url.Content("~/dashboard/history/months/")" + pastMonths, function (data) {
-                var areaChart = new Highcharts.Chart({
-                    chart: {
-                        renderTo: 'historyOverview',
-                        backgroundColor: 'transparent'
-                    },
-                    title: { text: '' },
-                    credits: { enabled: false },
-                    xAxis: { categories: data.months },
-                    yAxis: { min: 0, title: { text: '' } },
-                    plotOptions: {
-                        series: { connectNulls: true },
-                        area: { fillOpacity: 0.2 }
-                    },
-                    tooltip: {
-                        pointFormat: '{series.name} <b>{point.y:,.0f}</b>',
-                    },
-                });
-
-                areaChart.addSeries({ name: "Users", data: data.users });
-
-                if (data.exchange.length)
-                    areaChart.addSeries({ name: "Mailboxes", data: data.exchange });
-
-                if (data.citrix.length)
-                    areaChart.addSeries({ name: "Citrix", data: data.citrix });
-
-                areaChart.redraw();
-            })
-            .fail(function (data) {
-                ShowError(data);
-            })
-            .always(function (data) {
+        $.getJSON("@Url.Content("~/dashboard/history/")"+pastMonths, function (data) {
+            var area = new Highcharts.Chart({
+                chart: { type: 'areaspline', renderTo: 'historyOverview' },
+                title: { text: '' },
+                xAxis: {
+                    type: 'datetime', dateTimeLabelFormats: { // don't display the dummy year
+                        month: '%e. %b',
+                        year: '%b'
+                    }, plotBands: [{ from: 4.5, to: 6.5, color: 'rgba(68, 170, 213, .2)' }]
+                },
+                yAxis: { title: { text: '' } },
+                tooltip: { shared: true },
+                credits: { enabled: false },
+                plotOptions: { areaspline: { fillOpacity: 0.5 } }
             });
-    }
 
-    function GetTopCustomers(x) {
-            $.getJSON("@Url.Content("~/dashboard/customers/top/")" + x, function (data) {
-                $(".topXCustomers").empty();
-                $.each(data.data, function (index, customers) {
-                    $(".topXCustomers").append('<a href="@Url.Content("~/company/")' + customers.companyCode + '/overview" class="list-group-item"><span class="badge">' + customers.totalUsers + '</span> <i class="fa fa-building"></i> ' + customers.companyName + ' </a>');
-                });
-            })
-            .fail(function (data) {
-                ShowError(data);
-            })
-            .always(function (data) {
+            var users = [], mailboxes = [], citrix = [];
+            $.each(data, function (i, val) {
+                if (val.retrieved.length) {
+                    var check = moment(val.retrieved, 'YYYY/MM/DD');
+
+                    if (val.hasOwnProperty("userCount"))
+                        users.push([check.valueOf(), val.userCount]);
+
+                    if (val.hasOwnProperty("mailboxCount"))
+                        mailboxes.push([check.valueOf(), val.mailboxCount]);
+
+                    if (val.hasOwnProperty("citrixCount"))
+                        citrix.push([check.valueOf(), val.citrixCount]);
+                }
             });
+
+            if (users.length > 0)
+                area.addSeries({ name: "Users", data: users });
+
+            if (mailboxes.length > 0)
+                area.addSeries({ name: "Mailboxes", data: mailboxes });
+
+            if (citrix.length > 0)
+                area.addSeries({ name: "Citrix", data: citrix });
+
+            area.redraw();
+        });
     }
 
     function GetTopMailboxes(x) {
@@ -297,9 +326,10 @@
             });
     }
 
+        /*
     function GetExchangeDatabases(queryNow) {
         $(".mailboxDatabases").block();
-        $.getJSON("@Url.Content("~/exchange/databases")" + (queryNow == true ? "/now" : ""), function (data) {
+        $.getJSON("Url.Content("~/exchange/databases")" + (queryNow == true ? "/now" : ""), function (data) {
 
             if (data.databases.length > 0) {
                     var names = [];
@@ -348,7 +378,7 @@
             .always(function (data) {
                 $(".mailboxDatabases").unblock();
             });
-    }
+    }*/
 
     function showTooltip(x, y, contents) {
         $('<div id="tooltip" class="tooltip top in"><div class="tooltip-inner">' + contents + '<\/div><\/div>').css({

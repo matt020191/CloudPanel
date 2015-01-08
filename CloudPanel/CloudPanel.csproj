@@ -53,6 +53,7 @@
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.ReportViewer.WebForms, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL" />
     <Reference Include="Nancy, Version=0.23.2.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Nancy.0.23.2\lib\net40\Nancy.dll</HintPath>
@@ -79,6 +80,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.Web.DynamicData" />
@@ -162,6 +164,205 @@
     <Content Include="Content\js\less.js" />
     <Content Include="Content\js\placeholdr.js" />
     <Content Include="Content\js\zoomico.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\amcharts.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\exporting\amexport.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\exporting\canvg.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\exporting\filesaver.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\exporting\jspdf.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\exporting\jspdf.plugin.addimage.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\exporting\rgbcolor.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\funnel.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\gauge.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\images\dragIcon.gif" />
+    <Content Include="Content\plugins\amcharts\amcharts\images\dragIconBlack.gif" />
+    <Content Include="Content\plugins\amcharts\amcharts\images\dragIconH.gif" />
+    <Content Include="Content\plugins\amcharts\amcharts\images\dragIconHBlack.gif" />
+    <Content Include="Content\plugins\amcharts\amcharts\images\export.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\images\exportWhite.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\images\lens.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\images\lensWhite.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\az.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\bg.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\de.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\es.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\fi.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\fo.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\fr.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\hr.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\hu.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\id.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\is.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\it.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\lt.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\lv.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\mk.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\mn.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\mt.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\nl.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\no.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\pl.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\pt.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\ro.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\ru.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\rw.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\sk.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\so.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\th.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\lang\tr.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern1.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern10.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern11.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern12.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern13.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern14.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern15.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern16.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern17.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern18.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern19.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern2.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern20.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern21.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern3.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern4.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern5.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern6.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern7.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern8.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\black\pattern9.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\chalk\pattern1.jpg" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\chalk\pattern1r.jpg" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\chalk\pattern2.jpg" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\chalk\pattern3.jpg" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\chalk\pattern4.jpg" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\chalk\pattern5.jpg" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\chalk\pattern6.jpg" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern1.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern10.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern11.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern12.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern13.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern14.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern15.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern16.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern17.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern18.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern19.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern2.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern20.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern21.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern3.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern4.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern5.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern6.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern7.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern8.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\patterns\white\pattern9.png" />
+    <Content Include="Content\plugins\amcharts\amcharts\pie.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\radar.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\serial.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\themes\black.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\themes\chalk.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\themes\dark.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\themes\light.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\themes\patterns.js" />
+    <Content Include="Content\plugins\amcharts\amcharts\xy.js" />
+    <Content Include="Content\plugins\amcharts\changeLog.txt" />
+    <Content Include="Content\plugins\amcharts\images\logo.png" />
+    <Content Include="Content\plugins\amcharts\images\style.css" />
+    <Content Include="Content\plugins\amcharts\index.html" />
+    <Content Include="Content\plugins\amcharts\licence.txt" />
+    <Content Include="Content\plugins\amcharts\samples\angularGauge.html" />
+    <Content Include="Content\plugins\amcharts\samples\angularGaugeWithTwoAxes.html" />
+    <Content Include="Content\plugins\amcharts\samples\area100PercentStacked.html" />
+    <Content Include="Content\plugins\amcharts\samples\areaStacked.html" />
+    <Content Include="Content\plugins\amcharts\samples\areaWithTimeBasedData.html" />
+    <Content Include="Content\plugins\amcharts\samples\bar3D.html" />
+    <Content Include="Content\plugins\amcharts\samples\barAndLineMix.html" />
+    <Content Include="Content\plugins\amcharts\samples\barClustered.html" />
+    <Content Include="Content\plugins\amcharts\samples\barFloating.html" />
+    <Content Include="Content\plugins\amcharts\samples\barStacked.html" />
+    <Content Include="Content\plugins\amcharts\samples\barWithBackgroundImage.html" />
+    <Content Include="Content\plugins\amcharts\samples\bulletChart.html" />
+    <Content Include="Content\plugins\amcharts\samples\candleStick.html" />
+    <Content Include="Content\plugins\amcharts\samples\candleStickProMode.html" />
+    <Content Include="Content\plugins\amcharts\samples\clock.html" />
+    <Content Include="Content\plugins\amcharts\samples\clockWithTwoFaces.html" />
+    <Content Include="Content\plugins\amcharts\samples\column100PercentStacked.html" />
+    <Content Include="Content\plugins\amcharts\samples\column3D.html" />
+    <Content Include="Content\plugins\amcharts\samples\column3DStacked.html" />
+    <Content Include="Content\plugins\amcharts\samples\columnAndLineMix.html" />
+    <Content Include="Content\plugins\amcharts\samples\columnCylinders.html" />
+    <Content Include="Content\plugins\amcharts\samples\columnRotatedSeries.html" />
+    <Content Include="Content\plugins\amcharts\samples\columnSimple.html" />
+    <Content Include="Content\plugins\amcharts\samples\columnStacked.html" />
+    <Content Include="Content\plugins\amcharts\samples\columnStackedAndClustered.html" />
+    <Content Include="Content\plugins\amcharts\samples\columnWithGradientFills.html" />
+    <Content Include="Content\plugins\amcharts\samples\columnWithImages.html" />
+    <Content Include="Content\plugins\amcharts\samples\columnWithPatterns.html" />
+    <Content Include="Content\plugins\amcharts\samples\errorChart.html" />
+    <Content Include="Content\plugins\amcharts\samples\fillBetweenTwoLines.html" />
+    <Content Include="Content\plugins\amcharts\samples\funnelChart.html" />
+    <Content Include="Content\plugins\amcharts\samples\handDrawnChart.html" />
+    <Content Include="Content\plugins\amcharts\samples\images\0.gif" />
+    <Content Include="Content\plugins\amcharts\samples\images\1.gif" />
+    <Content Include="Content\plugins\amcharts\samples\images\2.gif" />
+    <Content Include="Content\plugins\amcharts\samples\images\3.gif" />
+    <Content Include="Content\plugins\amcharts\samples\images\bg.jpg" />
+    <Content Include="Content\plugins\amcharts\samples\images\bgSky.jpg" />
+    <Content Include="Content\plugins\amcharts\samples\images\bicycle.png" />
+    <Content Include="Content\plugins\amcharts\samples\images\board.jpg" />
+    <Content Include="Content\plugins\amcharts\samples\images\car.png" />
+    <Content Include="Content\plugins\amcharts\samples\images\motorcycle.png" />
+    <Content Include="Content\plugins\amcharts\samples\images\redstar.png" />
+    <Content Include="Content\plugins\amcharts\samples\images\star.png" />
+    <Content Include="Content\plugins\amcharts\samples\lineSmoothed.html" />
+    <Content Include="Content\plugins\amcharts\samples\lineStep.html" />
+    <Content Include="Content\plugins\amcharts\samples\lineStepNoRisers.html" />
+    <Content Include="Content\plugins\amcharts\samples\lineWithChangingColor.html" />
+    <Content Include="Content\plugins\amcharts\samples\lineWithCustomBullets.html" />
+    <Content Include="Content\plugins\amcharts\samples\lineWithDataGaps.html" />
+    <Content Include="Content\plugins\amcharts\samples\lineWithDateBasedData.html" />
+    <Content Include="Content\plugins\amcharts\samples\lineWithDifferentBulletSizes.html" />
+    <Content Include="Content\plugins\amcharts\samples\lineWithDurationOnValueAxis.html" />
+    <Content Include="Content\plugins\amcharts\samples\lineWithFilledValueRanges.html" />
+    <Content Include="Content\plugins\amcharts\samples\lineWithLogarithmicValueAxis.html" />
+    <Content Include="Content\plugins\amcharts\samples\lineWithMultipleValueAxes.html" />
+    <Content Include="Content\plugins\amcharts\samples\lineWithReversedValueAxis.html" />
+    <Content Include="Content\plugins\amcharts\samples\lineWithTrendLines.html" />
+    <Content Include="Content\plugins\amcharts\samples\microCharts.html" />
+    <Content Include="Content\plugins\amcharts\samples\ohlc.html" />
+    <Content Include="Content\plugins\amcharts\samples\pie3D.html" />
+    <Content Include="Content\plugins\amcharts\samples\pieDonut3D.html" />
+    <Content Include="Content\plugins\amcharts\samples\pieSimple.html" />
+    <Content Include="Content\plugins\amcharts\samples\pieWithLegend.html" />
+    <Content Include="Content\plugins\amcharts\samples\pieWithPatterns.html" />
+    <Content Include="Content\plugins\amcharts\samples\pyramidChart.html" />
+    <Content Include="Content\plugins\amcharts\samples\pyramidChart3D.html" />
+    <Content Include="Content\plugins\amcharts\samples\radarPolar.html" />
+    <Content Include="Content\plugins\amcharts\samples\radarSimple.html" />
+    <Content Include="Content\plugins\amcharts\samples\style.css" />
+    <Content Include="Content\plugins\amcharts\samples\waterFallChart.html" />
+    <Content Include="Content\plugins\amcharts\samples\xyBubbleSimple.html" />
+    <Content Include="Content\plugins\amcharts\samples\xyBubbleWithZoom.html" />
+    <Content Include="Content\plugins\amcharts\samples\xyError.html" />
+    <Content Include="Content\plugins\amcharts\samples\xyScatter.html" />
+    <Content Include="Content\plugins\amcharts\samples\_CSS_animations.html" />
+    <Content Include="Content\plugins\amcharts\samples\_exporting_to_multiple_formats.html" />
+    <Content Include="Content\plugins\amcharts\samples\_exporting_to_png.html" />
+    <Content Include="Content\plugins\amcharts\samples\_JSON_angularGauge.html" />
+    <Content Include="Content\plugins\amcharts\samples\_JSON_areaStacked.html" />
+    <Content Include="Content\plugins\amcharts\samples\_JSON_barAndLineMix.html" />
+    <Content Include="Content\plugins\amcharts\samples\_JSON_lineWithFilledValueRanges.html" />
+    <Content Include="Content\plugins\amcharts\samples\_JSON_lineWithScrollAndZoom.html" />
+    <Content Include="Content\plugins\amcharts\samples\_JSON_lineWithTrendLines.html" />
+    <Content Include="Content\plugins\amcharts\samples\_JSON_pieWithLegend.html" />
+    <Content Include="Content\plugins\amcharts\samples\_JSON_radarSimple.html" />
+    <Content Include="Content\plugins\amcharts\samples\_JSON_usingDifferentLanguage.html" />
+    <Content Include="Content\plugins\amcharts\samples\_JSON_xyBubbleWithZoom.html" />
+    <Content Include="Content\plugins\amcharts\samples\_JSON_xyWithGuides.html" />
+    <Content Include="Content\plugins\amcharts\samples\_usingThemes.html" />
+    <Content Include="Content\plugins\amcharts\thirdPartySoftwareList.txt" />
     <Content Include="Content\plugins\blockUI\jquery.blockUI.js" />
     <Content Include="Content\plugins\bootbox\bootbox.min.js" />
     <Content Include="Content\plugins\bootbox\readme.txt" />
@@ -1140,6 +1341,11 @@
     <Compile Include="Code\NancyContextHelpers.cs" />
     <Compile Include="Code\StaticSettings.cs" />
     <Compile Include="Code\ValidateClaims.cs" />
+    <Compile Include="Datasets\ExchangeSummaryReportDataset.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ExchangeSummaryReportDataset.xsd</DependentUpon>
+    </Compile>
     <Compile Include="Modules\Admin\BrandingModule.cs" />
     <Compile Include="Modules\Admin\ExchangeModule.cs" />
     <Compile Include="Modules\Admin\MassEmailModule.cs" />
@@ -1163,6 +1369,7 @@
     <Compile Include="Modules\CompanyModules\Exchange\GroupsModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\ResourceModule.cs" />
     <Compile Include="Modules\DashboardModule.cs" />
+    <Compile Include="Modules\Dashboard\AdminDashboardModule.cs" />
     <Compile Include="Modules\PlansModules\ActiveSyncPlanModule.cs" />
     <Compile Include="Modules\PlansModules\ArchivePlanModule.cs" />
     <Compile Include="Modules\PlansModules\CitrixPlanModule.cs" />
@@ -1433,6 +1640,17 @@
     <Content Include="Content\plugins\form-toggle\less\themes\toggles-modern.less" />
     <Content Include="Content\plugins\form-toggle\less\themes\toggles-soft.less" />
     <Content Include="Content\plugins\form-toggle\less\toggles.less" />
+    <Content Include="Datasets\ExchangeSummaryReportDataset.xsc">
+      <DependentUpon>ExchangeSummaryReportDataset.xsd</DependentUpon>
+    </Content>
+    <None Include="Datasets\ExchangeSummaryReportDataset.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>ExchangeSummaryReportDataset.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Datasets\ExchangeSummaryReportDataset.xss">
+      <DependentUpon>ExchangeSummaryReportDataset.xsd</DependentUpon>
+    </Content>
     <None Include="Properties\PublishProfiles\HOME DC.pubxml" />
     <None Include="Properties\PublishProfiles\HOME ZIP.pubxml" />
     <None Include="Properties\PublishProfiles\LAB DC.pubxml" />
@@ -1468,7 +1686,6 @@
     <Content Include="Views\Admin\reports.cshtml" />
     <Content Include="Views\Plans\Citrix\citrix.cshtml" />
     <Content Include="Views\Plans\Citrix\group.cshtml" />
-    <Content Include="Views\Reports\ExchangeReportsOverview.cshtml" />
     <Content Include="Views\Reports\_reportmaster.cshtml" />
     <Content Include="Views\Reports\_reportmenu.cshtml" />
     <Content Include="Views\Reports\Exchange\ExecutiveSummary.cshtml" />
@@ -1514,6 +1731,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Views\Reports\Exchange\SummaryReport.rdlc" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
