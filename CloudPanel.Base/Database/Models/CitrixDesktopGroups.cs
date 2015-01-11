@@ -27,6 +27,8 @@ namespace CloudPanel.Base.Database.Models
 
         public string PublishedName { get; set; }
 
+        public string SecurityGroup { get; set; }
+
         public string Description { get; set; }
 
         public bool IsEnabled { get; set; }
@@ -44,6 +46,7 @@ namespace CloudPanel.Base.Database.Models
         public int ApplicationId { get; set; }
 
         public int DesktopId { get; set; }
+
         #region Not Mapped
 
         [NotMapped]

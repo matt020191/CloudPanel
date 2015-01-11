@@ -47,17 +47,19 @@
                                 <tr>
                                     <th></th>
                                     <th>Name</th>
-                                    <th>Companies</th>
-                                    <th>Desktops</th>
-                                    <th>Applications</th>
-                                    <th>Total Users</th>
-                                    <th>Last Retrieved</th>
+                                    <th><i class="fa fa-building tooltip-ex" data-toggle="toggle" data-original-title="Companies"></i></th>
+                                    <th><i class="fa fa-tablet tooltip-ex" data-toggle="toggle" data-original-title="Desktops"></i></th>
+                                    <th><i class="fa fa-asterisk tooltip-ex" data-toggle="toggle" data-original-title="Applications"></i></th>
+                                    <th><i class="fa fa-user tooltip-ex" data-toggle="toggle" data-original-title="Users"></i></th>
+                                    <th><i class="fa fa-group tooltip-ex" data-toggle="toggle" data-original-title="Security Groups"></i></th>
+                                    <th><i class="fa fa-calendar"></i> Retrieved</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td></td>
                                     <td>Loading...</td>
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -74,6 +76,32 @@
     </div>
 </form>
 
+<form id="addCompanyForm" action="" method="post">
+    <div id="addCompanyModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Add Company</h4>
+                </div>
+                <div class="modal-body">
+                    <select id="CompanyCode" name="CompanyCode" class="form-control">
+                        @foreach (var company in CloudPanel.Modules.CompaniesModule.GetCompanies())
+                        {
+                            <option value="@company.CompanyCode">@company.CompanyName</option>
+                        }
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
 @section JAVASCRIPT{
     <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
     <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
@@ -82,6 +110,7 @@
     <script src="~/Content/js/cloudpanel.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
+            AddFormHandlers();
             LoadCitrixPlans();
         });
 
@@ -108,11 +137,12 @@
                 },
                 "columns": [
                    { "data": "uid", "class": "details-control", "orderable": false, "defaultContent": "", "render": function () { return "" } },
-                   { "data": "name", "render": function (data, type, full, meta) { return '<a href="@Url.Content("~/plans/citrix/group/")'+full["uid"]+'">'+data+'</a>' } },
+                   { "data": "name", "render": function (data, type, full, meta) { return '<a href="@Url.Content("~/plans/citrix/group/")' + full["uUID"] + '">' + data + '</a>' } },
                    { "data": "companyCount" },
                    { "data": "desktopCount" },
                    { "data": "applicationCount" },
                    { "data": "totalUsers" },
+                   { "data": "securityGroup" },
                    { "data": "lastRetrieved", "render": function (data, type, full, meta) { return moment(data).format('lll'); } },
                 ]
             });
@@ -134,10 +164,15 @@
         }
 
         function FormatChildTable(d) {
-            var companyPanel = '<h3>Companies</h3><div class="panel-body"><div class="list-group">';
+            var companyPanel = '<div style="float: right">\
+                                    <div class="btn-group">\
+                                        <button type="button" class="btn btn-sm btn-default" onclick="javascript: AddCompany(\''+ d.uUID + '\');">Add Company</button>\
+                                    </div>\
+                                </div>\
+                                <h3>Companies</h3><div class="panel-body"><div class="list-group">';
             if (d.companies.length) {
                 $.each(d.companies, function (k, v) {
-                    companyPanel += '<a href="@Url.Content("~/company/")' + v.companyCode + '/overview" class="list-group-item"><span class="badge">' + v.totalUsers + '</span> <i class="fa fa-building"></i> ' + v.companyName + ' </a>';
+                    companyPanel += '<a href="javascript: DeleteCompany(\'' + d.uUID + '\', \'' + v.companyCode + '\')" class="list-group-item"><span class="badge badge-danger">Delete</span> <i class="fa fa-building"></i> ' + v.companyName + ' </a>';
                 });
             }
             companyPanel += '</div></div><br/><br/>';
@@ -146,12 +181,64 @@
         }
 
         function ReloadAll() {
+            $.blockUI();
             $.getJSON(window.location.href + "/all", function () {
                 ReloadTable("groupsTable");
+                ShowSuccess("Successfully updated desktop groups");
+            })
+            .always(function () {
+                $.unblockUI();
             })
             .fail(function (data) {
                 ShowError(data);
             });
         }
-    </script>
+
+        function AddCompany(uuid) {
+            $("#addCompanyForm").attr("action", "@Url.Content("~/plans/citrix/group/")" + uuid + "/add");
+            $("#addCompanyModal").modal("show");
+        }
+
+        function DeleteCompany(uuid, companyCode) {
+            swal({
+                title: "Are you sure?",
+                text: "All users must be removed from the delivery group before deleting.",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes, delete it!",
+                closeOnConfirm: false
+            }, function () {
+                $.blockUI();
+                $.post("@Url.Content("~/plans/citrix/group/")" + uuid + "/delete", { CompanyCode: companyCode })
+                  .done(function () {
+                      var table = $("#groupsTable").DataTable();
+                      table.ajax.reload();
+
+                      swal("Deleted!", "Successfully removed company from delivery group.", "success");
+                  }).fail(function (returnData) {
+                      ShowError(returnData);
+                  }).always(function () {
+                      $.unblockUI();
+                  });
+            });
+        }
+
+        function AddFormHandlers() {
+            $("#addCompanyForm").submit(function (event) {
+                event.preventDefault();
+                var data = $("#addCompanyForm").serialize();
+
+                $.blockUI();
+                $.post($("#addCompanyForm").attr("action"), data).done(function (data) {
+                    $("#addCompanyModal").modal("hide");
+                    ShowSuccess(data.success);
+                }).fail(function (returnData) {
+                    ShowError(returnData);
+                }).always(function () {
+                    $.unblockUI();
+                });
+            });
+        }
+</script>
 }

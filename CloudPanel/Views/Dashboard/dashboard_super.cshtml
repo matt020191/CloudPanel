@@ -67,7 +67,7 @@
                         <div class="pull-right"><span id="badgeMailboxAllocated" class="badge"></span></div>
                     </div>
                     <div class="tiles-footer">
-                        Mailbox Space Allocated
+                        Mailbox Allocated
                     </div>
                 </a>
             </div> <!-- Mailbox Space Allocated -->
@@ -78,7 +78,7 @@
                         <div class="pull-right"><span id="badgeMailboxUsed" class="badge"></span></div>
                     </div>
                     <div class="tiles-footer">
-                        Mailbox Space Used
+                        Mailbox Used
                     </div>
                 </a>
             </div> <!-- Mailbox Space Used -->
@@ -125,17 +125,10 @@
             <div class="col-md-6">
                 <div class="panel panel-inverse">
                     <div class="panel-heading">
-                        <h4>Top Customers by Mailboxes</h4>
-                        <div class="options">
-                            <div class="btn-group">
-                                <button class="btn btn-default btn-xs" onclick="javascript: GetTopMailboxes(5);"> Top 5 </button>
-                                <button class="btn btn-default btn-xs" onclick="javascript: GetTopMailboxes(10);"> Top 10 </button>
-                                <button class="btn btn-default btn-xs" onclick="javascript: GetTopMailboxes(15);"> Top 15 </button>
-                            </div>
-                        </div>
+                        <h4>Top Resellers</h4>
                     </div>
                     <div class="panel-body topMailboxes">
-                        <div id="topExchangeMailboxes" style="height:250px;"></div>
+                        <div id="topResellers" style="height:250px;"></div>
                     </div>
                 </div>
             </div>
@@ -144,18 +137,8 @@
 </div>
 
 @section JAVASCRIPT{
-    <script src="~/Content/plugins/charts-flot/jquery.flot.min.js"></script>
-    <script src="~/Content/plugins/charts-flot/jquery.flot.orderBars.min.js"></script>
-    <script src="~/Content/plugins/charts-flot/jquery.flot.pie.min.js"></script>
     <script src="~/Content/plugins/charts-highcharts/js/highcharts.js"></script>
-    <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
-    <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
     <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
-
-    <!-- Charting -->
-    <script src="~/Content/plugins/amcharts/amcharts/amcharts.js"></script>
-    <script src="~/Content/plugins/amcharts/amcharts/serial.js"></script>
-
     <script type="text/javascript">
     var exchangeModule = @CloudPanel.Base.Config.Settings.ExchangeModule.ToString().ToLower()
 
@@ -167,28 +150,24 @@
         // Get the overview chart
         GetHistoryOverview(6);
 
+        // Get the top resellers
+        GetTopResellers(5);
+
         // Only populate Exchange information if the Exchange module is enabled
         if (exchangeModule) {
-            GetTopMailboxes(5);
-
             GetExchangeDatabases();
         }
     });
 
     function GetTiles() {
-            $.getJSON("", function (stats) {
-                $("#badgeResellers").text(stats.totalResellers);
-                $("#badgeCompanies").text(stats.totalCompanies);
-                $("#badgeUsers").text(stats.totalUsers);
-                $("#badgeMailboxes").text(stats.totalMailboxes);
-                $("#badgeMailboxAllocated").text(stats.totalMailboxAllocated);
-                $("#badgeMailboxUsed").text(stats.totalMailboxUsed);
-            })
-            .fail(function (data) {
-                ShowError(data);
-            })
-            .always(function (data) {
-            });
+        $.getJSON("@Url.Content("~/dashboard/all")", function (data) {
+            $("#badgeResellers").text(data.resellers);
+            $("#badgeCompanies").text(data.companies);
+            $("#badgeUsers").text(data.users);
+            $("#badgeMailboxes").text(data.mailboxes);
+            $("#badgeMailboxAllocated").text(data.mailboxAllocated);
+            $("#badgeMailboxUsed").text(data.mailboxUsed);
+        });
     }
 
     function GetExchangeDatabases() {
@@ -202,8 +181,8 @@
                 title: { text: '' },
                 xAxis: { type: 'category', labels: { style: { fontFamily: 'Verdana, sans-serif' } } },
                 yAxis: {
-                    min: 0, 
-                    title: { text: '' }, 
+                    min: 0,
+                    title: { text: '' },
                     labels: {
                         formatter: function () {
                             var maxElement = this.axis.max;
@@ -291,101 +270,34 @@
         });
     }
 
-    function GetTopMailboxes(x) {
-        $.getJSON("@Url.Content("~/dashboard/customers/top/mailboxes/")" + x, function (data) {
-                var ds = [];
-                $.each(data.data, function (index, top) {
-                    ds.push({ label: top.companyName, data: top.totalUsers });
-                });
-
-                $.plot('#topExchangeMailboxes', ds, {
-                    series: {
-                        pie: {
-                            show: true, radius: 1,
-                            label: {
-                                show: true,
-                                radius: 3 / 4,
-                                formatter: function (label, series) {
-                                    return '<div style="border:1px solid grey;font-size:8pt;text-align:center;padding:5px;color:white;">' +
-                                            label + '<br/>' +
-                                            series.data[0][1] +
-                                            '</div>';
-                                },
-                                background: { opacity: 0.5, color: '#000' }
-                            }
-                        }
-                    },
-                    legend: { show: false },
-                    grid: { hoverable: true, clickable: true }
-                });
-            })
-            .fail(function (data) {
-                ShowError(data);
-            })
-            .always(function (data) {
+    function GetTopResellers(topResellers) {
+        $.getJSON("@Url.Content("~/dashboard/resellers/")" + topResellers, function (data) {
+            var resellers = [], companyCount = [];
+            $.each(data, function (i, val) {
+                resellers.push(val.resellerName);
+                companyCount.push(val.companyCount);
             });
-    }
 
-        /*
-    function GetExchangeDatabases(queryNow) {
-        $(".mailboxDatabases").block();
-        $.getJSON("Url.Content("~/exchange/databases")" + (queryNow == true ? "/now" : ""), function (data) {
-
-            if (data.databases.length > 0) {
-                    var names = [];
-                    var sizes = [];
-                    $.each(data.databases, function (index, database) {
-                        names.push(new Array(index, database.identity));
-                        sizes.push(new Array(index, database.databaseSizeInGB));
-                    });
-
-                    var ds = [];
-                    ds.push({ data: sizes, label: "Size In GB", bars: { show: true, barWidth: 0.2, order: 1 } });
-
-                    $.plot($("#exchangeDatabases"), ds, {
-                        series: { bars: { show: true, fill: 0.75, 'align': "center" } },
-                        grid: { hoverable: true, clickable: false, borderWidth: 0 },
-                        xaxis: { tickColor: "transparent", ticks: names, tickDecimals: 2, font: { color: '#8c8c8c', size: 12 } },
-                        yaxis: { tickDecimals: 2 },
-                        legend: { labelBoxBorderColor: 'transparent' }
-                    });
-
-                    var previousPointBar = null;
-                    $("#exchangeDatabases").bind("plothover", function (event, pos, item) {
-                        $("#x").text(pos.x.toFixed(2));
-                        $("#y").text(pos.y.toFixed(2));
-                        if (item) {
-                            if (previousPointBar != item.dataIndex) {
-                                previousPointBar = item.dataIndex;
-
-                                $("#tooltip").remove();
-                                var x = item.datapoint[0].toFixed(2),
-                                    y = item.datapoint[1].toFixed(2);
-
-                                showTooltip(item.pageX + 20, item.pageY, item.series.label + ": " + y + "<br/>" + moment(data.databases[0].retrieved).format('lll'));
-
-                            }
-                        } else {
-                            $("#tooltip").remove();
-                            previousPointBar = null;
-                        }
-                    });
-                }
-            })
-            .fail(function (data) {
-                ShowError(data);
-            })
-            .always(function (data) {
-                $(".mailboxDatabases").unblock();
+            var bar = new Highcharts.Chart({
+                chart: { type: 'bar', renderTo: 'topResellers' },
+                title: { text: '' },
+                xAxis: { title: { text: null }, categories: resellers },
+                yAxis: { labels: { overflow: 'justify' }, title: { text: '' } },
+                plotOptions: { bar: { dataLabels: { enabled: true } } },
+                legend: {
+                    layout: 'vertical', align: 'right', verticalAlign: 'top',
+                    floating: true,
+                    borderWidth: 1,
+                    backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                    shadow: true
+                },
+                credits: { enabled: false },
+                series: [{
+                    name: "Companies",
+                    data: companyCount
+                }]
             });
-    }*/
-
-    function showTooltip(x, y, contents) {
-        $('<div id="tooltip" class="tooltip top in"><div class="tooltip-inner">' + contents + '<\/div><\/div>').css({
-            display: 'none',
-            top: y - 40,
-            left: x - 55,
-        }).appendTo("body").fadeIn(200);
+        });
     }
     </script>
 }

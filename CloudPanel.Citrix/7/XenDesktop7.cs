@@ -155,8 +155,11 @@ namespace CloudPanel.Citrix
                 newApp.UUID = (Guid)application.Properties["UUID"].Value;
                 newApp.Name = application.Properties["Name"].Value.ToString();
                 newApp.PublishedName = application.Properties["PublishedName"].Value.ToString();
+                newApp.CommandLineExecutable = application.Properties["CommandLineExecutable"].Value.ToString();
+                newApp.CommandLineArguments = application.Properties["CommandLineArguments"].Value.ToString();
                 newApp.IsEnabled = (bool)application.Properties["Enabled"].Value;
                 newApp.ApplicationName = application.Properties["ApplicationName"].Value.ToString();
+                newApp.UserFilterEnabled = (bool)application.Properties["UserFilterEnabled"].Value;
                 newApp.LastRetrieved = DateTime.Now;
 
                 applications.Add(newApp);
@@ -346,6 +349,46 @@ namespace CloudPanel.Citrix
             }
 
             return sessions;
+        }
+
+        /// <summary>
+        /// Adds a security group or user to a desktop group
+        /// </summary>
+        /// <param name="desktopUid"></param>
+        /// <param name="identity"></param>
+        public void AddGroupOrUserToDesktopGroup(int desktopUid, string identity)
+        {
+            logger.DebugFormat("Adding {0} to desktop {1}",identity, desktopUid);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-BrokerAccessPolicyRule");
+            cmd.AddParameter("DesktopGroupUid", desktopUid);
+            cmd.AddCommand("Set-BrokerAccessPolicyRule");
+            cmd.AddParameter("AddIncludedUsers", identity);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        /// <summary>
+        /// Adds a security group or user to a application
+        /// </summary>
+        /// <param name="appUid"></param>
+        /// <param name="identity"></param>
+        public void AddGroupOrUserToApplication(int appUid, string identity)
+        {
+            logger.DebugFormat("Adding {0} to application {1}", identity, appUid);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-BrokerAppEntitlementPolicyRule");
+            cmd.AddParameter("Uid", appUid);
+            cmd.AddCommand("Set-BrokerAppEntitlementPolicyRule");
+            cmd.AddParameter("AddIncludedUsers", identity);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
         }
 
         /// <summary>

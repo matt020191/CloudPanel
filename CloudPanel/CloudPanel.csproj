@@ -41,6 +41,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ByteSize">
+      <HintPath>..\packages\ByteSize.0.3.0\lib\portable-net4+sl5+netcore45+wp8+MonoAndroid1+MonoTouch1\ByteSize.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\EntityFramework.6.1.2\lib\net45\EntityFramework.dll</HintPath>
@@ -1352,6 +1355,7 @@
     <Compile Include="Modules\Admin\ReportsModule.cs" />
     <Compile Include="Modules\Admin\SettingsModule.cs" />
     <Compile Include="Modules\ApiModule.cs" />
+    <Compile Include="Modules\Citrix\CitrixModule.cs" />
     <Compile Include="Modules\CompaniesModule.cs" />
     <Compile Include="Modules\CompanyModules\BillingModule.cs" />
     <Compile Include="Modules\CompanyModules\DomainsModule.cs" />
@@ -1699,6 +1703,8 @@
   <ItemGroup>
     <Folder Include="Content\img\branding\" />
     <Folder Include="Log\" />
+    <Folder Include="Scripts\" />
+    <Folder Include="Views\Company\Citrix\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CloudPanel.ActiveDirectory\CloudPanel.ActiveDirectory.csproj">

@@ -1,7 +1,10 @@
-﻿using CloudPanel.Base.Config;
+﻿using CloudPanel.ActiveDirectory;
+using CloudPanel.Base.AD;
+using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
 using CloudPanel.Citrix;
 using CloudPanel.Database.EntityFramework;
+using CloudPanel.Rollback;
 using log4net;
 using Nancy;
 using System;
@@ -41,6 +44,7 @@ namespace CloudPanel.Modules.PlansModules
                                                  DesktopGroupID = d.DesktopGroupID,
                                                  Name = d.Name,
                                                  PublishedName = d.PublishedName,
+                                                 SecurityGroup = d.SecurityGroup,
                                                  Description = d.Description,
                                                  LastRetrieved = d.LastRetrieved,
                                                  ApplicationCount = d.Applications.Count,
@@ -121,7 +125,7 @@ namespace CloudPanel.Modules.PlansModules
                     #endregion
                 };
 
-            Get["/group/{GroupID:int}"] = _ =>
+            Get["/group/{UUID:Guid}"] = _ =>
                 {
                     #region Get the desktop groups, its companies, and users from the database
                     CloudPanelContext db = null;
@@ -131,13 +135,13 @@ namespace CloudPanel.Modules.PlansModules
                         db.Database.Connection.Open();
 
                         logger.DebugFormat("Retrieving the desktop groups");
-                        int desktopUid = _.GroupID;
+                        Guid desktopUUID = _.UUID;
                         var desktopGroups = (from d in db.CitrixDesktopGroup
                                                          .Include(x => x.Companies)
                                                          .Include(x => x.Users)
                                                          .Include(x => x.Applications)
                                                          .Include(x => x.Desktops)
-                                             where d.Uid == desktopUid
+                                             where d.UUID == d.UUID
                                              select new
                                              {
                                                  Uid = d.Uid,
@@ -154,6 +158,8 @@ namespace CloudPanel.Modules.PlansModules
                                                                      UUID = app.UUID,
                                                                      ApplicationName = app.ApplicationName,
                                                                      PublishedName = app.PublishedName,
+                                                                     CommandLineExecutable = app.CommandLineExecutable,
+                                                                     CommandLineArguments = app.CommandLineArguments,
                                                                      Description = app.Description,
                                                                      IsEnabled = app.IsEnabled,
                                                                      LastRetrieved = app.LastRetrieved
@@ -198,148 +204,6 @@ namespace CloudPanel.Modules.PlansModules
                     #endregion
                 };
 
-            Get["/group/{GroupID:int}/sessions"] = _ =>
-                {
-                    #region Gets the sessions for a specific desktop group
-                    XenDesktop7 xd7 = null;
-                    try
-                    {
-                        xd7 = new XenDesktop7(Settings.CitrixUri, Settings.Username, Settings.DecryptedPassword);
-
-                        int uid = _.GroupID;
-                        var sessions = xd7.GetSessionsByDesktopGroup(uid);
-
-                        int draw = 0, start = 0, length = 0, recordsTotal = sessions.Count, recordsFiltered = sessions.Count, orderColumn = 0;
-                        string searchValue = "", orderColumnName = "";
-                        bool isAscendingOrder = true;
-
-                        if (Request.Query.draw.HasValue)
-                        {
-                            draw = Request.Query.draw;
-                            start = Request.Query.start;
-                            length = Request.Query.length;
-                            orderColumn = Request.Query["order[0][column]"];
-                            searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
-                            isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
-                            orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
-
-                            // See if we are using dataTables to search
-                            if (!string.IsNullOrEmpty(searchValue))
-                            {
-                                sessions = (from d in sessions
-                                            where d.UserName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
-                                            select d).ToList();
-                                recordsFiltered = sessions.Count;
-                            }
-
-                            if (isAscendingOrder)
-                                sessions = sessions.OrderBy(x => x.GetType()
-                                                        .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                        .Skip(start)
-                                                        .Take((length > 0 ? length : sessions.Count))
-                                                        .ToList();
-                            else
-                                sessions = sessions.OrderByDescending(x => x.GetType()
-                                                        .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                        .Skip(start)
-                                                        .Take((length > 0 ? length : sessions.Count))
-                                                        .ToList();
-                        }
-
-                        logger.DebugFormat("Completed getting citrix session data");
-                        return Negotiate.WithModel(new
-                        {
-                            draw = draw,
-                            recordsTotal = recordsTotal,
-                            recordsFiltered = recordsFiltered,
-                            data = sessions
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.ErrorFormat("Error getting citrix session data: {0}", ex.ToString());
-                        return Negotiate.WithModel(new { error = ex.Message })
-                                        .WithStatusCode(HttpStatusCode.InternalServerError);
-                    }
-                    finally
-                    {
-                        if (xd7 != null)
-                            xd7.Dispose();
-                    }
-                    #endregion
-                };
-
-            Get["/group/{GroupID:int}/{DesktopUid:int}/sessions"] = _ =>
-                {
-                    #region Gets the sessions for a specific desktop group
-                    XenDesktop7 xd7 = null;
-                    try
-                    {
-                        xd7 = new XenDesktop7(Settings.CitrixUri, Settings.Username, Settings.DecryptedPassword);
-
-                        int uid = _.DesktopUid;
-                        var sessions = xd7.GetSessionsByDesktop(uid);
-
-                        int draw = 0, start = 0, length = 0, recordsTotal = sessions.Count, recordsFiltered = sessions.Count, orderColumn = 0;
-                        string searchValue = "", orderColumnName = "";
-                        bool isAscendingOrder = true;
-
-                        if (Request.Query.draw.HasValue)
-                        {
-                            draw = Request.Query.draw;
-                            start = Request.Query.start;
-                            length = Request.Query.length;
-                            orderColumn = Request.Query["order[0][column]"];
-                            searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
-                            isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
-                            orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
-
-                            // See if we are using dataTables to search
-                            if (!string.IsNullOrEmpty(searchValue))
-                            {
-                                sessions = (from d in sessions
-                                            where d.UserName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
-                                            select d).ToList();
-                                recordsFiltered = sessions.Count;
-                            }
-
-                            if (isAscendingOrder)
-                                sessions = sessions.OrderBy(x => x.GetType()
-                                                        .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                        .Skip(start)
-                                                        .Take((length > 0 ? length : sessions.Count))
-                                                        .ToList();
-                            else
-                                sessions = sessions.OrderByDescending(x => x.GetType()
-                                                        .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                        .Skip(start)
-                                                        .Take((length > 0 ? length : sessions.Count))
-                                                        .ToList();
-                        }
-
-                        logger.DebugFormat("Completed getting citrix session data");
-                        return Negotiate.WithModel(new
-                        {
-                            draw = draw,
-                            recordsTotal = recordsTotal,
-                            recordsFiltered = recordsFiltered,
-                            data = sessions
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.ErrorFormat("Error getting citrix session data: {0}", ex.ToString());
-                        return Negotiate.WithModel(new { error = ex.Message })
-                                        .WithStatusCode(HttpStatusCode.InternalServerError);
-                    }
-                    finally
-                    {
-                        if (xd7 != null)
-                            xd7.Dispose();
-                    }
-                    #endregion
-                };
-
             Get["/all"] = _ =>
                 {
                     #region Queries Citrix and adds/updates all data
@@ -362,7 +226,7 @@ namespace CloudPanel.Modules.PlansModules
                                     if (apps != null)
                                         x.Applications = apps;
 
-                                    AddDesktopGroup(x);
+                                    AddDesktopGroup(x, ref xd7);
                                 });
                         }
 
@@ -383,81 +247,90 @@ namespace CloudPanel.Modules.PlansModules
                     #endregion
                 };
 
-            Post["/logoff"] = _ =>
+            Post["/group/{UUID:Guid}/add"] = _ =>
                 {
-                    #region Logs off users
-                    XenDesktop7 xd7 = null;
+                    Guid uuid = _.UUID;
+
+                    #region Add company to delivery group
+                    CloudPanelContext db = null;
                     try
                     {
-                        if (!Request.Form["values[]"].HasValue)
-                            throw new MissingFieldException("", "values[]");
+                        if (!Request.Form.CompanyCode.HasValue)
+                            throw new MissingFieldException("", "CompanyCode");
 
-                        xd7 = new XenDesktop7(Settings.CitrixUri, Settings.Username, Settings.DecryptedPassword);
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
 
-                        string[] values = Request.Form["values[]"].Value.Split(',');
-                        xd7.LogOffSessionsBySessionKeys(values);
+                        string companyCode = Request.Form.CompanyCode.Value;
 
-                        return Negotiate.WithModel(new { success = "Successfully sent command to log off users" })
+                        var company = db.Companies.Where(x => x.CompanyCode == companyCode).FirstOrDefault();
+                        var desktopGroup = db.CitrixDesktopGroup.Where(x => x.UUID == uuid).FirstOrDefault();
+                        desktopGroup.Companies.Add(company);
+                        db.SaveChanges();
+
+                        return Negotiate.WithModel(new { success = "Successfully added company to the desktop group" })
                                         .WithStatusCode(HttpStatusCode.OK);
                     }
                     catch (Exception ex)
                     {
-                        logger.ErrorFormat("Error logging off users: {0}", ex.ToString());
+                        logger.ErrorFormat("Error adding company to desktop group {0}", uuid);
                         return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithView("Error/500.cshtml")
                                         .WithStatusCode(HttpStatusCode.InternalServerError);
                     }
                     finally
                     {
-                        if (xd7 != null)
-                            xd7.Dispose();
+                        if (db != null)
+                            db.Dispose();
                     }
                     #endregion
                 };
 
-            Post["/sendmessage"] = _ =>
+            Post["/group/{UUID:Guid}/delete"] = _ =>
                 {
-                    #region Send message to users
-                    XenDesktop7 xd7 = null;
+                    Guid uuid = _.UUID;
+
+                    #region Remove company to delivery group
+                    CloudPanelContext db = null;
                     try
                     {
-                        if (!Request.Form.Title.HasValue)
-                            throw new MissingFieldException("", "Title");
+                        if (!Request.Form.CompanyCode.HasValue)
+                            throw new MissingFieldException("", "CompanyCode");
 
-                        if (!Request.Form.MessageStyle.HasValue)
-                            throw new MissingFieldException("", "MessageStyle");
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
 
-                        if (!Request.Form.Message.HasValue)
-                            throw new MissingFieldException("", " Message");
+                        string companyCode = Request.Form.CompanyCode.Value;
 
-                        if (!Request.Form["SessionKeys[]"].HasValue)
-                            throw new MissingFieldException("", "SessionKeys");
+                        var company = db.Companies.Where(x => x.CompanyCode == companyCode).FirstOrDefault();
+                        var desktopGroup = db.CitrixDesktopGroup.Where(x => x.UUID == uuid).FirstOrDefault();
+                        desktopGroup.Companies.Remove(company);
+                        db.SaveChanges();
 
-                        xd7 = new XenDesktop7(Settings.CitrixUri, Settings.Username, Settings.DecryptedPassword);
-
-                        string[] sessionKeys = Request.Form["SessionKeys[]"].Value.Split(',');
-                        xd7.SendMessageBySessionKeys(sessionKeys, Request.Form.MessageStyle.Value, Request.Form.Title.Value, Request.Form.Message.Value);
-
-                        return Negotiate.WithModel(new { success = "Successfully sent message to users" })
+                        return Negotiate.WithModel(new { success = "Successfully removed company from the desktop group" })
                                         .WithStatusCode(HttpStatusCode.OK);
                     }
                     catch (Exception ex)
                     {
-                        logger.ErrorFormat("Error sending message to users: {0}", ex.ToString());
+                        logger.ErrorFormat("Error removing company from desktop group {0}", uuid);
                         return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithView("Error/500.cshtml")
                                         .WithStatusCode(HttpStatusCode.InternalServerError);
                     }
                     finally
                     {
-                        if (xd7 != null)
-                            xd7.Dispose();
+                        if (db != null)
+                            db.Dispose();
                     }
                     #endregion
                 };
         }
 
-        public static void AddDesktopGroup(CitrixDesktopGroups desktopGroup)
+        public static void AddDesktopGroup(CitrixDesktopGroups desktopGroup, ref XenDesktop7 xd7)
         {
             CloudPanelContext db = null;
+            ADGroups ad = null;
+            ReverseActions reverse = new ReverseActions();
             try
             {
                 db = new CloudPanelContext(Settings.ConnectionString);
@@ -471,11 +344,42 @@ namespace CloudPanel.Modules.PlansModules
 
                 if (existingGroup == null)
                 {
-                    logger.DebugFormat("Desktop group is new. Adding to database");
+                    #region New desktop group
+                    logger.DebugFormat("Desktop group is new. Creating security group");
+                    var group = CreateSecurityGroup(desktopGroup.Name, desktopGroup.UUID.ToString());
+                    reverse.AddAction(Actions.CreateSecurityGroup, group.Name);
+
+                    logger.DebugFormat("Adding the new security group to the desktop group");
+                    xd7.AddGroupOrUserToDesktopGroup(desktopGroup.Uid, group.SamAccountName);
+                    desktopGroup.SecurityGroup = group.Name;
+
+                    logger.DebugFormat("Checking applications if they are user filter enabled to create a security group");
+                    if (desktopGroup.Applications != null)
+                    {
+                        foreach (var app in desktopGroup.Applications)
+                        {
+                            if (app.UserFilterEnabled)
+                            {
+                                // Add security group to the application
+                                var appGroup = CreateSecurityGroup(app.Name, app.UUID.ToString());
+                                reverse.AddAction(Actions.CreateSecurityGroup, appGroup.Name);
+
+                                logger.DebugFormat("Adding the new security group to the application");
+                                xd7.AddGroupOrUserToApplication(app.Uid, appGroup.SamAccountName);
+
+                                // Add to database
+                                app.SecurityGroup = appGroup.Name;
+                            }
+                        }
+                    }
+
+                    logger.DebugFormat("Adding to database");
                     db.CitrixDesktopGroup.Add(desktopGroup);
+                    #endregion
                 }
                 else
                 {
+                    #region Update existing group
                     logger.DebugFormat("Updating desktop group {0}", desktopGroup.Name);
                     existingGroup.Name = desktopGroup.Name;
                     existingGroup.PublishedName = desktopGroup.PublishedName;
@@ -483,6 +387,20 @@ namespace CloudPanel.Modules.PlansModules
                     existingGroup.Description = desktopGroup.Description;
                     existingGroup.LastRetrieved = desktopGroup.LastRetrieved;
 
+                    // Check if the security group is null
+                    if (string.IsNullOrEmpty(existingGroup.SecurityGroup))
+                    {
+                        logger.DebugFormat("Desktop group is existing but missing security group. Creating security group");
+                        var group = CreateSecurityGroup(existingGroup.Name, existingGroup.UUID.ToString());
+                        reverse.AddAction(Actions.CreateSecurityGroup, group.Name);
+
+                        logger.DebugFormat("Adding the new security group to the desktop group");
+                        xd7.AddGroupOrUserToDesktopGroup(existingGroup.Uid, group.SamAccountName);
+
+                        existingGroup.SecurityGroup = group.Name;
+                    }
+
+                    #region Update desktops
                     if (desktopGroup.Desktops != null && desktopGroup.Desktops.Count > 0)
                     {
                         logger.DebugFormat("Updating total of {0} desktops", desktopGroup.Desktops.Count);
@@ -502,24 +420,107 @@ namespace CloudPanel.Modules.PlansModules
                     }
                     else
                         logger.DebugFormat("Desktop group desktops was null");
+                    #endregion
 
+                    #region Update applications
                     if (desktopGroup.Applications != null & desktopGroup.Applications.Count > 0)
                     {
                         logger.DebugFormat("Updating total of {0} applications", desktopGroup.Applications.Count);
-                        existingGroup.Applications = desktopGroup.Applications;
+
+                        //
+                        // Delete applications that no longer exist
+                        //
+                        var deletedApplications = existingGroup.Applications.Except(desktopGroup.Applications, x => x.UUID).ToList<CitrixApplications>();
+                        logger.DebugFormat("Removing a total of {0} applications", deletedApplications.Count);
+                        deletedApplications.ForEach(x =>
+                            {
+                                var child = existingGroup.Applications.Where(a => a.UUID == x.UUID).First();
+                                var ef = db.Entry(child);
+                                ef.State = EntityState.Deleted;
+                            });
+                        db.SaveChanges();
+
+                        //
+                        // Add the new applications
+                        //
+                        var addedApplications = desktopGroup.Applications.Except(existingGroup.Applications, x => x.UUID).ToList<CitrixApplications>();
+                        logger.DebugFormat("Adding a total of {0} applications", addedApplications.Count);
+                        foreach (var app in addedApplications)
+                        {
+                            if (app.UserFilterEnabled)
+                            {
+                                // Add security group to the application
+                                var appGroup = CreateSecurityGroup(app.Name, app.UUID.ToString());
+                                reverse.AddAction(Actions.CreateSecurityGroup, appGroup.Name);
+
+                                logger.DebugFormat("Adding the new security group to the application");
+                                xd7.AddGroupOrUserToApplication(app.Uid, appGroup.SamAccountName);
+
+                                // Add to database
+                                app.SecurityGroup = appGroup.Name;
+                            }
+                            else
+                                app.SecurityGroup = string.Empty;
+
+                            existingGroup.Applications.Add(app);
+                        }
+
+                        //
+                        // Verify the applications that haven't changed
+                        //
+                        var existingApplications = existingGroup.Applications.Except(addedApplications, x => x.UUID).ToList<CitrixApplications>();
+                        logger.DebugFormat("Updating a total of {0} applications", existingApplications.Count);
+                        foreach (var app in existingApplications)
+                        {
+                            var updatedApp = desktopGroup.Applications.Where(x => x.UUID == app.UUID).First();
+                            app.Name = updatedApp.Name;
+                            app.PublishedName = updatedApp.PublishedName;
+                            app.CommandLineExecutable = updatedApp.CommandLineExecutable;
+                            app.CommandLineArguments = updatedApp.CommandLineArguments;
+                            app.ShortcutAddedToDesktop = updatedApp.ShortcutAddedToDesktop;
+                            app.ShortcutAddedToStartMenu = updatedApp.ShortcutAddedToStartMenu;
+                            app.LastRetrieved = updatedApp.LastRetrieved;
+                            app.UserFilterEnabled = updatedApp.UserFilterEnabled;
+
+                            if (updatedApp.UserFilterEnabled && string.IsNullOrEmpty(app.SecurityGroup))
+                            {
+                                // Add security group to the application
+                                var appGroup = CreateSecurityGroup(app.Name, app.UUID.ToString());
+                                reverse.AddAction(Actions.CreateSecurityGroup, appGroup.Name);
+
+                                logger.DebugFormat("Adding the new security group to the application");
+                                xd7.AddGroupOrUserToApplication(app.Uid, appGroup.SamAccountName);
+
+                                // Add to database
+                                app.SecurityGroup = appGroup.Name;
+                            }
+                            else if (!updatedApp.UserFilterEnabled)
+                                app.SecurityGroup = string.Empty; // Clear the security group if no longer filtered
+                        }
                     }
                     else
+                    {
                         logger.DebugFormat("Desktop group applications were null");
+                        existingGroup.Applications = null;
+                    }
+                    #endregion
+
+                    #endregion
                 }
 
                 db.SaveChanges();
             }
             catch (Exception ex)
             {
+                logger.ErrorFormat("Error importing desktop groups {0}", ex.ToString());
+                reverse.RollbackNow();
                 throw;
             }
             finally
             {
+                if (ad != null)
+                    ad.Dispose();
+
                 if (db != null)
                     db.Dispose();
             }
@@ -564,6 +565,35 @@ namespace CloudPanel.Modules.PlansModules
             {
                 if (db != null)
                     db.Dispose();
+            }
+        }
+
+        private static SecurityGroup CreateSecurityGroup(string name, string uuid)
+        {
+            ADGroups groups = null;
+            try
+            {
+                groups = new ADGroups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+
+                SecurityGroup newGroup = groups.Create(Settings.ApplicationOuPath(Settings.HostingOU),
+                                                       new SecurityGroup()
+                                                       {
+                                                            SamAccountName = uuid.Substring(0, 18),
+                                                            Name = uuid,
+                                                            DisplayName = uuid,
+                                                            Description = string.Format("{0} - Created by CloudPanel", name)
+                                                       });
+                return newGroup;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error creating security group for Citrix: {0}", ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (groups != null)
+                    groups.Dispose();
             }
         }
 

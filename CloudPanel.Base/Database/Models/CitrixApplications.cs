@@ -30,11 +30,19 @@ namespace CloudPanel.Base.Database.Models
 
         public string Description { get; set; }
 
+        public string SecurityGroup { get; set; }
+
+        public string CommandLineExecutable { get; set; }
+
+        public string CommandLineArguments { get; set; }
+
         public bool ShortcutAddedToDesktop { get; set; }
 
         public bool ShortcutAddedToStartMenu { get; set; }
 
         public bool IsEnabled { get; set; }
+
+        public bool UserFilterEnabled { get; set; }
 
         public DateTime LastRetrieved { get; set; }
 

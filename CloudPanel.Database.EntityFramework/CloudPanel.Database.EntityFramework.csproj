@@ -96,6 +96,18 @@
     <Compile Include="Migrations\201501031959538_AddActiveSyncTableAndRelationships.Designer.cs">
       <DependentUpon>201501031959538_AddActiveSyncTableAndRelationships.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201501102103398_AddSecurityGroupToCitrixDesktopGroups.cs" />
+    <Compile Include="Migrations\201501102103398_AddSecurityGroupToCitrixDesktopGroups.Designer.cs">
+      <DependentUpon>201501102103398_AddSecurityGroupToCitrixDesktopGroups.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201501110451368_AddCitrixApplicationColumns.cs" />
+    <Compile Include="Migrations\201501110451368_AddCitrixApplicationColumns.Designer.cs">
+      <DependentUpon>201501110451368_AddCitrixApplicationColumns.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201501110507088_AddCitrixApplicationPaths.cs" />
+    <Compile Include="Migrations\201501110507088_AddCitrixApplicationPaths.Designer.cs">
+      <DependentUpon>201501110507088_AddCitrixApplicationPaths.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -142,6 +154,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201501031959538_AddActiveSyncTableAndRelationships.resx">
       <DependentUpon>201501031959538_AddActiveSyncTableAndRelationships.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201501102103398_AddSecurityGroupToCitrixDesktopGroups.resx">
+      <DependentUpon>201501102103398_AddSecurityGroupToCitrixDesktopGroups.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201501110451368_AddCitrixApplicationColumns.resx">
+      <DependentUpon>201501110451368_AddCitrixApplicationColumns.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201501110507088_AddCitrixApplicationPaths.resx">
+      <DependentUpon>201501110507088_AddCitrixApplicationPaths.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

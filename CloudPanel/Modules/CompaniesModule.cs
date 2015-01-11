@@ -10,6 +10,7 @@ using Nancy;
 using Nancy.ModelBinding;
 using Nancy.Security;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -536,6 +537,27 @@ namespace CloudPanel.Modules
                 }
                 #endregion
             };
+        }
+
+        public static List<Companies> GetCompanies()
+        {
+            using (CloudPanelContext db = new CloudPanelContext(Settings.ConnectionString))
+            {
+                return db.Companies
+                         .OrderBy(x => x.CompanyName)
+                         .ToList();
+            }
+        }
+
+        public static List<Companies> GetCompanies(string resellerCode)
+        {
+            using (CloudPanelContext db = new CloudPanelContext(Settings.ConnectionString))
+            {
+                return db.Companies
+                         .Where(x => x.ResellerCode == resellerCode)
+                         .OrderBy(x => x.CompanyName)
+                         .ToList();
+            }
         }
     }
 }

@@ -82,9 +82,37 @@
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h4><i class="fa fa-asterisk"></i> Applications</h4>
+            </div>
+            <div class="panel-body">
+                <table id="appsTable" cellpadding="0" cellspacing="0" border="0" class="table table-bordered table-hover datatables">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Path</th>
+                            <th>Arguments</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var app in Model.Applications)
+                        {
+                            <tr data-id="@CloudPanel.Base.DynamicHandlers.GetPropValue(app, "UUID")">
+                                <td>@CloudPanel.Base.DynamicHandlers.GetPropValue(app, "ApplicationName")</td>
+                                <td>@CloudPanel.Base.DynamicHandlers.GetPropValue(app, "CommandLineExecutable")</td>
+                                <td>@CloudPanel.Base.DynamicHandlers.GetPropValue(app, "CommandLineArguments")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
-<form id="sendMessage" action="@Url.Content("~/plans/citrix/sendmessage")" method="post" autocomplete="off" data-parsley-validate="true">
+<form id="sendMessage" action="@Url.Content("~/citrix/sendmessage")" method="post" autocomplete="off" data-parsley-validate="true">
     <div id="sendMessageModal" class="modal fade">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -136,7 +164,13 @@
     <script type="text/javascript">
         $(document).ready(function () {
             AddFormHandlers();
-            var desktopsTable = $("#desktopsTable").DataTable({ "ordering": false, "searching": false, "lengthChange": false, "paging": false });
+            var desktopsTable = $("#desktopsTable").DataTable({
+                "ordering": false,
+                "searching": false,
+                "lengthChange": false,
+                "paging": false
+            });
+
             $('#desktopsTable tbody').on('click', 'td.details-control', function () {
                 var tr = $(this).closest('tr');
                 var row = desktopsTable.row(tr);
@@ -171,7 +205,7 @@
                                            </div>');
 
                     $("#" + uid).block();
-                    $.getJSON(window.location.href + "/" + uid + "/sessions", function (data) {
+                    $.getJSON("@Url.Content("~/citrix/desktop/")"+uid+"/sessions", function (data) {
                         $.each(data.data, function (k, v) {
                             var row = table.row.add(['<input name="CheckedUsers" type="checkbox" value="' + v.sessionKey + '"/>', v.userUPN, v.userName, v.sessionState, moment(v.startTime).format('lll')]).draw().node();
                             $(row).closest('tr').find('td:first').addClass("selector").addClass("text-center");
@@ -243,7 +277,7 @@
                 confirmButtonText: "Yes, log off!",
                 closeOnConfirm: false
             }, function () {
-                $.post(window.location.href + "/logoff", { 'values': keys })
+                $.post("@Url.Content("~/citrix/logoff")", { 'values': keys })
                  .fail(function (data) {
                      ShowError(data);
                  })
