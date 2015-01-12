@@ -1336,6 +1336,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="Code\ByteArrayResponse.cs" />
     <Compile Include="Code\ErrorResponseHandler.cs" />
     <Compile Include="Code\AuthenticatedUser.cs" />
     <Compile Include="Code\CPHtmlHelpers.cs" />
@@ -1352,12 +1353,12 @@
     <Compile Include="Modules\Admin\BrandingModule.cs" />
     <Compile Include="Modules\Admin\ExchangeModule.cs" />
     <Compile Include="Modules\Admin\MassEmailModule.cs" />
-    <Compile Include="Modules\Admin\ReportsModule.cs" />
     <Compile Include="Modules\Admin\SettingsModule.cs" />
     <Compile Include="Modules\ApiModule.cs" />
     <Compile Include="Modules\Citrix\CitrixModule.cs" />
     <Compile Include="Modules\CompaniesModule.cs" />
     <Compile Include="Modules\CompanyModules\BillingModule.cs" />
+    <Compile Include="Modules\CompanyModules\Citrix\CitrixModule.cs" />
     <Compile Include="Modules\CompanyModules\DomainsModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\ActiveSyncModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\BulkModule.cs" />
@@ -1377,8 +1378,7 @@
     <Compile Include="Modules\PlansModules\ActiveSyncPlanModule.cs" />
     <Compile Include="Modules\PlansModules\ArchivePlanModule.cs" />
     <Compile Include="Modules\PlansModules\CitrixPlanModule.cs" />
-    <Compile Include="Modules\Reports\ExchangeReportsOverviewModule.cs" />
-    <Compile Include="Modules\Reports\Exchange\ExecutiveSummary.cs" />
+    <Compile Include="Modules\Reports\ReportsModule.cs" />
     <Compile Include="Modules\ResellersModule.cs" />
     <Compile Include="Modules\LoginModule.cs" />
     <Compile Include="Modules\PlansModules\CompanyPlanModule.cs" />
@@ -1605,7 +1605,7 @@
     <Content Include="Views\companies.cshtml" />
     <Content Include="Views\Company\overview.cshtml" />
     <Content Include="Views\Plans\plans_company.cshtml" />
-    <Content Include="Views\Plans\plans_mailbox.cshtml" />
+    <Content Include="Views\Plans\mailbox.cshtml" />
     <Content Include="Views\login.cshtml" />
     <Content Include="Views\Company\company_domains.cshtml" />
     <Content Include="Views\Company\users.cshtml" />
@@ -1693,6 +1693,7 @@
     <Content Include="Views\Reports\_reportmaster.cshtml" />
     <Content Include="Views\Reports\_reportmenu.cshtml" />
     <Content Include="Views\Reports\Exchange\ExecutiveSummary.cshtml" />
+    <Content Include="Views\Company\Citrix\sessions.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -1704,7 +1705,6 @@
     <Folder Include="Content\img\branding\" />
     <Folder Include="Log\" />
     <Folder Include="Scripts\" />
-    <Folder Include="Views\Company\Citrix\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CloudPanel.ActiveDirectory\CloudPanel.ActiveDirectory.csproj">
@@ -1726,6 +1726,10 @@
     <ProjectReference Include="..\CloudPanel.Exchange\CloudPanel.Exchange.csproj">
       <Project>{51c6ec47-98ab-49d1-b4cb-b48665d1725e}</Project>
       <Name>CloudPanel.Exchange</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CloudPanel.Reports\CloudPanel.Reports.csproj">
+      <Project>{781b8f72-e4d7-4f24-ab8d-34549000a65d}</Project>
+      <Name>CloudPanel.Reports</Name>
     </ProjectReference>
     <ProjectReference Include="..\CloudPanel.Rollback\CloudPanel.Rollback.csproj">
       <Project>{af34d7d3-ff49-4c73-acc0-de631b4fa390}</Project>

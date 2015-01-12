@@ -1,4 +1,5 @@
 ﻿using CloudPanel.Base.Config;
+using CloudPanel.Code;
 using CloudPanel.Database.EntityFramework;
 using log4net;
 using Nancy;
@@ -297,6 +298,11 @@ namespace CloudPanel
                    where ReferenceEquals(null, temp) || temp.Equals(default(T))
                    select item;
 
+        }
+
+        public static Response FromByteArray(this IResponseFormatter formatter, byte[] body, string contentType = null)
+        {
+            return new ByteArrayResponse(body, contentType);
         }
     }
 }

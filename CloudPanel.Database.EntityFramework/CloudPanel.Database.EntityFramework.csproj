@@ -108,6 +108,10 @@
     <Compile Include="Migrations\201501110507088_AddCitrixApplicationPaths.Designer.cs">
       <DependentUpon>201501110507088_AddCitrixApplicationPaths.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201501120109566_ChangeMoneyStringToDecimal.cs" />
+    <Compile Include="Migrations\201501120109566_ChangeMoneyStringToDecimal.Designer.cs">
+      <DependentUpon>201501120109566_ChangeMoneyStringToDecimal.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -163,6 +167,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201501110507088_AddCitrixApplicationPaths.resx">
       <DependentUpon>201501110507088_AddCitrixApplicationPaths.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201501120109566_ChangeMoneyStringToDecimal.resx">
+      <DependentUpon>201501120109566_ChangeMoneyStringToDecimal.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

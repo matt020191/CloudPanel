@@ -172,8 +172,8 @@ namespace CloudPanel.Database.EntityFramework.Migrations
                     ResellerCode = c.String(maxLength: 255),
                     CompanyCode = c.String(maxLength: 255),
                     Description = c.String(nullable: false, storeType: "ntext"),
-                    Price = c.String(nullable: false, maxLength: 20),
-                    Cost = c.String(nullable: false, maxLength: 20),
+                    Price = c.Decimal(nullable: false),
+                    Cost = c.Decimal(nullable: false),
                     ArchiveSizeMB = c.Int(nullable: false),
                 })
                 .PrimaryKey(t => t.ArchivingID);

@@ -10,7 +10,6 @@ using Nancy.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 
 namespace CloudPanel.Modules.CompanyModules
 {
@@ -33,25 +32,25 @@ namespace CloudPanel.Modules.CompanyModules
             {
                 this.RequiresValidatedClaims(x => ValidateClaims.AllowSuperOrReseller(Context.CurrentUser, _.CompanyCode));
 
-                return Update(Request.Form.id, Request.Form.value.Value, "Exchange", _.CompanyCode);
+                return Update(Request.Form.id, Request.Form.value, "Exchange", _.CompanyCode);
             };
 
             Post["/archive"] = _ =>
             {
                 this.RequiresValidatedClaims(x => ValidateClaims.AllowSuperOrReseller(Context.CurrentUser, _.CompanyCode));
 
-                return Update(Request.Form.id, Request.Form.value.Value, "Archive", _.CompanyCode);
+                return Update(Request.Form.id, Request.Form.value, "Archive", _.CompanyCode);
             };
 
             Post["/citrix"] = _ =>
             {
                 this.RequiresValidatedClaims(x => ValidateClaims.AllowSuperOrReseller(Context.CurrentUser, _.CompanyCode));
 
-                return Update(Request.Form.id, Request.Form.value.Value, "Citrix", _.CompanyCode);
+                return Update(Request.Form.id, Request.Form.value, "Citrix", _.CompanyCode);
             };
         }
 
-        private Negotiator Update(int id, string value, string product, string companyCode)
+        private Negotiator Update(int id, decimal value, string product, string companyCode)
         {
             CloudPanelContext db = null;
             try
@@ -68,7 +67,7 @@ namespace CloudPanel.Modules.CompanyModules
                 if (price != null)
                 {
                     logger.DebugFormat("Found existing custom price in database. Updating...");
-                    price.Price = value.Replace(" ", string.Empty);
+                    price.Price = value;
                     db.SaveChanges();
                 }
                 else
@@ -79,7 +78,7 @@ namespace CloudPanel.Modules.CompanyModules
                     newPrice.CompanyCode = companyCode;
                     newPrice.Product = product;
                     newPrice.PlanID = id;
-                    newPrice.Price = value.Replace(" ", string.Empty);
+                    newPrice.Price = value;
 
                     db.PriceOverride.Add(newPrice);
                     db.SaveChanges();
@@ -119,7 +118,7 @@ namespace CloudPanel.Modules.CompanyModules
                                 ID = d.MailboxPlanID,
                                 Name = d.MailboxPlanName,
                                 DefaultPrice = d.Price,
-                                Custom = s.Price == null ? d.Price : s.Price
+                                Custom = s.Price
                             }).ToList();
 
                 return plan;

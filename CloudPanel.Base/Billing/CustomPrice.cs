@@ -11,8 +11,8 @@ namespace CloudPanel.Base.Billing
 
         public string Name { get; set; }
 
-        public string DefaultPrice { get; set; }
+        public decimal DefaultPrice { get; set; }
 
-        public string Custom { get; set; }
+        public decimal Custom { get; set; }
     }
 }

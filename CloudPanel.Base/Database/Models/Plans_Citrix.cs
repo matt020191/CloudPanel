@@ -56,11 +56,9 @@ namespace CloudPanel.Base.Database.Models
         [StringLength(255)]
         public string CompanyCode { get; set; }
 
-        [StringLength(20)]
-        public string Price { get; set; }
+        public decimal Price { get; set; }
 
-        [StringLength(20)]
-        public string Cost { get; set; }
+        public decimal Cost { get; set; }
 
         [StringLength(255)]
         public string PictureURL { get; set; }

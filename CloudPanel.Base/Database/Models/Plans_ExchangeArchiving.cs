@@ -57,12 +57,10 @@ namespace CloudPanel.Base.Database.Models
         public string Description { get; set; }
 
         [Required]
-        [StringLength(20)]
-        public string Price { get; set; }
+        public decimal Price { get; set; }
 
         [Required]
-        [StringLength(20)]
-        public string Cost { get; set; }
+        public decimal Cost { get; set; }
 
         [Required]
         public int ArchiveSizeMB { get; set; }

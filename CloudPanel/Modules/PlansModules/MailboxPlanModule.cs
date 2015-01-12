@@ -26,7 +26,7 @@ namespace CloudPanel.Modules.PlansModules
             Get["/new"] = _ =>
             {
                 return Negotiate.WithModel(new { selectedPlan = new Plans_ExchangeMailbox() })
-                                .WithView("Plans/plans_mailbox.cshtml");
+                                .WithView("Plans/mailbox.cshtml");
             };
 
             Post["/new"] = _ =>
@@ -53,7 +53,7 @@ namespace CloudPanel.Modules.PlansModules
                                     selectedPlan = new Plans_ExchangeMailbox()
                                 })
                                 .WithMediaRangeModel("application/json", HttpStatusCode.OK)
-                                .WithView("Plans/plans_mailbox.cshtml");
+                                .WithView("Plans/mailbox.cshtml");
                 }
                 catch (Exception ex)
                 {
@@ -89,7 +89,7 @@ namespace CloudPanel.Modules.PlansModules
                                 {
                                     selectedPlan = plan
                                 })
-                                .WithView("Plans/plans_mailbox.cshtml");
+                                .WithView("Plans/mailbox.cshtml");
                 }
                 catch (Exception ex)
                 {
@@ -182,7 +182,7 @@ namespace CloudPanel.Modules.PlansModules
                             return Negotiate
                                             .WithMediaRangeModel("application/json", new { error = "Unable to delete plan because it is in use." })
                                             .WithModel(new { error = "Unable to delete plan because it is in use.", selectedPlan = oldPlan })
-                                            .WithView("Plans/plans_mailbox.cshtml");
+                                            .WithView("Plans/mailbox.cshtml");
                     }
 
                     return Negotiate

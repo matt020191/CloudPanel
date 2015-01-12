@@ -1,5 +1,6 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Citrix;
+using CloudPanel.Code;
 using CloudPanel.Database.EntityFramework;
 using log4net;
 using Nancy;
@@ -20,8 +21,9 @@ namespace CloudPanel.Modules.Citrix
         {
             Get["/group/{UUID:Guid}/sessions"] = _ =>
             {
-                Guid uuid = _.UUID;
+                this.RequiresClaims(new[] { "SuperAdmin" });
 
+                Guid uuid = _.UUID;
                 #region Gets the sessions for a specific desktop group
                 XenDesktop7 xd7 = null;
                 CloudPanelContext db = null;
@@ -96,8 +98,9 @@ namespace CloudPanel.Modules.Citrix
 
             Get["/desktop/{DESKTOP:int}/sessions"] = _ =>
             {
-                int desktopid = _.DESKTOP;
+                this.RequiresClaims(new[] { "SuperAdmin" });
 
+                int desktopid = _.DESKTOP;
                 #region Gets the sessions for a specific desktop
                 XenDesktop7 xd7 = null;
                 CloudPanelContext db = null;
@@ -174,6 +177,8 @@ namespace CloudPanel.Modules.Citrix
 
             Post["/logoff"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eCitrix"));
+
                 #region Logs off users
                 XenDesktop7 xd7 = null;
                 try
@@ -205,6 +210,8 @@ namespace CloudPanel.Modules.Citrix
 
             Post["/sendmessage"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eCitrix"));
+
                 #region Send message to users
                 XenDesktop7 xd7 = null;
                 try
@@ -216,15 +223,18 @@ namespace CloudPanel.Modules.Citrix
                         throw new MissingFieldException("", "MessageStyle");
 
                     if (!Request.Form.Message.HasValue)
-                        throw new MissingFieldException("", " Message");
+                        throw new MissingFieldException("", "Message");
 
-                    if (!Request.Form["SessionKeys[]"].HasValue)
+                    if (!Request.Form["SessionKeys"].HasValue)
                         throw new MissingFieldException("", "SessionKeys");
 
                     xd7 = new XenDesktop7(Settings.CitrixUri, Settings.Username, Settings.DecryptedPassword);
 
-                    string[] sessionKeys = Request.Form["SessionKeys[]"].Value.Split(',');
-                    xd7.SendMessageBySessionKeys(sessionKeys, Request.Form.MessageStyle.Value, Request.Form.Title.Value, Request.Form.Message.Value);
+                    string[] sessionKeys = Request.Form["SessionKeys"].Value.Split(',');
+                    xd7.SendMessageBySessionKeys(sessionKeys, 
+                                                 Request.Form.MessageStyle.Value, 
+                                                 Request.Form.Title.Value, 
+                                                 Request.Form.Message.Value);
 
                     return Negotiate.WithModel(new { success = "Successfully sent message to users" })
                                     .WithStatusCode(HttpStatusCode.OK);

@@ -79,14 +79,11 @@ namespace CloudPanel.Base.Database.Models
         [Column(TypeName = "ntext")]
         public string MailboxPlanDesc { get; set; }
 
-        [StringLength(20)]
-        public string Price { get; set; }
+        public decimal Price { get; set; }
 
-        [StringLength(20)]
-        public string Cost { get; set; }
+        public decimal Cost { get; set; }
 
-        [StringLength(20)]
-        public string AdditionalGBPrice { get; set; }
+        public decimal AdditionalGBPrice { get; set; }
 
         #region Not Mapped
 
