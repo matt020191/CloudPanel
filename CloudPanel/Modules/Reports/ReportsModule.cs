@@ -1,8 +1,9 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Database.EntityFramework;
-using CloudPanel.Reports.Exchange.Classes;
+using CloudPanel.Reports.Exchange;
 using Microsoft.Reporting.WebForms;
 using Nancy;
+using Nancy.Security;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,6 +17,13 @@ namespace CloudPanel.Modules.Reports
     {
         public ReportsModule() : base("/reports")
         {
+            this.RequiresClaims(new[] { "SuperAdmin" });
+
+            Get["/"] = _ =>
+                {
+                    return View["Reports/reports.cshtml"];
+                };
+
             Get["/exchange/summary"] = _ =>
                 {
                     CloudPanelContext db = null;
@@ -84,7 +92,7 @@ namespace CloudPanel.Modules.Reports
                         //stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CloudPanel.Reports.Exchange.RDLC.ExchangeSummaryReport.rdlc");
 
                         reportViewer = new ReportViewer();
-                        reportViewer.LocalReport.ReportEmbeddedResource = "CloudPanel.Reports.Exchange.RDLC.ExchangeSummaryReport.rdlc";
+                        reportViewer.LocalReport.ReportEmbeddedResource = "CloudPanel.Reports.Exchange.ExchangeSummaryReport.rdlc";
                         reportViewer.LocalReport.DataSources.Add(new ReportDataSource()
                         {
                             Name = "Users",

@@ -136,6 +136,7 @@
     <Content Include="Content\img\patterns\tweed.png" />
     <Content Include="Content\img\patterns\vertical_cloth.png" />
     <Content Include="Content\img\patterns\wild_oliva.png" />
+    <Content Include="Content\img\reports\ExchangeSummary.png" />
     <Content Include="Content\img\sidebar-toggle.png" />
     <Content Include="Content\img\success.png" />
     <Content Include="Content\img\wait_animation.gif" />
@@ -1374,7 +1375,7 @@
     <Compile Include="Modules\CompanyModules\Exchange\GroupsModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\ResourceModule.cs" />
     <Compile Include="Modules\DashboardModule.cs" />
-    <Compile Include="Modules\Dashboard\AdminDashboardModule.cs" />
+    <Compile Include="Modules\Dashboard\SuperDashboardModule.cs" />
     <Compile Include="Modules\PlansModules\ActiveSyncPlanModule.cs" />
     <Compile Include="Modules\PlansModules\ArchivePlanModule.cs" />
     <Compile Include="Modules\PlansModules\CitrixPlanModule.cs" />
@@ -1383,7 +1384,6 @@
     <Compile Include="Modules\LoginModule.cs" />
     <Compile Include="Modules\PlansModules\CompanyPlanModule.cs" />
     <Compile Include="Modules\PlansModules\MailboxPlanModule.cs" />
-    <Compile Include="Modules\Statistics\StatModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -1690,10 +1690,8 @@
     <Content Include="Views\Admin\reports.cshtml" />
     <Content Include="Views\Plans\Citrix\citrix.cshtml" />
     <Content Include="Views\Plans\Citrix\group.cshtml" />
-    <Content Include="Views\Reports\_reportmaster.cshtml" />
-    <Content Include="Views\Reports\_reportmenu.cshtml" />
-    <Content Include="Views\Reports\Exchange\ExecutiveSummary.cshtml" />
     <Content Include="Views\Company\Citrix\sessions.cshtml" />
+    <Content Include="Views\Reports\reports.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -1741,7 +1739,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\Reports\Exchange\SummaryReport.rdlc" />
+    <EmbeddedResource Include="Reports\Exchange\ExchangeSummaryReport.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

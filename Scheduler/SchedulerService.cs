@@ -1,4 +1,6 @@
-﻿using Scheduler.Properties;
+﻿using log4net;
+using Scheduler.Classes;
+using Scheduler.Properties;
 using System;
 using System.ServiceProcess;
 using System.Timers;
@@ -7,8 +9,11 @@ namespace Scheduler
 {
     public partial class SchedulerService : ServiceBase
     {
+        private static readonly ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public static Timer _ExchangeMailboxSizesTimer = null;
         public static Timer _ExchangeMailboxDatabaseSizesTimer = null;
+        public static Timer _HistoryStatisticsTimer = null;
 
         public SchedulerService()
         {
@@ -17,8 +22,6 @@ namespace Scheduler
 
         protected override void OnStart(string[] args)
         {
-            EventLog.WriteEntry("CloudPanel Scheduler is starting");
-
             bool success = StaticSettings.LoadSettings(Settings.Default.Settings_Path);
             if (!success)
             {
@@ -27,24 +30,34 @@ namespace Scheduler
             }
             else
             {
-                double _exchMbxSizesInMin = Settings.Default.Exchange_RetrieveMailboxSizes;
-                double _exchMbxDbSizesInMin = Settings.Default.Exchange_RetrieveDatabaseSizes;
-
-                _ExchangeMailboxSizesTimer = new Timer( GetMillisecondsFromMinutes(_exchMbxSizesInMin) );
-                _ExchangeMailboxSizesTimer.Elapsed += _ExchangeMailboxSizesTimer_Elapsed;
-                _ExchangeMailboxSizesTimer.Start();
-
-                _ExchangeMailboxDatabaseSizesTimer = new Timer( GetMillisecondsFromMinutes(_exchMbxDbSizesInMin) );
-                _ExchangeMailboxDatabaseSizesTimer.Elapsed += _ExchangeMailboxDatabaseSizesTimer_Elapsed;
-                _ExchangeMailboxDatabaseSizesTimer.Start();
+                StartTimers();
             }
+        }
+
+        private void StartTimers()
+        {
+            int _exchMbxSizesInMin = Settings.Default.Exchange_RetrieveMailboxSizes;
+            int _exchMbxDbSizesInMin = Settings.Default.Exchange_RetrieveDatabaseSizes;
+            int _historyStatsInMin = Settings.Default.History_Statistics;
+
+            _ExchangeMailboxSizesTimer = new Timer(GetMillisecondsFromMinutes(_exchMbxSizesInMin));
+            _ExchangeMailboxSizesTimer.Elapsed += _ExchangeMailboxSizesTimer_Elapsed;
+            _ExchangeMailboxSizesTimer.Start();
+
+            _ExchangeMailboxDatabaseSizesTimer = new Timer(GetMillisecondsFromMinutes(_exchMbxDbSizesInMin));
+            _ExchangeMailboxDatabaseSizesTimer.Elapsed += _ExchangeMailboxDatabaseSizesTimer_Elapsed;
+            _ExchangeMailboxDatabaseSizesTimer.Start();
+
+            _HistoryStatisticsTimer = new Timer(GetMillisecondsFromMinutes(_historyStatsInMin));
+            _HistoryStatisticsTimer.Elapsed += _HistoryStatisticsTimer_Elapsed;
+            _HistoryStatisticsTimer.Start();
         }
 
         #region Timer Elapsed
 
         private void _ExchangeMailboxDatabaseSizesTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            EventLog.WriteEntry("Time elasped for mailbox database sizes... querying...");
+            logger.Debug("Time elasped for mailbox database sizes... querying...");
             _ExchangeMailboxDatabaseSizesTimer.Stop();
 
             // Query the mailbox database sizes
@@ -56,7 +69,7 @@ namespace Scheduler
 
         private void _ExchangeMailboxSizesTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            EventLog.WriteEntry("Time elasped for mailbox sizes... querying...");
+            logger.Debug("Time elasped for mailbox sizes... querying...");
             _ExchangeMailboxSizesTimer.Stop();
 
             // Query the mailbox sizes
@@ -64,6 +77,18 @@ namespace Scheduler
 
             // Start the timer again
             _ExchangeMailboxSizesTimer.Start();
+        }
+
+        private void _HistoryStatisticsTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            logger.Debug("Time elasped for mailbox sizes... querying...");
+            _HistoryStatisticsTimer.Stop();
+
+            // Query statistics
+            HistoryTasks.UpdateCompanyStatistics();
+
+            // Start the timer again
+            _HistoryStatisticsTimer.Start();
         }
 
         #endregion

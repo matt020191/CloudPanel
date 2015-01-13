@@ -99,7 +99,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Exchange\ExchangeTasks.cs" />
+    <Compile Include="Classes\ExchangeTasks.cs" />
+    <Compile Include="Classes\HistoryTasks.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -119,7 +120,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StaticSettings.cs" />
+    <Compile Include="Classes\StaticSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

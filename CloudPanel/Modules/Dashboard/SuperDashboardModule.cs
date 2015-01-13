@@ -11,11 +11,11 @@ using System.Web;
 
 namespace CloudPanel.Modules.Dashboard
 {
-    public class AdminDashboardModule : NancyModule
+    public class SuperDashboardModule : NancyModule
     {
-        public AdminDashboardModule() : base("/dashboard")
+        public SuperDashboardModule() : base("/dashboard")
         {
-            //this.RequiresClaims(new[] { "SuperAdmin" });
+            this.RequiresClaims(new[] { "SuperAdmin" });
 
             Get["/all"] = _ =>
                 {

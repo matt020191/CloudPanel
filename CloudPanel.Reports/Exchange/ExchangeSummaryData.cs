@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CloudPanel.Reports.Exchange.Classes
+namespace CloudPanel.Reports.Exchange
 {
     public class ExchangeSummaryData
     {
