@@ -491,18 +491,6 @@ namespace CloudPanel.Modules
                             db.SvcQueue.RemoveRange(queues);
                         }
 
-                        logger.DebugFormat("Getting list of users for {0}", company.CompanyCode);
-                        var users = from d in db.Users where d.CompanyCode == companyCode select d;
-                        if (users != null)
-                        {
-                            logger.InfoFormat("Found a total of {0} users in the database.", users.Count());
-
-                            logger.DebugFormat("Removing user assignments to Citrix for {0}", company.CompanyCode);
-                            var foundPlans = from d in db.UserPlansCitrix where users.Select(x => x.ID).Contains(d.UserID) select d;
-                            if (foundPlans != null)
-                                db.UserPlansCitrix.RemoveRange(foundPlans);
-                        }
-
                         logger.DebugFormat("Removing company {0} from database", company.CompanyCode);
                         db.Companies.Remove(company);
 

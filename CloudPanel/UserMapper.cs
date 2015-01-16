@@ -22,6 +22,59 @@ namespace CloudPanel
             return loggedInUsers.FirstOrDefault(u => u.UserGuid == identifier);
         }
 
+        public static IUserIdentity GetUserFromApiKey(string apiKey)
+        {
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+
+                var user = db.Users
+                             .Include("ApiKey")
+                             .Include("Role")
+                             .Where(x => x.ApiKey.Key == apiKey)
+                             .Single();
+
+                if (user == null)
+                    return null;
+                else
+                {
+                    var authUser = new AuthenticatedUser();
+                    authUser.UserGuid = user.UserGuid;
+                    authUser.UserName = user.UserPrincipalName;
+                    authUser.CompanyCode = user.CompanyCode;
+                    authUser.SelectedCompanyCode = user.CompanyCode;
+                    authUser.DisplayName = user.DisplayName;
+                    authUser.SecurityPermissions = user.Role;
+
+                    var claims = new List<string>();
+                    foreach (var p in user.Role.GetType().GetProperties())
+                    {
+                        if (p.PropertyType == typeof(bool))
+                        {
+                            if ((bool)p.GetValue(user.Role, null))
+                            {
+                                claims.Add(p.Name);
+                            }
+                        }
+                    }
+                    authUser.Claims = claims;
+
+                    return authUser;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error logging user in with api key {0}: {1}", apiKey, ex.ToString());
+                return null;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
         public static IUserIdentity ValidateUser(string username, string password)
         {
             ADUsers user = null;
@@ -83,7 +136,7 @@ namespace CloudPanel
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error logging in user {0}: {1}", username, ex.ToString());
-                throw;
+                return null;
             }
             finally
             {

@@ -1,5 +1,6 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Database.EntityFramework;
+using log4net;
 using Nancy;
 using Nancy.Security;
 using System;
@@ -13,6 +14,8 @@ namespace CloudPanel.Modules.Dashboard
 {
     public class SuperDashboardModule : NancyModule
     {
+        private static readonly ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public SuperDashboardModule() : base("/dashboard")
         {
             this.RequiresClaims(new[] { "SuperAdmin" });
@@ -24,8 +27,12 @@ namespace CloudPanel.Modules.Dashboard
 
             Get["/all"] = _ =>
                 {
-                    using (CloudPanelContext db = new CloudPanelContext(Settings.ConnectionString))
+                    #region Get dashboard data
+                    CloudPanelContext db = null;
+
+                    try
                     {
+                        db = new CloudPanelContext(Settings.ConnectionString);
                         db.Database.Connection.Open();
 
                         var resellers = db.Companies.Where(x => x.IsReseller).Count();
@@ -56,7 +63,8 @@ namespace CloudPanel.Modules.Dashboard
 
                         string allocatedReadableSize = ByteSize.ByteSize.FromMegaBytes(mailboxAllocated).ToString("#.##");
                         string usedReadableSize = ByteSize.ByteSize.FromBytes(mailboxUsed).ToString("#.##");
-                        return Negotiate.WithModel(new {
+                        return Negotiate.WithModel(new
+                        {
                             resellers = resellers,
                             companies = companies,
                             users = users,
@@ -65,18 +73,32 @@ namespace CloudPanel.Modules.Dashboard
                             mailboxUsed = usedReadableSize
                         });
                     }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error getting dashboard data: {0}", ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+                    }
+                    #endregion
                 };
 
             Get["/history/{MONTHS:int}"] = _ =>
                 {
+                    #region Get history data
                     int months = _.MONTHS;
-
-                    using (CloudPanelContext db = new CloudPanelContext(Settings.ConnectionString))
+                    CloudPanelContext db = null;
+                    try
                     {
+                        db = new CloudPanelContext(Settings.ConnectionString);
                         var statistics = (from d in db.Statistics
                                           where d.Retrieved >= (DateTime)DbFunctions.AddMonths(DateTime.Now, -months)
                                           group d by DbFunctions.TruncateTime(d.Retrieved) into g
-                                          select new 
+                                          select new
                                           {
                                               Retrieved = DbFunctions.TruncateTime(g.Key),
                                               UserCount = g.Sum(x => x.UserCount),
@@ -86,6 +108,18 @@ namespace CloudPanel.Modules.Dashboard
 
                         return Negotiate.WithModel(statistics);
                     }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error pulling history data: {0}", ex.Message);
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+                    }
+                    #endregion
                 };
 
             Get["/exchange/databases"] = _ =>

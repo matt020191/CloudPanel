@@ -1,28 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <cloudpanel>
   <Settings>
-    <Database>server=DXN-PC\SQLEXPRESS;database=CloudPanel;uid=CloudPanel;password=password;</Database>
+    <Database>server=.\SQLEXPRESS;database=CPBETA;uid=CloudPanel;password=password;</Database>
     <CompanyName>Know More IT</CompanyName>
     <HostingOU>OU=Hosting,DC=lab,DC=local</HostingOU>
     <UsersOU></UsersOU>
-    <PrimaryDC>DC.lab.local</PrimaryDC>
+    <PrimaryDC>LAB-DC.lab.local</PrimaryDC>
     <Username>LAB\Administrator</Username>
-    <Password>Gep5xE+DLlRcbsjcg9u/Rw==</Password>
-    <SuperAdmins>Domain Admins</SuperAdmins>
-    <BillingAdmins>Domain Admins</BillingAdmins>
+    <Password>Gep5xE+DLlTUxoWBfv4tVw==</Password>
+    <SuperAdmins>Domain Admins, Administrators</SuperAdmins>
+    <BillingAdmins>Domain Admins, Administrators</BillingAdmins>
     <ResellersEnabled>true</ResellersEnabled>
     <SaltKey>rI1aosWPff9S5EsY+hj6Pjq0my6DcYWCscivVBr4vA0=</SaltKey>
   </Settings>
   <Exchange>
     <ExchangeRoleAssignment>Alternate Assignment Policy</ExchangeRoleAssignment>
-    <ExchangeServer>EXCH2013.lab.local</ExchangeServer>
-    <ExchangePFServer>EXCH2013.lab.local</ExchangePFServer>
-    <ExchangePFEnabled>true</ExchangePFEnabled>
+    <ExchangeServer>LAB-EXCH2013.lab.local</ExchangeServer>
+    <ExchangePFServer>LAB-EXCH2013.lab.local</ExchangePFServer>
+    <ExchangePFEnabled>false</ExchangePFEnabled>
     <ExchangeVersion>2013</ExchangeVersion>
     <ExchangeSSL>true</ExchangeSSL>
     <ExchangeMaxAliases>10</ExchangeMaxAliases>
     <ExchangeConnection>Basic</ExchangeConnection>
-    <ExchangeDatabases>Mailbox Database 1047134082</ExchangeDatabases>
+    <ExchangeDatabases>Mailbox Database 1047134082,BLAH!,DB01</ExchangeDatabases>
     <ExchangeGALName>{0} GAL</ExchangeGALName>
     <ExchangeABPName>{0} ABP</ExchangeABPName>
     <ExchangeOALName>{0} OAL</ExchangeOALName>
@@ -30,28 +30,28 @@
     <ExchangeCONTACTSName>{0} - All Contacts</ExchangeCONTACTSName>
     <ExchangeROOMSName>{0} - All Rooms</ExchangeROOMSName>
     <ExchangeGROUPSName>{0} - All Groups</ExchangeGROUPSName>
-    <ExchangeGroupsOU>Exchange</ExchangeGroupsOU>
-    <ExchangeContactsOU>Exchange</ExchangeContactsOU>
-    <ExchangeRoomsOU>Exchange</ExchangeRoomsOU>
-    <ExchangeResourceOU>Exchange</ExchangeResourceOU>
+    <ExchangeGroupsOU>Groups</ExchangeGroupsOU>
+    <ExchangeContactsOU>Contacts</ExchangeContactsOU>
+    <ExchangeRoomsOU>Rooms</ExchangeRoomsOU>
+    <ExchangeResourceOU>Resources</ExchangeResourceOU>
     <ExchangeOUName>Exchange</ExchangeOUName>
   </Exchange>
   <Modules>
     <ExchangeModule>true</ExchangeModule>
     <CitrixModule>true</CitrixModule>
-    <LyncModule>False</LyncModule>
+    <LyncModule>false</LyncModule>
   </Modules>
   <Citrix>
     <ApplicationsOUName>Applications</ApplicationsOUName>
     <DeliveryController>xendesktop.lab.local</DeliveryController>
   </Citrix>
   <Notifications>
-    <Enabled>false</Enabled>
-    <FromAddress>jdixon@compsysar.com</FromAddress>
-    <ToAddress>jdixon@compsysar.com</ToAddress>
-    <MailServer>relay.dnsexit.com</MailServer>
-    <MailPort>2525</MailPort>
-    <MailUsername>compsysar1</MailUsername>
+    <Enabled>true</Enabled>
+    <FromAddress>support@company.com</FromAddress>
+    <ToAddress>support@company.com</ToAddress>
+    <MailServer>mail.company.com</MailServer>
+    <MailPort>25</MailPort>
+    <MailUsername></MailUsername>
     <MailPassword>1jr3Kd5dEDI=</MailPassword>
   </Notifications>
 </cloudpanel>

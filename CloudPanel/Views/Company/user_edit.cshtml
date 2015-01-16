@@ -727,7 +727,7 @@
                 $.ajax({ 
                     type: "GET",
                     url: "@Html.RenderContext.Context.Request.Url/mailbox",
-                  })
+                })
                   .done(function(data) {
                       console.log(data);
 
@@ -767,8 +767,10 @@
                       $.unblockUI();
                   });
             }
-            else
+            else {
+                mailboxUpdated = true;
                 mailboxAlreadyRetrieved = true;
+            }
         }
 
         // Query data from Exchange and set litigation hold

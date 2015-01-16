@@ -64,6 +64,18 @@
     <Compile Include="Migrations\201501160437359_AddMissingColumns.Designer.cs">
       <DependentUpon>201501160437359_AddMissingColumns.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201501161901326_AddMissingUserColumns.cs" />
+    <Compile Include="Migrations\201501161901326_AddMissingUserColumns.Designer.cs">
+      <DependentUpon>201501161901326_AddMissingUserColumns.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201501162213037_AddApiKeyTable.cs" />
+    <Compile Include="Migrations\201501162213037_AddApiKeyTable.Designer.cs">
+      <DependentUpon>201501162213037_AddApiKeyTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201501162225514_FixUserPermissionTableAndDropOtherTables.cs" />
+    <Compile Include="Migrations\201501162225514_FixUserPermissionTableAndDropOtherTables.Designer.cs">
+      <DependentUpon>201501162225514_FixUserPermissionTableAndDropOtherTables.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -86,6 +98,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201501160437359_AddMissingColumns.resx">
       <DependentUpon>201501160437359_AddMissingColumns.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201501161901326_AddMissingUserColumns.resx">
+      <DependentUpon>201501161901326_AddMissingUserColumns.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201501162213037_AddApiKeyTable.resx">
+      <DependentUpon>201501162213037_AddApiKeyTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201501162225514_FixUserPermissionTableAndDropOtherTables.resx">
+      <DependentUpon>201501162225514_FixUserPermissionTableAndDropOtherTables.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
