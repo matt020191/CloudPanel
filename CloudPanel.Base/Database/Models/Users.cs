@@ -7,10 +7,10 @@ namespace CloudPanel.Base.Database.Models
 
     public partial class Users
     {
+        [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
 
-        [Key]
         [Required]
         public Guid UserGuid { get; set; }
 

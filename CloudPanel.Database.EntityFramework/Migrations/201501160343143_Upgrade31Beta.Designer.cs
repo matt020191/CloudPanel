@@ -7,13 +7,13 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.2-31219")]
-    public sealed partial class AddNewMailboxSizeTables : IMigrationMetadata
+    public sealed partial class Upgrade31Beta : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddNewMailboxSizeTables));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(Upgrade31Beta));
         
         string IMigrationMetadata.Id
         {
-            get { return "201412240407584_AddNewMailboxSizeTables"; }
+            get { return "201501160343143_Upgrade31Beta"; }
         }
         
         string IMigrationMetadata.Source

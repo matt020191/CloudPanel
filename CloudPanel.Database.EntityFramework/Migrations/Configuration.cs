@@ -9,8 +9,7 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = true;
-            AutomaticMigrationDataLossAllowed = true;
+            AutomaticMigrationsEnabled = false;
         }
 
         protected override void Seed(CloudPanel.Database.EntityFramework.CloudPanelContext context)

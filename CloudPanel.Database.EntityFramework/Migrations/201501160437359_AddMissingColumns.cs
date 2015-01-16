@@ -3,16 +3,16 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class AddTimeStampToAuditTable : DbMigration
+    public partial class AddMissingColumns : DbMigration
     {
         public override void Up()
         {
-            AddColumn("dbo.AuditTraces", "TimeStamp", c => c.DateTime(nullable: false));
+            AddColumn("dbo.Plans_Organization", "MaxExchangeActivesyncPolicies", c => c.Int(nullable: true));
         }
         
         public override void Down()
         {
-            DropColumn("dbo.AuditTraces", "TimeStamp");
+            DropColumn("dbo.Plans_Organization", "MaxExchangeActivesyncPolicies");
         }
     }
 }

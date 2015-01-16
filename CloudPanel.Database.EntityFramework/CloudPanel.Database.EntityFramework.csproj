@@ -56,61 +56,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrap.cs" />
-    <Compile Include="Migrations\201411300507534_UpdateTo31Beta.cs" />
-    <Compile Include="Migrations\201411300507534_UpdateTo31Beta.Designer.cs">
-      <DependentUpon>201411300507534_UpdateTo31Beta.cs</DependentUpon>
+    <Compile Include="Migrations\201501160343143_Upgrade31Beta.cs" />
+    <Compile Include="Migrations\201501160343143_Upgrade31Beta.Designer.cs">
+      <DependentUpon>201501160343143_Upgrade31Beta.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201411300508417_UpdateTo31Beta.001.cs" />
-    <Compile Include="Migrations\201411300508417_UpdateTo31Beta.001.Designer.cs">
-      <DependentUpon>201411300508417_UpdateTo31Beta.001.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201411301548133_AddMissingUserRolesColumns.cs" />
-    <Compile Include="Migrations\201411301548133_AddMissingUserRolesColumns.Designer.cs">
-      <DependentUpon>201411301548133_AddMissingUserRolesColumns.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201412141816493_AddIdentityCustomPrices.cs" />
-    <Compile Include="Migrations\201412141816493_AddIdentityCustomPrices.Designer.cs">
-      <DependentUpon>201412141816493_AddIdentityCustomPrices.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201412142105503_AddAuditTraceTable.cs" />
-    <Compile Include="Migrations\201412142105503_AddAuditTraceTable.Designer.cs">
-      <DependentUpon>201412142105503_AddAuditTraceTable.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201412142106439_AddUsernameAndIPToAuditTrace.cs" />
-    <Compile Include="Migrations\201412142106439_AddUsernameAndIPToAuditTrace.Designer.cs">
-      <DependentUpon>201412142106439_AddUsernameAndIPToAuditTrace.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201412230357160_AddTimeStampToAuditTable.cs" />
-    <Compile Include="Migrations\201412230357160_AddTimeStampToAuditTable.Designer.cs">
-      <DependentUpon>201412230357160_AddTimeStampToAuditTable.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201412240407584_AddNewMailboxSizeTables.cs" />
-    <Compile Include="Migrations\201412240407584_AddNewMailboxSizeTables.Designer.cs">
-      <DependentUpon>201412240407584_AddNewMailboxSizeTables.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201412311700353_AddNewCitrixTables.cs" />
-    <Compile Include="Migrations\201412311700353_AddNewCitrixTables.Designer.cs">
-      <DependentUpon>201412311700353_AddNewCitrixTables.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201501031959538_AddActiveSyncTableAndRelationships.cs" />
-    <Compile Include="Migrations\201501031959538_AddActiveSyncTableAndRelationships.Designer.cs">
-      <DependentUpon>201501031959538_AddActiveSyncTableAndRelationships.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201501102103398_AddSecurityGroupToCitrixDesktopGroups.cs" />
-    <Compile Include="Migrations\201501102103398_AddSecurityGroupToCitrixDesktopGroups.Designer.cs">
-      <DependentUpon>201501102103398_AddSecurityGroupToCitrixDesktopGroups.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201501110451368_AddCitrixApplicationColumns.cs" />
-    <Compile Include="Migrations\201501110451368_AddCitrixApplicationColumns.Designer.cs">
-      <DependentUpon>201501110451368_AddCitrixApplicationColumns.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201501110507088_AddCitrixApplicationPaths.cs" />
-    <Compile Include="Migrations\201501110507088_AddCitrixApplicationPaths.Designer.cs">
-      <DependentUpon>201501110507088_AddCitrixApplicationPaths.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201501120109566_ChangeMoneyStringToDecimal.cs" />
-    <Compile Include="Migrations\201501120109566_ChangeMoneyStringToDecimal.Designer.cs">
-      <DependentUpon>201501120109566_ChangeMoneyStringToDecimal.cs</DependentUpon>
+    <Compile Include="Migrations\201501160437359_AddMissingColumns.cs" />
+    <Compile Include="Migrations\201501160437359_AddMissingColumns.Designer.cs">
+      <DependentUpon>201501160437359_AddMissingColumns.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -129,47 +81,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201411300507534_UpdateTo31Beta.resx">
-      <DependentUpon>201411300507534_UpdateTo31Beta.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201501160343143_Upgrade31Beta.resx">
+      <DependentUpon>201501160343143_Upgrade31Beta.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201411300508417_UpdateTo31Beta.001.resx">
-      <DependentUpon>201411300508417_UpdateTo31Beta.001.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201411301548133_AddMissingUserRolesColumns.resx">
-      <DependentUpon>201411301548133_AddMissingUserRolesColumns.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201412141816493_AddIdentityCustomPrices.resx">
-      <DependentUpon>201412141816493_AddIdentityCustomPrices.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201412142105503_AddAuditTraceTable.resx">
-      <DependentUpon>201412142105503_AddAuditTraceTable.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201412142106439_AddUsernameAndIPToAuditTrace.resx">
-      <DependentUpon>201412142106439_AddUsernameAndIPToAuditTrace.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201412230357160_AddTimeStampToAuditTable.resx">
-      <DependentUpon>201412230357160_AddTimeStampToAuditTable.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201412240407584_AddNewMailboxSizeTables.resx">
-      <DependentUpon>201412240407584_AddNewMailboxSizeTables.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201412311700353_AddNewCitrixTables.resx">
-      <DependentUpon>201412311700353_AddNewCitrixTables.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201501031959538_AddActiveSyncTableAndRelationships.resx">
-      <DependentUpon>201501031959538_AddActiveSyncTableAndRelationships.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201501102103398_AddSecurityGroupToCitrixDesktopGroups.resx">
-      <DependentUpon>201501102103398_AddSecurityGroupToCitrixDesktopGroups.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201501110451368_AddCitrixApplicationColumns.resx">
-      <DependentUpon>201501110451368_AddCitrixApplicationColumns.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201501110507088_AddCitrixApplicationPaths.resx">
-      <DependentUpon>201501110507088_AddCitrixApplicationPaths.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201501120109566_ChangeMoneyStringToDecimal.resx">
-      <DependentUpon>201501120109566_ChangeMoneyStringToDecimal.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201501160437359_AddMissingColumns.resx">
+      <DependentUpon>201501160437359_AddMissingColumns.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

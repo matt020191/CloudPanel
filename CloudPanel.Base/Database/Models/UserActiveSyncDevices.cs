@@ -17,6 +17,8 @@ namespace CloudPanel.Base.Database.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
 
+        public int UserID { get; set; }
+
         public Guid DeviceGuid { get; set; }
 
         public DateTime? FirstSyncTime { get; set; }
@@ -64,8 +66,6 @@ namespace CloudPanel.Base.Database.Models
         public string DeviceActiveSyncVersion { get; set; }
 
         public string NumberOfFoldersSynced { get; set; }
-
-        public Guid UserGuid { get; set; }
 
         public virtual Users User { get; set; }
 

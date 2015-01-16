@@ -17,6 +17,11 @@ namespace CloudPanel.Modules.Dashboard
         {
             this.RequiresClaims(new[] { "SuperAdmin" });
 
+            Get["/"] = _ =>
+                {
+                    return View["Dashboard/dashboard_super.cshtml"];
+                };
+
             Get["/all"] = _ =>
                 {
                     using (CloudPanelContext db = new CloudPanelContext(Settings.ConnectionString))

@@ -1374,7 +1374,6 @@
     <Compile Include="Modules\CompanyModules\Exchange\EnableModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\GroupsModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\ResourceModule.cs" />
-    <Compile Include="Modules\DashboardModule.cs" />
     <Compile Include="Modules\Dashboard\SuperDashboardModule.cs" />
     <Compile Include="Modules\PlansModules\ActiveSyncPlanModule.cs" />
     <Compile Include="Modules\PlansModules\ArchivePlanModule.cs" />

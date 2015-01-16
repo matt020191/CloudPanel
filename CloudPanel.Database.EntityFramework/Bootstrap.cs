@@ -6,7 +6,6 @@ using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Data.Entity.Validation;
 using System.Linq;
 
-// NB: http://stackoverflow.com/questions/16210771/entity-framework-code-first-without-app-config
 namespace CloudPanel.Database.EntityFramework
 {
     public partial class CloudPanelContext : DbContext
@@ -36,7 +35,7 @@ namespace CloudPanel.Database.EntityFramework
             modelBuilder.Entity<UserActiveSyncDevices>()
                         .HasRequired<Users>(x => x.User)
                         .WithMany(x => x.ActiveSyncDevices)
-                        .HasForeignKey(x => x.UserGuid);
+                        .HasForeignKey(x => x.UserID);
 
             // Many to many
             modelBuilder.Entity<CitrixApplications>()
