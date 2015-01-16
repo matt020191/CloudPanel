@@ -35,8 +35,11 @@ namespace CloudPanel.Demo.Api.Client
             var request = new RestRequest("company/COM1/users", Method.GET);
             request.AddParameter("ApiKey", ApiKey); // Add the API Key as a querystring parameter for each request
 
-            IRestResponse<List<Users>> response = client.Execute<List<Users>>(request);
-            Console.WriteLine(response.StatusCode);
+            var response = client.Execute<Users>(request);
+            foreach (var u in response.Data.data)
+            {
+                Console.WriteLine(u.DisplayName);
+            }
         }
     }
 }
