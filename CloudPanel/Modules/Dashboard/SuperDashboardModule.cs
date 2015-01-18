@@ -4,11 +4,8 @@ using log4net;
 using Nancy;
 using Nancy.Security;
 using System;
-using System.Collections.Generic;
 using System.Data.Entity;
-using System.Data.Objects;
 using System.Linq;
-using System.Web;
 
 namespace CloudPanel.Modules.Dashboard
 {
@@ -35,32 +32,33 @@ namespace CloudPanel.Modules.Dashboard
                         db = new CloudPanelContext(Settings.ConnectionString);
                         db.Database.Connection.Open();
 
+                        logger.DebugFormat("Querying top resellers, companies, users, and mailboxes");
                         var resellers = db.Companies.Where(x => x.IsReseller).Count();
                         var companies = db.Companies.Where(x => !x.IsReseller).Count();
                         var users = db.Users.Count();
                         var mailboxes = db.Users.Where(x => x.MailboxPlan > 0).Count();
 
-                        var mailboxAllocated = db.Users.Where(x => x.MailboxPlan > 0)
-                                                       .Join(db.Plans_ExchangeMailbox,
-                                                                s => s.MailboxPlan, s2 => s2.MailboxPlanID,
-                                                                (s, s2) => new { User = s, Plan = s2 })
-                                                                .Select(x => new
-                                                                {
-                                                                    User = x.User.UserGuid,
-                                                                    Size = x.Plan.MailboxSizeMB + (x.User.AdditionalMB == null ? 0 : (int)x.User.AdditionalMB)
-                                                                })
-                                                                .Sum(x => x.Size);
+                        logger.DebugFormat("Adding all mailbox allocated data");
+                        var mailboxAllocated = (from d in db.Users
+                                                join size in db.Plans_ExchangeMailbox on d.MailboxPlan equals size.MailboxPlanID into plan
+                                                from mailboxPlan in plan.DefaultIfEmpty()
+                                                where d.MailboxPlan > 0
+                                                select 
+                                                    mailboxPlan == null ? 0 : 
+                                                    mailboxPlan.MailboxSizeMB
+                                               ).DefaultIfEmpty().Sum();
 
-                        var mailboxUsed = db.Users.Where(x => x.MailboxPlan > 0)
-                                                  .Join(db.StatMailboxSize,
-                                                           s => s.UserGuid, s2 => s2.UserGuid,
-                                                           (s, s2) => new { User = s, Size = s2 })
-                                                  .Select(x => new
-                                                  {
-                                                      User = x.User.UserGuid,
-                                                      Size = x.Size.TotalItemSizeInBytes
-                                                  }).Sum(x => x.Size);
+                        logger.DebugFormat("Adding all mailbox used data");
+                        var mailboxUsed = (from d in db.Users
+                                           join size in db.StatMailboxSize on d.UserGuid equals size.UserGuid into stat
+                                           from mailboxSize in stat.DefaultIfEmpty()
+                                           where d.MailboxPlan > 0
+                                           select
+                                                 mailboxSize == null ? 0 :
+                                                 mailboxSize.TotalItemSizeInBytes
+                                          ).DefaultIfEmpty().Sum();
 
+                        logger.DebugFormat("Formatting sizes {0} and {1} to readable format", mailboxAllocated, mailboxUsed);
                         string allocatedReadableSize = ByteSize.ByteSize.FromMegaBytes(mailboxAllocated).ToString("#.##");
                         string usedReadableSize = ByteSize.ByteSize.FromBytes(mailboxUsed).ToString("#.##");
                         return Negotiate.WithModel(new

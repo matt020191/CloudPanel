@@ -216,7 +216,6 @@ namespace CloudPanel.Modules
 
                         logger.DebugFormat("Replacing whitespace characters in UPN: {0}", upn);
                         upn = upn.Replace(" ", string.Empty);
-
                         logger.DebugFormat("UPN after replacing whitepsace characters: {0}", upn);
 
                         logger.DebugFormat("Making sure the userprincipalname {0} is not already taken", upn);

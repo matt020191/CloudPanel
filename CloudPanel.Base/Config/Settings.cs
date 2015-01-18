@@ -10,7 +10,7 @@ namespace CloudPanel.Base.Config
         public static string ConnectionString {
             get
             {
-                return @"server=172.31.0.40\SQLEXPRESS;database=CPBETA;uid=CloudPanel;password=password;";
+                return @"server=DXN-PC\SQLEXPRESS;database=CPBETA;uid=CloudPanel;password=password;";
             }
             set
             {
