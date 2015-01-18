@@ -59,6 +59,27 @@ namespace CloudPanel.ActiveDirectory
         }
 
         #endregion
+      
+        /// <summary>
+        /// Simple authenticate without retrieving groups
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public bool AuthenticateSimple(string username, string password)
+        {
+            pc = GetPrincipalContext();
+
+            logger.DebugFormat("Attempting to authenticate user {0}", username);
+            bool valid = pc.ValidateCredentials(username, password);
+            if (!valid)
+                return false;
+            else
+            {
+                logger.DebugFormat("Successfully authenticated user {0}", username);
+                return true;
+            }      
+        }
 
         /// <summary>
         /// Authenticates a user against Active Directory

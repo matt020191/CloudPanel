@@ -7,13 +7,13 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.2-31219")]
-    public sealed partial class AddCitrixApplicationPaths : IMigrationMetadata
+    public sealed partial class AddApiKeyTable : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddCitrixApplicationPaths));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AddApiKeyTable));
         
         string IMigrationMetadata.Id
         {
-            get { return "201501110507088_AddCitrixApplicationPaths"; }
+            get { return "201501162213037_AddApiKeyTable"; }
         }
         
         string IMigrationMetadata.Source

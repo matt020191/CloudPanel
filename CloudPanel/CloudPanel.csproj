@@ -1316,7 +1316,7 @@
     <Content Include="Content\plugins\sweetalert\lib\sweet-alert.js" />
     <Content Include="Content\plugins\sweetalert\lib\sweet-alert.min.js" />
     <Content Include="Content\plugins\sweetalert\sweetalert.gif" />
-    <Content Include="Content\sql\initial.sql" />
+    <Content Include="Content\scripts\initial-database.sql" />
     <Content Include="Content\variations\theme-blue-steel.css" />
     <Content Include="Content\variations\theme-default.css" />
     <Content Include="Content\variations\default.css" />
@@ -1374,7 +1374,7 @@
     <Compile Include="Modules\CompanyModules\Exchange\EnableModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\GroupsModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\ResourceModule.cs" />
-    <Compile Include="Modules\DashboardModule.cs" />
+    <Compile Include="Modules\Dashboard\ResellerDashboardModule.cs" />
     <Compile Include="Modules\Dashboard\SuperDashboardModule.cs" />
     <Compile Include="Modules\PlansModules\ActiveSyncPlanModule.cs" />
     <Compile Include="Modules\PlansModules\ArchivePlanModule.cs" />
@@ -1679,7 +1679,6 @@
     <Content Include="Views\__topmenu.cshtml" />
     <Content Include="Views\success.cshtml" />
     <Content Include="Views\Dashboard\dashboard_reseller.cshtml" />
-    <Content Include="Views\Dashboard\dashboard_admin.cshtml" />
     <Content Include="Views\Company\permissions.cshtml" />
     <Content Include="Views\Plans\archiving.cshtml" />
     <Content Include="Views\Company\Exchange\activesync.cshtml" />
@@ -1702,7 +1701,6 @@
   <ItemGroup>
     <Folder Include="Content\img\branding\" />
     <Folder Include="Log\" />
-    <Folder Include="Scripts\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CloudPanel.ActiveDirectory\CloudPanel.ActiveDirectory.csproj">

@@ -118,7 +118,7 @@ namespace CloudPanel.Modules.CompanyModules
                                 ID = d.MailboxPlanID,
                                 Name = d.MailboxPlanName,
                                 DefaultPrice = d.Price,
-                                Custom = s.Price
+                                Custom = s.Price == null ? d.Price : s.Price
                             }).ToList();
 
                 return plan;

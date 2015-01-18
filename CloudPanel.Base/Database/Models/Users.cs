@@ -7,10 +7,10 @@ namespace CloudPanel.Base.Database.Models
 
     public partial class Users
     {
+        [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
 
-        [Key]
         [Required]
         public Guid UserGuid { get; set; }
 
@@ -106,9 +106,14 @@ namespace CloudPanel.Base.Database.Models
         public int? AdditionalMB { get; set; }
 
         /// <summary>
-        /// Permissions the user has (this is for company admin permissions)
+        /// Security role the user belongs to
         /// </summary>
         public int? RoleID { get; set; }
+
+        public virtual ApiKeys ApiKey { get; set; }
+
+        [ForeignKey("RoleID")]
+        public virtual UserRoles Role { get; set; }
 
         public virtual ICollection<CitrixDesktopGroups> CitrixDesktopGroups { get; set; }
 

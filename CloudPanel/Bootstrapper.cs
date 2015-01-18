@@ -10,6 +10,7 @@
     using log4net.Config;
     using Nancy;
     using Nancy.Authentication.Forms;
+    using Nancy.Authentication.Stateless;
     using Nancy.Authentication.Token;
     using Nancy.Bootstrapper;
     using Nancy.Session;
@@ -93,10 +94,21 @@
 
         protected override void RequestStartup(TinyIoCContainer requestContainer, IPipelines pipelines, NancyContext context)
         {
-            var formsAuthConfiguration = new FormsAuthenticationConfiguration() { RedirectUrl = "~/login", UserMapper = requestContainer.Resolve<IUserMapper>() };
+            var formsAuthConfiguration = new FormsAuthenticationConfiguration() { 
+                RedirectUrl = "~/login", 
+                UserMapper = requestContainer.Resolve<IUserMapper>() 
+            };
+
+            var statelessAuthConfiguration = new StatelessAuthenticationConfiguration(ctx =>
+            {
+                if (!ctx.Request.Query.ApiKey.HasValue)
+                    return null;
+
+                return UserMapper.GetUserFromApiKey(ctx.Request.Query.ApiKey);
+            });
 
             FormsAuthentication.Enable(pipelines, formsAuthConfiguration);
-            TokenAuthentication.Enable(pipelines, new TokenAuthenticationConfiguration(requestContainer.Resolve<ITokenizer>()));
+            StatelessAuthentication.Enable(pipelines, statelessAuthConfiguration);
 
             base.RequestStartup(requestContainer, pipelines, context);
         }

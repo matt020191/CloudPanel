@@ -54,7 +54,7 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <img src="~/content/demo/avatar/johansson.png" alt="" class="pull-left" style="margin: 0 20px 20px 0">
+                            <!--<img src="" alt="" class="pull-left" style="margin: 0 20px 20px 0">-->
                             <div class="table-responsive">
                                 <h3><strong>@Model.DisplayName</strong></h3><table class="table table-condensed">
                                     <tbody>
@@ -122,13 +122,14 @@
                                     <div class="tab-pane clearfix active" id="user">
                                         <div class="col-md-12">
                                             <form id="userForm" action="" method="post" class="form-horizontal" data-parsley-validate="true">
-                                                <div id="accordioninuser" class="accordion-group">
-                                                    <div class="accordion-item">
 
-                                                        <!-- USER GENERAL -->
-                                                        <a class="accordion-title" data-toggle="collapse" data-parent="#accordioninuser" href="#collapseinUserGeneral"><h4>General</h4></a>
-                                                        <div id="collapseinUserGeneral" class="collapse in">
-                                                            <div class="accordion-body">
+                                                <div class="panel-group panel-info" id="accordion">
+                                                    <div class="panel panel-default">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" class="">
+                                                            <div class="panel-heading"><h4>General</h4></div>
+                                                        </a>
+                                                        <div id="collapseOne" class="panel-collapse collapse in">
+                                                            <div class="panel-body">
                                                                 <div class="form-group">
                                                                     <label for="smallinput" class="col-sm-3 control-label">Username</label>
                                                                     <div class="col-sm-6">
@@ -163,13 +164,13 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-
                                                     </div>
-                                                    <div class="accordion-item">
-                                                        <!-- USER COMPANY -->
-                                                        <a class="accordion-title collapsed" data-toggle="collapse" data-parent="#accordioninuser" href="#collapseinUserCompany"><h4>Company</h4></a>
-                                                        <div id="collapseinUserCompany" class="collapse">
-                                                            <div class="accordion-body">
+                                                    <div class="panel panel-default">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" class="collapsed">
+                                                            <div class="panel-heading"><h4>Company</h4></div>
+                                                        </a>
+                                                        <div id="collapseTwo" class="panel-collapse collapse" style="height: 0px;">
+                                                            <div class="panel-body">
                                                                 <div class="form-group">
                                                                     <label for="smallinput" class="col-sm-3 control-label">Company</label>
                                                                     <div class="col-sm-6">
@@ -203,11 +204,12 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="accordion-item">
-                                                        <!-- USER PERSONAL -->
-                                                        <a class="accordion-title collapsed" data-toggle="collapse" data-parent="#accordioninuser" href="#collapseinUserPersonal"><h4>Personal</h4></a>
-                                                        <div id="collapseinUserPersonal" class="collapse">
-                                                            <div class="accordion-body">
+                                                    <div class="panel panel-default">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree" class="collapsed">
+                                                            <div class="panel-heading"><h4>Personal</h4></div>
+                                                        </a>
+                                                        <div id="collapseThree" class="panel-collapse collapse" style="height: 0px;">
+                                                            <div class="panel-body">
                                                                 <div class="form-group">
                                                                     <label for="smallinput" class="col-sm-3 control-label">Home Phone</label>
                                                                     <div class="col-sm-6">
@@ -253,11 +255,12 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="accordion-item">
-                                                        <!-- SOCIAL -->
-                                                        <a class="accordion-title collapsed" data-toggle="collapse" data-parent="#accordioninuser" href="#collapseinUserSocial"><h4>Social</h4></a>
-                                                        <div id="collapseinUserSocial" class="collapse">
-                                                            <div class="accordion-body">
+                                                    <div class="panel panel-default">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour" class="">
+                                                            <div class="panel-heading"><h4>Social</h4></div>
+                                                        </a>
+                                                        <div id="collapseFour" class="panel-collapse collapse">
+                                                            <div class="panel-body">
                                                                 <div class="form-group">
                                                                     <label class="col-sm-3 control-label">Skype</label>
                                                                     <div class="col-sm-6">
@@ -315,10 +318,12 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="accordion-item"> <!-- Notes -->
-                                                        <a class="accordion-title collapsed" data-toggle="collapse" data-parent="#accordioninuser" href="#collapseinUserNotes"><h4>Notes</h4></a>
-                                                        <div id="collapseinUserNotes" class="collapse">
-                                                            <div class="accordion-body">
+                                                    <div class="panel panel-default">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseFive" class="">
+                                                            <div class="panel-heading"><h4>Notes</h4></div>
+                                                        </a>
+                                                        <div id="collapseFive" class="panel-collapse collapse">
+                                                            <div class="panel-body">
                                                                 <textarea id="Notes" name="Notes" rows="2" cols="20"></textarea>
                                                             </div>
                                                         </div>
@@ -727,7 +732,7 @@
                 $.ajax({ 
                     type: "GET",
                     url: "@Html.RenderContext.Context.Request.Url/mailbox",
-                  })
+                })
                   .done(function(data) {
                       console.log(data);
 
@@ -767,8 +772,10 @@
                       $.unblockUI();
                   });
             }
-            else
+            else {
+                mailboxUpdated = true;
                 mailboxAlreadyRetrieved = true;
+            }
         }
 
         // Query data from Exchange and set litigation hold

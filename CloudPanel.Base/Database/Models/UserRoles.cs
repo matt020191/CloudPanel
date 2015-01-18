@@ -1,7 +1,8 @@
 ﻿namespace CloudPanel.Base.Database.Models
 {
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+    using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
     public partial class UserRoles
     {
@@ -106,5 +107,7 @@
         public bool dPermissions { get; set; }
 
         #endregion
+
+        public virtual ICollection<Users> Users { get; set; }
     }
 }

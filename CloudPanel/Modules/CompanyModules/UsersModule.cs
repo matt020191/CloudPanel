@@ -43,7 +43,6 @@ namespace CloudPanel.Modules
                 try
                 {
                     db = new CloudPanelContext(Settings.ConnectionString);
-                    db.Database.Connection.Open();
 
                     string companyCode = _.CompanyCode;
                     var users = (from d in db.Users
@@ -55,8 +54,6 @@ namespace CloudPanel.Modules
                                  from mailboxinfo in d2.DefaultIfEmpty().OrderByDescending(x => x.Retrieved).Take(1)
                                  join s2 in db.StatMailboxArchiveSize on d.UserGuid equals s2.UserGuid into d5
                                  from archiveinfo in d5.DefaultIfEmpty().OrderByDescending(x => x.Retrieved).Take(1)
-                                 join p in db.UserRoles on d.RoleID equals p.RoleID into d3
-                                 from permission in d3.DefaultIfEmpty().Take(1)
                                  where d.CompanyCode == companyCode
                                  select new
                                  {
@@ -76,7 +73,6 @@ namespace CloudPanel.Modules
                                      MailboxPlan = mailboxplan,
                                      MailboxInfo = mailboxinfo,
                                      ArchiveInfo = archiveinfo,
-                                     Permission = permission,
                                      ArchivePlan = archiveplan
                                  }).ToList();
 
@@ -220,7 +216,6 @@ namespace CloudPanel.Modules
 
                         logger.DebugFormat("Replacing whitespace characters in UPN: {0}", upn);
                         upn = upn.Replace(" ", string.Empty);
-
                         logger.DebugFormat("UPN after replacing whitepsace characters: {0}", upn);
 
                         logger.DebugFormat("Making sure the userprincipalname {0} is not already taken", upn);
@@ -326,11 +321,6 @@ namespace CloudPanel.Modules
                             db.SaveChanges();
 
                             logger.DebugFormat("User has been removed. Now cleaning up the database to remove all traces of the user");
-
-                            logger.DebugFormat("Clearing user from citrix plans");
-                            var citrixPlans = from d in db.UserPlansCitrix where d.UserID == userId select d;
-                            if (citrixPlans != null)
-                                db.UserPlansCitrix.RemoveRange(citrixPlans);
 
                             logger.DebugFormat("Clearing user from queues");
                             var queues = from d in db.SvcQueue where d.UserPrincipalName == user.UserPrincipalName select d;

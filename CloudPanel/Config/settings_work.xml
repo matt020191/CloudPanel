@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <cloudpanel>
   <Settings>
-    <Database>server=JDIXON-PC\SQLEXPRESS;database=CloudPanel;uid=CloudPanel;password=password;</Database>
+    <Database>server=.\SQLEXPRESS;database=CPBETA;uid=CloudPanel;password=password;</Database>
     <CompanyName>Know More IT</CompanyName>
     <HostingOU>OU=Hosting,DC=lab,DC=local</HostingOU>
     <UsersOU></UsersOU>

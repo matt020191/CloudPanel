@@ -7,13 +7,13 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.2-31219")]
-    public sealed partial class AddCitrixApplicationColumns : IMigrationMetadata
+    public sealed partial class AddMissingUserColumns : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddCitrixApplicationColumns));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AddMissingUserColumns));
         
         string IMigrationMetadata.Id
         {
-            get { return "201501110451368_AddCitrixApplicationColumns"; }
+            get { return "201501161901326_AddMissingUserColumns"; }
         }
         
         string IMigrationMetadata.Source
