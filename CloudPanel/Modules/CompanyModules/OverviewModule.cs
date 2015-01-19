@@ -38,12 +38,18 @@ namespace CloudPanel.Modules
                     var company = (from d in db.Companies
                                    where !d.IsReseller
                                    where d.CompanyCode == companyCode
-                                   select d).FirstOrDefault();
+                                   select d).Single();
 
                     logger.DebugFormat("Looking up company plan {0} for {1}", company.OrgPlanID, companyCode);
                     var companyPlan = (from d in db.Plans_Organization
                                        where d.OrgPlanID == company.OrgPlanID
-                                       select d).FirstOrDefault();
+                                       select d).Single();
+
+                    if (companyPlan.MaxExchangeActivesyncPolicies == null)
+                        companyPlan.MaxExchangeActivesyncPolicies = 0;
+
+                    if (companyPlan.MaxExchangeResourceMailboxes == null)
+                        companyPlan.MaxExchangeResourceMailboxes = 0;
 
                     // Pull data for overview graph
                     logger.DebugFormat("Querying total users for {0}", companyCode);

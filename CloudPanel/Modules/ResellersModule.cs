@@ -77,11 +77,7 @@ namespace CloudPanel.Modules
                                 logger.DebugFormat("Search value of '{0}' has been provided", searchValue);
                                 resellers = (from d in resellers
                                              where d.CompanyCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                                   d.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                                   d.City.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                                   d.State.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                                   d.ZipCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                                   d.Country.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
+                                                   d.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
                                              select d).ToList();
                                 recordsFiltered = resellers.Count;
                             }

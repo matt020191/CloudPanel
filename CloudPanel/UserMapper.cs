@@ -89,7 +89,7 @@ namespace CloudPanel
                 user = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
 
                 // Authenticate the user
-                var authenticatedUser = user.Authenticate(username, password);
+                var authenticatedUser = user.AuthenticateQuickly(username, password);
                 var authUser = new AuthenticatedUser()
                 {
                     UserGuid = authenticatedUser.UserGuid,
@@ -100,6 +100,8 @@ namespace CloudPanel
                 // Add all the claims for the user
                 var claims = new List<string>();
                 foreach (var memberof in authenticatedUser.MemberOf) {
+                    logger.DebugFormat("Checking group {0} against {1}", memberof, Settings.SuperAdminsAsString);
+
                     var isSuper = Settings.SuperAdmins.Any(x =>
                                                            x.Equals(memberof,StringComparison.InvariantCultureIgnoreCase));
                     if (isSuper)
@@ -170,7 +172,7 @@ namespace CloudPanel
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error logging in user {0}: {1}", username, ex.ToString());
-                return null;
+                throw;
             }
             finally
             {

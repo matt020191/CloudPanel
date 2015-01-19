@@ -56,6 +56,7 @@ namespace CloudPanel.Modules
                                      orderby d.CompanyName
                                      select d).ToList();
 
+                    logger.DebugFormat("Found a total of {0} companies", companies.Count);
                     if (Settings.ResellersEnabled) // If resellers are enabled then trim the results
                         companies = companies.Where(x => x.ResellerCode == _.ResellerCode).ToList();
 
@@ -78,11 +79,7 @@ namespace CloudPanel.Modules
                         {
                             companies = (from d in companies
                                          where d.CompanyCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.City.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.State.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.ZipCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.Country.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
+                                               d.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
                                          select d).ToList();
                             recordsFiltered = companies.Count;
                         }

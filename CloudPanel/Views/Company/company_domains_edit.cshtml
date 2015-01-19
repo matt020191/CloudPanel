@@ -43,12 +43,9 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-3 control-label">Is Default</label>
-                                <div class="col-sm-3 control-label">
-                                    <div id="defaultswitch"></div>
-                                </div>
+                                <label class="col-sm-3 control-label"></label>
                                 <div class="col-sm-6">
-                                    <input id="IsDefault" name="IsDefault" type="checkbox" value="@(Model.domain.IsDefault == true ? "true" : "false")" @(Model.domain.IsDefault == true ? "checked" : "") hidden />
+                                    <input id="IsDefault" name="IsDefault" type="checkbox" @(Model.domain.IsDefault == true ? "value='true' checked" : "value='false'") /> Is Default
                                 </div>
                             </div>
                         </div>
@@ -70,19 +67,6 @@
     <script src="~/Content/plugins/form-toggle/toggle.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#defaultswitch').toggles({
-                text: { on: 'Yes', off: 'No' },
-                checkbox: $('#IsDefault'),
-                on: $('#IsDefault').is(':checked')
-            });
-
-            $('#defaultswitch').on('toggle', function (e, active) {
-                if (active) {
-                    $('#IsDefault').val(true);
-                } else {
-                    $('#IsDefault').val(false);
-                }
-            });
         });
     </script>
 }

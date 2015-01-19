@@ -46,10 +46,6 @@
                                 </ul>
                             </li>
                         }
-                        @if (Settings.LyncModule)
-                        {
-                            <li><a href="~/plans/lync">Lync</a></li>
-                        }
                     </ul>
                 </li>
                 <li><a href="~/reports"><i class="fa fa-bar-chart-o"></i> <span>Reports</span></a></li>
@@ -86,7 +82,7 @@
                             <li><a href="~/company/@companyCode/exchange/bulk">Bulk Modification</a></li>
                             <li><a href="~/company/@companyCode/exchange/contacts">Contacts</a></li>
                             <li><a href="~/company/@companyCode/exchange/groups">Distribution Groups</a></li>
-                            <li><a href="~/company/@companyCode/exchange/publicfolders">Public Folders</a></li>
+                            <!--<li><a href="~/company/@companyCode/exchange/publicfolders">Public Folders</a></li>-->
                             <li><a href="~/company/@companyCode/exchange/resourcemailboxes">Resource Mailboxes</a></li>
                         }
                     </ul>
@@ -100,7 +96,9 @@
                     </ul>
                 </li>
             }
-            <li><a href="~/company/@companyCode/billing"><i class="fa fa-money"></i> <span>Billing</span></a></li>
+            @if (isSuperAdmin || isResellerAdmin) {
+                <li><a href="~/company/@companyCode/billing"><i class="fa fa-money"></i> <span>Billing</span></a></li>
+            }
         }
     </ul>
 </nav>
