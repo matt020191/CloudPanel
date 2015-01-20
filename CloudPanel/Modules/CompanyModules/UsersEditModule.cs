@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Data.Entity;
 
 namespace CloudPanel.Modules.CompanyModules
 {
@@ -42,7 +43,7 @@ namespace CloudPanel.Modules.CompanyModules
                         Guid userGuid = _.UserGuid;
 
                         logger.DebugFormat("Querying the database for {0}", userGuid);
-                        var user = (from d in db.Users
+                        var user = (from d in db.Users.Include(x => x.Role)
                                     where d.CompanyCode == companyCode
                                     where d.UserGuid == userGuid
                                     select new
@@ -79,13 +80,17 @@ namespace CloudPanel.Modules.CompanyModules
                                         MailboxPlan = d.MailboxPlan,
                                         ArchivePlan = d.ArchivePlan,
                                         Notes = d.Notes,
-                                        AdditionalMB = d.AdditionalMB == null ? 0 : (int)d.AdditionalMB
+                                        AdditionalMB = d.AdditionalMB == null ? 0 : (int)d.AdditionalMB,
+                                        Role = d.Role
                                     }).FirstOrDefault();
 
                         if (user == null)
                             throw new Exception("Unable to find user in database");
                         else
                         {
+                            if (user.Role != null)
+                                logger.DebugFormat("User's permission role id is {0}", user.Role.RoleID);
+
                             return Negotiate.WithModel(user)
                                             .WithStatusCode(HttpStatusCode.OK)
                                             .WithView("Company/user_edit.cshtml");
@@ -151,6 +156,8 @@ namespace CloudPanel.Modules.CompanyModules
                     {
                         logger.DebugFormat("Retrieving user {0} in company {1} from database", userGuid, companyCode);
                         db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
+
                         var user = (from d in db.Users
                                     where d.UserGuid == userGuid
                                     where d.CompanyCode == companyCode
@@ -188,6 +195,22 @@ namespace CloudPanel.Modules.CompanyModules
                         user.HomePhone = boundUser.HomePhone;
                         user.MobilePhone = boundUser.MobilePhone;
                         user.Notes = boundUser.Notes;
+                        
+                        if (this.Context.IsSuperOrResellerAdmin())
+                        {
+                            logger.DebugFormat("Checking changes to the user role since the logged in user is a super admin or reseller admin");
+                            if (boundUser.RoleID > 0)
+                            {
+                                logger.DebugFormat("Role ID is {0}", boundUser.RoleID);
+                                user.IsCompanyAdmin = true;
+                                user.RoleID = boundUser.RoleID;
+                            }
+                            else
+                            {
+                                user.IsCompanyAdmin = false;
+                                user.RoleID = null;
+                            }
+                        }
 
                         logger.DebugFormat("Setting Active Directory values");
                         adUsers = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);

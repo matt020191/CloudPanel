@@ -104,6 +104,7 @@
                     <div class="panel-body scrollthis">
                         <div id="members" class="list-group">
                         </div>
+                        <input id="MembersOriginal" name="MembersOriginal" type="hidden" class="original" />
                         <input id="MembersAdded" name="MembersAdded" type="hidden" class="plus" />
                         <input id="MembersRemoved" name="MembersRemoved" type="hidden" class="minus" />
                     </div>
@@ -316,7 +317,9 @@
         var table;
 
         $(document).ready(function () {
-            table = $("#dataTable").DataTable();
+            table = $("#dataTable").DataTable({
+                "pagingType": "simple"
+            });
 
             $("input[type=checkbox]").click(function () {
                 if ($(this).is(':checked')) {
@@ -359,8 +362,11 @@
                     $.each(data.members, function (index, value) {
                         AddItem("#members",
                                 data.members[index].displayName,
-                                data.members[index].email,
+                                data.members[index].identifier,
                                 data.members[index].objectType);
+
+                        var original = $("#MembersOriginal");
+                        original.val(original.val() + "," + data.members[index].identifier);
                     });
                 }).fail(function (returnData) {
                     ShowError(returnData);

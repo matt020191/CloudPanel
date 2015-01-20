@@ -14,6 +14,7 @@
 </div>
 
 <div class="container">
+
     <!-- Top -->
     <div id="badgeRow" class="row">
             <div class="col-md-2">
@@ -93,9 +94,9 @@
                         <div class="col-md-12 clearfix">
                             <h4 class="pull-left" style="margin: 0 0 20px;">System History</h4>
                             <div class="btn-group pull-right">
-                                <a href="javascript:GetHistoryOverview(6);" class="btn btn-default btn-sm">6 Months</a>
                                 <a href="javascript:GetHistoryOverview(12);" class="btn btn-default btn-sm">12 Months</a>
                                 <a href="javascript:GetHistoryOverview(24);" class="btn btn-default btn-sm">24 Months</a>
+                                <a href="javascript:GetHistoryOverview(48);" class="btn btn-default btn-sm">48 Months</a>
                             </div>
                         </div>
                         <div class="col-md-12">
@@ -115,7 +116,7 @@
                         <h4>Mailbox Databases</h4>
                     </div>
                     <div class="panel-body mailboxDatabases">
-                        <div id="exchangeDatabases" style="height:250px;"></div>
+                        <div id="exchangeDatabases" style="height:350px;"></div>
                     </div>
                 </div>
             </div>
@@ -125,7 +126,7 @@
                         <h4>Top Resellers</h4>
                     </div>
                     <div class="panel-body">
-                        <div id="topResellers" style="height:250px;"></div>
+                        <div id="topResellers" style="height:350px;"></div>
                     </div>
                 </div>
             </div>
@@ -145,7 +146,7 @@
         GetTiles();
 
         // Get the overview chart
-        GetHistoryOverview(6);
+        GetHistoryOverview(12);
 
         // Get the top resellers
         GetTopResellers(5);
@@ -173,13 +174,19 @@
             var MB = 1048576;
             var KB = 1024;
 
+            var databases = [];
+            var retrieved = "";
+            $.each(data, function (i, val) {
+                databases.push([val.databaseName, val.databaseSizeInBytes]);
+                retrieved = val.retrieved;
+            });
+
             var bar = new Highcharts.Chart({
                 chart: { type: 'column', renderTo: 'exchangeDatabases' },
-                title: { text: '' },
-                xAxis: { type: 'category', labels: { style: { fontFamily: 'Verdana, sans-serif' } } },
-                yAxis: {
-                    min: 0,
-                    title: { text: '' },
+                title: { text: moment(retrieved).fromNow() },
+                xAxis: { type: 'category', labels: { rotation: -45, style: { fontFamily: 'Verdana, sans-serif' } } },
+                credits: { enabled: false },
+                yAxis: { min: 0, title: '',
                     labels: {
                         formatter: function () {
                             var maxElement = this.axis.max;
@@ -212,10 +219,6 @@
                 }
             });
 
-            var databases = [];
-            $.each(data, function (i, val) {
-                databases.push([val.databaseName, val.databaseSizeInBytes]);
-            });
             bar.addSeries({ name: '', data: databases });
             bar.redraw();
         });
@@ -224,13 +227,11 @@
     function GetHistoryOverview(pastMonths) {
         $.getJSON("@Url.Content("~/dashboard/history/")"+pastMonths, function (data) {
             var area = new Highcharts.Chart({
-                chart: { type: 'areaspline', renderTo: 'historyOverview' },
+                chart: { type: 'areaspline', zoomType: 'x', renderTo: 'historyOverview' },
                 title: { text: '' },
                 xAxis: {
-                    type: 'datetime', dateTimeLabelFormats: { // don't display the dummy year
-                        month: '%e. %b',
-                        year: '%b'
-                    }, plotBands: [{ from: 4.5, to: 6.5, color: 'rgba(68, 170, 213, .2)' }]
+                    type: 'datetime',
+                    plotBands: [{ from: 4.5, to: 6.5, color: 'rgba(68, 170, 213, .2)' }]
                 },
                 yAxis: { title: { text: '' } },
                 tooltip: { shared: true },

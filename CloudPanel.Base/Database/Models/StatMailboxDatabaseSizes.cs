@@ -35,8 +35,10 @@ namespace CloudPanel.Base.Database.Models
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
-    public partial class SvcMailboxDatabaseSizes
+    public partial class StatMailboxDatabaseSizes
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
 
         [Required]

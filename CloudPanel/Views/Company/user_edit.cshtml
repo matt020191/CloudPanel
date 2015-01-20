@@ -201,6 +201,21 @@
                                                                         <input id="Fax" name="Fax" type="text" value="@Model.Fax" class="form-control input-sm">
                                                                     </div>
                                                                 </div>
+                                                                @if (this.RenderContext.Context.IsSuperOrResellerAdmin())
+                                                                {
+                                                                    <div class="form-group">
+                                                                        <label for="smallinput" class="col-sm-3 control-label">Company Admin</label>
+                                                                        <div class="col-sm-6">
+                                                                            <select id="RoleID" name="RoleID" class="form-control">
+                                                                                <option value="0">Not a Company Admin</option>
+                                                                                @foreach (var r in CloudPanel.Modules.PermissionsModule.GetRoles(companyCode))
+                                                                                {
+                                                                                    <option value="@r.RoleID" @( (Model.Role != null && Model.Role.RoleID == r.RoleID) ? "selected" : "" )>@r.DisplayName</option>
+                                                                                }
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                }
                                                             </div>
                                                         </div>
                                                     </div>

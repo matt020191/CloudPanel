@@ -124,8 +124,8 @@ namespace CloudPanel.Modules.Dashboard
                 {
                     using (CloudPanelContext db = new CloudPanelContext(Settings.ConnectionString))
                     {
-                        var databases = (from d in db.SvcMailboxDatabaseSizes
-                                         where d.Retrieved == db.SvcMailboxDatabaseSizes.Max(x => x.Retrieved)
+                        var databases = (from d in db.StatMailboxDatabaseSizes
+                                         where d.Retrieved == db.StatMailboxDatabaseSizes.Max(x => x.Retrieved)
                                          select d).ToList();
 
                         return Negotiate.WithModel(databases);

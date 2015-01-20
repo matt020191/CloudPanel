@@ -55,36 +55,6 @@ namespace CloudPanel.Modules
                 }
             };
 
-            Post["/login/simple"] = _ =>
-            {
-                var username = this.Request.Form.username;
-                var password = this.Request.Form.password;
-
-                ADUsers ad = null;
-                try
-                {
-                    ad = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-
-                    bool isValid = ad.AuthenticateSimple(username, password);
-                    if (isValid)
-                    {
-                        return Negotiate.WithModel(new { success = "Successfully authenticated user." })
-                                        .WithStatusCode(HttpStatusCode.OK);
-                    }
-                    else
-                    {
-                        return Negotiate.WithModel(new { error = "Failed authentication." })
-                                        .WithStatusCode(HttpStatusCode.Unauthorized);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error authenticating user {0}: {1}", username, ex.ToString());
-                    return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithStatusCode(HttpStatusCode.InternalServerError);
-                }
-            };
-
             Get["/logout"] = _ =>
             {
                 return this.LogoutAndRedirect("~/login");

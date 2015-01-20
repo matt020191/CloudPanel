@@ -36,7 +36,7 @@ namespace CloudPanel.Rollback
 
     public class ReverseActions
     {
-        private static readonly ILog log = log4net.LogManager.GetLogger(typeof(ReverseActions));
+        private static readonly ILog log = log4net.LogManager.GetLogger("Rollback");
 
         private List<ReverseActionValue> _currentActions;
 

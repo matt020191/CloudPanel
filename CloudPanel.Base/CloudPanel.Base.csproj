@@ -81,7 +81,7 @@
     <Compile Include="Database\Models\Statistics.cs" />
     <Compile Include="Database\Models\StatMailboxArchiveSizes.cs" />
     <Compile Include="Database\Models\StatMailboxSizes.cs" />
-    <Compile Include="Database\Models\SvcMailboxDatabaseSizes.cs" />
+    <Compile Include="Database\Models\StatMailboxDatabaseSizes.cs" />
     <Compile Include="Database\Models\SvcQueue.cs" />
     <Compile Include="Database\Models\SvcTask.cs" />
     <Compile Include="Database\Models\UserActiveSyncDevices.cs" />

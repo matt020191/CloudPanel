@@ -76,6 +76,10 @@
     <Compile Include="Migrations\201501162225514_FixUserPermissionTableAndDropOtherTables.Designer.cs">
       <DependentUpon>201501162225514_FixUserPermissionTableAndDropOtherTables.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201501191732021_UpdateMailboxDatabaseTable.cs" />
+    <Compile Include="Migrations\201501191732021_UpdateMailboxDatabaseTable.Designer.cs">
+      <DependentUpon>201501191732021_UpdateMailboxDatabaseTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -107,6 +111,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201501162225514_FixUserPermissionTableAndDropOtherTables.resx">
       <DependentUpon>201501162225514_FixUserPermissionTableAndDropOtherTables.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201501191732021_UpdateMailboxDatabaseTable.resx">
+      <DependentUpon>201501191732021_UpdateMailboxDatabaseTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

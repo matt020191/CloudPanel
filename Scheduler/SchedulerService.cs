@@ -43,14 +43,17 @@ namespace Scheduler
             _ExchangeMailboxSizesTimer = new Timer(GetMillisecondsFromMinutes(_exchMbxSizesInMin));
             _ExchangeMailboxSizesTimer.Elapsed += _ExchangeMailboxSizesTimer_Elapsed;
             _ExchangeMailboxSizesTimer.Start();
+            logger.DebugFormat("Querying mailbox sizes in {0}", TimeSpan.FromMilliseconds(_ExchangeMailboxSizesTimer.Interval));
 
             _ExchangeMailboxDatabaseSizesTimer = new Timer(GetMillisecondsFromMinutes(_exchMbxDbSizesInMin));
             _ExchangeMailboxDatabaseSizesTimer.Elapsed += _ExchangeMailboxDatabaseSizesTimer_Elapsed;
             _ExchangeMailboxDatabaseSizesTimer.Start();
+            logger.DebugFormat("Querying mailbox database sizes in {0}", TimeSpan.FromMilliseconds(_ExchangeMailboxDatabaseSizesTimer.Interval));
 
             _HistoryStatisticsTimer = new Timer(GetMillisecondsFromMinutes(_historyStatsInMin));
             _HistoryStatisticsTimer.Elapsed += _HistoryStatisticsTimer_Elapsed;
             _HistoryStatisticsTimer.Start();
+            logger.DebugFormat("Querying history statistics in {0}", TimeSpan.FromMilliseconds(_HistoryStatisticsTimer.Interval));
         }
 
         #region Timer Elapsed
@@ -111,6 +114,9 @@ namespace Scheduler
 
             if (_ExchangeMailboxSizesTimer != null)
                 _ExchangeMailboxSizesTimer.Dispose();
+
+            if (_HistoryStatisticsTimer != null)
+                _HistoryStatisticsTimer.Dispose();
         }
     }
 }

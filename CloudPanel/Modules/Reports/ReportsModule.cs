@@ -1,6 +1,7 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Reports.Exchange;
+using log4net;
 using Microsoft.Reporting.WebForms;
 using Nancy;
 using Nancy.Security;
@@ -15,6 +16,8 @@ namespace CloudPanel.Modules.Reports
 {
     public class ReportsModule : NancyModule
     {
+        private readonly ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public ReportsModule() : base("/reports")
         {
             this.RequiresClaims(new[] { "SuperAdmin" });
@@ -33,6 +36,7 @@ namespace CloudPanel.Modules.Reports
                     ReportViewer reportViewer = null;
                     try
                     {
+                        logger.DebugFormat("Generating Exchange summary report..");
                         db = new CloudPanelContext(Settings.ConnectionString);
                         db.Database.Connection.Open();
 
@@ -68,6 +72,8 @@ namespace CloudPanel.Modules.Reports
                                          ArchivePlanPrice = archiveplan == null ? 0 : archiveplan.Price,
                                          ArchiveSizeInBytes = archivesize == null ? 0 : archivesize.TotalItemSizeInBytes
                                      }).ToList();
+
+                        logger.DebugFormat("Found a total of {0} users for the Exchange summary report", users.Count);
 
                         var priceoverride = db.PriceOverride.ToList();
                         users.ForEach(x =>

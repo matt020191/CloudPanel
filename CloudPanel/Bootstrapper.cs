@@ -26,11 +26,13 @@
 
         protected override void ApplicationStartup(Nancy.TinyIoc.TinyIoCContainer container, Nancy.Bootstrapper.IPipelines pipelines)
         {
-            //
             StaticConfiguration.DisableErrorTraces = false;
 
             // Enable the logger
             XmlConfigurator.Configure();
+
+            // Increase the max json length
+            Nancy.Json.JsonSettings.MaxJsonLength = Int32.MaxValue;
 
             // Load the settings
             StaticSettings.LoadSettings();

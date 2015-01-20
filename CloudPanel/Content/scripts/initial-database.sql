@@ -343,12 +343,12 @@ CREATE TABLE [dbo].[SvcMailboxSizes](
 GO
 SET ANSI_PADDING OFF
 GO
-/****** Object:  Table [dbo].[SvcMailboxDatabaseSizes]    Script Date: 01/15/2015 19:56:45 ******/
+/****** Object:  Table [dbo].[StatMailboxDatabaseSizes]    Script Date: 01/15/2015 19:56:45 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[SvcMailboxDatabaseSizes](
+CREATE TABLE [dbo].[StatMailboxDatabaseSizes](
 	[DatabaseName] [nvarchar](64) NOT NULL,
 	[Server] [nvarchar](64) NOT NULL,
 	[DatabaseSize] [nvarchar](255) NOT NULL,

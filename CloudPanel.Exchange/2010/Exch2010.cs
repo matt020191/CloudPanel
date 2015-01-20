@@ -748,7 +748,7 @@ namespace CloudPanel.Exchange
                 var newObject = new GroupObjectSelector();
                 newObject.DisplayName = r.Properties["DisplayName"].Value.ToString();
                 newObject.Email = r.Properties["PrimarySmtpAddress"].Value.ToString();
-                newObject.Identifier = newObject.Email;
+                newObject.Identifier = r.Properties["Guid"].Value.ToString();
 
                 if (recipientType.Contains("distributiongroup"))
                     newObject.ObjectType = ExchangeValues.Group;

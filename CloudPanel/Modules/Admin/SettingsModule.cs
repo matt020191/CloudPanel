@@ -40,6 +40,7 @@ namespace CloudPanel.Modules.Admin
                         }
                         catch (Exception ex)
                         {
+                            logger.ErrorFormat("Error getting Exchange databases: {0}", ex.ToString());
                             return Negotiate.WithModel(new { error = ex.Message })
                                             .WithStatusCode(HttpStatusCode.InternalServerError);
                         }

@@ -149,8 +149,9 @@
                     "<img src='@Url.Content(Model.branding.LoginLogo)' class='file-preview-image' alt='@Model.branding.Name' title='@Model.branding.Name'>"
                 ],
                 previewFileType: "image",
+                allowedFileTypes: "image",
                 showUpload: false,
-                showRemove: false,
+                showRemove: true,
                 browseClass: "btn btn-success",
                 browseLabel: "Pick Image",
                 browseIcon: '<i class="glyphicon glyphicon-picture"></i>',
@@ -159,16 +160,14 @@
                 removeIcon: '<i class="glyphicon glyphicon-trash"></i>'
             });
 
-            $("#LoginLogo").on("filecleared", function (event) {
-            });
-
             $("#HeaderLogo").fileinput({
                 initialPreview: [
                     "<img src='@Url.Content(Model.branding.HeaderLogo)' class='file-preview-image' alt='@Model.branding.Name' title='@Model.branding.Name'>"
                 ],
                 previewFileType: "image",
+                allowedFileTypes: "image",
                 showUpload: false,
-                showRemove: false,
+                showRemove: true,
                 browseClass: "btn btn-success",
                 browseLabel: "Pick Image",
                 browseIcon: '<i class="glyphicon glyphicon-picture"></i>',

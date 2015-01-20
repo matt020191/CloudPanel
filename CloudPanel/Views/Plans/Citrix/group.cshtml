@@ -94,6 +94,8 @@
                             <th>Name</th>
                             <th>Path</th>
                             <th>Arguments</th>
+                            <th>Is Filtered</th>
+                            <th>Security Group</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -103,6 +105,10 @@
                                 <td>@CloudPanel.Base.DynamicHandlers.GetPropValue(app, "ApplicationName")</td>
                                 <td>@CloudPanel.Base.DynamicHandlers.GetPropValue(app, "CommandLineExecutable")</td>
                                 <td>@CloudPanel.Base.DynamicHandlers.GetPropValue(app, "CommandLineArguments")</td>
+                                <td>@CloudPanel.Base.DynamicHandlers.GetPropValue(app, "UserFilterEnabled")</td>
+                                <td>
+                                    <div id="@CloudPanel.Base.DynamicHandlers.GetPropValue(app, "UUID")" class="editable">@CloudPanel.Base.DynamicHandlers.GetPropValue(app, "SecurityGroup")</div>
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -161,9 +167,16 @@
     <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
     <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
     <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
+    <script src="~/Content/plugins/datatables-1.10.2/extensions/JEditable/jquery.jeditable.mini.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
+
+            // Add our form handlers
             AddFormHandlers();
+
+            // Setup the editable field for the application user filter
+            SetupEditable();
+
             var desktopsTable = $("#desktopsTable").DataTable({
                 "ordering": false,
                 "searching": false,
@@ -289,6 +302,34 @@
                  .always(function () {
 
                  });
+            });
+        }
+
+        function SetupEditable() {
+            $(".editable").editable(function (value, settings) {
+                var id = $(this).attr('id');
+                var isSuccess = false;
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Content("~/plans/citrix/app/")"+id+"/securitygroup",
+                    data: { SecurityGroup: value },
+                    dataType: "JSON"
+                }).done(function () {
+                    isSuccess = true;
+                }).fail(function (error) {
+                    ShowError(error);
+                });
+
+                if (isSuccess)
+                    return (value);
+                else
+                    return (value);
+            },{
+                cancel: 'Cancel',
+                submit: 'OK',
+                indicator: '<img src="@Url.Content("~/Content/img/indicator.gif")">',
+                tooltip: ''
             });
         }
     </script>

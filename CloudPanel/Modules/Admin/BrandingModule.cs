@@ -197,10 +197,10 @@ namespace CloudPanel.Modules
                         }
                     }
 
-                    if (newBranding.HeaderLogo == null)
+                    if (string.IsNullOrEmpty(oldBranding.HeaderLogo))
                         oldBranding.HeaderLogo = "";
 
-                    if (newBranding.LoginLogo == null)
+                    if (string.IsNullOrEmpty(oldBranding.LoginLogo))
                         oldBranding.LoginLogo = "";
 
                     logger.DebugFormat("Saving to the database");

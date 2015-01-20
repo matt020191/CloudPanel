@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Data.Entity;
 using Nancy.Security;
 using Nancy;
 using CloudPanel.Database.EntityFramework;
@@ -29,8 +30,8 @@ namespace CloudPanel.Modules.Admin
                 {
                     db = new CloudPanelContext(Settings.ConnectionString);
 
-                    var databases = (from d in db.SvcMailboxDatabaseSizes
-                                     where d.Retrieved == db.SvcMailboxDatabaseSizes.Max(x => x.Retrieved)
+                    var databases = (from d in db.StatMailboxDatabaseSizes
+                                     where d.Retrieved == db.StatMailboxDatabaseSizes.Max(x => x.Retrieved)
                                      select new MailboxDatabase()
                                      {
                                          Identity = d.DatabaseName,
@@ -73,7 +74,7 @@ namespace CloudPanel.Modules.Admin
                         db = new CloudPanelContext(Settings.ConnectionString);
                         foreach (var d in databases)
                         {
-                            db.SvcMailboxDatabaseSizes.Add(new SvcMailboxDatabaseSizes()
+                            db.StatMailboxDatabaseSizes.Add(new StatMailboxDatabaseSizes()
                             {
                                 DatabaseName = d.Identity,
                                 Server = d.Server,

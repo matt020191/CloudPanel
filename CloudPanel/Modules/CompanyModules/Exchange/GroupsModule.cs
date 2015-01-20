@@ -1,21 +1,19 @@
-﻿using CloudPanel.Base.Config;
+﻿using CloudPanel.Base.AD;
+using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Enums;
+using CloudPanel.Base.Exchange;
+using CloudPanel.Code;
 using CloudPanel.Database.EntityFramework;
+using CloudPanel.Exchange;
 using log4net;
 using Nancy;
-using Nancy.Security;
 using Nancy.ModelBinding;
+using Nancy.Security;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CloudPanel.Exchange;
-using CloudPanel.Base.Exchange;
-using System.Collections.Generic;
-using CloudPanel.Base.AD;
-using CloudPanel.Base.Enums;
-using Nancy.ViewEngines.Razor;
-using System.Text;
-using CloudPanel.Code;
 
 namespace CloudPanel.Modules
 {
@@ -217,10 +215,10 @@ namespace CloudPanel.Modules
                                     {
                                         DisplayName = m.DisplayName,
                                         Email = m.Email,
-                                        Identifier = m.Email,
+                                        Identifier = m.UserGuid.ToString(),
                                         ObjectType = ExchangeValues.User
                                     });
-                                    managedByOriginal.Add(m.Email);
+                                    managedByOriginal.Add(m.UserGuid.ToString());
                                 }
                             }
                             selectors = selectors.OrderBy(x => x.DisplayName).ToList();
@@ -337,9 +335,9 @@ namespace CloudPanel.Modules
                             updateGroup.Email = string.Format("{0}@{1}", updateGroup.EmailFirst.Replace(" ", string.Empty), domain.Domain);
                             updateGroup.CompanyCode = companyCode;
                             updateGroup.ManagedByAdded = updateGroup.ManagedByAdded.Where(x => !string.IsNullOrEmpty(x)).ToArray();
-                            updateGroup.MembersAdded = updateGroup.MembersAdded.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                            updateGroup.MembersAdded = updateGroup.MembersAdded.Except(updateGroup.MembersOriginal).Where(x => !string.IsNullOrEmpty(x)).ToArray();
                             updateGroup.MembersRemoved = updateGroup.MembersRemoved == null ? updateGroup.MembersRemoved : updateGroup.MembersRemoved.Where(x => !string.IsNullOrEmpty(x)).ToArray();
-
+                            
                             logger.DebugFormat("Initializing Exchange powershell");
                             powershell = ExchPowershell.GetClass();
 
@@ -354,7 +352,7 @@ namespace CloudPanel.Modules
                         }
                     }
 
-                    string redirectUrl = string.Format("/company/{0}/exchange/groups", companyCode);
+                    string redirectUrl = string.Format("~/company/{0}/exchange/groups", companyCode);
                     return Negotiate.WithModel(new { success = "Successfully updated group" })
                                     .WithMediaRangeResponse("text/html", this.Response.AsRedirect(redirectUrl));
                 }
@@ -515,7 +513,6 @@ namespace CloudPanel.Modules
                 logger.DebugFormat("Getting mailbox users for {0}", companyCode);
                 var users = (from u in db.Users where u.CompanyCode == companyCode 
                              where u.MailboxPlan > 0
-                             where !string.IsNullOrEmpty(u.Email)
                              orderby u.DisplayName select u).ToList();
 
                 if (users != null)
@@ -528,7 +525,7 @@ namespace CloudPanel.Modules
                                     ObjectType = ExchangeValues.User,
                                     DisplayName = x.DisplayName,
                                     Email = x.Email,
-                                    Identifier = x.Email
+                                    Identifier = x.UserGuid.ToString()
                                 });
                         });
                 }

@@ -120,7 +120,7 @@ namespace CloudPanel.Database.EntityFramework
         public virtual DbSet<Prices> Prices { get; set; }
         public virtual DbSet<ResourceMailboxes> ResourceMailboxes { get; set; }
         public virtual DbSet<Statistics> Statistics { get; set; }
-        public virtual DbSet<SvcMailboxDatabaseSizes> SvcMailboxDatabaseSizes { get; set; }
+        public virtual DbSet<StatMailboxDatabaseSizes> StatMailboxDatabaseSizes { get; set; }
         public virtual DbSet<SvcQueue> SvcQueue { get; set; }
         public virtual DbSet<SvcTask> SvcTask { get; set; }
         public virtual DbSet<UserPermission> UserPermission { get; set; }

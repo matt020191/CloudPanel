@@ -7,6 +7,7 @@ using CloudPanel.Database.EntityFramework;
 using CloudPanel.Rollback;
 using log4net;
 using Nancy;
+using Nancy.Security;
 using System;
 using System.Data.Entity;
 using System.Linq;
@@ -20,6 +21,8 @@ namespace CloudPanel.Modules.PlansModules
 
         public CitrixPlanModule() : base("/plans/citrix")
         {
+            this.RequiresClaims(new[] { "SuperAdmin"});
+
             Get["/", c => c.Request.Accept("text/html")] = _ =>
                 {
                     return View["Plans/Citrix/citrix.cshtml"];
@@ -141,7 +144,7 @@ namespace CloudPanel.Modules.PlansModules
                                                          .Include(x => x.Users)
                                                          .Include(x => x.Applications)
                                                          .Include(x => x.Desktops)
-                                             where d.UUID == d.UUID
+                                             where d.UUID == desktopUUID
                                              select new
                                              {
                                                  Uid = d.Uid,
@@ -162,7 +165,9 @@ namespace CloudPanel.Modules.PlansModules
                                                                      CommandLineArguments = app.CommandLineArguments,
                                                                      Description = app.Description,
                                                                      IsEnabled = app.IsEnabled,
-                                                                     LastRetrieved = app.LastRetrieved
+                                                                     LastRetrieved = app.LastRetrieved,
+                                                                     UserFilterEnabled = app.UserFilterEnabled,
+                                                                     SecurityGroup = app.SecurityGroup
                                                                  }).ToList(),
                                                  Desktops = (from desktop in d.Desktops
                                                              select new
@@ -243,6 +248,78 @@ namespace CloudPanel.Modules.PlansModules
                     {
                         if (xd7 != null)
                             xd7.Dispose();
+                    }
+                    #endregion
+                };
+
+            Post["/app/{UUID:Guid}/securitygroup"] = _ =>
+            {
+                Guid uuid = _.UUID;
+
+                #region Updates the security group for a specific application
+                CloudPanelContext db = null;
+                try
+                {
+                    if (!Request.Form.SecurityGroup.HasValue)
+                        throw new MissingFieldException("", "SecurityGroup");
+
+                    db = new CloudPanelContext(Settings.ConnectionString);
+
+                    var app = db.CitrixApplication
+                                .Where(x => x.UUID == uuid && x.UserFilterEnabled)
+                                .FirstOrDefault();
+                    app.SecurityGroup = Request.Form.SecurityGroup.Value;
+                    db.SaveChanges();
+
+                    return Negotiate.WithModel(new { success = "Successfully updated security group for the application" })
+                                    .WithStatusCode(HttpStatusCode.OK);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error updating security group for the application {0}", uuid);
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
+                }
+                finally
+                {
+                    if (db != null)
+                        db.Dispose();
+                }
+                #endregion
+            };
+
+            Post["/group/{UUID:Guid}/securitygroup"] = _ =>
+                {
+                    Guid uuid = _.UUID;
+
+                    #region Updates the security group for a specific desktop group
+                    CloudPanelContext db = null;
+                    try
+                    {
+                        if (!Request.Form.SecurityGroup.HasValue)
+                            throw new MissingFieldException("", "SecurityGroup");
+
+                        db = new CloudPanelContext(Settings.ConnectionString);
+
+                        var desktopGroup = db.CitrixDesktopGroup
+                                             .Where(x => x.UUID == uuid)
+                                             .FirstOrDefault();
+                        desktopGroup.SecurityGroup = Request.Form.SecurityGroup.Value;
+                        db.SaveChanges();
+
+                        return Negotiate.WithModel(new { success = "Successfully updated security group for desktop group" })
+                                        .WithStatusCode(HttpStatusCode.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error updating security group for desktop group {0}", uuid);
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
                     }
                     #endregion
                 };
@@ -330,7 +407,6 @@ namespace CloudPanel.Modules.PlansModules
         {
             CloudPanelContext db = null;
             ADGroups ad = null;
-            ReverseActions reverse = new ReverseActions();
             try
             {
                 db = new CloudPanelContext(Settings.ConnectionString);
@@ -346,12 +422,12 @@ namespace CloudPanel.Modules.PlansModules
                 {
                     #region New desktop group
                     logger.DebugFormat("Desktop group is new. Creating security group");
-                    var group = CreateSecurityGroup(desktopGroup.Name, desktopGroup.UUID.ToString());
-                    reverse.AddAction(Actions.CreateSecurityGroup, group.Name);
+                    //var group = CreateSecurityGroup(desktopGroup.Name, desktopGroup.UUID.ToString());
+                    //reverse.AddAction(Actions.CreateSecurityGroup, group.Name);
 
-                    logger.DebugFormat("Adding the new security group to the desktop group");
-                    xd7.AddGroupOrUserToDesktopGroup(desktopGroup.Uid, group.SamAccountName);
-                    desktopGroup.SecurityGroup = group.Name;
+                    //logger.DebugFormat("Adding the new security group to the desktop group");
+                    //xd7.AddGroupOrUserToDesktopGroup(desktopGroup.Uid, group.SamAccountName);
+                    //desktopGroup.SecurityGroup = group.Name;
 
                     logger.DebugFormat("Checking applications if they are user filter enabled to create a security group");
                     if (desktopGroup.Applications != null)
@@ -361,14 +437,14 @@ namespace CloudPanel.Modules.PlansModules
                             if (app.UserFilterEnabled)
                             {
                                 // Add security group to the application
-                                var appGroup = CreateSecurityGroup(app.Name, app.UUID.ToString());
-                                reverse.AddAction(Actions.CreateSecurityGroup, appGroup.Name);
+                                //var appGroup = CreateSecurityGroup(app.Name, app.UUID.ToString());
+                                //reverse.AddAction(Actions.CreateSecurityGroup, appGroup.Name);
 
-                                logger.DebugFormat("Adding the new security group to the application");
-                                xd7.AddGroupOrUserToApplication(app.Uid, appGroup.SamAccountName);
+                                //logger.DebugFormat("Adding the new security group to the application");
+                                //xd7.AddGroupOrUserToApplication(app.Uid, appGroup.SamAccountName);
 
                                 // Add to database
-                                app.SecurityGroup = appGroup.Name;
+                                //app.SecurityGroup = appGroup.Name;
                             }
                         }
                     }
@@ -387,7 +463,7 @@ namespace CloudPanel.Modules.PlansModules
                     existingGroup.Description = desktopGroup.Description;
                     existingGroup.LastRetrieved = desktopGroup.LastRetrieved;
 
-                    // Check if the security group is null
+                    /* Check if the security group is null
                     if (string.IsNullOrEmpty(existingGroup.SecurityGroup))
                     {
                         logger.DebugFormat("Desktop group is existing but missing security group. Creating security group");
@@ -398,7 +474,7 @@ namespace CloudPanel.Modules.PlansModules
                         xd7.AddGroupOrUserToDesktopGroup(existingGroup.Uid, group.SamAccountName);
 
                         existingGroup.SecurityGroup = group.Name;
-                    }
+                    }*/
 
                     #region Update desktops
                     if (desktopGroup.Desktops != null && desktopGroup.Desktops.Count > 0)
@@ -450,14 +526,14 @@ namespace CloudPanel.Modules.PlansModules
                             if (app.UserFilterEnabled)
                             {
                                 // Add security group to the application
-                                var appGroup = CreateSecurityGroup(app.Name, app.UUID.ToString());
-                                reverse.AddAction(Actions.CreateSecurityGroup, appGroup.Name);
+                                //var appGroup = CreateSecurityGroup(app.Name, app.UUID.ToString());
+                                //reverse.AddAction(Actions.CreateSecurityGroup, appGroup.Name);
 
-                                logger.DebugFormat("Adding the new security group to the application");
-                                xd7.AddGroupOrUserToApplication(app.Uid, appGroup.SamAccountName);
+                                //logger.DebugFormat("Adding the new security group to the application");
+                                //xd7.AddGroupOrUserToApplication(app.Uid, appGroup.SamAccountName);
 
                                 // Add to database
-                                app.SecurityGroup = appGroup.Name;
+                                //app.SecurityGroup = appGroup.Name;
                             }
                             else
                                 app.SecurityGroup = string.Empty;
@@ -485,14 +561,14 @@ namespace CloudPanel.Modules.PlansModules
                             if (updatedApp.UserFilterEnabled && string.IsNullOrEmpty(app.SecurityGroup))
                             {
                                 // Add security group to the application
-                                var appGroup = CreateSecurityGroup(app.Name, app.UUID.ToString());
-                                reverse.AddAction(Actions.CreateSecurityGroup, appGroup.Name);
+                                //var appGroup = CreateSecurityGroup(app.Name, app.UUID.ToString());
+                                //reverse.AddAction(Actions.CreateSecurityGroup, appGroup.Name);
 
-                                logger.DebugFormat("Adding the new security group to the application");
-                                xd7.AddGroupOrUserToApplication(app.Uid, appGroup.SamAccountName);
+                                //logger.DebugFormat("Adding the new security group to the application");
+                                //xd7.AddGroupOrUserToApplication(app.Uid, appGroup.SamAccountName);
 
                                 // Add to database
-                                app.SecurityGroup = appGroup.Name;
+                                //app.SecurityGroup = appGroup.Name;
                             }
                             else if (!updatedApp.UserFilterEnabled)
                                 app.SecurityGroup = string.Empty; // Clear the security group if no longer filtered
@@ -513,7 +589,7 @@ namespace CloudPanel.Modules.PlansModules
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error importing desktop groups {0}", ex.ToString());
-                reverse.RollbackNow();
+                //reverse.RollbackNow();
                 throw;
             }
             finally
