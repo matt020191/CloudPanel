@@ -1378,7 +1378,6 @@
     <Compile Include="Modules\Dashboard\SuperDashboardModule.cs" />
     <Compile Include="Modules\PlansModules\ActiveSyncPlanModule.cs" />
     <Compile Include="Modules\PlansModules\ArchivePlanModule.cs" />
-    <Compile Include="Modules\PlansModules\CitrixPlanModule.cs" />
     <Compile Include="Modules\Reports\ReportsModule.cs" />
     <Compile Include="Modules\ResellersModule.cs" />
     <Compile Include="Modules\LoginModule.cs" />

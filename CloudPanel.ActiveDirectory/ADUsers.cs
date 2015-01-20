@@ -393,6 +393,38 @@ namespace CloudPanel.ActiveDirectory
         }
 
         /// <summary>
+        /// Gets a user's samAccountName
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
+        public string GetUserSamAccountName(Guid userGuid)
+        {
+            UserPrincipal usr = null;
+            try
+            {
+                pc = GetPrincipalContext();
+
+                logger.DebugFormat("Attempting to retrieve user {0}", userGuid);
+                usr = UserPrincipal.FindByIdentity(pc, IdentityType.Guid, userGuid.ToString());
+
+                if (usr == null)
+                    throw new Exception("Unable to find user " + userGuid);
+
+                return usr.SamAccountName;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error retrieving user samAccountName {0}. Exception: {1}", userGuid, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (usr != null)
+                    usr.Dispose();
+            }
+        }
+
+        /// <summary>
         /// Creates a new Active Directory user
         /// </summary>
         /// <param name="usersOU"></param>

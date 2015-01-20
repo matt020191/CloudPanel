@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace CloudPanel.Modules.CompanyModules
 {
@@ -90,6 +91,9 @@ namespace CloudPanel.Modules.CompanyModules
                         {
                             if (user.Role != null)
                                 logger.DebugFormat("User's permission role id is {0}", user.Role.RoleID);
+
+                            // Update samAccountName if needed
+                            FixSamAccountName(user.UserGuid, user.sAMAccountName);
 
                             return Negotiate.WithModel(user)
                                             .WithStatusCode(HttpStatusCode.OK)
@@ -170,7 +174,7 @@ namespace CloudPanel.Modules.CompanyModules
                         var boundUser = this.Bind<Users>();
 
                         logger.DebugFormat("Setting SQL values");
-                        user.sAMAccountName = boundUser.sAMAccountName;
+                        //user.sAMAccountName = boundUser.sAMAccountName;
                         user.DistinguishedName = boundUser.DistinguishedName;
                         user.DisplayName = boundUser.DisplayName;
                         user.Firstname = boundUser.Firstname;
@@ -217,7 +221,6 @@ namespace CloudPanel.Modules.CompanyModules
                         adUsers.UpdateUser(user);
 
                         db.SaveChanges();
-
 
                         return Negotiate.WithModel(new { success = "Successfully updated user values" })
                                         .WithStatusCode(HttpStatusCode.OK);
@@ -708,6 +711,49 @@ namespace CloudPanel.Modules.CompanyModules
                     }
                     #endregion
                 };
+        }
+
+        /// <summary>
+        /// Fixes the samAccountName missing from the database
+        /// </summary>
+        /// <param name="userPrincipalName"></param>
+        /// <param name="samAccountName"></param>
+        /// <returns></returns>
+        private async void FixSamAccountName(Guid userGuid, string samAccountName)
+        {
+            await Task.Run(() =>
+            {
+                if (!string.IsNullOrEmpty(samAccountName))
+                    logger.DebugFormat("User {0} samAccountName is already set to {1}", userGuid, samAccountName);
+                else
+                {
+                    using (CloudPanelContext db = new CloudPanelContext(Settings.ConnectionString))
+                    {
+                        var user = (from d in db.Users
+                                    where d.UserGuid == userGuid
+                                    select d).Single();
+
+                        ADUsers usr = null;
+                        try
+                        {
+                            usr = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                            string sam = usr.GetUserSamAccountName(userGuid);
+
+                            user.sAMAccountName = sam;
+                            db.SaveChanges();
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.ErrorFormat("Error updating user's samAccountName: {0}", ex.ToString());
+                        }
+                        finally
+                        {
+                            if (usr != null)
+                                usr.Dispose();
+                        }
+                    }
+                }
+            });
         }
 
         #region Exchange Methods
