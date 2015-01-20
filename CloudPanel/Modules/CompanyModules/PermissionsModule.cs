@@ -1,14 +1,17 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
+using CloudPanel.Code;
 using CloudPanel.Database.EntityFramework;
 using log4net;
 using Nancy;
 using Nancy.ModelBinding;
+using Nancy.Security;
 using Nancy.ViewEngines.Razor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Data.Entity;
 
 namespace CloudPanel.Modules
 {
@@ -20,6 +23,8 @@ namespace CloudPanel.Modules
         {
             Get["/new"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vPermission"));
+
                 #region Get roles and show default screen
                 string companyCode = _.CompanyCode;
                 var roles = GetRoles(companyCode);
@@ -31,6 +36,8 @@ namespace CloudPanel.Modules
 
             Post["/new"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "cPermission"));
+
                 #region Create new permissions model
                 CloudPanelContext db = null;
                 try
@@ -67,6 +74,8 @@ namespace CloudPanel.Modules
 
             Get["/{ID:int}"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vPermission"));
+
                 #region Gets a specific permission model
                 CloudPanelContext db = null;
                 try
@@ -105,6 +114,8 @@ namespace CloudPanel.Modules
 
             Post["/{ID:int}"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "ePermission"));
+
                 #region Updates a specific permission model
                 CloudPanelContext db = null;
                 try
@@ -196,6 +207,8 @@ namespace CloudPanel.Modules
 
             Delete["/{ID:int}"] = _ =>
             {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "dPermission"));
+
                 #region Deletes a specific permission model
                 CloudPanelContext db = null;
                 try
@@ -205,28 +218,30 @@ namespace CloudPanel.Modules
 
                     int id = _.ID;
                     string companyCode = _.CompanyCode;
-                    var foundPermission = (from d in db.UserRoles
-                                           where d.CompanyCode == companyCode
-                                           where d.RoleID == id
-                                           select d).FirstOrDefault();
+                    var permission = (from d in db.UserRoles
+                                      where d.CompanyCode == companyCode
+                                      where d.RoleID == id
+                                      select d).Single();
 
-                    logger.DebugFormat("Searching for users using the permissions group {0}", foundPermission.DisplayName);
-                    var usedCount = (from d in db.UserPermission
-                                     where d.RoleID == foundPermission.RoleID
-                                     select d).Count();
-
-                    if (usedCount > 0)
-                        throw new Exception("Unable to remove permissions because it is in use by " + usedCount + " user(s)");
-                    else
+                    logger.WarnFormat("Removing users from the role {0}", permission.RoleID);
+                    var users = (from d in db.Users.Include(x => x.Role)
+                                 where d.CompanyCode == companyCode
+                                 where d.RoleID == permission.RoleID
+                                 select d).ToList();
+                    users.ForEach(x =>
                     {
-                        logger.DebugFormat("Deleting {0} for {1}", id, companyCode);
-                        db.UserRoles.Remove(foundPermission);
-                        db.SaveChanges();
+                        x.IsCompanyAdmin = false;
+                        x.RoleID = null;
+                    });
+                    db.SaveChanges();
 
-                        string redirectUrl = string.Format("~/company/{0}/permissions/new", companyCode);
-                        return Negotiate.WithModel(new { success = "Successfully removed permissions" })
-                                        .WithMediaRangeResponse("text/html", this.Response.AsRedirect(redirectUrl));
-                    }
+                    logger.WarnFormat("Removing role {0}", permission.RoleID);
+                    db.UserRoles.Remove(permission);
+                    db.SaveChanges();
+
+                    string redirectUrl = string.Format("~/company/{0}/permissions/new", companyCode);
+                    return Negotiate.WithModel(new { success = "Successfully removed permissions" })
+                                    .WithMediaRangeResponse("text/html", this.Response.AsRedirect(redirectUrl));
                 }
                 catch (Exception ex)
                 {

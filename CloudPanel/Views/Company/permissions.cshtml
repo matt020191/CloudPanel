@@ -227,7 +227,7 @@
                     </div>
                     <div class="panel-footer">
                         <div class="btn-toolbar text-right">
-                            <button class="btn-danger btn" type="button">Delete</button>
+                            <button class="btn-danger btn" type="button" onclick="javascript: DeleteRole();">Delete</button>
                             <button id="submit" name="submit" class="btn-primary btn" type="submit">Submit</button>
                         </div>
                     </div>
@@ -262,5 +262,23 @@
                     }
                 });
             });
+
+            function DeleteRole()
+            {
+                $.blockUI();
+
+                $.ajax({
+                    type: "DELETE",
+                })
+                .always(function () {
+                    $.unblockUI();
+                })
+                .fail(function(jqXHR,textStatus) {
+                    ShowError(jqXHR);
+                })
+                .done(function () {
+                    window.location = "@Url.Content("~/company/"+RenderContext.Context.Parameters.CompanyCode+"/permissions/new")";
+                });
+            }
     </script>
 }

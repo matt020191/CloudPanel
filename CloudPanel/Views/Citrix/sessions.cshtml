@@ -1,0 +1,207 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@using CloudPanel
+
+@{
+    Layout = "__master.cshtml";
+    var companyCode = this.RenderContext.Context.GetCompanyCode();
+}
+
+@section HEAD{
+    <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
+}
+
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li><a href="#">Citrix</a></li>
+        <li class="active">Sessions</li>
+    </ol>
+
+    <h1>Sessions</h1>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    Current Sessions
+                    <div class="options">
+                        <a href="javascript:GetSessions();"><i class="fa fa-refresh"></i></a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <table id="sessionsTable" cellpadding="0" cellspacing="0" border="0" class="table table-striped datatables">
+                        <thead>
+                            <tr>
+                                <th align="center" width="10px"><input id="SelectAll" type="checkbox" onclick="javascript: CheckboxCol(this);" /></th>
+                                <th>Login</th>
+                                <th>Alt Login</th>
+                                <th>Session State</th>
+                                <th>Start Time</th>
+                                <th>Machine Name</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form id="sendMessage" action="@Url.Content("~/citrix/sendmessage")" method="post" autocomplete="off" data-parsley-validate="true">
+    <div id="sendMessageModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Send Message</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Title</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="Title" name="Title" data-parsley-required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Message Style</label>
+                            <div class="col-sm-9">
+                                <select id="MessageStyle" name="MessageStyle" class="form-control" data-parsley-required="true">
+                                    <option value="Information">Information</option>
+                                    <option value="Exclamation">Exclamation</option>
+                                    <option value="Question">Question</option>
+                                    <option value="Critical">Critical</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusedinput" class="col-sm-3 control-label">Message</label>
+                            <div class="col-sm-9">
+                                <textarea id="Message" name="Message" rows="2" cols="20" class="form-control" data-parsley-required="true"></textarea>
+                                <input id="SessionKeys" name="SessionKeys" type="hidden" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section JAVASCRIPT{
+    <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
+    <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
+    <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
+    <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var table = $("#sessionsTable").DataTable({
+                "dom": "<'row'<'col-xs-6 toolbar'l><'col-xs-6'f>r>t<'row'<'col-xs-6'i><'col-xs-6'p>>",
+                "paging": false
+            });
+            $("div.toolbar").html('<div class="btn-group">\
+                                    <a href="javascript:SendMessage();" class="btn btn-primary btn-sm">Send Message</a>\
+                                    <a href="javascript:LogOff();" class="btn btn-primary btn-sm">Log Off</a>\
+                                   </div>');
+
+            $("#sendMessage").submit(function (event) {
+                event.preventDefault();
+                var data = $("#sendMessage").serialize();
+
+                $.blockUI();
+                $.post($(this).attr('action'), data).done(function (data) {
+                    $("#sendMessageModal").modal("hide");
+                    ShowSuccess(data.success);
+                }).fail(function (returnData) {
+                    ShowError(returnData);
+                }).always(function () {
+                    $.unblockUI();
+                });
+            });
+
+            GetSessions();
+        });
+
+        function CheckboxCol(source) {
+            var table = $('#sessionsTable').DataTable();
+            var cells = table
+                        .cells(".selector")
+                        .nodes();
+            $(cells).find(":checkbox").prop("checked", $(source).is(":checked"));
+        }
+
+        function GetSessions() {
+            $("#sessionsTable").block();
+            $.getJSON("", function (data) {
+                var t = $('#sessionsTable').DataTable();
+                t.clear().draw();
+
+                $.each(data.sessions, function (k, v) {
+                    var row = t.row.add(['<input name="CheckedUsers" type="checkbox" value="' + v.sessionKey + '"/>', v.userUPN, v.userName, v.sessionState, moment(v.startTime).format('lll'), v.machineName]).draw().node();
+                    $(row).closest('tr').find('td:first').addClass("selector").addClass("text-center");
+                })
+            })
+            .fail(function (data) {
+                ShowError(data);
+            })
+            .always(function () {
+                $("#sessionsTable").unblock();
+            });
+        }
+
+        function SendMessage()
+        {
+            var id = "#sessionsTable input[name=CheckedUsers]";
+            var keys = [];
+            $(id).each(function () {
+                if ($(this).is(":checked")) {
+                    keys.push($(this).val());
+                }
+            });
+            $('#SessionKeys').val(keys);
+            $('#sendMessageModal').modal('show')
+
+            console.log(keys);
+        }
+
+        function LogOff() {
+            var id = "#sessionsTable input[name=CheckedUsers]";
+            var keys = [];
+            $(id).each(function () {
+                if ($(this).is(":checked")) {
+                    keys.push($(this).val());
+                }
+            });
+
+            swal({
+                title: "Are you sure?",
+                text: "Are you sure you want to log off the users?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes, log off!",
+                closeOnConfirm: false
+            }, function () {
+                $.post("@Url.Content("~/citrix/logoff")", { 'values': keys })
+                 .fail(function (data) {
+                     ShowError(data);
+                 })
+                 .done(function () {
+                     swal("Logged Off", "Submitted command to log off users", "success");
+                 })
+                 .always(function () {
+                     GetSessions();
+                 });
+            });
+        }
+    </script>
+}

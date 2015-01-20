@@ -1686,10 +1686,11 @@
     <Content Include="Views\Error\401.cshtml" />
     <Content Include="Views\Company\billing.cshtml" />
     <Content Include="Views\Admin\reports.cshtml" />
-    <Content Include="Views\Plans\Citrix\citrix.cshtml" />
-    <Content Include="Views\Plans\Citrix\group.cshtml" />
+    <Content Include="Views\Citrix\citrix.cshtml" />
+    <Content Include="Views\Citrix\group.cshtml" />
     <Content Include="Views\Company\Citrix\sessions.cshtml" />
     <Content Include="Views\Reports\reports.cshtml" />
+    <Content Include="Views\Citrix\sessions.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

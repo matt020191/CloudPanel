@@ -1,0 +1,276 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+@{
+    Layout = "__master.cshtml";
+}
+
+@section HEAD{
+    <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
+    <style type="text/css">
+        span.tab-space {
+            padding-left: 0.5em;
+        }
+        td.details-control {
+	        background: url('@Url.Content("~/Content/img/details_open.png")') no-repeat center center;
+	        cursor: pointer;
+        }
+        tr.shown td.details-control {
+	        background: url('@Url.Content("~/Content/img/details_close.png")') no-repeat center center;
+        }
+    </style>
+}
+
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li class="active">Citrix Plans</li>
+    </ol>
+
+    <h1>Citrix Plans</h1>
+</div>
+
+<form id="form" action="" method="post" data-parsley-validate>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        Desktop Groups
+                        <div class="options">
+                            <a href="javascript:ReloadAll();"><i class="fa fa-refresh"></i></a>
+                        </div>
+                    </div>
+                    <div class="panel-body collapse in">
+                        <table id="groupsTable" cellpadding="0" cellspacing="0" border="0" class="table table-bordered datatables">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Name</th>
+                                    <th><i class="fa fa-building tooltip-ex" data-toggle="toggle" data-original-title="Companies"></i></th>
+                                    <th><i class="fa fa-tablet tooltip-ex" data-toggle="toggle" data-original-title="Desktops"></i></th>
+                                    <th><i class="fa fa-asterisk tooltip-ex" data-toggle="toggle" data-original-title="Applications"></i></th>
+                                    <th><i class="fa fa-user tooltip-ex" data-toggle="toggle" data-original-title="Users"></i></th>
+                                    <th><i class="fa fa-group tooltip-ex" data-toggle="toggle" data-original-title="Security Groups"></i></th>
+                                    <th><i class="fa fa-calendar"></i> Retrieved</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td>Loading...</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="panel-footer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<form id="addCompanyForm" action="" method="post">
+    <div id="addCompanyModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Add Company</h4>
+                </div>
+                <div class="modal-body">
+                    <select id="CompanyCode" name="CompanyCode" class="form-control">
+                        @foreach (var company in CloudPanel.Modules.CompaniesModule.GetCompanies())
+                        {
+                            <option value="@company.CompanyCode">@company.CompanyName</option>
+                        }
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+@section JAVASCRIPT{
+    <script src="~/Content/plugins/datatables-1.10.2/media/js/jquery.dataTables.min.js"></script>
+    <script src="~/Content/plugins/datatables-1.10.2/media/js/dataTables.bootstrap.js"></script>
+    <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
+    <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
+    <script src="~/Content/js/cloudpanel.js"></script>
+    <script src="~/Content/plugins/datatables-1.10.2/extensions/JEditable/jquery.jeditable.mini.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            AddFormHandlers();
+            LoadCitrixPlans();
+        });
+
+        function LoadCitrixPlans() {
+            var groupsTable = $("#groupsTable").DataTable({
+                "dom": "<'row'<'col-xs-6'l><'col-xs-6'f>r>t<'row'<'col-xs-6'i><'col-xs-6'p>>",
+                "autoWidth": false,
+                "language": {
+                    "lengthMenu": "_MENU_ records per page",
+                    "search": ""
+                },
+                "initComplete": function (settings, json) {
+                    SetupEditable();
+                },
+                "paging": false,
+                "order": [[1, 'asc']],
+                "serverSide": true,
+                "processing": true,
+                "ajax": {
+                    type: 'GET',
+                    url: "",
+                    dataType: 'json',
+                    error: function (xhr) {
+                        console.log(xhr);
+                        ShowError(xhr);
+                    }
+                },
+                "columns": [
+                   { "data": "uid", "class": "details-control", "orderable": false, "defaultContent": "", "render": function () { return "" } },
+                   { "data": "name", "render": function (data, type, full, meta) { return '<a href="@Url.Content("~/citrix/group/")' + full["uUID"] + '">' + data + '</a>' } },
+                   { "data": "companyCount" },
+                   { "data": "desktopCount" },
+                   { "data": "applicationCount" },
+                   { "data": "totalUsers" },
+                   { "data": "securityGroup", "render": function (data, type, full, meta) { return '<div id="'+full["uUID"]+'" class="editable">'+data+'</div>' } },
+                   { "data": "lastRetrieved", "render": function (data, type, full, meta) { return moment(data).format('lll'); } },
+                ]
+            });
+
+            // Renders child rows
+            $('#groupsTable tbody').on('click', 'td.details-control', function () {
+                var tr = $(this).closest('tr');
+                var row = groupsTable.row(tr);
+
+                if (row.child.isShown()) {
+                    row.child.hide();
+                    tr.removeClass('shown');
+                }
+                else {
+                    row.child(FormatChildTable(row.data())).show();
+                    tr.addClass('shown');
+                }
+            });
+        }
+
+        function FormatChildTable(d) {
+            var companyPanel = '<div style="float: right">\
+                                    <div class="btn-group">\
+                                        <button type="button" class="btn btn-sm btn-default" onclick="javascript: AddCompany(\''+ d.uUID + '\');">Add Company</button>\
+                                    </div>\
+                                </div>\
+                                <h3>Companies</h3><div class="panel-body"><div class="list-group">';
+            if (d.companies.length) {
+                $.each(d.companies, function (k, v) {
+                    companyPanel += '<a href="javascript: DeleteCompany(\'' + d.uUID + '\', \'' + v.companyCode + '\')" class="list-group-item"><span class="badge badge-danger">Delete</span> <i class="fa fa-building"></i> ' + v.companyName + ' </a>';
+                });
+            }
+            companyPanel += '</div></div><br/><br/>';
+
+            return companyPanel;
+        }
+
+        function ReloadAll() {
+            $.blockUI();
+            $.getJSON(window.location.href + "/all", function () {
+                ReloadTable("groupsTable");
+                ShowSuccess("Successfully updated desktop groups");
+            })
+            .always(function () {
+                $.unblockUI();
+            })
+            .fail(function (data) {
+                ShowError(data);
+            });
+        }
+
+        function AddCompany(uuid) {
+            $("#addCompanyForm").attr("action", "@Url.Content("~/citrix/group/")" + uuid + "/add");
+            $("#addCompanyModal").modal("show");
+        }
+
+        function DeleteCompany(uuid, companyCode) {
+            swal({
+                title: "Are you sure?",
+                text: "All users must be removed from the delivery group before deleting.",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes, delete it!",
+                closeOnConfirm: false
+            }, function () {
+                $.blockUI();
+                $.post("@Url.Content("~/citrix/group/")" + uuid + "/delete", { CompanyCode: companyCode })
+                  .done(function () {
+                      var table = $("#groupsTable").DataTable();
+                      table.ajax.reload();
+
+                      swal("Deleted!", "Successfully removed company from delivery group.", "success");
+                  }).fail(function (returnData) {
+                      ShowError(returnData);
+                  }).always(function () {
+                      $.unblockUI();
+                  });
+            });
+        }
+
+        function SetupEditable() {
+            $(".editable").editable(function (value, settings) {
+                var id = $(this).attr('id');
+                var isSuccess = false;
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Content("~/citrix/group/")"+id+"/securitygroup",
+                    data: { SecurityGroup: value },
+                    dataType: "JSON"
+                }).done(function () {
+                    isSuccess = true;
+                }).fail(function (error) {
+                    ShowError(error);
+                });
+
+                if (isSuccess)
+                    return (value);
+                else
+                    return (value);
+                },{
+                    cancel: 'Cancel',
+                    submit: 'OK',
+                    indicator: '<img src="@Url.Content("~/Content/img/indicator.gif")">',
+                    tooltip: 'Click to edit...'
+                });
+        }
+
+        function AddFormHandlers() {
+            $("#addCompanyForm").submit(function (event) {
+                event.preventDefault();
+                var data = $("#addCompanyForm").serialize();
+
+                $.blockUI();
+                $.post($("#addCompanyForm").attr("action"), data).done(function (data) {
+                    $("#addCompanyModal").modal("hide");
+                    ShowSuccess(data.success);
+                }).fail(function (returnData) {
+                    ShowError(returnData);
+                }).always(function () {
+                    $.unblockUI();
+                });
+            });
+        }
+</script>
+}

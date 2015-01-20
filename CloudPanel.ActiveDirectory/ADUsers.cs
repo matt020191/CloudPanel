@@ -712,7 +712,8 @@ namespace CloudPanel.ActiveDirectory
 
                 if (usr != null)
                 {
-                    usr.Delete();
+                    var directoryEntry = usr.GetUnderlyingObject() as DirectoryEntry;
+                    directoryEntry.DeleteTree();
                     logger.InfoFormat("Successfully deleted user {0}", userGuid);
                 }
                 else

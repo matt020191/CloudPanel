@@ -28,36 +28,42 @@
             @if (isSuperAdmin)
             {
                 <li>
+                    <a href="javascript:;"><i class="fa fa-cubes"></i> <span>Modules</span></a>
+                    <ul class="acc-menu">
+                        @if (Settings.CitrixModule)
+                        {
+                            <li>
+                                <a href="javascript:;">Citrix</a>
+                                <ul class="acc-menu">
+                                    <li><a href="~/citrix">Desktop Groups</a></li>
+                                    <li><a href="~/citrix/sessions">All Sessions</a></li>
+                                </ul>
+                            </li>
+                        }
+                        <li><a href="~/admin/brandings/new">Company Branding</a></li>
+                        <li><a href="~/admin/email">Mass Email</a></li>
+                    </ul>
+                </li>
+                
+                <li>
                     <a href="javascript:;"><i class="fa fa-pencil"></i> <span>Plans</span> </a>
                     <ul class="acc-menu">
                         <li><a href="~/plans/company/new">Company</a></li>
-                        @if (Settings.CitrixModule)
-                        {
-                            <li><a href="~/plans/citrix">Citrix</a></li>
-                        }
                         @if (Settings.ExchangeModule)
                         {
                             <li>
                                 <a href="javascript:;">Exchange</a>
                                 <ul class="acc-menu">
-                                    <li><a href="~/plans/exchange/activesync/new">Activesync Plans</a></li>
-                                    <li><a href="~/plans/exchange/archiving/new">Archiving Plans</a></li>
-                                    <li><a href="~/plans/exchange/mailbox/new">Mailbox Plans</a></li>
+                                    <li><a href="~/plans/exchange/activesync/new">Activesync</a></li>
+                                    <li><a href="~/plans/exchange/archiving/new">Archiving</a></li>
+                                    <li><a href="~/plans/exchange/mailbox/new">Mailbox</a></li>
                                 </ul>
                             </li>
                         }
                     </ul>
                 </li>
                 <li><a href="~/reports"><i class="fa fa-bar-chart-o"></i> <span>Reports</span></a></li>
-                <li><a href="~/admin/settings"><i class="fa fa-gears"></i> <span>Settings</span></a></li>
             }
-            <li>
-                <a href="javascript:;"><i class="fa fa-outdent"></i> <span>Other</span> </a>
-                <ul class="acc-menu">
-                    <li><a href="~/admin/brandings/new">Company Brandings</a></li>
-                    <li><a href="~/admin/email">Mass Email</a></li>
-                </ul>
-            </li>
             <li class="divider"></li>
         }
         @if (!string.IsNullOrEmpty(companyCode)) { 

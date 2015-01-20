@@ -31,7 +31,6 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
                     this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
 
                     string companyCode = _.CompanyCode;
-
                     #region Gets sessions for all destop groups the user is assigned
                     CloudPanelContext db = null;
                     XenDesktop7 xd7 = null;
@@ -59,10 +58,10 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
                                 {
                                     sessions.ForEach(s =>
                                         {
-                                            //if (users.Any(u => u.UserPrincipalName.Equals(s.UserUPN, StringComparison.CurrentCultureIgnoreCase)))
-                                            //{
+                                            if (users.Any(u => u.UserPrincipalName.Equals(s.UserUPN, StringComparison.CurrentCultureIgnoreCase)))
+                                            {
                                                 brokerSessions.Add(s);
-                                            //}
+                                            }
                                         });
                                 }
                             });
