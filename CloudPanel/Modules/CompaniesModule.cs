@@ -79,7 +79,11 @@ namespace CloudPanel.Modules
                         {
                             companies = (from d in companies
                                          where d.CompanyCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                               d.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1
+                                               d.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                               (d.City.Length > 0 && d.City.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
+                                               (d.State.Length > 0 && d.State.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
+                                               (d.ZipCode.Length > 0 && d.ZipCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
+                                               (d.Country.Length > 0 && d.Country.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) 
                                          select d).ToList();
                             recordsFiltered = companies.Count;
                         }
