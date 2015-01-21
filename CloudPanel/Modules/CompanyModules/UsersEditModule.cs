@@ -258,8 +258,8 @@ namespace CloudPanel.Modules.CompanyModules
                     CloudPanelContext db = null;
                     try
                     {
-                        if (!Request.Form.Password.HasValue)
-                            throw new MissingFieldException("", "Password");
+                        if (!Request.Form.Pwd.HasValue)
+                            throw new MissingFieldException("", "Pwd");
 
                         db = new CloudPanelContext(Settings.ConnectionString);
                         var user = (from d in db.Users
@@ -271,7 +271,7 @@ namespace CloudPanel.Modules.CompanyModules
                         else
                         {
                             adUser = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-                            adUser.ResetPassword(userGuid, Request.Form.Password);
+                            adUser.ResetPassword(userGuid, Request.Form.Pwd);
                         }
 
                         return Negotiate.WithModel(new { success = "Successfully reset password for " + user.UserPrincipalName });
@@ -639,10 +639,11 @@ namespace CloudPanel.Modules.CompanyModules
                                     where d.UserGuid == userGuid
                                     select d).FirstOrDefault();
 
-                        logger.DebugFormat("Binding the user to the form for litigation hold");
+                        logger.DebugFormat("Binding the user to the form for archiving");
                         var boundUser = this.Bind<Users>();
                         boundUser.UserGuid = userGuid;
 
+                        logger.DebugFormat("Archive setting for {0} old value is {1} and new value is {2}", user.UserGuid, user.ArchivePlan, boundUser.ArchivePlan);
                         if (user.ArchivePlan > 0 && boundUser.ArchivePlan == 0)
                         {
                             logger.DebugFormat("Disabling archive mailbox for {0}", userGuid);
@@ -671,7 +672,7 @@ namespace CloudPanel.Modules.CompanyModules
                                 db.SaveChanges();
                             }
                         }
-                        else if (user.ArchivePlan < 1 && boundUser.ArchivePlan > 0)
+                        else if ( (user.ArchivePlan == null || user.ArchivePlan ==0) && boundUser.ArchivePlan > 0)
                         {
                             logger.DebugFormat("Enabling archive mailbox for {0}", userGuid);
                             var plan = (from d in db.Plans_ExchangeArchiving

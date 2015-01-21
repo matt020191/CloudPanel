@@ -90,6 +90,9 @@ namespace CloudPanel
 
                 // Authenticate the user
                 var authenticatedUser = user.AuthenticateQuickly(username, password);
+                if (authenticatedUser == null)
+                    throw new Exception("Login failed. Please try again or contact support.");
+
                 var authUser = new AuthenticatedUser()
                 {
                     UserGuid = authenticatedUser.UserGuid,

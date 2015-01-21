@@ -464,7 +464,9 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                         {
                             resultName = string.Format("{0} [Litigation Hold]", sqlUser.UserPrincipalName);
 
-                            powershell.Set_LitigationHold(sqlUser.UserGuid, isEnabled, url, message, owner, null);
+                            powershell.Set_LitigationHold(sqlUser.UserGuid, isEnabled, url, message);
+                            sqlUser.LitigationHoldEnabled = isEnabled == null ? false : (bool)isEnabled;
+
                             results.Add(resultName, "Successfully updated litigation hold settings");
                         }
                     }
@@ -474,6 +476,8 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                         results.Add(resultName, ex.Message);
                     }
                 }
+
+                db.SaveChanges();
 
                 // Return our results to the calling method to display to the user
                 return results;
@@ -524,6 +528,8 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                 foreach (var u in userGuids)
                 {
                     string resultName = string.Format("{0} [Archive]", u);
+
+                    ReverseActions reverse = new ReverseActions();
                     try
                     {
                         //
@@ -547,6 +553,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                             {
                                 logger.DebugFormat("Enabling archive mailbox for {0}", u);
                                 powershell.Enable_ArchiveMailbox(sqlUser.UserGuid, archiveName, string.Empty);
+                                reverse.AddAction(Actions.CreateArchiveMailbox, sqlUser.UserGuid);
                             }
                             else if (isEnabled == false) // Archiving is being disabled
                             {
@@ -571,6 +578,8 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     {
                         logger.ErrorFormat("Error updating archive for {0}: {1}", u, ex.ToString());
                         results.Add(resultName, ex.Message);
+
+                        reverse.RollbackNow();
                     }
                 }
 
