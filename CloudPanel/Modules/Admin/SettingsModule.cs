@@ -81,6 +81,7 @@ namespace CloudPanel.Modules.Admin
                             StaticSettings.SaveSetting("Exchange", "ExchangeServer", Request.Form.ExchangeServer.Value);
                             StaticSettings.SaveSetting("Exchange", "ExchangePFServer", Request.Form.ExchangePFServer.Value);
                             StaticSettings.SaveSetting("Exchange", "ExchangePFEnabled", Request.Form.ExchangePFEnabled.HasValue ? (string)Request.Form.ExchangePFEnabled.Value : "false");
+                            StaticSettings.SaveSetting("Exchange", "ExchangeArchivingEnabled", Request.Form.ExchangeArchivingEnabled.HasValue ? (string)Request.Form.ExchangeArchivingEnabled.Value : "false");
                             StaticSettings.SaveSetting("Exchange", "ExchangeVersion", Request.Form.ExchangeVersion.Value);
                             StaticSettings.SaveSetting("Exchange", "ExchangeConnection", Request.Form.ExchangeConnection.Value);
                             StaticSettings.SaveSetting("Exchange", "ExchangeMaxAliases", Request.Form.ExchangeMaxAliases.Value);

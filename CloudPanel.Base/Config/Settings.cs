@@ -75,6 +75,8 @@ namespace CloudPanel.Base.Config
 
         public static bool ExchangePFEnabled { get; set; }
 
+        public static bool ExchangeArchivingEnabled { get; set; }
+
         public static string ExchangeConnection { get; set; }
 
         public static string[] ExchangeDatabases { get; set; }

@@ -118,7 +118,7 @@
                         <div class="form-group">
                             <label for="focusedinput" class="col-sm-3 control-label">Password</label>
                             <div class="col-sm-9">
-                                <input type="password" class="form-control" id="Password" name="Password" data-parsley-required="true">
+                                <input type="password" class="form-control" id="Pwd" name="Pwd" data-parsley-required="true">
                             </div>
                         </div>
                         <div class="form-group">
@@ -157,7 +157,7 @@
                         <div class="form-group">
                             <label for="focusedinput" class="col-sm-3 control-label">New Password</label>
                             <div class="col-sm-9">
-                                <input type="password" class="form-control" id="Password" name="Password" data-parsley-required="true">
+                                <input type="password" class="form-control" id="Pwd" name="Pwd" data-parsley-required="true">
                                 <input id="GeneratePassword" name="GeneratePassword" type="checkbox" /> Generate Password
                                 <input id="UserGuid" name="UserGuid" type="hidden" data-parsley-required="true" />
                             </div>
@@ -330,7 +330,7 @@
             $("input:checkbox[name=GeneratePassword]").change(function () {
                 var checked = this.checked;
 
-                $("[name=Password]").each(function () {
+                $("[name=Pwd]").each(function () {
                     if (checked) {
                         $(this).attr("type", "input");
                         $(this).val($.password(12, false));

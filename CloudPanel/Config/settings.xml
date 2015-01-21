@@ -18,6 +18,7 @@
     <ExchangeServer>EXCH2013.lab.local</ExchangeServer>
     <ExchangePFServer>EXCH2013.lab.local</ExchangePFServer>
     <ExchangePFEnabled>true</ExchangePFEnabled>
+    <ExchangeArchivingEnabled>true</ExchangeArchivingEnabled>
     <ExchangeVersion>2013</ExchangeVersion>
     <ExchangeSSL>true</ExchangeSSL>
     <ExchangeMaxAliases>10</ExchangeMaxAliases>

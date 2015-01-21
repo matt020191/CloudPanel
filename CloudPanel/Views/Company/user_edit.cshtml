@@ -1,5 +1,6 @@
 ﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
 @using CloudPanel
+@using CloudPanel.Base.Config
 
 @{
     Layout = "__master.cshtml";
@@ -106,13 +107,13 @@
                             <div class="tab-container tab-success">
                                 <ul class="nav nav-tabs">
                                     <li class="active"><a href="#user" data-toggle="tab">User</a></li>
-                                    @if (CloudPanel.CPStaticHelpers.IsExchangeEnabled(companyCode)) {
+                                    @if (Model.ExchEnabled == true) {
                                         <li class="dropdown">
                                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">Email <span class="caret"></span></a>
                                             <ul class="dropdown-menu">
                                                 <li><a href="#mailbox" data-toggle="tab" onclick="javascript:GetMailbox();">Edit</a></li>
                                                 <li><a href="#litigationhold" data-toggle="tab" onclick="javascript:GetLitigationHold();">Litigation Hold</a></li>
-                                                <li><a href="#archiving" data-toggle="tab" onclick="javascript:GetArchiving();">Archiving</a></li>
+                                                @if (Settings.ExchangeArchivingEnabled == true) { <li><a href="#archiving" data-toggle="tab" onclick="javascript:GetArchiving();">Archiving</a></li> }
                                             </ul>
                                         </li>
                                     }
@@ -121,7 +122,7 @@
                                     <!-- USER SECTION -->
                                     <div class="tab-pane clearfix active" id="user">
                                         <div class="col-md-12">
-                                            <form id="userForm" action="" method="post" class="form-horizontal" data-parsley-validate="true">
+                                            <form id="userForm" action="" method="post" autocomplete="off" class="form-horizontal" data-parsley-validate="true">
 
                                                 <div class="panel-group panel-info" id="accordion">
                                                     <div class="panel panel-default">
@@ -210,7 +211,7 @@
                                                                                 <option value="0">Not a Company Admin</option>
                                                                                 @foreach (var r in CloudPanel.Modules.PermissionsModule.GetRoles(companyCode))
                                                                                 {
-                                                                                    <option value="@r.RoleID" @( (Model.Role != null && Model.Role.RoleID == r.RoleID) ? "selected" : "" )>@r.DisplayName</option>
+                                                                                    <option value="@r.RoleID" @( (Model.Role != null && Model.Role.RoleID == r.RoleID) ? "selected" : "")>@r.DisplayName</option>
                                                                                 }
                                                                             </select>
                                                                         </div>
@@ -345,13 +346,14 @@
                                                     </div>
                                                 </div>
                                             </form>
+
                                         </div>
                                     </div>
                                     <!-- END USER SECTION -->
 
                                     <!-- MAILBOX SECTION -->
                                     <div class="tab-pane clearfix" id="mailbox">
-                                        <form id="mailboxForm" action="" method="post" class="form-horizontal" data-parsley-validate="true">
+                                        <form id="mailboxForm" action="" method="post" autocomplete="off" class="form-horizontal" data-parsley-validate="true">
                                             <div class="col-md-12">
                                                 <div class="form-group">
                                                     <label class="col-sm-10 control-label">Mailbox Enabled:</label>
@@ -389,7 +391,7 @@
                                                                             data-min="@plan.MailboxSizeMB"
                                                                             data-max="@(plan.MaxMailboxSizeMB > plan.MailboxSizeMB ? plan.MaxMailboxSizeMB : plan.MailboxSizeMB)"
                                                                             data-description="@plan.MailboxPlanDesc"
-                                                                            @(Model.MailboxPlan == plan.MailboxPlanID ? "selected" : "" )>
+                                                                            @(Model.MailboxPlan == plan.MailboxPlanID ? "selected" : "")>
                                                                         @plan.MailboxPlanName
                                                                     </option>
                                                                 }
@@ -429,8 +431,8 @@
                                                             <select id="EmailFullAccess" name="EmailFullAccess" class="populate" style="width: 100%" multiple>
                                                                 @foreach (var user in mailboxUsers)
                                                                 {
-                                                                if (!string.IsNullOrEmpty(user.sAMAccountName))
-                                                                    <option value="@user.sAMAccountName">@user.DisplayName</option>
+                                                                    if (!string.IsNullOrEmpty(user.sAMAccountName))
+                                                                        <option value="@user.sAMAccountName">@user.DisplayName</option>
                                                                 }
                                                             </select>
                                                             <br />
@@ -444,8 +446,8 @@
                                                             <select id="EmailSendAs" name="EmailSendAs" class="populate" style="width: 100%" multiple>
                                                                 @foreach (var user in mailboxUsers)
                                                                 {
-                                                                if (!string.IsNullOrEmpty(user.sAMAccountName))
-                                                                    <option value="@user.sAMAccountName">@user.DisplayName</option>
+                                                                    if (!string.IsNullOrEmpty(user.sAMAccountName))
+                                                                        <option value="@user.sAMAccountName">@user.DisplayName</option>
                                                                 }
                                                             </select>
                                                             <input id="EmailSendAsOriginal" name="EmailSendAsOriginal" type="hidden" value="" />
@@ -457,8 +459,8 @@
                                                             <select id="EmailSendOnBehalf" name="EmailSendOnBehalf" class="populate" style="width: 100%" multiple>
                                                                 @foreach (var user in mailboxUsers)
                                                                 {
-                                                                if (!string.IsNullOrEmpty(user.sAMAccountName))
-                                                                    <option value="@user.CanoncialName">@user.DisplayName</option>
+                                                                    if (!string.IsNullOrEmpty(user.sAMAccountName))
+                                                                        <option value="@user.CanoncialName">@user.DisplayName</option>
                                                                 }
                                                             </select>
                                                         </div>
@@ -473,7 +475,8 @@
                                                             <select id="ForwardTo" name="ForwardTo" class="populate" style="width: 100%">
                                                                 <option value="0">Forwarding Disabled</option>
                                                                 <optgroup label="Users">
-                                                                    @if (mailboxUsers != null) {
+                                                                    @if (mailboxUsers != null)
+                                                                    {
                                                                         foreach (var user in mailboxUsers)
                                                                         {
                                                                             <option value="@user.CanoncialName">@user.DisplayName</option>
@@ -481,7 +484,8 @@
                                                                     }
                                                                 </optgroup>
                                                                 <optgroup label="Contacts">
-                                                                    @if (contacts != null ) {
+                                                                    @if (contacts != null)
+                                                                    {
                                                                         foreach (var contact in contacts)
                                                                         {
                                                                             <option value="@contact.CanoncialName">@contact.DisplayName</option>
@@ -489,15 +493,17 @@
                                                                     }
                                                                 </optgroup>
                                                                 <optgroup label="Groups">
-                                                                    @if (groups != null) {
-                                                                    foreach (var group in groups)
+                                                                    @if (groups != null)
                                                                     {
-                                                                        <option value="@group.CanonicalName">@group.DisplayName</option>
-                                                                    }
+                                                                        foreach (var group in groups)
+                                                                        {
+                                                                            <option value="@group.CanonicalName">@group.DisplayName</option>
+                                                                        }
                                                                     }
                                                                 </optgroup>
                                                                 <optgroup label="Resources">
-                                                                    @if (resourceMailboxes != null) {
+                                                                    @if (resourceMailboxes != null)
+                                                                    {
                                                                         foreach (var resource in resourceMailboxes)
                                                                         {
                                                                             <option value="@resource.CanonicalName">@resource.DisplayName</option>
@@ -519,7 +525,7 @@
 
                                     <!-- LITIGATION HOLD SECTION -->
                                     <div class="tab-pane clearfix" id="litigationhold">
-                                        <form id="litigationholdForm" action="" method="post" class="form-horizontal" data-parsley-validate="true">
+                                        <form id="litigationholdForm" action="" method="post" autocomplete="off" class="form-horizontal" data-parsley-validate="true">
                                             <div class="col-md-12">
                                                 <div class="form-group">
                                                     <label class="col-sm-11 control-label">Litigation Hold Enabled:</label>
@@ -552,18 +558,13 @@
 
                                     <!-- ARCHIVING SECTION -->
                                     <div class="tab-pane clearfix" id="archiving">
-                                        <form id="archivingForm" action="" method="post" class="form-horizontal" data-parsley-validate="true">
+                                        <form id="archivingForm" action="" method="post" autocomplete="off" class="form-horizontal" data-parsley-validate="true">
                                             <div class="col-md-12">
-                                                <div class="form-group">
-                                                    <label class="col-sm-11 control-label">Archiving Enabled:</label>
-                                                    <div class="col-sm-1 control-label">
-                                                        <input id="ArchivingEnabled" name="ArchivingEnabled" type="checkbox" @( (Model.MailboxPlan > 0 && Model.ArchivePlan > 0) ? "value='true' checked": "false") />
-                                                    </div>
-                                                </div>
                                                 <div class="form-group">
                                                     <label for="smallinput" class="col-sm-3 control-label">Plan</label>
                                                     <div class="col-sm-6">
                                                         <select id="ArchivePlan" name="ArchivePlan" class="form-control input-sm">
+                                                            <option value="0" @(Model.ArchivePlan > 0 ? "" : "selected")>Archiving Disabled</option>
                                                             @foreach (var plan in CloudPanel.Modules.PlansModules.ArchivePlanModule.GetArchivePlans(companyCode))
                                                             {
                                                                 <option value="@plan.ArchivingID" 
@@ -803,6 +804,9 @@
 
         // Query data from Exchange for archive mailbox settings
         function GetArchiving() {
+            if (mailboxUpdated == false)
+                GetMailbox();
+
             archivingUpdated = true;
         }
 

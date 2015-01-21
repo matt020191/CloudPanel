@@ -13,9 +13,9 @@ using Nancy.Security;
 using Nancy.ViewEngines.Razor;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
-using System.Data.Entity;
 using System.Threading.Tasks;
 
 namespace CloudPanel.Modules.CompanyModules
@@ -45,6 +45,8 @@ namespace CloudPanel.Modules.CompanyModules
 
                         logger.DebugFormat("Querying the database for {0}", userGuid);
                         var user = (from d in db.Users.Include(x => x.Role)
+                                    join c in db.Companies on d.CompanyCode equals c.CompanyCode into c1
+                                    from company in c1.DefaultIfEmpty()
                                     where d.CompanyCode == companyCode
                                     where d.UserGuid == userGuid
                                     select new
@@ -82,7 +84,9 @@ namespace CloudPanel.Modules.CompanyModules
                                         ArchivePlan = d.ArchivePlan,
                                         Notes = d.Notes,
                                         AdditionalMB = d.AdditionalMB == null ? 0 : (int)d.AdditionalMB,
-                                        Role = d.Role
+                                        Role = d.Role,
+                                        CompanyName = company.CompanyName,
+                                        ExchEnabled = company.ExchEnabled
                                     }).FirstOrDefault();
 
                         if (user == null)
@@ -782,7 +786,9 @@ namespace CloudPanel.Modules.CompanyModules
                         var aliasDomain = adjustedAlias.Split('@')[1];
                         if (validDomains.Any(x => x.Domain.Equals(aliasDomain, StringComparison.InvariantCultureIgnoreCase)))
                         {
-                            if (!alias.StartsWith("sip:") && !alias.StartsWith("X500") && !alias.StartsWith("X400"))
+                            if (!alias.StartsWith("sip:", StringComparison.InvariantCultureIgnoreCase) && 
+                                !alias.StartsWith("X500", StringComparison.InvariantCultureIgnoreCase) && 
+                                !alias.StartsWith("X400", StringComparison.InvariantCultureIgnoreCase))
                                 validatedList.Add("smtp:" + adjustedAlias);
                             else
                                 validatedList.Add(adjustedAlias);

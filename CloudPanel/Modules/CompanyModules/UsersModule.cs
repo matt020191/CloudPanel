@@ -167,8 +167,8 @@ namespace CloudPanel.Modules
                     if (!Request.Form.DomainID.HasValue)
                         throw new Exception("DomainID is a required field");
 
-                    if (!Request.Form.Password.HasValue)
-                        throw new Exception("Password is a required field");
+                    if (!Request.Form.Pwd.HasValue)
+                        throw new Exception("Pwd is a required field");
 
                     if (!CloudPanel.CPStaticHelpers.IsUnderLimit(_.CompanyCode, "user"))
                         throw new Exception("You have reached the user limit.");
@@ -242,7 +242,7 @@ namespace CloudPanel.Modules
                             {
                                 logger.DebugFormat("Creating user in Active Directory now");
                                 adUsers = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-                                newUser = adUsers.Create(Settings.UsersOuPath(company.DistinguishedName), Request.Form.Password, newUser);
+                                newUser = adUsers.Create(Settings.UsersOuPath(company.DistinguishedName), Request.Form.Pwd, newUser);
                                 reverse.AddAction(Actions.AddUsers, newUser.UserPrincipalName);
 
                                 logger.DebugFormat("User {0} created in Active Directory. Adding to the AllUsers security group", upn);
