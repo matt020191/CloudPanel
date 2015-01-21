@@ -279,6 +279,8 @@ namespace CloudPanel.Base.Config
             set { _applicationsouname = value; }
         }
 
+        public static int SamAccountNameFormat { get; set; }
+
         #endregion
 
         #region Other Getters & Setters

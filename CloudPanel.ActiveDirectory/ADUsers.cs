@@ -2,6 +2,7 @@
 using CloudPanel.Base.Database.Models;
 using log4net;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
@@ -431,7 +432,7 @@ namespace CloudPanel.ActiveDirectory
         /// <param name="clearTextPassword"></param>
         /// <param name="userObject"></param>
         /// <returns></returns>
-        public Users Create(string usersOU, string clearTextPassword, Users userObject)
+        public Users Create(string usersOU, string clearTextPassword, Users userObject, int samAccountNameFormat = 0)
         {
             PrincipalContext ctx = null;
             UserPrincipalExt usr = null;
@@ -466,7 +467,7 @@ namespace CloudPanel.ActiveDirectory
 
                 // Now we can create the user!
                 logger.DebugFormat("User doesn't exist. Continuing...");
-                userObject.sAMAccountName = GetAvailableSamAccountName(userObject.UserPrincipalName);
+                userObject.sAMAccountName = GetAvailableSamAccountName(userObject.UserPrincipalName, samAccountNameFormat);
                 ctx = new PrincipalContext(ContextType.Domain, this._domainController, usersOU, this._username, this._password); // Used for creating new user
                 
                 usr = new UserPrincipalExt(ctx, userObject.sAMAccountName, clearTextPassword, true);
@@ -668,7 +669,7 @@ namespace CloudPanel.ActiveDirectory
         /// <param name="newUpn">New UserPrincipalNAme</param>
         /// <param name="newSamAccountName">New SamAcocuntName. If this is null then it will automatically generate it</param>
         /// <param name="name">"Name". If this is null then it will automatically use the new UserPrincipalName</param>
-        public Users ChangeLogin(Guid userGuid, string newUpn, string newSamAccountName = null, string name = null)
+        public Users ChangeLogin(Guid userGuid, string newUpn, string newSamAccountName = null, string name = null, int samAccountNameFormat = 0)
         {
             UserPrincipal usr = null;
 
@@ -681,7 +682,7 @@ namespace CloudPanel.ActiveDirectory
                     throw new MissingFieldException("", "newUpn");
 
                 if (string.IsNullOrEmpty(newSamAccountName))
-                    newSamAccountName = GetAvailableSamAccountName(newUpn);
+                    newSamAccountName = GetAvailableSamAccountName(newUpn, samAccountNameFormat);
 
                 logger.DebugFormat("Changing user {0}'s login to {1}", userGuid, newUpn);
 
@@ -1104,36 +1105,52 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
-        private string GetAvailableSamAccountName(string userPrincipalName)
+        private string GetAvailableSamAccountName(string userPrincipalName, int samAccountNameFormat)
         {
             DirectorySearcher ds = null;
 
             try
             {
-                logger.DebugFormat("Attempting to find an available sAMAccountName for {0}.", userPrincipalName);
+                logger.DebugFormat("Attempting to find an available sAMAccountName for {0} with format {1}.", userPrincipalName, samAccountNameFormat);
 
+                // Invalid characters
+                string strippedUpn = new string(userPrincipalName.Where(x => char.IsLetterOrDigit(x) || x == '@').ToArray());
+                
                 // Get the first part of the user principal name
-                string upnFirstPart = userPrincipalName.Split('@')[0];
-                string sAMAccountName = upnFirstPart;
+                string[] split = strippedUpn.Split('@');
+                string before = split[0];
+                string after = split[1];
+
+                string samAccountName = string.Empty;
+                switch (samAccountNameFormat)
+                {
+                    case 1:
+                        string start = before.Length > 9 ? before.Substring(0, 8) : before;
+                        string last = after.Length > 9 ? after.Substring(0, 8) : after;
+                        samAccountName = string.Format("{0}_{1}", start, last);
+                        break;
+                    default:
+                        samAccountName = before;
+                        break;
+                }
 
                 de = GetDirectoryEntry();
                 ds = new DirectorySearcher(de);
                 ds.SearchScope = SearchScope.Subtree;
-                ds.Filter = string.Format("(sAMAccountName={0})", upnFirstPart);
+                ds.Filter = string.Format("(sAMAccountName={0})", samAccountName);
 
                 int count = 0;
+                string originalSamAccountName = samAccountName;
                 while (ds.FindOne() != null)
                 {
                     count = count + 1;
-
-                    sAMAccountName = string.Format("{0}{1}", upnFirstPart, count.ToString());
-
-                    ds.Filter = string.Format("(sAMAccountName={0})", sAMAccountName);
+                    samAccountName = string.Format("{0}{1}", originalSamAccountName, count.ToString());
+                    ds.Filter = string.Format("(sAMAccountName={0})", samAccountName);
                 }
 
                 // We found our available sAMAccountName
-                logger.DebugFormat("Available sAMAccountName was found: {0}", sAMAccountName);
-                return sAMAccountName;
+                logger.DebugFormat("Available sAMAccountName was found: {0}", samAccountName);
+                return samAccountName;
             }
             catch (Exception ex)
             {

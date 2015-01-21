@@ -85,12 +85,14 @@ namespace CloudPanel.Code
                 Settings.SNPort = int.Parse(Read(ref x, "Notifications", "MailPort"));
                 Settings.SNUsername = Read(ref x, "Notifications", "MailUsername");
                 Settings.SNEncryptedPassword = Read(ref x, "Notifications", "MailPassword");
+
+                // Advanced
+                logger.DebugFormat("Loading advanced section");
+                Settings.SamAccountNameFormat = int.Parse(Read(ref x, "Advanced", "SamAccountNameFormat"));
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error loading settings: {0}", ex.ToString());
-
-                // Set error value so people can't login // TODO
             }
         }
 

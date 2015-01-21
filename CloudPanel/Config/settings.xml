@@ -55,4 +55,7 @@
     <MailUsername>compsysar1</MailUsername>
     <MailPassword>1jr3Kd5dEDI=</MailPassword>
   </Notifications>
+  <Advanced>
+    <SamAccountNameFormat>0</SamAccountNameFormat>
+  </Advanced>
 </cloudpanel>

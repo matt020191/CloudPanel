@@ -334,7 +334,7 @@ namespace CloudPanel.Modules.CompanyModules
                             logger.DebugFormat("Resetting username...");
                             string oldUpn = user.UserPrincipalName;
                             string newUpn = string.Format("{0}@{1}", Request.Form.NewUsername.Value, domain.Domain);
-                            Users updatedUser = adUser.ChangeLogin(userGuid, newUpn, null, user.DisplayName);
+                            Users updatedUser = adUser.ChangeLogin(userGuid, newUpn, null, user.DisplayName, Settings.SamAccountNameFormat);
 
                             logger.DebugFormat("Updating database with new username");
                             user.UserPrincipalName = updatedUser.UserPrincipalName;

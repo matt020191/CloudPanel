@@ -242,7 +242,7 @@ namespace CloudPanel.Modules
                             {
                                 logger.DebugFormat("Creating user in Active Directory now");
                                 adUsers = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-                                newUser = adUsers.Create(Settings.UsersOuPath(company.DistinguishedName), Request.Form.Pwd, newUser);
+                                newUser = adUsers.Create(Settings.UsersOuPath(company.DistinguishedName), Request.Form.Pwd, newUser, Settings.SamAccountNameFormat);
                                 reverse.AddAction(Actions.AddUsers, newUser.UserPrincipalName);
 
                                 logger.DebugFormat("User {0} created in Active Directory. Adding to the AllUsers security group", upn);
@@ -463,7 +463,11 @@ namespace CloudPanel.Modules
             }
         }
 
-
+        /// <summary>
+        /// Get a list of users from the company code
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <returns></returns>
         public static List<Users> GetUsers(string companyCode)
         {
             CloudPanelContext db = null;
