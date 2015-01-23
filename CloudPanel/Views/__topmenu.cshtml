@@ -65,12 +65,8 @@
             {
                 <li><a href="~/company/@companyCode/overview"><i class="fa fa-dashboard"></i> <span>Overview</span></a></li>
                 <li><a href="~/company/@companyCode/domains"><i class="fa fa-globe"></i> <span>Domains</span></a></li>
-                <li><a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> <span>Users <i class="fa fa-angle-down"></i></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="~/company/@companyCode/users">Users</a></li>
-                        <li><a href="~/company/@companyCode/permissions/new">Permissions</a></li>
-                    </ul>
-                </li>
+                <li><a href="~/company/@companyCode/users"><i class="fa fa-user"></i> <span>Users</span></a></li>
+                <li><a href="~/company/@companyCode/permissions/new"><i class="fa fa-lock"></i> <span>Permissions</span></a></li>
                 @if (Settings.ExchangeModule)
                 {
                     <li class="dropdown">

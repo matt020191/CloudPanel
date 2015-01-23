@@ -79,7 +79,7 @@ namespace CloudPanel.Modules
                                 resellers = (from d in resellers
                                              where d.CompanyCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
                                                    d.CompanyName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                                   (d.Street != null && d.Street.IndexOf(searchValue, StringComparison.InvariantCulture) != -1) ||
+                                                   (d.Street != null && d.Street.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
                                                    (d.City != null && d.City.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
                                                    (d.State != null && d.State.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
                                                    (d.ZipCode != null && d.ZipCode.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||

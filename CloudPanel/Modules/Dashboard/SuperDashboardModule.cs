@@ -50,12 +50,11 @@ namespace CloudPanel.Modules.Dashboard
 
                         logger.DebugFormat("Adding all mailbox used data");
                         var mailboxUsed = (from d in db.Users
-                                           join size in db.StatMailboxSize on d.UserGuid equals size.UserGuid into stat
-                                           from mailboxSize in stat.DefaultIfEmpty()
+                                           join size in db.StatMailboxSize.OrderByDescending(x => x.Retrieved) on d.UserGuid equals size.UserGuid into stat
+                                           from mailboxSize in stat.DefaultIfEmpty().Take(1)
                                            where d.MailboxPlan > 0
                                            select
-                                                 mailboxSize == null ? 0 :
-                                                 mailboxSize.TotalItemSizeInBytes
+                                                 mailboxSize == null ? 0 : mailboxSize.TotalItemSizeInBytes
                                           ).DefaultIfEmpty().Sum();
 
                         logger.DebugFormat("Formatting sizes {0} and {1} to readable format", mailboxAllocated, mailboxUsed);

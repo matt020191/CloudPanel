@@ -44,7 +44,8 @@ namespace CloudPanel.Modules.CompanyModules
                         Guid userGuid = _.UserGuid;
 
                         logger.DebugFormat("Querying the database for {0}", userGuid);
-                        var user = (from d in db.Users.Include(x => x.Role)
+                        var user = (from d in db.Users
+                                                .Include(x => x.Role)
                                     join c in db.Companies on d.CompanyCode equals c.CompanyCode into c1
                                     from company in c1.DefaultIfEmpty()
                                     where d.CompanyCode == companyCode
