@@ -94,13 +94,37 @@ namespace CloudPanel.Modules
                         logger.DebugFormat("Search value was {0}", searchValue);
                         if (!string.IsNullOrEmpty(searchValue))
                         {
-                            users = (from d in users
-                                     where d.DisplayName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                           d.UserPrincipalName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                           (d.SamAccountName != null && d.SamAccountName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
-                                           (d.Department != null && d.Department.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
-                                           (d.Email != null && d.Email.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1)
-                                     select d).ToList();
+                            switch (searchValue.ToLower())
+                            {
+                                case "mailbox:disabled":
+                                    users = (from d in users where d.MailboxPlan == null select d).ToList();
+                                    break;
+                                case "mailbox:enabled":
+                                    users = (from d in users where d.MailboxPlan != null select d).ToList();
+                                    break;
+                                case "user:disabled":
+                                    users = (from d in users where d.IsEnabled == false select d).ToList();
+                                    break;
+                                case "user:enabled":
+                                    users = (from d in users where d.IsEnabled == true select d).ToList();
+                                    break;
+                                case "user:admin":
+                                    users = (from d in users where d.IsCompanyAdmin == true select d).ToList();
+                                    break;
+                                case "user:notadmin":
+                                    users = (from d in users where d.IsCompanyAdmin == false select d).ToList();
+                                    break;
+                                default:
+                                    users = (from d in users
+                                             where d.DisplayName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                                   d.UserPrincipalName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                                   (d.SamAccountName != null && d.SamAccountName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
+                                                   (d.Department != null && d.Department.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
+                                                   (d.Email != null && d.Email.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1)
+                                             select d).ToList();
+                                    break;
+                            }
+
                             recordsFiltered = users.Count;
                             logger.DebugFormat("Total records filtered was {0}", recordsFiltered);
                         }
