@@ -5,6 +5,7 @@ using CloudPanel.Base.Database.Models;
 using CloudPanel.Citrix;
 using CloudPanel.Code;
 using CloudPanel.Database.EntityFramework;
+using CloudPanel.Rollback;
 using log4net;
 using Nancy;
 using Nancy.Security;
@@ -605,6 +606,8 @@ namespace CloudPanel.Modules.Citrix
                 #region Add company to delivery group
                 Guid uuid = _.UUID;
                 CloudPanelContext db = null;
+                ADGroups groups = null;
+                ReverseActions reverse = new ReverseActions();
                 try
                 {
                     if (!Request.Form.CompanyCode.HasValue)
@@ -615,8 +618,44 @@ namespace CloudPanel.Modules.Citrix
 
                     string companyCode = Request.Form.CompanyCode.Value;
 
-                    var company = db.Companies.Where(x => x.CompanyCode == companyCode).FirstOrDefault();
-                    var desktopGroup = db.CitrixDesktopGroup.Where(x => x.UUID == uuid).FirstOrDefault();
+                    // Get the company so we have the ldap path for the security group
+                    var company = db.Companies.Where(x => x.CompanyCode == companyCode).Single();
+
+                    // Get the desktop group so we can name the new security group
+                    var desktopGroup = db.CitrixDesktopGroup.Where(x => x.UUID == uuid).Single();
+
+                    // Get the company's application OU path
+                    string appPath = Settings.ApplicationOuPath(company.DistinguishedName);
+                    logger.DebugFormat("Application path is {0}", appPath);
+
+                    // Create the new security group object
+                    CitrixSecurityGroups newGroup = new CitrixSecurityGroups();
+                    newGroup.GroupName = string.Format("{0}@{1}", desktopGroup.SecurityGroup, companyCode);
+                    newGroup.Description = string.Format("{0}'s security group for desktop group {1}", company.CompanyName, desktopGroup.Name);
+                    newGroup.CompanyCode = companyCode;
+                    newGroup.DesktopGroupID = desktopGroup.DesktopGroupID;
+
+                    // Add the group to Active Directory
+                    groups = new ADGroups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                    groups.Create(appPath, new SecurityGroup()
+                    {
+                        Name = newGroup.GroupName,
+                        DisplayName = newGroup.GroupName,
+                        Description = newGroup.Description,
+                        SamAccountName = newGroup.GroupName
+                    });
+                    reverse.AddAction(Actions.CreateSecurityGroup, newGroup.GroupName);
+
+                    // Add the group to the company's AllTSUsers security group
+                    groups.AddGroup("AllTSUsers@" + companyCode, newGroup.GroupName);
+
+                    // Add the new group to the desktop group security group
+                    groups.AddGroup(desktopGroup.SecurityGroup, newGroup.GroupName);
+
+                    // Add new group to database
+                    db.CitrixSecurityGroup.Add(newGroup);
+
+                    // Add the company to the desktop group and save
                     desktopGroup.Companies.Add(company);
                     db.SaveChanges();
 
@@ -641,9 +680,11 @@ namespace CloudPanel.Modules.Citrix
             Post["/group/{UUID:Guid}/delete"] = _ =>
             {
                 this.RequiresClaims(new[] { "SuperAdmin" });
+
                 #region Remove company to delivery group
                 Guid uuid = _.UUID;
                 CloudPanelContext db = null;
+                ADGroups groups = null;
                 try
                 {
                     if (!Request.Form.CompanyCode.HasValue)
@@ -654,8 +695,26 @@ namespace CloudPanel.Modules.Citrix
 
                     string companyCode = Request.Form.CompanyCode.Value;
 
-                    var company = db.Companies.Where(x => x.CompanyCode == companyCode).FirstOrDefault();
-                    var desktopGroup = db.CitrixDesktopGroup.Where(x => x.UUID == uuid).FirstOrDefault();
+                    // Get the company from the database
+                    var company = db.Companies.Where(x => x.CompanyCode == companyCode).Single();
+
+                    // Get the desktop group from the database
+                    var desktopGroup = db.CitrixDesktopGroup.Where(x => x.UUID == uuid).Single();
+
+                    // Get the security group for the company relating to this desktop group
+                    var securityGroup = db.CitrixSecurityGroup.Where(x => x.DesktopGroupID == desktopGroup.DesktopGroupID && x.CompanyCode == companyCode).FirstOrDefault();
+
+                    if (securityGroup != null)
+                    {
+                        // Delete the security group from Active Directory
+                        groups = new ADGroups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                        groups.Delete(securityGroup.GroupName);
+
+                        // Remove the security group from the database
+                        db.CitrixSecurityGroup.Remove(securityGroup);
+                    }
+
+                    // Remove the company from the desktop group
                     desktopGroup.Companies.Remove(company);
                     db.SaveChanges();
 

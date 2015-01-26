@@ -69,7 +69,7 @@ namespace CloudPanel.ActiveDirectory
 
             try
             {
-                log.DebugFormat("Creating a new group {0}", group.Name);
+                log.DebugFormat("Creating a new group {0} in path {1}", group.Name, parentOU);
 
                 if (string.IsNullOrEmpty(parentOU))
                     throw new MissingFieldException("You must provide the parent organizational unit");
@@ -80,8 +80,8 @@ namespace CloudPanel.ActiveDirectory
                 if (string.IsNullOrEmpty(group.SamAccountName))
                     throw new MissingFieldException("The sAMAccountName was not specified");
 
-                if (group.SamAccountName.Length > 19)
-                    throw new ArgumentOutOfRangeException(group.SamAccountName);
+                //if (group.SamAccountName.Length > 19)
+                    //throw new ArgumentOutOfRangeException(group.SamAccountName);
 
                 log.DebugFormat("Prerequisites were satisfied. Continuing...");
                 ctx = new PrincipalContext(ContextType.Domain, _domainController, parentOU, _username, _password);

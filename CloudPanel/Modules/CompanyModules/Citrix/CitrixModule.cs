@@ -1,11 +1,13 @@
 ﻿using CloudPanel.Base.Citrix;
 using CloudPanel.Base.Config;
+using CloudPanel.Base.Database.Models;
 using CloudPanel.Citrix;
 using CloudPanel.Code;
 using CloudPanel.Database.EntityFramework;
 using log4net;
 using Nancy;
 using Nancy.Security;
+using System.Data.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -85,6 +87,146 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
                     }
                     #endregion
                 };
+
+            Get["/desktopgroups"] = _ =>
+                {
+                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
+                    string companyCode = _.CompanyCode;
+
+                    #region Gets desktop groups
+                    logger.DebugFormat("Querying desktop groups for {0}", companyCode);
+                    try
+                    {
+                        return Negotiate.WithModel(new { groups = GetDesktopGroups(companyCode) })
+                                        .WithView("Company/Citrix/groups.cshtml");
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error getting desktops group for company {0}: {1}", companyCode, ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithView("error/500.cshtml")
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    #endregion
+                };
+
+            Get["/desktopgroups/{ID:int}"] = _ =>
+                {
+                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
+                    string companyCode = _.CompanyCode;
+                    int id = _.ID;
+
+                    #region Gets users for the desktop group
+                    logger.DebugFormat("Querying desktop group {0} for {1}", id, companyCode);
+                    CloudPanelContext db = null;
+                    try
+                    {
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
+
+                        var allUsers = db.Users
+                                         .Where(x => x.CompanyCode == companyCode)
+                                         .ToList();
+                        return Negotiate.WithModel(new { groups = GetDesktopGroups(companyCode) })
+                                        .WithView("Company/Citrix/groups.cshtml");
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error getting desktops group for company {0}: {1}", companyCode, ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithView("error/500.cshtml")
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    #endregion
+                };
+
+            Get["/applications"] = _ =>
+            {
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
+                string companyCode = _.CompanyCode;
+
+                #region Gets applications
+                logger.DebugFormat("Querying applications for {0}", companyCode);
+                try
+                {
+                    return Negotiate.WithModel(GetApplications(companyCode));
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error getting applications for company {0}: {1}", companyCode, ex.ToString());
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
+                }
+                #endregion
+            };
+        }
+
+        public static List<CitrixDesktopGroups> GetDesktopGroups(string companyCode)
+        {
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                var desktopGroups = db.Companies
+                                        .Include(x => x.CitrixDesktopGroups)
+                                      .Where(x => x.CompanyCode == companyCode)
+                                      .SelectMany(x => x.CitrixDesktopGroups)
+                                      .ToList();
+
+                return desktopGroups;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting desktops group for company {0}: {1}", companyCode, ex.ToString());
+                return null;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
+        }
+
+        public static List<CitrixApplications> GetApplications(string companyCode)
+        {
+            CloudPanelContext db = null;
+            try
+            {
+                db = new CloudPanelContext(Settings.ConnectionString);
+                db.Database.Connection.Open();
+
+                var applications = new List<CitrixApplications>();
+                var desktopGroups = db.Companies
+                                        .Include(x => x.CitrixDesktopGroups.Select(a => a.Applications))
+                                      .Where(x => x.CompanyCode == companyCode)
+                                      .SelectMany(x => x.CitrixDesktopGroups)
+                                      .ToList();
+
+                desktopGroups.ForEach(x =>
+                    {
+                        if (x.Applications != null)
+                        {
+                            foreach (var app in x.Applications)
+                            {
+                                applications.Add(app);
+                            }
+                        }
+                    });
+
+                return applications;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting desktops group for company {0}: {1}", companyCode, ex.ToString());
+                return null;
+            }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
         }
     }
 }

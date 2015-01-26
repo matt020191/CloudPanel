@@ -123,6 +123,7 @@
     <Content Include="Content\img\donate_button_sm.png" />
     <Content Include="Content\img\error.png" />
     <Content Include="Content\img\indicator.gif" />
+    <Content Include="Content\img\indicator_blue_large.gif" />
     <Content Include="Content\img\install_icon.ico" />
     <Content Include="Content\img\logo-big.png" />
     <Content Include="Content\img\patterns\brickwall.png" />
@@ -1275,6 +1276,7 @@
     <Content Include="Content\plugins\justgage\justgage.1.0.1.min.js" />
     <Content Include="Content\plugins\justgage\raphael.2.1.0.min.js" />
     <Content Include="Content\plugins\knob\jquery.knob.min.js" />
+    <Content Include="Content\plugins\knockout\knockout-3.2.0.js" />
     <Content Include="Content\plugins\mixitup\jquery.mixitup.min.js" />
     <Content Include="Content\plugins\moment\moment-with-locales.js" />
     <Content Include="Content\plugins\papaparse\papaparse.js" />
@@ -1331,6 +1333,7 @@
     <Content Include="Content\variations\sidebar-steel.css" />
     <Content Include="Content\variations\theme-red-steel.css" />
     <Content Include="KMI.ico" />
+    <Content Include="Content\knockout\CitrixModel.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -1690,6 +1693,7 @@
     <Content Include="Views\Company\Citrix\sessions.cshtml" />
     <Content Include="Views\Reports\reports.cshtml" />
     <Content Include="Views\Citrix\sessions.cshtml" />
+    <Content Include="Views\Company\Citrix\groups.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

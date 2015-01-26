@@ -32,16 +32,9 @@ namespace CloudPanel.Modules.Admin
 
                     var databases = (from d in db.StatMailboxDatabaseSizes
                                      where d.Retrieved == db.StatMailboxDatabaseSizes.Max(x => x.Retrieved)
-                                     select new MailboxDatabase()
-                                     {
-                                         Identity = d.DatabaseName,
-                                         Server = d.Server,
-                                         DatabaseSize = d.DatabaseSize,
-                                         DatabaseSizeInBytes = d.DatabaseSizeInBytes,
-                                         Retrieved = d.Retrieved
-                                     }).ToList();
+                                     select d).ToList();
 
-                    return Negotiate.WithModel(new { databases = databases });
+                    return Negotiate.WithModel(databases);
                 }
                 catch (Exception ex)
                 {
@@ -69,19 +62,21 @@ namespace CloudPanel.Modules.Admin
                     powershell = ExchPowershell.GetClass();
 
                     List<MailboxDatabase> databases = powershell.Get_MailboxDatabases();
+                    List<StatMailboxDatabaseSizes> returnDatabases = new List<StatMailboxDatabaseSizes>();
                     if (databases != null)
                     {
+                        DateTime retrieved = DateTime.Now;
                         db = new CloudPanelContext(Settings.ConnectionString);
                         foreach (var d in databases)
                         {
-                            db.StatMailboxDatabaseSizes.Add(new StatMailboxDatabaseSizes()
-                            {
-                                DatabaseName = d.Identity,
-                                Server = d.Server,
-                                DatabaseSizeInBytes = d.DatabaseSizeInBytes,
-                                DatabaseSize = d.DatabaseSize,
-                                Retrieved = d.Retrieved
-                            });
+                            var newDatabase = new StatMailboxDatabaseSizes();
+                            newDatabase.DatabaseName = d.Identity;
+                            newDatabase.Server = d.Server;
+                            newDatabase.DatabaseSizeInBytes = d.DatabaseSizeInBytes;
+                            newDatabase.DatabaseSize = d.DatabaseSize;
+                            newDatabase.Retrieved = d.Retrieved;
+
+                            db.StatMailboxDatabaseSizes.Add(newDatabase);
 
                             logger.DebugFormat("Processed database name {0}", d.Identity);
                         }
@@ -89,7 +84,7 @@ namespace CloudPanel.Modules.Admin
                         db.SaveChanges();
                     }
 
-                    return Negotiate.WithModel(new { databases = databases });
+                    return Negotiate.WithModel(returnDatabases);
                 }
                 catch (Exception ex)
                 {

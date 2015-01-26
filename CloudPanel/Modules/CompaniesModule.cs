@@ -534,6 +534,7 @@ namespace CloudPanel.Modules
             using (CloudPanelContext db = new CloudPanelContext(Settings.ConnectionString))
             {
                 return db.Companies
+                         .Where(x => x.IsReseller != true)
                          .OrderBy(x => x.CompanyName)
                          .ToList();
             }

@@ -589,13 +589,16 @@
                                         </form>
                                     </div>
                                     <!-- CITRIX SECTION -->
-                                    <div class="tab-pane clearfix active" id="user">
+                                    <div class="tab-pane clearfix active" id="citrix">
                                         <div class="col-md-12">
                                             <form id="citrixForm" action="" method="post" autocomplete="off" class="form-horizontal" data-parsley-validate="true">
                                                 <div class="col-sm-6">
+                                                    <h2>Citrix Desktops</h2>
                                                 </div>
+                                                
 
                                                 <div class="col-sm-6">
+                                                    <h2>Citrix Applications</h2>
                                                 </div>
                                             </form>
                                         </div>
@@ -626,282 +629,287 @@
     <script src="~/Content/plugins/form-toggle/toggles.js"></script>
     <script src="~/Content/plugins/form-datepicker/js/bootstrap-datepicker.js"></script>
     <script src="~/Content/plugins/form-ckeditor/ckeditor.js"></script>
+    <script src="~/Content/plugins/knockout/knockout-3.2.0.js"></script>
+    <script src="~/Content/knockout/CitrixModel.js"></script>
     <script type="text/javascript">
-        var mailboxUpdated = false;
-        var litigationHoldUpdated = false;
-        var archivingUpdated = false;
+    var mailboxUpdated = false;
+    var litigationHoldUpdated = false;
+    var archivingUpdated = false;
 
-        $(document).ready(function () {
+    $(document).ready(function () {
 
-            // Checkboxes to set the appropriate values
-            $("input[type=checkbox]").click(function () {
-                if ($(this).is(':checked')) {
-                    $(this).val("true");
-                } else {
-                    $(this).val("false");
-                }
-            });
-
-            // Date picker for litigation hold
-            $('#LitigationHoldDuration').datepicker({startDate: "+1d"});
-
-            // Select2 for full access, send-as, and send on behalf
-            $(".populate").select2({
-                width: 'resolve'
-            });
-
-            // Editor for the user's notes field
-            CKEDITOR.replace('Notes');
-
-            // Toggle for enabling / disabling mailboxes
-            MailboxToggle();
-
-            // Slider for mailbox plans
-            SetSlider(@Model.AdditionalMB);
-            $("#MailboxPlan").change(function() {
-                SetSlider(0);
-            });
-
-            // Tokenfield for email aliases
-            $('#EmailAliases')
-              .on('beforeCreateToken', function (e) {
-                  var token = e.token.value.split('|');
-                  e.token.value = token[1] || token[0];
-                  e.token.label = token[1] ? token[0] + ' (' + token[1] + ')' : token[0];
-              })
-              .on('afterCreateToken', function (e) {
-                  var re = /\S+@@\S+\.\S+/
-                  var valid = re.test(e.token.value);
-                  if (!valid) {
-                      $(e.relatedTarget).addClass('invalid');
-                  }
-              })
-              .on('beforeEditToken', function (e) {
-                  if (e.token.label !== e.token.value) {
-                      var label = e.token.label.split(' (');
-                      e.token.value = label[0] + '|' + e.token.value;
-                  }
-              })
-              .tokenfield();
+        // Checkboxes to set the appropriate values
+        $("input[type=checkbox]").click(function () {
+            if ($(this).is(':checked')) {
+                $(this).val("true");
+            } else {
+                $(this).val("false");
+            }
         });
 
-        // Toggle for the mailbox enabled or not
-        function MailboxToggle() {
-            var isEnabled = @(Model.MailboxPlan > 0 ? "true" : "false");
-            $('#IsMailboxEnabledToggle').toggles({
-                checkbox: $("#IsMailboxEnabled"),
-                on: isEnabled
-            });
+        // Date picker for litigation hold
+        $('#LitigationHoldDuration').datepicker({startDate: "+1d"});
 
-            if (isEnabled) {
+        // Select2 for full access, send-as, and send on behalf
+        $(".populate").select2({
+            width: 'resolve'
+        });
+
+        // Editor for the user's notes field
+        CKEDITOR.replace('Notes');
+
+        // Toggle for enabling / disabling mailboxes
+        MailboxToggle();
+
+        // Slider for mailbox plans
+        SetSlider(@Model.AdditionalMB);
+        $("#MailboxPlan").change(function() {
+            SetSlider(0);
+        });
+
+        // Tokenfield for email aliases
+        $('#EmailAliases')
+          .on('beforeCreateToken', function (e) {
+              var token = e.token.value.split('|');
+              e.token.value = token[1] || token[0];
+              e.token.label = token[1] ? token[0] + ' (' + token[1] + ')' : token[0];
+          })
+          .on('afterCreateToken', function (e) {
+              var re = /\S+@@\S+\.\S+/
+              var valid = re.test(e.token.value);
+              if (!valid) {
+                  $(e.relatedTarget).addClass('invalid');
+              }
+          })
+          .on('beforeEditToken', function (e) {
+              if (e.token.label !== e.token.value) {
+                  var label = e.token.label.split(' (');
+                  e.token.value = label[0] + '|' + e.token.value;
+              }
+          })
+          .tokenfield();
+    });
+
+    // Toggle for the mailbox enabled or not
+    function MailboxToggle() {
+        var isEnabled = @(Model.MailboxPlan > 0 ? "true" : "false");
+        $('#IsMailboxEnabledToggle').toggles({
+            checkbox: $("#IsMailboxEnabled"),
+            on: isEnabled
+        });
+
+        if (isEnabled) {
+            $("#MailboxEnabledDiv").show();
+            $("#IsMailboxEnabled").val("true");
+        }
+
+        $('#IsMailboxEnabledToggle').on('toggle', function (e, active) {
+            if (active) {
                 $("#MailboxEnabledDiv").show();
                 $("#IsMailboxEnabled").val("true");
-            }
-
-            $('#IsMailboxEnabledToggle').on('toggle', function (e, active) {
-                if (active) {
-                    $("#MailboxEnabledDiv").show();
-                    $("#IsMailboxEnabled").val("true");
-                } else {
-                    $("#MailboxEnabledDiv").hide();
-                    swal({
-                        title: "Are you sure?",
-                        text: "Disabling a mailbox will delete all emails and data from the mailbox.",
-                        type: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#DD6B55",
-                        confirmButtonText: "Yes, disable it!",
-                        cancelButtonText: "No!",
-                        closeOnConfirm: true,
-                        closeOnCancel: true
-                    }, function(isConfirm){
-                        var myToggle = $('#IsMailboxEnabledToggle').data('toggles');
-                        if (isConfirm) {
-                            myToggle.toggle(false);
-                            $("#IsMailboxEnabled").val("false");
-                        }
-                        else {
-                            myToggle.toggle(true);
-                            $("#IsMailboxEnabled").val("true");
-                        }
-                    });
-                }
-            });
-        }
-
-        // Slider for the mailbox plan. Will not show if value is zero
-        function SetSlider(value) {
-            var select = $("#MailboxPlan option:selected");
-            var min = $(select).data("min");
-            var max = $(select).data("max");
-
-            if (value == 0)
-                value = min;
-            else
-                value = value + min;
-
-            if (min > 0) {
-                $(".slidergroup").show();
-                $("#MailboxPlanSlider").slider({
-                    value: value,
-                    min: min,
-                    max: max,
-                    step: 256,
-                    slide: function( event, ui ) {
-                        $("#MailboxSize").val(ui.value);
-                        $("#SizeInMB").val(ui.value);
+            } else {
+                $("#MailboxEnabledDiv").hide();
+                swal({
+                    title: "Are you sure?",
+                    text: "Disabling a mailbox will delete all emails and data from the mailbox.",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes, disable it!",
+                    cancelButtonText: "No!",
+                    closeOnConfirm: true,
+                    closeOnCancel: true
+                }, function(isConfirm){
+                    var myToggle = $('#IsMailboxEnabledToggle').data('toggles');
+                    if (isConfirm) {
+                        myToggle.toggle(false);
+                        $("#IsMailboxEnabled").val("false");
+                    }
+                    else {
+                        myToggle.toggle(true);
+                        $("#IsMailboxEnabled").val("true");
                     }
                 });
-                $("#MailboxSize").val(value);
-                $("#SizeInMB").val(value);
-            } else {
-                $(".slidergroup").hide();
             }
+        });
+    }
+
+    // Slider for the mailbox plan. Will not show if value is zero
+    function SetSlider(value) {
+        var select = $("#MailboxPlan option:selected");
+        var min = $(select).data("min");
+        var max = $(select).data("max");
+
+        if (value == 0)
+            value = min;
+        else
+            value = value + min;
+
+        if (min > 0) {
+            $(".slidergroup").show();
+            $("#MailboxPlanSlider").slider({
+                value: value,
+                min: min,
+                max: max,
+                step: 256,
+                slide: function( event, ui ) {
+                    $("#MailboxSize").val(ui.value);
+                    $("#SizeInMB").val(ui.value);
+                }
+            });
+            $("#MailboxSize").val(value);
+            $("#SizeInMB").val(value);
+        } else {
+            $(".slidergroup").hide();
         }
+    }
 
-        // Query data from Exchange for the mailbox
-        function GetMailbox() {
-            var isEnabledOriginal = @Model.MailboxPlan;
-            if (mailboxUpdated == false && isEnabledOriginal > 0) {
-                $.blockUI();
-                $("#WaitMessage #message").text("Retrieving mailbox information");
-
-                $.ajax({
-                    type: "GET",
-                    url: "@Html.RenderContext.Context.Request.Url/mailbox",
-                })
-                  .done(function(data) {
-                      console.log(data);
-
-                      $("#EmailFirst").val(data.mailbox.emailFirst);
-                      $("#EmailDomain").val(data.mailbox.emailDomain);
-                      $("#EmailAliases").tokenfield('setTokens', data.mailbox.emailAliases);
-
-                      $("#EmailFullAccess").select2("val", data.mailbox.emailFullAccess);
-                      $.each(data.mailbox.emailFullAccess, function (i, val) {
-                          if ($("#EmailFullAccess option[value='" + val + "']").length > 0) {
-                              $("#EmailFullAccessOriginal").val($("#EmailFullAccessOriginal").val() + val + ",");
-                          }
-                      });
-
-                      $("#EmailSendAs").select2("val", data.mailbox.emailSendAs);
-                      $.each(data.mailbox.emailSendAs, function (i, val) {
-                          if ($("#EmailSendAs option[value='" + val + "']").length > 0) {
-                              $("#EmailSendAsOriginal").val($("#EmailSendAsOriginal").val() + val + ",");
-                          }
-                      });
-
-                      $("#EmailSendOnBehalf").select2("val", data.mailbox.emailSendOnBehalf);
-                      $("#DeliverToMailboxAndForward").val(data.mailbox.deliverToMailboxAndForward);
-                      $("#DeliverToMailboxAndForward").prop("checked", data.mailbox.deliverToMailboxAndForward);
-
-                      // Litigation HoldLitigationHoldEnabled
-                      $("#LitigationHoldEnabled").val(data.mailbox.litigationHoldEnabled);
-                      $("#RetentionComment").val(data.mailbox.retentionComment);
-                      $("#RetentionUrl").val(data.mailbox.retentionUrl);
-
-                      mailboxUpdated = true;
-                  })
-                  .fail(function(data) {
-                      ShowError(data);
-                  })
-                  .always(function() {
-                      $.unblockUI();
-                  });
-            }
-            else {
-                mailboxUpdated = true;
-                mailboxAlreadyRetrieved = true;
-            }
-        }
-
-        // Query data from Exchange and set litigation hold
-        function GetLitigationHold() {
-            if (mailboxUpdated == false)
-                GetMailbox();
-
-            litigationHoldUpdated = true;
-        }
-
-        // Query data from Exchange for archive mailbox settings
-        function GetArchiving() {
-            archivingUpdated = true;
-        }
-
-        // Submit our chain requests
-        function Submit() {
+    // Query data from Exchange for the mailbox
+    function GetMailbox() {
+        var isEnabledOriginal = @Model.MailboxPlan;
+        if (mailboxUpdated == false && isEnabledOriginal > 0) {
             $.blockUI();
-            SubmitUser().then(SubmitMailbox)
-                        .then(SubmitLitigation)
-                        .then(SubmitArchive)
-                        .fail(function (data) {
-                            ShowError(data);
-                        })
-                        .always(function () {
-                            $.unblockUI();
-                        })
-                        .done(function () {
-                            window.location.href = "@Url.Content("~/company/" + Model.CompanyCode +"/users")";
-                        });
-        }
+            $("#WaitMessage #message").text("Retrieving mailbox information");
 
-        // Submits the new user
-        function SubmitUser() {
-            $("#WaitMessage #message").text("Updating user settings");
-            var userForm = $("#userForm").serialize();
+            $.ajax({
+                type: "GET",
+                url: "@Html.RenderContext.Context.Request.Url/mailbox",
+            })
+              .done(function(data) {
+                  console.log(data);
+
+                  $("#EmailFirst").val(data.mailbox.emailFirst);
+                  $("#EmailDomain").val(data.mailbox.emailDomain);
+                  $("#EmailAliases").tokenfield('setTokens', data.mailbox.emailAliases);
+
+                  $("#EmailFullAccess").select2("val", data.mailbox.emailFullAccess);
+                  $.each(data.mailbox.emailFullAccess, function (i, val) {
+                      if ($("#EmailFullAccess option[value='" + val + "']").length > 0) {
+                          $("#EmailFullAccessOriginal").val($("#EmailFullAccessOriginal").val() + val + ",");
+                      }
+                  });
+
+                  $("#EmailSendAs").select2("val", data.mailbox.emailSendAs);
+                  $.each(data.mailbox.emailSendAs, function (i, val) {
+                      if ($("#EmailSendAs option[value='" + val + "']").length > 0) {
+                          $("#EmailSendAsOriginal").val($("#EmailSendAsOriginal").val() + val + ",");
+                      }
+                  });
+
+                  $("#EmailSendOnBehalf").select2("val", data.mailbox.emailSendOnBehalf);
+                  $("#DeliverToMailboxAndForward").val(data.mailbox.deliverToMailboxAndForward);
+                  $("#DeliverToMailboxAndForward").prop("checked", data.mailbox.deliverToMailboxAndForward);
+
+                  // Litigation HoldLitigationHoldEnabled
+                  $("#LitigationHoldEnabled").val(data.mailbox.litigationHoldEnabled);
+                  $("#RetentionComment").val(data.mailbox.retentionComment);
+                  $("#RetentionUrl").val(data.mailbox.retentionUrl);
+
+                  mailboxUpdated = true;
+              })
+              .fail(function(data) {
+                  ShowError(data);
+              })
+              .always(function() {
+                  $.unblockUI();
+              });
+        }
+        else {
+            mailboxUpdated = true;
+            mailboxAlreadyRetrieved = true;
+        }
+    }
+
+    // Query data from Exchange and set litigation hold
+    function GetLitigationHold() {
+        if (mailboxUpdated == false)
+            GetMailbox();
+
+        litigationHoldUpdated = true;
+    }
+
+    // Query data from Exchange for archive mailbox settings
+    function GetArchiving() {
+        archivingUpdated = true;
+    }
+
+    function GetCitrix() {
+    }
+
+    // Submit our chain requests
+    function Submit() {
+        $.blockUI();
+        SubmitUser().then(SubmitMailbox)
+                    .then(SubmitLitigation)
+                    .then(SubmitArchive)
+                    .fail(function (data) {
+                        ShowError(data);
+                    })
+                    .always(function () {
+                        $.unblockUI();
+                    })
+                    .done(function () {
+                        window.location.href = "@Url.Content("~/company/" + Model.CompanyCode +"/users")";
+                    });
+    }
+
+    // Submits the new user
+    function SubmitUser() {
+        $("#WaitMessage #message").text("Updating user settings");
+        var userForm = $("#userForm").serialize();
+        return $.ajax({
+            type: "PUT",
+            data: userForm
+        });
+    }
+
+    function SubmitMailbox() {
+        console.log("Submitting mailbox");
+        var deferred = $.Deferred();
+        if (mailboxUpdated) {
+            $("#WaitMessage #message").text("Updating mailbox settings");
+            var mailboxForm = $("#mailboxForm").serialize();
             return $.ajax({
                 type: "PUT",
-                data: userForm
+                url: "@Html.RenderContext.Context.Request.Url/mailbox",
+                data: mailboxForm
             });
         }
+        else
+            return deferred.resolve();
+    }
 
-        function SubmitMailbox() {
-            console.log("Submitting mailbox");
-            var deferred = $.Deferred();
-            if (mailboxUpdated) {
-                $("#WaitMessage #message").text("Updating mailbox settings");
-                var mailboxForm = $("#mailboxForm").serialize();
-                return $.ajax({
-                    type: "PUT",
-                    url: "@Html.RenderContext.Context.Request.Url/mailbox",
-                    data: mailboxForm
-                });
-            }
-            else
-                return deferred.resolve();
+    function SubmitLitigation() {
+        console.log("Submitting litigation hold");
+        var deferred = $.Deferred();
+        if (litigationHoldUpdated) {
+            $("#WaitMessage #message").text("Updating litigation hold settings");
+            var litigationholdForm = $("#litigationholdForm").serialize();
+            return $.ajax({
+                type: "PUT",
+                url: "@Html.RenderContext.Context.Request.Url/mailbox/litigationhold",
+                data: litigationholdForm
+            });
         }
+        else
+            return deferred.resolve();
+    }
 
-        function SubmitLitigation() {
-            console.log("Submitting litigation hold");
-            var deferred = $.Deferred();
-            if (litigationHoldUpdated) {
-                $("#WaitMessage #message").text("Updating litigation hold settings");
-                var litigationholdForm = $("#litigationholdForm").serialize();
-                return $.ajax({
-                    type: "PUT",
-                    url: "@Html.RenderContext.Context.Request.Url/mailbox/litigationhold",
-                    data: litigationholdForm
-                });
-            }
-            else
-                return deferred.resolve();
+    function SubmitArchive() {
+        console.log("Submitting archive");
+        var deferred = $.Deferred();
+        if (archivingUpdated) {
+            $("#WaitMessage #message").text("Updating archiving settings");
+            var archivingForm = $("#archivingForm").serialize();
+            return $.ajax({
+                type: "PUT",
+                url: "@Html.RenderContext.Context.Request.Url/mailbox/archive",
+                data: archivingForm
+            });
         }
-
-        function SubmitArchive() {
-            console.log("Submitting archive");
-            var deferred = $.Deferred();
-            if (archivingUpdated) {
-                $("#WaitMessage #message").text("Updating archiving settings");
-                var archivingForm = $("#archivingForm").serialize();
-                return $.ajax({
-                    type: "PUT",
-                    url: "@Html.RenderContext.Context.Request.Url/mailbox/archive",
-                    data: archivingForm
-                });
-            }
-            else
-                return deferred.resolve();
-        }
+        else
+            return deferred.resolve();
+    }
 
     </script>
 }

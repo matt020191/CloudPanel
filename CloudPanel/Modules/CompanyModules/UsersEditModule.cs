@@ -26,11 +26,11 @@ namespace CloudPanel.Modules.CompanyModules
 
         public UsersEditModule() : base("/company/{CompanyCode}/users/{UserGuid:guid}")
         {
-            this.RequiresAuthentication();
+           // this.RequiresAuthentication();
 
             Get["/"] = _ =>
                 {
-                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
+                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
 
                     #region Gets a specific user
                     CloudPanelContext db = null;

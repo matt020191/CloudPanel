@@ -123,6 +123,7 @@ namespace CloudPanel.Exchange
             wsinfo.SkipCNCheck = true;
             wsinfo.SkipRevocationCheck = true;
             wsinfo.OpenTimeout = 9000;
+            wsinfo.MaximumConnectionRedirectionCount = 1;
 
             if (kerberos)
                 wsinfo.AuthenticationMechanism = AuthenticationMechanism.Kerberos;

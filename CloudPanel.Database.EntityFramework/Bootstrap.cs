@@ -14,11 +14,13 @@ namespace CloudPanel.Database.EntityFramework
         
         public CloudPanelContext() : base(Settings.ConnectionString)
         {
+            base.Configuration.LazyLoadingEnabled = false;
             //logger.Debug("Context called without a connection string");
         }
 
         public CloudPanelContext(string connectionString) : base(connectionString)
         {
+            base.Configuration.LazyLoadingEnabled = false;
             //logger.DebugFormat("Context called with connection string {0}", connectionString);
         }
 
@@ -134,6 +136,7 @@ namespace CloudPanel.Database.EntityFramework
         public virtual DbSet<CitrixDesktopGroups> CitrixDesktopGroup { get; set; }
         public virtual DbSet<CitrixDesktops> CitrixDesktop { get; set; }
         public virtual DbSet<CitrixApplications> CitrixApplication { get; set; }
+        public virtual DbSet<CitrixSecurityGroups> CitrixSecurityGroup { get; set; }
         public virtual DbSet<UserActiveSyncDevices> UserActiveSyncDevice { get; set; }
         #endregion
     }

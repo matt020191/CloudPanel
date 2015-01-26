@@ -114,6 +114,9 @@
                 <div class="panel panel-midnightblue">
                     <div class="panel-heading">
                         <h4>Mailbox Databases</h4>
+                        <div class="options">
+                            <a href="javascript:GetExchangeDatabases(true);"><i class="fa fa-refresh"></i></a>
+                        </div>
                     </div>
                     <div class="panel-body mailboxDatabases">
                         <div id="exchangeDatabases" style="height:350px;"></div>
@@ -138,7 +141,7 @@
     <script src="~/Content/plugins/charts-highcharts/js/highcharts.js"></script>
     <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
     <script type="text/javascript">
-    var exchangeModule = @CloudPanel.Base.Config.Settings.ExchangeModule.ToString().ToLower()
+    var exchangeModule = @CloudPanel.Base.Config.Settings.ExchangeModule.ToString().ToLower();
 
     $(document).ready(function () {
 
@@ -153,7 +156,7 @@
 
         // Only populate Exchange information if the Exchange module is enabled
         if (exchangeModule) {
-            GetExchangeDatabases();
+            GetExchangeDatabases(false);
         }
     });
 
@@ -165,11 +168,21 @@
             $("#badgeMailboxes").text(data.mailboxes);
             $("#badgeMailboxAllocated").text(data.mailboxAllocated);
             $("#badgeMailboxUsed").text(data.mailboxUsed);
+        }).fail(function (data) {
+            ShowError(data);
         });
     }
 
-    function GetExchangeDatabases() {
-        $.getJSON("@Url.Content("~/dashboard/exchange/databases")", function (data) {
+    function GetExchangeDatabases(queryNow) {
+        var url = "";
+        if (queryNow)
+            url = "@Url.Content("~/exchange/databases/now")";
+        else
+            url = "@Url.Content("~/exchange/databases")";
+
+        $(".mailboxDatabases").block();
+        $.getJSON(url, function (data) {
+            console.log(data);
             var GB = 1073741824;
             var MB = 1048576;
             var KB = 1024;
@@ -186,7 +199,8 @@
                 title: { text: moment(retrieved).fromNow() },
                 xAxis: { type: 'category', labels: { rotation: -45, style: { fontFamily: 'Verdana, sans-serif' } } },
                 credits: { enabled: false },
-                yAxis: { min: 0, title: '',
+                yAxis: {
+                    min: 0, title: '',
                     labels: {
                         formatter: function () {
                             var maxElement = this.axis.max;
@@ -221,6 +235,10 @@
 
             bar.addSeries({ name: '', data: databases });
             bar.redraw();
+        }).always(function () {
+            $(".mailboxDatabases").unblock();
+        }).fail(function (data) {
+            ShowError(data);
         });
     }
 

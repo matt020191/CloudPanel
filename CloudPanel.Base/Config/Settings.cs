@@ -5,7 +5,15 @@ namespace CloudPanel.Base.Config
 {
     public static class Settings
     {
+#if DEBUG
+        public static string ConnectionString {
+            get {
+                return @"server=DXN-PC\SQLEXPRESS;database=CPBETA;uid=CloudPanel;password=password;";
+            }
+        }
+#else
         public static string ConnectionString { get; set; }
+#endif
 
         #region Basic Settings
 

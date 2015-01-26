@@ -65,6 +65,7 @@
     <Compile Include="Database\Models\Branding.cs" />
     <Compile Include="Database\Models\CitrixApplications.cs" />
     <Compile Include="Database\Models\CitrixDesktops.cs" />
+    <Compile Include="Database\Models\CitrixSecurityGroups.cs" />
     <Compile Include="Database\Models\Companies.cs" />
     <Compile Include="Database\Models\Contacts.cs" />
     <Compile Include="Database\Models\DistributionGroups.cs" />

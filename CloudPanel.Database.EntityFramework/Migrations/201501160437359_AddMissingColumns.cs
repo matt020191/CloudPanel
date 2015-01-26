@@ -7,7 +7,7 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     {
         public override void Up()
         {
-            AddColumn("dbo.Plans_Organization", "MaxExchangeActivesyncPolicies", c => c.Int(nullable: true));
+            //AddColumn("dbo.Plans_Organization", "MaxExchangeActivesyncPolicies", c => c.Int(nullable: true));
             AddColumn("dbo.ResourceMailboxes", "ResourceGuid", c => c.Guid());
         }
         
