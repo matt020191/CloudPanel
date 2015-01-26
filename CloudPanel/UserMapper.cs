@@ -108,7 +108,12 @@ namespace CloudPanel
                     var isSuper = Settings.SuperAdmins.Any(x =>
                                                            x.Equals(memberof,StringComparison.InvariantCultureIgnoreCase));
                     if (isSuper)
+                    {
                         claims.Add("SuperAdmin");
+                        logger.DebugFormat("Adding claim SuperAdmin to user {0}", authUser.UserName);
+
+                        break;
+                    }
                 }
 
                 // If the user isn't a super admin then check company permissions
@@ -145,13 +150,18 @@ namespace CloudPanel
                     authUser.SelectedCompanyName = sqlUser.CompanyName;
 
                     if (sqlUser.IsResellerAdmin == true)
+                    {
                         claims.Add("ResellerAdmin");
+                        logger.InfoFormat("Adding claim ResellerAdmin to {0}", authUser.UserName);
+                    }
 
                     if (sqlUser.IsCompanyAdmin == true)
                     { // Check if the user is a company admin
                         if (sqlUser.UserRole != null)
                         { // Make sure the user role isn't null and add as company admin
                             claims.Add("CompanyAdmin");
+                            logger.InfoFormat("Adding claim CompanyAdmin to user {0}", authUser.UserName);
+
                             foreach (var p in sqlUser.UserRole.GetType().GetProperties())
                             { // Loop through each property and set the value if it is true on the user role data
                                 if (p.PropertyType == typeof(bool))
@@ -160,6 +170,7 @@ namespace CloudPanel
                                     if (isTrue)
                                     {
                                         claims.Add(p.Name);
+                                        logger.InfoFormat("Adding claim {0} to user {1}", p.Name, authUser.UserName);
                                     }
                                 }
                             }

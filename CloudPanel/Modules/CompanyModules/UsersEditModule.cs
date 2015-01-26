@@ -444,8 +444,7 @@ namespace CloudPanel.Modules.CompanyModules
                             if (user.MailboxPlan > 0 && boundUser.IsMailboxEnabled)
                             {
                                 #region Update Mailbox
-                                // Update mailbox
-                                logger.InfoFormat("Updating mailbox for {0}", userGuid);
+                                logger.InfoFormat("Updating mailbox for {0} with size {1}", userGuid, boundUser.SizeInMB);
 
                                 powershell.Set_Mailbox(boundUser, plan, validatedEmails.ToArray());
                                 powershell.Set_CASMailbox(boundUser.UserGuid, plan, null);

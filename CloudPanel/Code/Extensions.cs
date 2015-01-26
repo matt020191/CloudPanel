@@ -39,6 +39,8 @@ namespace CloudPanel
         /// <returns></returns>
         public static bool IsLocalOrSuperAdmin(this NancyContext context)
         {
+            logger.DebugFormat("Checking if the user is a local or super admin");
+            logger.DebugFormat("User's host address is {0}", context.Request.UserHostAddress);
             bool isSuper = context.CurrentUser != null && context.CurrentUser.Claims.Contains("SuperAdmin");
             bool isLocal = context.Request.UserHostAddress.Equals("127.0.0.1") || context.Request.UserHostAddress.Equals("::1");
             return (isSuper || isLocal);

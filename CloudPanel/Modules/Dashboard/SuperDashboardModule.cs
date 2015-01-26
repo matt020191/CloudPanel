@@ -15,8 +15,6 @@ namespace CloudPanel.Modules.Dashboard
 
         public SuperDashboardModule() : base("/dashboard")
         {
-            this.RequiresClaims(new[] { "SuperAdmin" });
-
             Get["/"] = _ =>
                 {
                     return View["Dashboard/dashboard_super.cshtml"];
@@ -29,6 +27,8 @@ namespace CloudPanel.Modules.Dashboard
 
                     try
                     {
+                        var user = Context.CurrentUser as AuthenticatedUser;
+
                         db = new CloudPanelContext(Settings.ConnectionString);
                         db.Database.Connection.Open();
 

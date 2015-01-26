@@ -960,12 +960,16 @@ namespace CloudPanel.Exchange
             int sizeInMB = 0;
             if (p.MailboxSizeMB > 0)
             {
-                // If mailbox size for plan is greater than 0 then its not unlimited
-                if (p.MaxMailboxSizeMB != null && user.SizeInMB > p.MaxMailboxSizeMB)
-                    sizeInMB = (int)p.MaxMailboxSizeMB;
+                // Make sure max mailbox size is equal to or greater than the plan mailbox size
+                if (p.MailboxSizeMB > p.MaxMailboxSizeMB)
+                    p.MaxMailboxSizeMB = p.MailboxSizeMB;
 
-                if (p.MaxMailboxSizeMB == null && user.SizeInMB > p.MailboxSizeMB)
-                    sizeInMB = p.MailboxSizeMB;
+                if (user.SizeInMB > p.MaxMailboxSizeMB)
+                    sizeInMB = (int)p.MaxMailboxSizeMB;
+                else
+                {
+                    sizeInMB = user.SizeInMB;
+                }
             }
 
             PSCommand cmd = new PSCommand();

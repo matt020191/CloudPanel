@@ -1,12 +1,16 @@
 namespace CloudPanel.Database.EntityFramework.Migrations
 {
+    using log4net;
     using System;
     using System.Data.Entity.Migrations;
     
     public partial class AddApiKeyTable : DbMigration
     {
+        private static readonly ILog logger = log4net.LogManager.GetLogger("SQL");
+
         public override void Up()
         {
+            logger.InfoFormat("Creating table ApiKeys");
             CreateTable(
                 "dbo.ApiKeys",
                 c => new
