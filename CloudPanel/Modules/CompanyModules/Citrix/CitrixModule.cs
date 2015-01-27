@@ -110,6 +110,23 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
                     #endregion
                 };
 
+            Get["/desktopgroups/users"] = _ =>
+                {
+                    string companyCode = _.CompanyCode;
+
+                    var db = new CloudPanelContext(Settings.ConnectionString);
+                    var allUsers = (from d in db.Users
+                                    where d.CompanyCode == companyCode
+                                    orderby d.DisplayName
+                                    select new
+                                    {
+                                        UserGuid = d.UserGuid,
+                                        DisplayName = d.DisplayName
+                                    }).ToList();
+
+                    return Response.AsJson(allUsers);
+                };
+
             Get["/desktopgroups/{ID:int}"] = _ =>
                 {
                     //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));

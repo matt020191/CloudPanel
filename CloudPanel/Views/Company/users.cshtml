@@ -238,63 +238,62 @@
     <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
     <script src="~/Content/js/cloudpanel.js"></script>
     <script type="text/javascript">
-
-        // Special thanks: http://www.designchemical.com/blog/index.php/jquery/random-password-generator-using-jquery/
-        $.extend({
-            password: function (length, special) {
-                var iteration = 0;
-                var password = "";
-                var randomNumber;
-                if (special == undefined) {
-                    var special = false;
-                }
-                while (iteration < length) {
-                    randomNumber = (Math.floor((Math.random() * 100)) % 94) + 33;
-                    if (!special) {
-                        if ((randomNumber >= 33) && (randomNumber <= 47)) { continue; }
-                        if ((randomNumber >= 58) && (randomNumber <= 64)) { continue; }
-                        if ((randomNumber >= 91) && (randomNumber <= 96)) { continue; }
-                        if ((randomNumber >= 123) && (randomNumber <= 126)) { continue; }
-                    }
-                    iteration++;
-                    password += String.fromCharCode(randomNumber);
-                }
-                return password;
+    // Special thanks: http://www.designchemical.com/blog/index.php/jquery/random-password-generator-using-jquery/
+    $.extend({
+        password: function (length, special) {
+            var iteration = 0;
+            var password = "";
+            var randomNumber;
+            if (special == undefined) {
+                var special = false;
             }
-        });
+            while (iteration < length) {
+                randomNumber = (Math.floor((Math.random() * 100)) % 94) + 33;
+                if (!special) {
+                    if ((randomNumber >= 33) && (randomNumber <= 47)) { continue; }
+                    if ((randomNumber >= 58) && (randomNumber <= 64)) { continue; }
+                    if ((randomNumber >= 91) && (randomNumber <= 96)) { continue; }
+                    if ((randomNumber >= 123) && (randomNumber <= 126)) { continue; }
+                }
+                iteration++;
+                password += String.fromCharCode(randomNumber);
+            }
+            return password;
+        }
+    });
 
-        $(document).ready(function () {
+    $(document).ready(function () {
 
-            AddFormHandlers();
+        AddFormHandlers();
 
-            var userTable = $("#dataTable").DataTable({
-                "dom": "<'row'<'col-xs-6 toolbar'l><'col-xs-6'f>><'row'<'col-xs-6'i><'col-xs-6'p>r>t<'row'<'col-xs-12'p>>",
-                "autoWidth": false,
-                "language": {
-                    "lengthMenu": "_MENU_ records per page",
-                    "search": ""
+        var userTable = $("#dataTable").DataTable({
+            "dom": "<'row'<'col-xs-6 toolbar'l><'col-xs-6'f>><'row'<'col-xs-6'i><'col-xs-6'p>r>t<'row'<'col-xs-12'p>>",
+            "autoWidth": false,
+            "language": {
+                "lengthMenu": "_MENU_ records per page",
+                "search": ""
+            },
+            "pagingType": "simple",
+            "order": [[1, 'asc']],
+            "serverSide": true,
+            "processing": true,
+            "ajax": {
+                type: 'GET',
+                dataType: 'json',
+                error: function (xhr) {
+                    ShowError(xhr);
                 },
-                "pagingType": "simple",
-                "order": [[1, 'asc']],
-                "serverSide": true,
-                "processing": true,
-                "ajax": {
-                    type: 'GET',
-                    dataType: 'json',
-                    error: function (xhr) {
-                        ShowError(xhr);
-                    },
-                },
-                "columns": [
-                    { "data": "userPrincipalName", "class": "details-control", "orderable": false, "defaultContent": "", "render": function () { return "" } },
-                    { "data": "displayName" },
-                    { "data": "userPrincipalName" },
-                    { "data": "department" },
-                    { "data": "userGuid", "orderable": false, "className": "text-center", "render": function (data, type, full, meta) { return GetUserFeatures(full["isEnabled"], full["isCompanyAdmin"], full["isResellerAdmin"], full["mailboxPlan"], full["archivePlan"]); } },
+            },
+            "columns": [
+                { "data": "userPrincipalName", "class": "details-control", "orderable": false, "defaultContent": "", "render": function () { return "" } },
+                { "data": "displayName" },
+                { "data": "userPrincipalName" },
+                { "data": "department" },
+                { "data": "userGuid", "orderable": false, "className": "text-center", "render": function (data, type, full, meta) { return GetUserFeatures(full["isEnabled"], full["isCompanyAdmin"], full["isResellerAdmin"], full["mailboxPlan"], full["archivePlan"]); } },
+                {
+                    "data": "userGuid", "orderable": false, "className": "text-right", "render": function (data, type, full, meta)
                     {
-                        "data": "userGuid", "orderable": false, "className": "text-right", "render": function (data, type, full, meta)
-                        {
-                            return '<div class="btn-group"> \
+                        return '<div class="btn-group"> \
                                             <button type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown"> \
                                                 Modify <span class="caret"></span> \
                                             </button> \
@@ -306,50 +305,294 @@
                                                 <li><a href="javascript:;" onclick="ShowReset(\''+ data + '\');">Reset Password</a></li> \
                                             </ul> \
                                     </div>';
-                        }
-                    },
-                ],
-                "createdRow": function (row, data, index) {
-                    $(row).find(".tooltip-ex").tooltip();
-                }
-            });
-
-            $('#dataTable tbody').on('click', 'td.details-control', function () {
-                var tr = $(this).closest('tr');
-                var row = userTable.row(tr);
-
-                if (row.child.isShown()) {
-                    row.child.hide();
-                    tr.removeClass('shown');
-                }
-                else {
-                    row.child(FormatUsersChildTable(row.data())).show();
-                    tr.addClass('shown');
-                }
-            });
-
-            $("input:checkbox[name=GeneratePassword]").change(function () {
-                var checked = this.checked;
-
-                $("[name=Pwd]").each(function () {
-                    if (checked) {
-                        $(this).attr("type", "input");
-                        $(this).val($.password(12, false));
-                    } else {
-                        $(this).attr("type", "password");
-                        $(this).val("");
                     }
+                },
+            ],
+            "createdRow": function (row, data, index) {
+                $(row).find(".tooltip-ex").tooltip();
+            }
+        });
+
+        $('#dataTable tbody').on('click', 'td.details-control', function () {
+            var tr = $(this).closest('tr');
+            var row = userTable.row(tr);
+
+            if (row.child.isShown()) {
+                row.child.hide();
+                tr.removeClass('shown');
+            }
+            else {
+                row.child(FormatUsersChildTable(row.data())).show();
+                tr.addClass('shown');
+            }
+        });
+
+        $("input:checkbox[name=GeneratePassword]").change(function () {
+            var checked = this.checked;
+
+            $("[name=Pwd]").each(function () {
+                if (checked) {
+                    $(this).attr("type", "input");
+                    $(this).val($.password(12, false));
+                } else {
+                    $(this).attr("type", "password");
+                    $(this).val("");
+                }
+            });
+        });
+    });
+
+    //
+    // Prompts the user to ask if they want to delete or not
+    //
+    function DeleteUser(userGuid) {
+        swal({
+            title: "Delete User?",
+            text: "This action is not reversable and all data for this user will be deleted permanently",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Yes",
+            cancelButtonText: "No",
+            closeOnConfirm: false,
+            closeOnCancel: true
+        },
+        function (isconfirm) {
+            if (isconfirm) {
+                $.ajax({
+                    type: "DELETE",
+                    dataType: "json",
+                    data: { UserGuid: userGuid },
+                }).done(function () {
+                    ReloadTable("dataTable");
+                    ShowAlert("Deleted!", "User was successfully deleted", "success");
+                }).fail(function (returnData) {
+                    ShowError(returnData);
                 });
+            }
+        });
+    }
+
+    //
+    // Shows the reset modal which allows the user to put in a password and reset
+    //
+    function ShowReset(userGuid) {
+        $("#resetModal #UserGuid").val(userGuid);
+        $("#resetModal").modal("show");
+    }
+
+    //
+    // Shows the reset username modal which allows the user to reset their login name
+    //
+    function ShowResetUsername(userGuid) {
+        $("#resetUsernameModal #UserGuid").val(userGuid);
+        $("#resetUsernameModal").modal("show");
+    }
+
+    //
+    // Modifies the default form events and overrides them
+    //
+    function AddFormHandlers() {
+        $("#newForm").submit(function (event) {
+            event.preventDefault();
+            var data = $("#newForm").serialize();
+
+            $.blockUI();
+            $.post("", data).done(function (returnData) {
+                $("#newModal").modal("hide");
+                ReloadTable("dataTable");
+                ShowSuccess(returnData.success);
+            }).fail(function (returnData) {
+                ShowError(returnData);
+            }).always(function () {
+                $.unblockUI();
             });
         });
 
+        $("#resetForm").submit(function (event) {
+            event.preventDefault();
+            var data = $("#resetForm").serialize();
+            var url = "@Url.Content("~/company/"+companyCode+"/users/")" + $("#resetForm #UserGuid").val() + "/resetpassword";
+
+            $.blockUI();
+            $.post(url, data).done(function (returnData) {
+                $("#resetModal").modal("hide");
+                ShowSuccess(returnData.success);
+            }).fail(function (returnData) {
+                ShowError(returnData);
+            }).always(function () {
+                $.unblockUI();
+            });
+        });
+
+        $("#resetUsernameForm").submit(function (event) {
+            event.preventDefault();
+            var data = $("#resetUsernameForm").serialize();
+            var url = "@Url.Content("~/company/"+companyCode+"/users/")" + $("#resetUsernameModal #UserGuid").val() + "/changelogin";
+
+            $.blockUI();
+            $.post(url, data).done(function (returnData) {
+                $("#resetUsernameModal").modal("hide");
+                ReloadTable("dataTable");
+                ShowSuccess(returnData.success);
+            }).fail(function (returnData) {
+                ShowError(returnData);
+            }).always(function () {
+                $.unblockUI();
+            });
+        });
+    }
+
+    //
+    // Formats the child table under each user
+    //
+    function FormatUsersChildTable(d) {
+        var userStatusHtml = '';
+        if (d.isEnabled == null || d.isEnabled == true)
+            userStatusHtml = '<a href="javascript:DisableUser(\'' + d.userGuid + '\');">Disable User</a>';
+        else
+            userStatusHtml = '<a href="javascript:EnableUser(\'' + d.userGuid + '\');">Enable User</a>';
+
+        var returnData = '<table class="table table-striped table-condensed table-bordered"><thead><tr class="info"><th colspan="2">User Information</th></tr></thead><tbody>' +
+                            '<tr><td align="right" width="200px">GUID:</td><td>' + d.userGuid + '</td></tr>' +
+                            '<tr><td align="right">Change Status:</td><td>' + userStatusHtml  + '</td></tr>' +
+                            '<tr><td align="right">SamAccountName:</td><td>' + d.samAccountName + '</td></tr>' +
+                            '<tr><td align="right">Created:</td><td>' + moment(d.created).format('LLLL') + '</td></tr>' +
+                          '</tbody></table>';
+
+        if (d.mailboxPlan != null) {
+            var totalInBytes = 0;
+            if (d.mailboxPlan.mailboxSizeMB > 0) {
+                totalInBytes = ((d.mailboxPlan.mailboxSizeMB + d.additionalMB) * 1024) * 1024;
+            }
+
+            returnData += '<table class="table table-striped table-condensed table-bordered"><thead><tr class="info"><th colspan="2">Mailbox</th></tr></thead><tbody>' +
+                            '<tr><td align="right" width="200px">Plan:</td><td>' + d.mailboxPlan.mailboxPlanName + '</td></tr>' +
+                            '<tr><td align="right">Email:</td><td><a href="mailto:' + d.email + '">' + d.email + '</a></td></tr>' +
+                            '<tr><td align="right">Features:</td><td>' + GetMailboxFeatures(d.mailboxPlan) + '</td></tr>' +
+                            '<tr><td align="right">Max Mailbox Size:</td><td>' + (totalInBytes > 0 ? bytesToSize(totalInBytes) : 'Unlimited') + '</td></tr>';
+
+            if (d.mailboxInfo != null) {
+                var planMax = 0;
+                if (d.mailboxPlan != null && d.mailboxPlan.mailboxSizeMB > 0) {
+                    planMax = d.mailboxPlan.mailboxSizeMB + d.additionalMB;
+                }
+
+                returnData += (planMax > 0 ? '<tr><td align="right">Used:</td><td id="prog' + d.userGuid + '">' + GetMailboxSizeProgressBar(d.mailboxInfo.totalItemSizeInBytes, planMax) + '</td></tr>' : '') +
+                              '<tr><td align="right" width="200px">Retrieved:</td><td>' + moment(d.mailboxInfo.retrieved).format('LLLL') + '</td></tr>';
+            }
+
+            returnData += '</tbody></table>';
+        }
+
+        if (d.archivePlan != null) {
+            returnData += '<table class="table table-striped table-condensed table-bordered"><thead><tr class="info"><th colspan="2">Mailbox Archive</th></tr></thead><tbody>' +
+                            '<tr><td align="right" width="200px">Plan:</td><td>' + d.archivePlan.displayName + '</td></tr>' +
+                            '<tr><td align="right">Size:</td><td>' + (d.archivePlan.archiveSizeMB > 0 ? bytesToSize((d.archivePlan.archiveSizeMB * 1024) * 1024) : 'Unlimited') + '</td></tr>';
+
+            if (d.archiveInfo != null) {
+                returnData += (d.archivePlan.archiveSizeMB > 0 ? '<tr><td align="right">Used:</td><td id="prog' + d.userGuid + '">' + GetMailboxSizeProgressBar(d.archiveInfo.totalItemSizeInBytes, d.archivePlan.archiveSizeMB) + '</td></tr>' : '') +
+                              '<tr><td align="right" width="200px">Retrieved:</td><td>' + moment(d.archiveInfo.retrieved).format('LLLL') + '</td></tr>';
+            }
+
+            returnData += '</tbody></table>';
+        }
+
+        return returnData;
+    }
+
+    //
+    // Formats the list of mailbox features the user has
+    //
+    function GetMailboxFeatures(d) {
+        var returnData = "";
+
+        if (d.enablePOP3) { returnData += '<span class="label label-default">POP3</span>' }
+        if (d.enableIMAP) { returnData += '<span class="label label-primary">IMAP</span>' }
+        if (d.enableOWA) { returnData += '<span class="label label-success">OWA</span>' }
+        if (d.enableMAPI) { returnData += '<span class="label label-info">MAPI</span>' }
+        if (d.enableAS) { returnData += '<span class="label label-warning">ActiveSync</span>' }
+
+        return returnData;
+    }
+
+    //
+    // Gets a list of features the user has and displays them in the table
+    //
+    function GetUserFeatures(isEnabled, isCompanyAdmin, isResellerAdmin, hasMailbox, hasArchiveMailbox) {
+        var html = [];
+
+        if (!isEnabled)
+            html.push('<span class="badge badge-danger tooltip-ex" data-toggle="tooltip" data-original-title="User is Disabled"><i class="fa fa-frown-o"></i></span><span class="tab-space"></span>');
+
+        if (isCompanyAdmin)
+            html.push('<span class="badge badge-success tooltip-ex" data-toggle="tooltip" data-original-title="Company Administrator"><i class="fa fa-gear"></i></span><span class="tab-space"></span>');
+
+        if (isResellerAdmin)
+            html.push('<span class="badge badge-info tooltip-ex" data-toggle="tooltip" data-original-title="Reseller Administrator"><i class="fa fa-gears"></i></span><span class="tab-space"></span>');
+
+        if (hasMailbox != null)
+            html.push('<span class="badge badge-warning tooltip-ex" data-toggle="tooltip" data-original-title="Has a Mailbox"><i class="fa fa-envelope"></i></span><span class="tab-space"></span>');
+
+        if (hasArchiveMailbox != null)
+            html.push('<span class="badge badge-primary tooltip-ex" data-toggle="tooltip" data-original-title="Has a Archive Mailbox"><i class="fa fa-database"></i></span><span class="tab-space"></span>');
+
+
+        return html.join("");
+    }
+
+    //
+    // Formats the mailbox size progress bar
+    //
+    function GetMailboxSizeProgressBar(minInBytes, maxInMB) {
+        if (maxInMB == 0)
+            return "";
+        else {
+            var maxInKB = (maxInMB * 1024);
+
+            var minInKB = 0;
+            if (minInBytes > 0)
+                minInKB = minInBytes / 1024; // Convert size to KB since we are comparing that to the max which is in KB
+
+            if (minInKB > maxInKB)
+                maxInKB = minInKB;
+
+            var percent = Math.round((minInKB * 100) / maxInKB);
+            var title = bytesToSize(minInKB * 1024) + " / " + bytesToSize(maxInKB * 1024);
+            return '<div class="">\
+                            <div class="clearfix">\
+                                <div class="progress-title" style="float: left">'+ title + '</div>\
+                                <div class="progress-percentage" style="float: right; position: relative">'+ percent + '%</div>\
+                            </div>\
+                            <div class="progress">\
+                                <div class="progress-bar progress-bar-info" style="width: '+ percent + '%"></div>\
+                            </div>\
+                        </div>';
+        }
+    }
+
+    //
+    // Enables an Active Directory user
+    //
+    function EnableUser(userGuid) {
+        $.blockUI();
+        $.post("@Url.Content("~/company/"+companyCode+"/users/")" + userGuid + "/enable", { UserGuid: userGuid }, function (data) {
+            ReloadTable("dataTable");
+            ShowSuccess("Successfully enabled user");
+        }).always(function () {
+            $.unblockUI();
+        }).fail(function (data) {
+            ShowError(data);
+        });
+    }
+
         //
-        // Prompts the user to ask if they want to delete or not
+        // Disables a Active Directory user
         //
-        function DeleteUser(userGuid) {
+        function DisableUser(userGuid) {
             swal({
-                title: "Delete User?",
-                text: "This action is not reversable and all data for this user will be deleted permanently",
+                title: "Disable User?",
+                text: "Are you sure you want to disable the user?",
                 type: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#DD6B55",
@@ -360,209 +603,17 @@
             },
             function (isconfirm) {
                 if (isconfirm) {
-                    $.ajax({
-                        type: "DELETE",
-                        dataType: "json",
-                        data: { UserGuid: userGuid },
-                    }).done(function () {
+                    $.blockUI();
+                    $.post("@Url.Content("~/company/"+companyCode+"/users/")" + userGuid + "/disable", { UserGuid: userGuid }, function (data) {
                         ReloadTable("dataTable");
-                        ShowAlert("Deleted!", "User was successfully deleted", "success");
-                    }).fail(function (returnData) {
-                        ShowError(returnData);
+                        ShowAlert("Disabled!", "User was successfully disabled", "success");
+                    }).always(function () {
+                        $.unblockUI();
+                    }).fail(function (data) {
+                        ShowError(data);
                     });
                 }
             });
-        }
-
-        //
-        // Shows the reset modal which allows the user to put in a password and reset 
-        //
-        function ShowReset(userGuid) {
-            $("#resetModal #UserGuid").val(userGuid);
-            $("#resetModal").modal("show");
-        }
-
-        //
-        // Shows the reset username modal which allows the user to reset their login name
-        //
-        function ShowResetUsername(userGuid) {
-            $("#resetUsernameModal #UserGuid").val(userGuid);
-            $("#resetUsernameModal").modal("show");
-        }
-
-        //
-        // Modifies the default form events and overrides them
-        //
-        function AddFormHandlers() {
-            $("#newForm").submit(function (event) {
-                event.preventDefault();
-                var data = $("#newForm").serialize();
-
-                $.blockUI();
-                $.post("", data).done(function (returnData) {
-                    $("#newModal").modal("hide");
-                    ReloadTable("dataTable");
-                    ShowSuccess(returnData.success);
-                }).fail(function (returnData) {
-                    ShowError(returnData);
-                }).always(function () {
-                    $.unblockUI();
-                });
-            });
-
-            $("#resetForm").submit(function (event) {
-                event.preventDefault();
-                var data = $("#resetForm").serialize();
-                var url = "@Url.Content("~/company/"+companyCode+"/users/")" + $("#resetForm #UserGuid").val() + "/resetpassword";
-
-                $.blockUI();
-                $.post(url, data).done(function (returnData) {
-                    $("#resetModal").modal("hide");
-                    ShowSuccess(returnData.success);
-                }).fail(function (returnData) {
-                    ShowError(returnData);
-                }).always(function () {
-                    $.unblockUI();
-                });
-            });
-
-            $("#resetUsernameForm").submit(function (event) {
-                event.preventDefault();
-                var data = $("#resetUsernameForm").serialize();
-                var url = "@Url.Content("~/company/"+companyCode+"/users/")" + $("#resetUsernameModal #UserGuid").val() + "/changelogin";
-
-                $.blockUI();
-                $.post(url, data).done(function (returnData) {
-                    $("#resetUsernameModal").modal("hide");
-                    ReloadTable("dataTable");
-                    ShowSuccess(returnData.success);
-                }).fail(function (returnData) {
-                    ShowError(returnData);
-                }).always(function () {
-                    $.unblockUI();
-                });
-            });
-        }
-
-        //
-        // Formats the child table under each user
-        //
-        function FormatUsersChildTable(d) {
-            var returnData = '<table class="table table-striped table-condensed table-bordered"><thead><tr class="info"><th colspan="2">User Information</th></tr></thead><tbody>' +
-                                '<tr><td align="right" width="200px">GUID:</td><td>' + d.userGuid + '</td></tr>' +
-                                '<tr><td align="right">SamAccountName:</td><td>' + d.samAccountName + '</td></tr>' +
-                                '<tr><td align="right">Created:</td><td>' + moment(d.created).format('LLLL') + '</td></tr>' +
-                              '</tbody></table>';
-
-            if (d.mailboxPlan != null) {
-                var totalInBytes = 0;
-                if (d.mailboxPlan.mailboxSizeMB > 0) {
-                    totalInBytes = ((d.mailboxPlan.mailboxSizeMB + d.additionalMB) * 1024) * 1024;
-                }
-
-                returnData += '<table class="table table-striped table-condensed table-bordered"><thead><tr class="info"><th colspan="2">Mailbox</th></tr></thead><tbody>' +
-                                '<tr><td align="right" width="200px">Plan:</td><td>' + d.mailboxPlan.mailboxPlanName + '</td></tr>' +
-                                '<tr><td align="right">Email:</td><td><a href="mailto:' + d.email + '">' + d.email + '</a></td></tr>' +
-                                '<tr><td align="right">Features:</td><td>' + GetMailboxFeatures(d.mailboxPlan) + '</td></tr>' +
-                                '<tr><td align="right">Max Mailbox Size:</td><td>' + (totalInBytes > 0 ? bytesToSize(totalInBytes) : 'Unlimited') + '</td></tr>';
-
-                if (d.mailboxInfo != null) {
-                    var planMax = 0;
-                    if (d.mailboxPlan != null && d.mailboxPlan.mailboxSizeMB > 0) {
-                        planMax = d.mailboxPlan.mailboxSizeMB + d.additionalMB;
-                    }
-
-                    returnData += (planMax > 0 ? '<tr><td align="right">Used:</td><td id="prog' + d.userGuid + '">' + GetMailboxSizeProgressBar(d.mailboxInfo.totalItemSizeInBytes, planMax) + '</td></tr>' : '') +
-                                  '<tr><td align="right" width="200px">Retrieved:</td><td>' + moment(d.mailboxInfo.retrieved).format('LLLL') + '</td></tr>';  
-                }
-
-                returnData += '</tbody></table>';
-            }
-
-            if (d.archivePlan != null) {
-                returnData += '<table class="table table-striped table-condensed table-bordered"><thead><tr class="info"><th colspan="2">Mailbox Archive</th></tr></thead><tbody>' +
-                                '<tr><td align="right" width="200px">Plan:</td><td>' + d.archivePlan.displayName + '</td></tr>' +
-                                '<tr><td align="right">Size:</td><td>' + (d.archivePlan.archiveSizeMB > 0 ? bytesToSize((d.archivePlan.archiveSizeMB * 1024) * 1024) : 'Unlimited') + '</td></tr>';
-
-                if (d.archiveInfo != null) {
-                    returnData += (d.archivePlan.archiveSizeMB > 0 ? '<tr><td align="right">Used:</td><td id="prog' + d.userGuid + '">' + GetMailboxSizeProgressBar(d.archiveInfo.totalItemSizeInBytes, d.archivePlan.archiveSizeMB) + '</td></tr>' : '') +
-                                  '<tr><td align="right" width="200px">Retrieved:</td><td>' + moment(d.archiveInfo.retrieved).format('LLLL') + '</td></tr>';
-                }
-
-                returnData += '</tbody></table>';
-            }
-
-            return returnData;
-        }
-
-        //
-        // Formats the list of mailbox features the user has
-        //
-        function GetMailboxFeatures(d) {
-            var returnData = "";
-
-            if (d.enablePOP3) { returnData += '<span class="label label-default">POP3</span>' }
-            if (d.enableIMAP) { returnData += '<span class="label label-primary">IMAP</span>' }
-            if (d.enableOWA) { returnData += '<span class="label label-success">OWA</span>' }
-            if (d.enableMAPI) { returnData += '<span class="label label-info">MAPI</span>' }
-            if (d.enableAS) { returnData += '<span class="label label-warning">ActiveSync</span>' }
-
-            return returnData;
-        }
-
-        //
-        // Gets a list of features the user has and displays them in the table
-        //
-        function GetUserFeatures(isEnabled, isCompanyAdmin, isResellerAdmin, hasMailbox, hasArchiveMailbox) {
-            var html = [];
-
-            if (!isEnabled)
-                html.push('<span class="badge badge-danger tooltip-ex" data-toggle="tooltip" data-original-title="User is Disabled"><i class="fa fa-frown-o"></i></span><span class="tab-space"></span>');
-
-            if (isCompanyAdmin)
-                html.push('<span class="badge badge-success tooltip-ex" data-toggle="tooltip" data-original-title="Company Administrator"><i class="fa fa-gear"></i></span><span class="tab-space"></span>');
-
-            if (isResellerAdmin)
-                html.push('<span class="badge badge-info tooltip-ex" data-toggle="tooltip" data-original-title="Reseller Administrator"><i class="fa fa-gears"></i></span><span class="tab-space"></span>');
-
-            if (hasMailbox != null)
-                html.push('<span class="badge badge-warning tooltip-ex" data-toggle="tooltip" data-original-title="Has a Mailbox"><i class="fa fa-envelope"></i></span><span class="tab-space"></span>');
-
-            if (hasArchiveMailbox != null)
-                html.push('<span class="badge badge-primary tooltip-ex" data-toggle="tooltip" data-original-title="Has a Archive Mailbox"><i class="fa fa-database"></i></span><span class="tab-space"></span>');
-
-
-            return html.join("");
-        }
-
-        //
-        // Formats the mailbox size progress bar
-        //
-        function GetMailboxSizeProgressBar(minInBytes, maxInMB) {
-            if (maxInMB == 0)
-                return "";
-            else {
-                var maxInKB = (maxInMB * 1024);
-
-                var minInKB = 0;
-                if (minInBytes > 0)
-                    minInKB = minInBytes / 1024; // Convert size to KB since we are comparing that to the max which is in KB
-
-                if (minInKB > maxInKB)
-                    maxInKB = minInKB;
-
-                var percent = Math.round((minInKB * 100) / maxInKB);
-                var title = bytesToSize(minInKB * 1024) + " / " + bytesToSize(maxInKB * 1024);
-                return '<div class="">\
-                            <div class="clearfix">\
-                                <div class="progress-title" style="float: left">'+ title + '</div>\
-                                <div class="progress-percentage" style="float: right; position: relative">'+ percent + '%</div>\
-                            </div>\
-                            <div class="progress">\
-                                <div class="progress-bar progress-bar-info" style="width: '+ percent + '%"></div>\
-                            </div>\
-                        </div>';
-            }
         }
     </script>
 }

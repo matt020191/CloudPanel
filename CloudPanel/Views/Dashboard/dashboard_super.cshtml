@@ -161,7 +161,7 @@
     });
 
     function GetTiles() {
-        $.getJSON("@Url.Content("~/dashboard/all")", function (data) {
+        $.getJSON("@Url.Content("~/dashboard/admin/all")", function (data) {
             $("#badgeResellers").text(data.resellers);
             $("#badgeCompanies").text(data.companies);
             $("#badgeUsers").text(data.users);
@@ -243,7 +243,7 @@
     }
 
     function GetHistoryOverview(pastMonths) {
-        $.getJSON("@Url.Content("~/dashboard/history/")"+pastMonths, function (data) {
+        $.getJSON("@Url.Content("~/dashboard/admin/history/")"+pastMonths, function (data) {
             var area = new Highcharts.Chart({
                 chart: { type: 'areaspline', zoomType: 'x', renderTo: 'historyOverview' },
                 title: { text: '' },
@@ -287,7 +287,7 @@
     }
 
     function GetTopResellers(topResellers) {
-        $.getJSON("@Url.Content("~/dashboard/resellers/")" + topResellers, function (data) {
+        $.getJSON("@Url.Content("~/dashboard/admin/resellers/")" + topResellers, function (data) {
             var resellers = [], companyCount = [];
             $.each(data, function (i, val) {
                 resellers.push(val.resellerName);

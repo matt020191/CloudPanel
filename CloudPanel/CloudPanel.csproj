@@ -1277,6 +1277,7 @@
     <Content Include="Content\plugins\justgage\raphael.2.1.0.min.js" />
     <Content Include="Content\plugins\knob\jquery.knob.min.js" />
     <Content Include="Content\plugins\knockout\knockout-3.2.0.js" />
+    <Content Include="Content\plugins\knockout\knockout.mapping-latest.js" />
     <Content Include="Content\plugins\mixitup\jquery.mixitup.min.js" />
     <Content Include="Content\plugins\moment\moment-with-locales.js" />
     <Content Include="Content\plugins\papaparse\papaparse.js" />
@@ -1334,6 +1335,7 @@
     <Content Include="Content\variations\theme-red-steel.css" />
     <Content Include="KMI.ico" />
     <Content Include="Content\knockout\CitrixModel.js" />
+    <Content Include="Content\knockout\Company\CitrixViewModel.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -1378,8 +1380,6 @@
     <Compile Include="Modules\CompanyModules\Exchange\GroupsModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\ResourceModule.cs" />
     <Compile Include="Modules\Dashboard\DashboardModule.cs" />
-    <Compile Include="Modules\Dashboard\ResellerDashboardModule.cs" />
-    <Compile Include="Modules\Dashboard\SuperDashboardModule.cs" />
     <Compile Include="Modules\PlansModules\ActiveSyncPlanModule.cs" />
     <Compile Include="Modules\PlansModules\ArchivePlanModule.cs" />
     <Compile Include="Modules\Reports\ReportsModule.cs" />

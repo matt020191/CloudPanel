@@ -24,7 +24,6 @@
 
 <div class="container">
     <div class="row">
-        <form id="form" action="" method="post" data-parsley-validate>
             <div class="col-md-3">
                 <div class="panel">
                     <a href="javascript:;" class="btn btn-primary btn-lg col-xs-12">Groups</a>
@@ -47,7 +46,7 @@
                 <div class="panel panel-primary">
                     <div class="panel-heading">Users</div>
                     <div class="panel-body form-horizontal row-border">
-
+                        <select class="span12" id="allUsers" multiple="multiple" height="5" data-bind="options: allUsers, optionsText: 'displayName', optionsValue: 'userGuid'"></select>
                     </div>
                     <div class="panel-footer">
                         <div class="row">
@@ -58,11 +57,12 @@
                     </div>
                 </div>
             </div>
-        </form>
     </div>
 </div>
 
 @section JAVASCRIPT{
+    <script src="~/Content/plugins/knockout/knockout-3.2.0.js"></script>
+    <script src="~/Content/knockout/Company/CitrixViewModel.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
 

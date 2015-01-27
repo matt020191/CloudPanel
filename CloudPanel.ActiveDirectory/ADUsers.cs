@@ -804,6 +804,78 @@ namespace CloudPanel.ActiveDirectory
         }
 
         /// <summary>
+        /// Enables an Active Directory user
+        /// </summary>
+        /// <param name="userGuid"></param>
+        public void EnableUser(Guid userGuid)
+        {
+            UserPrincipal usr = null;
+            try
+            {
+                logger.DebugFormat("Attempting to enable user {0}", userGuid);
+
+                if (userGuid == null)
+                    throw new MissingFieldException("Users", "UserGuid");
+
+                pc = GetPrincipalContext();
+                usr = UserPrincipal.FindByIdentity(pc, IdentityType.Guid, userGuid.ToString());
+                if (usr == null)
+                    throw new NoMatchingPrincipalException(userGuid.ToString());
+
+                usr.Enabled = true;
+                usr.Save();
+
+                logger.InfoFormat("Successfully enable user {0}", userGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error enabling user {0}. Exception {1}.", userGuid, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (usr != null)
+                    usr.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Disables an Active Directory user
+        /// </summary>
+        /// <param name="userGuid"></param>
+        public void DisableUser(Guid userGuid)
+        {
+            UserPrincipal usr = null;
+            try
+            {
+                logger.DebugFormat("Attempting to disable user {0}", userGuid);
+
+                if (userGuid == null)
+                    throw new MissingFieldException("Users", "UserGuid");
+
+                pc = GetPrincipalContext();
+                usr = UserPrincipal.FindByIdentity(pc, IdentityType.Guid, userGuid.ToString());
+                if (usr == null)
+                    throw new NoMatchingPrincipalException(userGuid.ToString());
+
+                usr.Enabled = false;
+                usr.Save();
+
+                logger.InfoFormat("Successfully disabled user {0}", userGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error disabling user {0}. Exception {1}.", userGuid, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (usr != null)
+                    usr.Dispose();
+            }
+        }
+
+        /// <summary>
         /// Adds a user to a security group
         /// </summary>
         /// <param name="groupName"></param>

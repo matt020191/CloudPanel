@@ -26,11 +26,11 @@ namespace CloudPanel.Modules.CompanyModules
 
         public UsersEditModule() : base("/company/{CompanyCode}/users/{UserGuid:guid}")
         {
-           // this.RequiresAuthentication();
+            this.RequiresAuthentication();
 
             Get["/"] = _ =>
                 {
-                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
 
                     #region Gets a specific user
                     CloudPanelContext db = null;
@@ -300,7 +300,7 @@ namespace CloudPanel.Modules.CompanyModules
                     Guid userGuid = _.UserGuid;
                     string companyCode = _.CompanyCode;
 
-                    #region change a users login name
+                    #region Change a users login name
                     ADUsers adUser = null;
                     CloudPanelContext db = null;
                     try
@@ -350,6 +350,100 @@ namespace CloudPanel.Modules.CompanyModules
                     catch (Exception ex)
                     {
                         logger.ErrorFormat("Error updating user {0}'s username", userGuid);
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+
+                        if (adUser != null)
+                            adUser.Dispose();
+                    }
+                    #endregion
+                };
+
+            Post["/enable"] = _ =>
+                {
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eUsers"));
+                    Guid userGuid = _.UserGuid;
+                    string companyCode = _.CompanyCode;
+
+                    #region Enables a user
+                    ADUsers adUser = null;
+                    CloudPanelContext db = null;
+                    try
+                    {
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        var user = (from d in db.Users
+                                    where d.CompanyCode == companyCode
+                                    where d.UserGuid == userGuid
+                                    select d).Single();
+
+                        if (user == null)
+                            throw new Exception("User " + userGuid + " was not found in database.");
+
+                        adUser = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                        adUser.EnableUser(userGuid);
+
+                        user.IsEnabled = true;
+                        db.SaveChanges();
+
+                        return Negotiate.WithModel(new {
+                            success = string.Format("User {0} has been successfully enabled", userGuid)
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error enabling user {0}'s account", userGuid);
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+
+                        if (adUser != null)
+                            adUser.Dispose();
+                    }
+                    #endregion
+                };
+
+            Post["/disable"] = _ =>
+                {
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eUsers"));
+                    Guid userGuid = _.UserGuid;
+                    string companyCode = _.CompanyCode;
+
+                    #region Disables a user
+                    ADUsers adUser = null;
+                    CloudPanelContext db = null;
+                    try
+                    {
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        var user = (from d in db.Users
+                                    where d.CompanyCode == companyCode
+                                    where d.UserGuid == userGuid
+                                    select d).Single();
+
+                        if (user == null)
+                            throw new Exception("User " + userGuid + " was not found in database.");
+
+                        adUser = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                        adUser.DisableUser(userGuid);
+
+                        user.IsEnabled = false;
+                        db.SaveChanges();
+
+                        return Negotiate.WithModel(new { 
+                            success = string.Format("User {0} has been successfully disabled", userGuid) 
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error disabling user {0}'s account", userGuid);
                         return Negotiate.WithModel(new { error = ex.Message })
                                         .WithStatusCode(HttpStatusCode.InternalServerError);
                     }

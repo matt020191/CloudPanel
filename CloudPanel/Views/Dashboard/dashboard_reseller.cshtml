@@ -145,7 +145,7 @@
         });
 
         function GetTiles() {
-            $.getJSON("@Url.Content("~/dashboard/all")", function (data) {
+            $.getJSON("@Url.Content("~/dashboard/reseller/all")", function (data) {
                 $("#badgeCompanies").text(data.companies);
                 $("#badgeUsers").text(data.users);
                 $("#badgeMailboxes").text(data.mailboxes);
@@ -155,7 +155,7 @@
         }
 
         function GetHistoryOverview(pastMonths) {
-            $.getJSON("@Url.Content("~/dashboard/history/")" + pastMonths, function (data) {
+            $.getJSON("@Url.Content("~/dashboard/reseller/history/")" + pastMonths, function (data) {
                 var area = new Highcharts.Chart({
                     chart: { type: 'areaspline', renderTo: 'historyOverview' },
                     title: { text: '' },
@@ -201,7 +201,7 @@
         }
 
         function GetTopCompanies(topCompanies) {
-            $.getJSON("@Url.Content("~/dashboard/companies/")" + topCompanies, function (data) {
+            $.getJSON("@Url.Content("~/dashboard/reseller/companies/")" + topCompanies, function (data) {
                 var companies = [], userCount = [];
                 $.each(data, function (i, val) {
                     companies.push(val.companyName);
