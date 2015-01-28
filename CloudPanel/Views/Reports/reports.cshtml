@@ -1,4 +1,5 @@
 ﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@using CloudPanel
 
 @{
     Layout = "__master.cshtml";
@@ -27,6 +28,17 @@
                             <h3>Exchange Summary</h3>
                             <p>Run a report to view information on a per company basis. This report includes costs, profits, top mailbox plans, archiving information, and much more. </p>
                             <p><a href="~/Reports/exchange/summary" class="btn btn-primary" role="button">Run</a></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-md-4">
+                    <div class="thumbnail">
+                        <img src="~/Content/img/reports/ExchangeSummary.png" alt="Exchange Summary" />
+                        <div class="caption">
+                            <h3>Exchange Detailed</h3>
+                            <p>Run a detailed xchange report that shows all users per company and their mailbox sizes vs what they are allocated.</p>
+                            <p><a href="~/Reports/exchange/detailed" class="btn btn-primary" role="button">Run</a></p>
                         </div>
                     </div>
                 </div>

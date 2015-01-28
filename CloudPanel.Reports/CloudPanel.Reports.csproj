@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exchange\ExchangeDetailedData.cs" />
     <Compile Include="Exchange\ExchangeSummaryData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -52,12 +53,6 @@
       <Project>{5c2b5fc4-0814-47c0-b371-0bc299e433e0}</Project>
       <Name>CloudPanel.Base</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Exchange\RDLC\ExchangeReport.rdlc" />
-    <EmbeddedResource Include="Exchange\RDLC\ExchangeSummaryReport.rdlc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

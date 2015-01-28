@@ -56,6 +56,10 @@
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.ReportViewer.Common, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Windows\assembly\GAC_MSIL\Microsoft.ReportViewer.Common\11.0.0.0__89845dcd8080cc91\Microsoft.ReportViewer.Common.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.ReportViewer.WebForms, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL" />
     <Reference Include="Nancy, Version=0.23.2.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -1336,6 +1340,7 @@
     <Content Include="KMI.ico" />
     <Content Include="Content\knockout\CitrixModel.js" />
     <Content Include="Content\knockout\Company\CitrixViewModel.js" />
+    <Content Include="Reports\ReportPlaceHolderBecauseVSIsStupid.aspx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -1399,6 +1404,13 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="RazorConfig.cs" />
+    <Compile Include="Reports\ReportPlaceHolderBecauseVSIsStupid.aspx.cs">
+      <DependentUpon>ReportPlaceHolderBecauseVSIsStupid.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Reports\ReportPlaceHolderBecauseVSIsStupid.aspx.designer.cs">
+      <DependentUpon>ReportPlaceHolderBecauseVSIsStupid.aspx</DependentUpon>
+    </Compile>
     <Compile Include="UserMapper.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -1741,9 +1753,8 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="Reports\Exchange\ExchangeSummaryReport.rdlc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Reports\Exchange\ExchangeDetails.rdlc" />
+    <EmbeddedResource Include="Reports\Exchange\ExchangeSummaryReport.rdlc" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
