@@ -10,7 +10,6 @@ namespace CloudPanel.Database.EntityFramework.Migrations
 
         public override void Up()
         {
-            logger.InfoFormat("Creating table ApiKeys");
             CreateTable(
                 "dbo.ApiKeys",
                 c => new

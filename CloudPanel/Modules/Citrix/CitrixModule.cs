@@ -622,7 +622,9 @@ namespace CloudPanel.Modules.Citrix
                     var company = db.Companies.Where(x => x.CompanyCode == companyCode).Single();
 
                     // Get the desktop group so we can name the new security group
-                    var desktopGroup = db.CitrixDesktopGroup.Where(x => x.UUID == uuid).Single();
+                    var desktopGroup = db.CitrixDesktopGroup
+                                         .Include(x => x.Companies)
+                                         .Where(x => x.UUID == uuid).Single();
 
                     // Get the company's application OU path
                     string appPath = Settings.ApplicationOuPath(company.DistinguishedName);
@@ -653,9 +655,11 @@ namespace CloudPanel.Modules.Citrix
                     groups.AddGroup(desktopGroup.SecurityGroup, newGroup.GroupName);
 
                     // Add new group to database
+                    logger.DebugFormat("Adding security group to our CitrixSecurityGroup table");
                     db.CitrixSecurityGroup.Add(newGroup);
 
                     // Add the company to the desktop group and save
+                    logger.Debug("Adding company to the desktop group");
                     desktopGroup.Companies.Add(company);
                     db.SaveChanges();
 
@@ -664,7 +668,9 @@ namespace CloudPanel.Modules.Citrix
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error adding company to desktop group {0}", uuid);
+                    logger.ErrorFormat("Error adding company to desktop group {0}: {1}", uuid, ex.ToString());
+
+                    reverse.RollbackNow();
                     return Negotiate.WithModel(new { error = ex.Message })
                                     .WithView("Error/500.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);

@@ -265,6 +265,7 @@
                 $.post($("#addCompanyForm").attr("action"), data).done(function (data) {
                     $("#addCompanyModal").modal("hide");
                     ShowSuccess(data.success);
+                    ReloadTable("groupsTable");
                 }).fail(function (returnData) {
                     ShowError(returnData);
                 }).always(function () {

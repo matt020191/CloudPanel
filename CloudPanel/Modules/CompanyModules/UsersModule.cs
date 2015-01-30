@@ -267,7 +267,7 @@ namespace CloudPanel.Modules
                                 logger.DebugFormat("Creating user in Active Directory now");
                                 adUsers = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
                                 newUser = adUsers.Create(Settings.UsersOuPath(company.DistinguishedName), Request.Form.Pwd, newUser, Settings.SamAccountNameFormat);
-                                reverse.AddAction(Actions.AddUsers, newUser.UserPrincipalName);
+                                reverse.AddAction(Actions.AddUsers, newUser.UserGuid);
 
                                 logger.DebugFormat("User {0} created in Active Directory. Adding to the AllUsers security group", upn);
                                 adGroups = new ADGroups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);

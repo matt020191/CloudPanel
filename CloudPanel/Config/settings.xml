@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <cloudpanel>
   <Settings>
-    <Database>server=DXN-PC\SQLEXPRESS;database=CPBETA;uid=CloudPanel;password=password;</Database>
+    <Database>server=DXN-PC\SQLEXPRESS;database=CP30901B;uid=CloudPanel;password=password;</Database>
     <CompanyName>Know More IT</CompanyName>
     <HostingOU>OU=Hosting,DC=lab,DC=local</HostingOU>
     <UsersOU></UsersOU>
@@ -48,11 +48,11 @@
   </Citrix>
   <Notifications>
     <Enabled>false</Enabled>
-    <FromAddress>jdixon@compsysar.com</FromAddress>
-    <ToAddress>jdixon@compsysar.com</ToAddress>
-    <MailServer>relay.dnsexit.com</MailServer>
-    <MailPort>2525</MailPort>
-    <MailUsername>compsysar1</MailUsername>
+    <FromAddress></FromAddress>
+    <ToAddress></ToAddress>
+    <MailServer></MailServer>
+    <MailPort></MailPort>
+    <MailUsername></MailUsername>
     <MailPassword>1jr3Kd5dEDI=</MailPassword>
   </Notifications>
   <Advanced>

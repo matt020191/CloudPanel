@@ -386,6 +386,8 @@ namespace CloudPanel.Database.EntityFramework.Migrations
             AddPrimaryKey("Contacts", "ID");
             AddPrimaryKey("DistributionGroups", "ID");
             AddPrimaryKey("Users", "ID");
+
+            Sql(@"IF OBJECT_ID ('Trigger_UserStats', 'TR') IS NOT NULL DROP TRIGGER Trigger_UserStats");
         }
         
         public override void Down()
