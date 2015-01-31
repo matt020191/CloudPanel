@@ -8512,6 +8512,10 @@ body.static-header {
   background: url("../img/logo.png") no-repeat center center;
   height: 40px;
   width: 106px;
+
+  /* Updates via matt020191 */
+  position: relative;
+  left: 10px;
 }
 @media (max-width: 480px) {
   ul.toolbar {
@@ -8721,7 +8725,8 @@ footer #back-to-top {
   display: block;
   padding-bottom: 40px;
   margin: 0 auto;
-  width: 224px;
+  /* width: 224px; -> ORIGINAL */
+  width: 300px;
 }
 .focusedform .verticalcenter {
   position: absolute;
