@@ -38,6 +38,7 @@ namespace CloudPanel.Modules.PlansModules
                         // Bind to the forum
                         logger.DebugFormat("Binding Activesync plan to form...");
                         var plan = this.Bind<Plans_ExchangeActiveSync>();
+                        plan.ExchangeName = plan.DisplayName;
 
                         // Update Exchange
                         logger.DebugFormat("Adding Activesync plan {0} in Exchange", plan.DisplayName);
