@@ -114,6 +114,7 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
                 {
                     string companyCode = _.CompanyCode;
 
+                    #region Gets a list of users in a desktop group
                     var db = new CloudPanelContext(Settings.ConnectionString);
                     var allUsers = (from d in db.Users
                                     where d.CompanyCode == companyCode
@@ -125,6 +126,7 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
                                     }).ToList();
 
                     return Response.AsJson(allUsers);
+                    #endregion
                 };
 
             Get["/desktopgroups/{ID:int}"] = _ =>
