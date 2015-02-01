@@ -32,6 +32,7 @@ using log4net;
 //
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management.Automation;
 using System.Text;
@@ -409,6 +410,159 @@ namespace CloudPanel.Exchange
             }
 
             return foundList;
+        }
+
+        #endregion
+
+        #region Public Folders
+
+        /// <summary>
+        /// Creates a new public folder mailbox
+        /// </summary>
+        /// <param name="publicFolderName"></param>
+        /// <param name="displayName"></param>
+        /// <param name="organizationalUnit"></param>
+        /// <param name="primarySmtpAddress"></param>
+        public void New_PublicFolderMailbox(string publicFolderName, string displayName, string organizationalUnit, string primarySmtpAddress)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("New-Mailbox");
+            cmd.AddParameter("Name", publicFolderName);
+            cmd.AddParameter("DisplayName", displayName);
+            cmd.AddParameter("OrganizationalUnit", organizationalUnit);
+            cmd.AddParameter("PrimarySmtpAddress", primarySmtpAddress);
+            cmd.AddParameter("PublicFolder");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        /// <summary>
+        /// Updates a public folder mailbox with plan settings
+        /// </summary>
+        /// <param name="publicFolderName"></param>
+        /// <param name="companyCode"></param>
+        /// <param name="p"></param>
+        public void Set_PublicFolderMailbox(string publicFolderName, string companyCode, Plans_ExchangeMailbox p)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Set-Mailbox");
+            cmd.AddParameter("Identity", publicFolderName);
+            cmd.AddParameter("PublicFolder");
+            cmd.AddParameter("EmailAddressPolicyEnabled", false);
+            cmd.AddParameter("IssueWarningQuota", string.Format("{0}MB", p.MailboxSizeMB * 0.90));
+            cmd.AddParameter("MaxReceiveSize", string.Format("{0}KB", p.MaxReceiveKB));
+            cmd.AddParameter("MaxSendSize", string.Format("{0}KB", p.MaxSendKB));
+            cmd.AddParameter("OfflineAddressBook", string.Format(Settings.ExchangeOALName, companyCode));
+            cmd.AddParameter("ProhibitSendQuota", string.Format("{0}MB", p.MailboxSizeMB));
+            cmd.AddParameter("ProhibitSendReceiveQuota", string.Format("{0}MB", p.MailboxSizeMB));
+            cmd.AddParameter("RecipientLimits", string.Format("{0}", p.MaxRecipients));
+            cmd.AddParameter("RetainDeletedItemsFor", p.MaxKeepDeletedItems > 0 ? p.MaxKeepDeletedItems : 30);
+            cmd.AddParameter("UseDatabaseQuotaDefaults", false);
+            cmd.AddParameter("UseDatabaseRetentionDefaults", false);
+            cmd.AddParameter("RetainDeletedItemsUntilBackup", true);
+            cmd.AddParameter("CustomAttribute1",companyCode);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        /// <summary>
+        /// Removes a public folder mailbox
+        /// </summary>
+        /// <param name="publicFolderName"></param>
+        public void Remove_PublicFolderMailbox(string publicFolderName)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Remove-Mailbox");
+            cmd.AddParameter("Identity", publicFolderName);
+            cmd.AddParameter("PublicFolder");
+            cmd.AddParameter("Confirm", false);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        /// <summary>
+        /// Adds public folder client permissions
+        /// </summary>
+        /// <param name="publicFolderPath"></param>
+        /// <param name="permissions"></param>
+        public void Add_PublicFolderClientPermission(string publicFolderPath, string publicFolderMailbox, Dictionary<string, string> permissions)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-PublicFolderClientPermission");
+            cmd.AddParameter("Identity", publicFolderPath);
+            cmd.AddParameter("Mailbox", publicFolderMailbox);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            Collection<PSObject> obj = _powershell.Invoke();
+            HandleErrors(); // Check for errors
+
+            // Add the permissions
+            var currentUsers = from o in obj select o.Members["User"].Value;
+            foreach (var kvp in permissions)
+            {
+                if (!currentUsers.Any(x => x.ToString().Equals(kvp.Key, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    cmd = new PSCommand();
+                    cmd.AddCommand("Add-PublicFolderClientPermission");
+                    cmd.AddParameter("Identity", publicFolderPath);
+                    cmd.AddParameter("Mailbox", publicFolderMailbox);
+                    cmd.AddParameter("User", kvp.Key);
+                    cmd.AddParameter("AccessRights", kvp.Value);
+                    cmd.AddParameter("Confirm", false);
+                    cmd.AddParameter("DomainController", this._domainController);
+                    _powershell.Commands = cmd;
+                    _powershell.Invoke();
+
+                    HandleErrors(); // Check for new errors
+                }
+            }
+        }
+
+        /// <summary>
+        /// Removes public folder client permissions
+        /// </summary>
+        /// <param name="publicFolderPath"></param>
+        /// <param name="permissions"></param>
+        public void Remove_PublicFolderClientPermission(string publicFolderPath, string publicFolderMailbox, string[] users)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-PublicFolderClientPermission");
+            cmd.AddParameter("Identity", publicFolderPath);
+            cmd.AddParameter("Mailbox", publicFolderMailbox);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            Collection<PSObject> obj = _powershell.Invoke();
+            HandleErrors(); // Check for errors
+
+            // Add the permissions
+            var currentUsers = from o in obj select o.Members["User"].Value;
+            foreach (var user in users)
+            {
+                if (!currentUsers.Any(x => x.ToString().Equals(user, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    cmd = new PSCommand();
+                    cmd.AddCommand("Remove-PublicFolderClientPermission");
+                    cmd.AddParameter("Identity", publicFolderPath);
+                    cmd.AddParameter("Mailbox", publicFolderMailbox);
+                    cmd.AddParameter("User", user);
+                    cmd.AddParameter("Confirm", false);
+                    cmd.AddParameter("DomainController", this._domainController);
+                    _powershell.Commands = cmd;
+                    _powershell.Invoke();
+
+                    HandleErrors(); // Check for new errors
+                }
+            }
         }
 
         #endregion

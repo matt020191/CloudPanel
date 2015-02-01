@@ -6,6 +6,7 @@ using log4net;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Management.Automation;
@@ -2543,6 +2544,117 @@ namespace CloudPanel.Exchange
             }
 
             return foundList;
+        }
+
+        #endregion
+
+        #region Public Folders
+
+        /// <summary>
+        /// Creates new public folder (EXCHANGE 2010)
+        /// </summary>
+        /// <param name="publicFolderName"></param>
+        public virtual void New_PublicFolder(string publicFolderName)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("New-PublicFolder");
+            cmd.AddParameter("Name", publicFolderName);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        /// <summary>
+        /// Removes a public folder (EXCHANGE 2010)
+        /// </summary>
+        /// <param name="companyCode"></param>
+        public virtual void Remove_PublicFolder(string publicFolderPath)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Remove-PublicFolder");
+            cmd.AddParameter("Identity", publicFolderPath);
+            cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        /// <summary>
+        /// Adds public folder client permissions (EXCHANGE 2010)
+        /// </summary>
+        /// <param name="publicFolderPath"></param>
+        /// <param name="permissions"></param>
+        public virtual void Add_PublicFolderClientPermission(string publicFolderPath, Dictionary<string, string> permissions)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-PublicFolderClientPermission");
+            cmd.AddParameter("Identity", publicFolderPath);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            Collection<PSObject> obj = _powershell.Invoke();
+            HandleErrors(); // Check for errors
+
+            // Add the permissions
+            var currentUsers = from o in obj select o.Members["User"].Value;
+            foreach (var kvp in permissions)
+            {
+                if (!currentUsers.Any(x => x.ToString().Equals(kvp.Key, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    cmd = new PSCommand();
+                    cmd.AddCommand("Add-PublicFolderClientPermission");
+                    cmd.AddParameter("Identity", publicFolderPath);
+                    cmd.AddParameter("User", kvp.Key);
+                    cmd.AddParameter("AccessRights", kvp.Value);
+                    cmd.AddParameter("Confirm", false);
+                    cmd.AddParameter("DomainController", this._domainController);
+                    _powershell.Commands = cmd;
+                    _powershell.Invoke();
+
+                    HandleErrors(); // Check for new errors
+                }
+            }
+        }
+
+        /// <summary>
+        /// Removes public folder client permissions (EXCHANGE 2010)
+        /// </summary>
+        /// <param name="publicFolderPath"></param>
+        /// <param name="permissions"></param>
+        public virtual void Remove_PublicFolderClientPermission(string publicFolderPath, Dictionary<string, string> permissions)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-PublicFolderClientPermission");
+            cmd.AddParameter("Identity", publicFolderPath);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            Collection<PSObject> obj = _powershell.Invoke();
+            HandleErrors(); // Check for errors
+
+            // Add the permissions
+            var currentUsers = from o in obj select o.Members["User"].Value;
+            foreach (var kvp in permissions)
+            {
+                if (!currentUsers.Any(x => x.ToString().Equals(kvp.Key, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    cmd = new PSCommand();
+                    cmd.AddCommand("Remove-PublicFolderClientPermission");
+                    cmd.AddParameter("Identity", publicFolderPath);
+                    cmd.AddParameter("User", kvp.Key);
+                    cmd.AddParameter("AccessRights", kvp.Value);
+                    cmd.AddParameter("Confirm", false);
+                    cmd.AddParameter("DomainController", this._domainController);
+                    _powershell.Commands = cmd;
+                    _powershell.Invoke();
+
+                    HandleErrors(); // Check for new errors
+                }
+            }
         }
 
         #endregion
