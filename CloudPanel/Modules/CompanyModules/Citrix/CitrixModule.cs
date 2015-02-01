@@ -3,6 +3,7 @@ using CloudPanel.Base.Config;
 using CloudPanel.Base.Database.Models;
 using CloudPanel.Citrix;
 using CloudPanel.Code;
+using CloudPanel.ActiveDirectory;
 using CloudPanel.Database.EntityFramework;
 using log4net;
 using Nancy;
@@ -13,6 +14,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using CloudPanel.Base.AD;
+using CloudPanel.Rollback;
 
 namespace CloudPanel.Modules.CompanyModules.Citrix
 {
@@ -25,16 +28,14 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
             Get["/sessions", c => c.Request.Accept("text/html")] = _ =>
                 {
                     this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
-
                     return View["Company/Citrix/sessions.cshtml"];
                 };
 
             Get["/sessions", c => !c.Request.Accept("text/html")] = _ =>
                 {
                     this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
-
-                    string companyCode = _.CompanyCode;
                     #region Gets sessions for all destop groups the user is assigned
+                    string companyCode = _.CompanyCode;
                     CloudPanelContext db = null;
                     XenDesktop7 xd7 = null;
                     try
@@ -92,17 +93,17 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
             Get["/desktopgroups", c => c.Request.Accept("text/html")] = _ =>
                 {
                     //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
-                    string companyCode = _.CompanyCode;
                     return Negotiate.WithView("Company/Citrix/groups.cshtml");
                 };
 
             Get["/desktopgroups", c => !c.Request.Accept("text/html")] = _ =>
                 {
+                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
+                    #region Return all desktop groups
                     string companyCode = _.CompanyCode;
                     try
                     {
-                        return Negotiate.WithModel(new { groups = GetDesktopGroups(companyCode) })
-                                        .WithView("Company/Citrix/groups.cshtml");
+                        return Negotiate.WithModel(new { groups = GetDesktopGroups(companyCode) });
                     }
                     catch (Exception ex)
                     {
@@ -111,38 +112,22 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
                                         .WithView("error/500.cshtml")
                                         .WithStatusCode(HttpStatusCode.InternalServerError);
                     }
-                };
-
-            Get["/desktopgroups/users"] = _ =>
-                {
-                    string companyCode = _.CompanyCode;
-
-                    #region Gets a list of users in a desktop group
-                    var db = new CloudPanelContext(Settings.ConnectionString);
-                    var allUsers = (from d in db.Users
-                                    where d.CompanyCode == companyCode
-                                    orderby d.DisplayName
-                                    select new
-                                    {
-                                        UserGuid = d.UserGuid,
-                                        DisplayName = d.DisplayName
-                                    }).ToList();
-
-                    return Response.AsJson(allUsers);
                     #endregion
                 };
 
             Get["/desktopgroups/{ID:int}", c => c.Request.Accept("text/html")] = _ =>
                 {
+                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
                     return View["Company/Citrix/groups.cshtml"];
                 };
 
             Get["/desktopgroups/{ID:int}", c => !c.Request.Accept("text/html")] = _ =>
                 {
+                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
+                    #region Get all users for the desktop group and if they are selected or not
                     int id = _.ID;
                     string companyCode = _.CompanyCode;
 
-                    #region Get all users for the desktop group and if they are selected or not
                     CloudPanelContext db = null;
                     try
                     {
@@ -156,7 +141,7 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
                                             UserGuid = d.UserGuid,
                                             DisplayName = d.DisplayName,
                                             UserPrincipalName = d.UserPrincipalName,
-                                            IsSelected = false
+                                            IsSelected = d.CitrixDesktopGroups.Any(a => a.DesktopGroupID == id)
                                         }).ToList();
 
                         logger.DebugFormat("Total users: {0}", allUsers.Count);
@@ -180,10 +165,14 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
 
             Post["/desktopgroups/{ID:int}"] = _ =>
                 {
+                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eCitrix"));
+                    #region Adds/removes users to desktop groups
                     int id = _.ID;
                     string companyCode = _.CompanyCode;
 
                     CloudPanelContext db = null;
+                    ADGroups adGroup = null;
+                    ReverseActions reverse = new ReverseActions();
                     try
                     {
                         db = new CloudPanelContext(Settings.ConnectionString);
@@ -197,34 +186,80 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
 
                         // Get the desktop group from the database
                         var desktopGroup = db.CitrixDesktopGroup.Where(x => x.DesktopGroupID == id).Single();
+                        if (string.IsNullOrEmpty(desktopGroup.SecurityGroup))
+                            throw new ArgumentNullException("SecurityGroup");
 
-                        // Get a list of all users so we can tell who was removed or added
+                        // Get the company and the users that belong to the company
+                        var company = db.Companies.Where(x => x.CompanyCode == companyCode).Single();
+                        var users = db.Users.Include(x => x.CitrixDesktopGroups).Where(x => x.CompanyCode == companyCode).ToList();
+
+                        // Validate that a security group exists for this desktop group for the company
+                        adGroup = new ADGroups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                        var securityGroup = db.CitrixSecurityGroup.Where(x => x.DesktopGroupID == desktopGroup.DesktopGroupID && x.CompanyCode == companyCode).Single();
+                        if (securityGroup == null)
+                        {
+                            // Security group does not exist for this desktop group & company. Create it!
+                            var newSecurityGroup = new SecurityGroup();
+                            newSecurityGroup.Name = string.Format("{0}@{1}", desktopGroup.SecurityGroup, companyCode);
+                            newSecurityGroup.SamAccountName = newSecurityGroup.Name;
+                            newSecurityGroup.Description = string.Format("Desktop Group {0}, Created by CloudPanel", desktopGroup.Name);
+
+                            adGroup.Create(Settings.ApplicationOuPath(company.DistinguishedName), newSecurityGroup);
+                            reverse.AddAction(Actions.CreateSecurityGroup, newSecurityGroup.Name);
+
+                            // Add group to the parent desktop group and the AllTSUsers group
+                            adGroup.AddGroup(desktopGroup.SecurityGroup, newSecurityGroup.Name);
+                            adGroup.AddGroup("AllTSUsers@" + companyCode, newSecurityGroup.Name);
+
+                            // Add the new security group to the citrix security group table
+                            securityGroup = new CitrixSecurityGroups();
+                            securityGroup.GroupName = newSecurityGroup.Name;
+                            securityGroup.CompanyCode = companyCode;
+                            securityGroup.Description = newSecurityGroup.Description;
+                            securityGroup.DesktopGroupID = desktopGroup.DesktopGroupID;
+
+                            db.CitrixSecurityGroup.Add(securityGroup);
+                        }
+
+                        //
+                        // Loop through each user and see if we are adding or removing from the security group
+                        //
                         var addedGuids = new List<string>();
                         var removedGuids = new List<string>();
-                        var users = db.Users.Include(x => x.CitrixDesktopGroups).Where(x => x.CompanyCode == companyCode).ToList();
                         users.ForEach(x =>
                         {
                             string guid = x.UserGuid.ToString().ToLower();
                             if (!x.CitrixDesktopGroups.Contains(desktopGroup) && userGuids.Contains(guid))
                             {
                                 // We are adding the user
+                                addedGuids.Add(guid);
                                 x.CitrixDesktopGroups.Add(desktopGroup);
                             }
                             else if (x.CitrixDesktopGroups.Contains(desktopGroup) && !userGuids.Contains(guid))
                             {
                                 // We are removing the user
+                                removedGuids.Add(guid);
                                 x.CitrixDesktopGroups.Remove(desktopGroup);
                             }
                         });
 
-                        db.SaveChanges();
+                        // Add users to the security group
+                        if (addedGuids.Count > 0)
+                            adGroup.AddUser(securityGroup.GroupName, addedGuids.ToArray());
 
+                        // Remove users from the security group
+                        if (removedGuids.Count > 0)
+                            adGroup.RemoveUser(securityGroup.GroupName, removedGuids.ToArray());
+
+                        db.SaveChanges();
                         return Negotiate.WithModel(new { success = "Successfully desktop group users" })
                                         .WithStatusCode(HttpStatusCode.OK);
                     }
                     catch (Exception ex)
                     {
                         logger.ErrorFormat("Error updating desktop group {0}: {1}", id, ex.ToString());
+
+                        reverse.RollbackNow();
                         return Negotiate.WithModel(new { error = ex.Message })
                                         .WithStatusCode(HttpStatusCode.InternalServerError);
                     }
@@ -233,27 +268,27 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
                         if (db != null)
                             db.Dispose();
                     }
+                    #endregion
                 };
 
             Get["/applications"] = _ =>
-            {
-                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
-                string companyCode = _.CompanyCode;
-
-                #region Gets applications
-                logger.DebugFormat("Querying applications for {0}", companyCode);
-                try
                 {
-                    return Negotiate.WithModel(GetApplications(companyCode));
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error getting applications for company {0}: {1}", companyCode, ex.ToString());
-                    return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithStatusCode(HttpStatusCode.InternalServerError);
-                }
-                #endregion
-            };
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
+                    #region Gets applications
+                    string companyCode = _.CompanyCode;
+                    logger.DebugFormat("Querying applications for {0}", companyCode);
+                    try
+                    {
+                        return Negotiate.WithModel(GetApplications(companyCode));
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error getting applications for company {0}: {1}", companyCode, ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    #endregion
+                };
         }
 
         public static List<CitrixDesktopGroups> GetDesktopGroups(string companyCode)

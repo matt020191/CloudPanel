@@ -62,6 +62,12 @@ namespace CloudPanel.ActiveDirectory
 
         #endregion
 
+        /// <summary>
+        /// Creates a new security group and returns the object created
+        /// </summary>
+        /// <param name="parentOU"></param>
+        /// <param name="group"></param>
+        /// <returns></returns>
         public SecurityGroup Create(string parentOU, SecurityGroup group)
         {
             PrincipalContext ctx = null;
@@ -120,6 +126,11 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        /// <summary>
+        /// Get a list of alll users that are a member of a certain security group
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <returns></returns>
         public List<Users> GetUsers(string groupName)
         {
             GroupPrincipal grp = null;
@@ -171,6 +182,10 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        /// <summary>
+        /// Delete a security group
+        /// </summary>
+        /// <param name="groupName"></param>
         public void Delete(string groupName)
         {
             GroupPrincipal gp = null;
@@ -201,6 +216,11 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        /// <summary>
+        /// Add a user to a security group by the userPrincipalName
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="userPrincipalName"></param>
         public void AddUser(string groupName, string userPrincipalName)
         {
             GroupPrincipal gp = null;
@@ -250,6 +270,63 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        /// <summary>
+        /// Add a list of users to a security group by the userGuid values
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="userGuids"></param>
+        public void AddUser(string groupName, string[] userGuids)
+        {
+            GroupPrincipal gp = null;
+            UserPrincipal usr = null;
+
+            try
+            {
+                if (string.IsNullOrEmpty(groupName))
+                    throw new MissingFieldException("Users", "groupName");
+
+                if (userGuids == null || userGuids.Length < 1)
+                    throw new MissingFieldException("Users", "userPrincipalName");
+
+                log.DebugFormat("Attempting to add {0} to group {1}...", String.Join(",", userGuids), groupName);
+
+                pc = GetPrincipalContext();
+                gp = GroupPrincipal.FindByIdentity(pc, IdentityType.Name, groupName);
+                if (gp == null)
+                    throw new NoMatchingPrincipalException(groupName);
+
+                foreach (var userGuid in userGuids)
+                {
+                    usr = UserPrincipal.FindByIdentity(pc, IdentityType.Guid, userGuid);
+                    if (!gp.Members.Contains(usr))
+                    {
+                        gp.Members.Add(usr);
+                        log.DebugFormat("Added {0} to group {1}", usr.UserPrincipalName, gp.Name);
+                    }
+                }
+
+                gp.Save();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error adding {0} to group {1}. Exception: {2}", String.Join(",", userGuids), groupName, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (usr != null)
+                    usr.Dispose();
+
+                if (gp != null)
+                    gp.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Add a user to a list of security groups
+        /// </summary>
+        /// <param name="groupsName"></param>
+        /// <param name="userPrincipalName"></param>
         public void AddUser(string[] groupsName, string userPrincipalName)
         {
             GroupPrincipal gp = null;
@@ -305,6 +382,11 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        /// <summary>
+        /// Removes a single user from a security group using the UserPrincipalName
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="userPrincipalName"></param>
         public void RemoveUser(string groupName, string userPrincipalName)
         {
             GroupPrincipal gp = null;
@@ -354,6 +436,11 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        /// <summary>
+        /// Remove a single user from a list of security groups
+        /// </summary>
+        /// <param name="groupsName"></param>
+        /// <param name="userPrincipalName"></param>
         public void RemoveUser(string[] groupsName, string userPrincipalName)
         {
             GroupPrincipal gp = null;
@@ -409,6 +496,63 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        /// <summary>
+        /// Remove a list of users from a single security group
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="userGuids"></param>
+        public void RemoveUser(string groupName, string[] userGuids)
+        {
+            GroupPrincipal gp = null;
+            UserPrincipal usr = null;
+
+            try
+            {
+                if (string.IsNullOrEmpty(groupName))
+                    throw new MissingFieldException("Users", "groupName");
+
+                if (userGuids == null || userGuids.Length < 1)
+                    throw new MissingFieldException("Users", "userPrincipalName");
+
+                log.DebugFormat("Attempting to remove {0} from group {1}...", String.Join(",", userGuids), groupName);
+
+                pc = GetPrincipalContext();
+                gp = GroupPrincipal.FindByIdentity(pc, IdentityType.Name, groupName);
+                if (gp == null)
+                    throw new NoMatchingPrincipalException(groupName);
+
+                foreach (var userGuid in userGuids)
+                {
+                    usr = UserPrincipal.FindByIdentity(pc, IdentityType.Guid, userGuid);
+                    if (gp.Members.Contains(usr))
+                    {
+                        gp.Members.Remove(usr);
+                        log.DebugFormat("Removed {0} from group {1}", usr.UserPrincipalName, gp.Name);
+                    }
+                }
+
+                gp.Save();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error removing {0} from group {1}. Exception: {2}", String.Join(",", userGuids), groupName, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (usr != null)
+                    usr.Dispose();
+
+                if (gp != null)
+                    gp.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Add a security group to another security group
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="addingGroupName"></param>
         public void AddGroup(string groupName, string addingGroupName)
         {
             GroupPrincipal gp = null;
