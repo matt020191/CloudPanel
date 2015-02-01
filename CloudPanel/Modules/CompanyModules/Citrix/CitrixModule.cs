@@ -6,6 +6,7 @@ using CloudPanel.Code;
 using CloudPanel.Database.EntityFramework;
 using log4net;
 using Nancy;
+using Nancy.ModelBinding;
 using Nancy.Security;
 using System.Data.Entity;
 using System;
@@ -88,13 +89,16 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
                     #endregion
                 };
 
-            Get["/desktopgroups"] = _ =>
+            Get["/desktopgroups", c => c.Request.Accept("text/html")] = _ =>
                 {
                     //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
                     string companyCode = _.CompanyCode;
+                    return Negotiate.WithView("Company/Citrix/groups.cshtml");
+                };
 
-                    #region Gets desktop groups
-                    logger.DebugFormat("Querying desktop groups for {0}", companyCode);
+            Get["/desktopgroups", c => !c.Request.Accept("text/html")] = _ =>
+                {
+                    string companyCode = _.CompanyCode;
                     try
                     {
                         return Negotiate.WithModel(new { groups = GetDesktopGroups(companyCode) })
@@ -107,7 +111,6 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
                                         .WithView("error/500.cshtml")
                                         .WithStatusCode(HttpStatusCode.InternalServerError);
                     }
-                    #endregion
                 };
 
             Get["/desktopgroups/users"] = _ =>
@@ -129,34 +132,107 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
                     #endregion
                 };
 
-            Get["/desktopgroups/{ID:int}"] = _ =>
+            Get["/desktopgroups/{ID:int}", c => c.Request.Accept("text/html")] = _ =>
                 {
-                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
-                    string companyCode = _.CompanyCode;
-                    int id = _.ID;
+                    return View["Company/Citrix/groups.cshtml"];
+                };
 
-                    #region Gets users for the desktop group
-                    logger.DebugFormat("Querying desktop group {0} for {1}", id, companyCode);
+            Get["/desktopgroups/{ID:int}", c => !c.Request.Accept("text/html")] = _ =>
+                {
+                    int id = _.ID;
+                    string companyCode = _.CompanyCode;
+
+                    #region Get all users for the desktop group and if they are selected or not
                     CloudPanelContext db = null;
                     try
                     {
                         db = new CloudPanelContext(Settings.ConnectionString);
                         db.Database.Connection.Open();
 
-                        var allUsers = db.Users
-                                         .Where(x => x.CompanyCode == companyCode)
-                                         .ToList();
-                        return Negotiate.WithModel(new { groups = GetDesktopGroups(companyCode) })
-                                        .WithView("Company/Citrix/groups.cshtml");
+                        var allUsers = (from d in db.Users
+                                                    .Include(x => x.CitrixDesktopGroups)
+                                        where d.CompanyCode == companyCode
+                                        select new {
+                                            UserGuid = d.UserGuid,
+                                            DisplayName = d.DisplayName,
+                                            UserPrincipalName = d.UserPrincipalName,
+                                            IsSelected = false
+                                        }).ToList();
+
+                        logger.DebugFormat("Total users: {0}", allUsers.Count);
+                        return Negotiate.WithModel(new { users = allUsers })
+                                        .WithStatusCode(HttpStatusCode.OK);
                     }
                     catch (Exception ex)
                     {
-                        logger.ErrorFormat("Error getting desktops group for company {0}: {1}", companyCode, ex.ToString());
+                        logger.ErrorFormat("Error getting users for company desktop group {0}: {1}", companyCode, ex.ToString());
                         return Negotiate.WithModel(new { error = ex.Message })
                                         .WithView("error/500.cshtml")
                                         .WithStatusCode(HttpStatusCode.InternalServerError);
                     }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+                    }
                     #endregion
+                };
+
+            Post["/desktopgroups/{ID:int}"] = _ =>
+                {
+                    int id = _.ID;
+                    string companyCode = _.CompanyCode;
+
+                    CloudPanelContext db = null;
+                    try
+                    {
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
+
+                        var userGuids = new List<string>();
+                        if (Request.Form["UserGuid[]"].HasValue) {
+                            string g = Request.Form["UserGuid[]"].Value;
+                            userGuids = g.ToLower().Split(',').ToList();
+                        }
+
+                        // Get the desktop group from the database
+                        var desktopGroup = db.CitrixDesktopGroup.Where(x => x.DesktopGroupID == id).Single();
+
+                        // Get a list of all users so we can tell who was removed or added
+                        var addedGuids = new List<string>();
+                        var removedGuids = new List<string>();
+                        var users = db.Users.Include(x => x.CitrixDesktopGroups).Where(x => x.CompanyCode == companyCode).ToList();
+                        users.ForEach(x =>
+                        {
+                            string guid = x.UserGuid.ToString().ToLower();
+                            if (!x.CitrixDesktopGroups.Contains(desktopGroup) && userGuids.Contains(guid))
+                            {
+                                // We are adding the user
+                                x.CitrixDesktopGroups.Add(desktopGroup);
+                            }
+                            else if (x.CitrixDesktopGroups.Contains(desktopGroup) && !userGuids.Contains(guid))
+                            {
+                                // We are removing the user
+                                x.CitrixDesktopGroups.Remove(desktopGroup);
+                            }
+                        });
+
+                        db.SaveChanges();
+
+                        return Negotiate.WithModel(new { success = "Successfully desktop group users" })
+                                        .WithStatusCode(HttpStatusCode.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error updating desktop group {0}: {1}", id, ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+                    }
                 };
 
             Get["/applications"] = _ =>

@@ -30,42 +30,116 @@
                 </div>
                 <hr />
                 <div class="panel">
-                    <div class="list-group">
-                        @if (Model.groups != null)
-                        {
-                            foreach (CloudPanel.Base.Database.Models.CitrixDesktopGroups group in Model.groups)
-                            {
-                                <a href="~/company/@companyCode/citrix/groups" class="list-group-item"><i class="fa fa-desktop"></i> @group.PublishedName</a>
-                            }
-                        }
+                    <div class="list-group" data-bind="foreach: desktopGroups">
+                        <a href="" data-bind="attr:{href:url}" class="list-group-item"><i class="fa fa-desktop"></i> <span data-bind="text: publishedName"></span></a>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-9">
-                <div class="panel panel-primary">
-                    <div class="panel-heading">Users</div>
-                    <div class="panel-body form-horizontal row-border">
-                        <select class="span12" id="allUsers" multiple="multiple" height="5" data-bind="options: allUsers, optionsText: 'displayName', optionsValue: 'userGuid'"></select>
-                    </div>
-                    <div class="panel-footer">
-                        <div class="row">
-                            <div class="btn-toolbar text-right">
-                                <button class="btn-primary btn" type="submit">Save</button>
-                            </div>
+        <form class="col-md-9" data-bind="submit: updateDesktopGroup">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Users</div>
+                <div class="panel-body form-horizontal row-border">
+                    <table class="table table-striped table-condensed">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" data-bind="click: selectAll" /></th>
+                                <th>Display Name</th>
+                                <th>Login Name</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: users">
+                            <tr data-bind="css: {selected: isSelected}">
+                                <td><input type="checkbox" data-bind="checked: isSelected, checkedValue: userGuid, attr: { name: 'UserGuid_'+$index() }" /></td>
+                                <td data-bind="text: displayName"></td>
+                                <td data-bind="text: userPrincipalName"></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="panel-footer">
+                    <div class="row">
+                        <div class="btn-toolbar text-right">
+                            <button class="btn-primary btn" type="submit">Save</button>
                         </div>
                     </div>
                 </div>
             </div>
+        </form>
     </div>
 </div>
 
 @section JAVASCRIPT{
     <script src="~/Content/plugins/knockout/knockout-3.2.0.js"></script>
-    <script src="~/Content/knockout/Company/CitrixViewModel.js"></script>
     <script type="text/javascript">
-        $(document).ready(function () {
+    $(document).ready(function () {
+        GetData();
+    });
 
-        });
-    </script>
+    function GetData() {
+
+        var DesktopGroup = function (id, name) {
+            this.id = ko.observable(id);
+            this.publishedName = ko.observable(name);
+            this.url = "@Url.Content("~/company/"+companyCode+"/citrix/desktopgroups/")" + id;
+        }
+
+        var User = function (userGuid, displayName, userPrincipalName, isSelected) {
+            var self = this;
+            self.userGuid = userGuid;
+            self.displayName = displayName;
+            self.userPrincipalName = userPrincipalName;
+            self.isSelected = ko.observable(isSelected);
+        }
+
+        function CitrixViewModel() {
+            var self = this;
+            self.desktopGroups = ko.observableArray([]);
+            self.users = ko.observableArray([]);
+
+            $.getJSON("@Url.Content("~/company/"+companyCode+"/citrix/desktopgroups")", function (allData) {
+                $.each(allData.groups, function (i, v) {
+                    self.desktopGroups.push(new DesktopGroup(v.desktopGroupID, v.publishedName));
+                });
+            });
+
+            $.getJSON("", function (allData) {
+                $.each(allData.users, function (i, v) {
+                    self.users.push(new User(v.userGuid, v.displayName, v.userPrincipalName, v.isSelected));
+                });
+            });
+
+            self.selectAll = function (data, event) {
+                ko.utils.arrayForEach(self.users(), function (item) {
+                    if (event.target.checked)
+                        item.isSelected(true);
+                    else
+                        item.isSelected(false);
+                });
+                return true;
+            }
+
+            self.updateDesktopGroup = function () {
+                var selectedGuids = [];
+                ko.utils.arrayForEach(self.users(), function (item) {
+                    if (item.isSelected())
+                        selectedGuids.push(item.userGuid);
+                });
+
+                $.post("", { "UserGuid[]": selectedGuids })
+                 .done(function () {
+                     ShowSuccess("Updated user membership");
+                 })
+                 .fail(function (data) {
+                     ShowError(data);
+                 });
+            }
+        }
+
+        ko.applyBindings(new CitrixViewModel());
+    }
+</script>
 }
