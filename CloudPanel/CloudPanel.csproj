@@ -1376,6 +1376,7 @@
     <Compile Include="Modules\CompanyModules\Exchange\ActiveSyncModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\BulkModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\MailboxModule.cs" />
+    <Compile Include="Modules\CompanyModules\Exchange\PublicFolderModule.cs" />
     <Compile Include="Modules\CompanyModules\OverviewModule.cs" />
     <Compile Include="Modules\CompanyModules\PermissionsModule.cs" />
     <Compile Include="Modules\CompanyModules\UsersImportModule.cs" />
@@ -1709,6 +1710,7 @@
     <Content Include="Views\Reports\reports.cshtml" />
     <Content Include="Views\Citrix\sessions.cshtml" />
     <Content Include="Views\Company\Citrix\groups.cshtml" />
+    <Content Include="Views\Company\Exchange\publicfolder_2010.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

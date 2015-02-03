@@ -92,13 +92,13 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
 
             Get["/desktopgroups", c => c.Request.Accept("text/html")] = _ =>
                 {
-                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
                     return Negotiate.WithView("Company/Citrix/groups.cshtml");
                 };
 
             Get["/desktopgroups", c => !c.Request.Accept("text/html")] = _ =>
                 {
-                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
                     #region Return all desktop groups
                     string companyCode = _.CompanyCode;
                     try
@@ -117,13 +117,13 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
 
             Get["/desktopgroups/{ID:int}", c => c.Request.Accept("text/html")] = _ =>
                 {
-                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
                     return View["Company/Citrix/groups.cshtml"];
                 };
 
             Get["/desktopgroups/{ID:int}", c => !c.Request.Accept("text/html")] = _ =>
                 {
-                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vCitrix"));
                     #region Get all users for the desktop group and if they are selected or not
                     int id = _.ID;
                     string companyCode = _.CompanyCode;
@@ -165,7 +165,7 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
 
             Post["/desktopgroups/{ID:int}"] = _ =>
                 {
-                    //this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eCitrix"));
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eCitrix"));
                     #region Adds/removes users to desktop groups
                     int id = _.ID;
                     string companyCode = _.CompanyCode;
