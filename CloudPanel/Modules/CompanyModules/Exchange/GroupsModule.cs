@@ -442,7 +442,7 @@ namespace CloudPanel.Modules
                         }
                     }
 
-                    string redirectUrl = string.Format("/company/{0}/exchange/groups", companyCode);
+                    string redirectUrl = string.Format("~/company/{0}/exchange/groups", companyCode);
                     return Negotiate.WithModel(new { success = "Successfully created new group" })
                                     .WithMediaRangeResponse("text/html", this.Response.AsRedirect(redirectUrl));
                 }
