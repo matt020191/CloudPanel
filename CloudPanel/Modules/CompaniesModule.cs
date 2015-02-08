@@ -485,14 +485,6 @@ namespace CloudPanel.Modules
                             db.PriceOverride.RemoveRange(customPrices);
                         }
 
-                        logger.DebugFormat("Clearing queues for {0}", company.CompanyCode);
-                        var queues = from d in db.SvcQueue where d.CompanyCode == companyCode select d;
-                        if (queues != null)
-                        {
-                            logger.InfoFormat("Found a total of {0} queues in the database.", queues.Count());
-                            db.SvcQueue.RemoveRange(queues);
-                        }
-
                         logger.DebugFormat("Removing company {0} from database", company.CompanyCode);
                         db.Companies.Remove(company);
 

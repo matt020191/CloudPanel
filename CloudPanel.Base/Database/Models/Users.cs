@@ -121,6 +121,8 @@ namespace CloudPanel.Base.Database.Models
 
         public virtual ICollection<UserActiveSyncDevices> ActiveSyncDevices { get; set; }
 
+        public virtual ICollection<DelayedUserTasks> DelayedUserTasks { get; set; }
+
         #region AD Settings
 
         /// <summary>

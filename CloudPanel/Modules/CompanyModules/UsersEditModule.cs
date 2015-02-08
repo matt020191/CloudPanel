@@ -564,6 +564,18 @@ namespace CloudPanel.Modules.CompanyModules
                                 user.MailboxPlan = plan.MailboxPlanID;
                                 user.Email = boundUser.Email;
                                 user.AdditionalMB = (plan.MailboxSizeMB > 0 ? (boundUser.SizeInMB - plan.MailboxSizeMB) : 0);
+
+                                // Add our delayed task to modify calendar permissions on the mailbox
+                                // after it has been created
+                                db.DelayedUserTask.Add(new DelayedUserTasks()
+                                    {
+                                        Created = DateTime.Now,
+                                        DelayedUntil = DateTime.Now.AddMinutes(10),
+                                        Status = CloudPanel.Base.Other.TaskStatus.NotStarted,
+                                        UserID = user.ID,
+                                        LastMessage = "Waiting for execution..."
+                                    });
+                                
                                 db.SaveChanges();
                                 #endregion
                             }

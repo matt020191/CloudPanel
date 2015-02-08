@@ -119,16 +119,14 @@ namespace CloudPanel.Database.EntityFramework
         public virtual DbSet<Plans_ExchangeMailbox> Plans_ExchangeMailbox { get; set; }
         public virtual DbSet<Plans_Organization> Plans_Organization { get; set; }
         public virtual DbSet<Plans_ExchangeArchiving> Plans_ExchangeArchiving { get; set; }
+        public virtual DbSet<Plans_ExchangePublicFolders> Plans_ExchangePublicFolder { get; set; }
         public virtual DbSet<Prices> Prices { get; set; }
         public virtual DbSet<ResourceMailboxes> ResourceMailboxes { get; set; }
         public virtual DbSet<Statistics> Statistics { get; set; }
         public virtual DbSet<StatMailboxDatabaseSizes> StatMailboxDatabaseSizes { get; set; }
-        public virtual DbSet<SvcQueue> SvcQueue { get; set; }
-        public virtual DbSet<SvcTask> SvcTask { get; set; }
         public virtual DbSet<UserPermission> UserPermission { get; set; }
         public virtual DbSet<UserRoles> UserRoles { get; set; }
         public virtual DbSet<Users> Users { get; set; }
-        public virtual DbSet<Plans_TerminalServices> Plans_TerminalServices { get; set; }
         public virtual DbSet<PriceOverride> PriceOverride { get; set; }
         public virtual DbSet<Branding> Brandings { get; set; }
         public virtual DbSet<StatMailboxSizes> StatMailboxSize { get; set; }
@@ -138,6 +136,7 @@ namespace CloudPanel.Database.EntityFramework
         public virtual DbSet<CitrixApplications> CitrixApplication { get; set; }
         public virtual DbSet<CitrixSecurityGroups> CitrixSecurityGroup { get; set; }
         public virtual DbSet<UserActiveSyncDevices> UserActiveSyncDevice { get; set; }
+        public virtual DbSet<DelayedUserTasks> DelayedUserTask { get; set; }
         #endregion
     }
 }

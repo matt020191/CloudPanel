@@ -201,6 +201,18 @@ namespace CloudPanel.Modules
 
                             logger.DebugFormat("Updating database with Exchange info for {0}", newUser.UserPrincipalName);
                             newUser.MailboxPlan = planId;
+
+                            // Add our delayed task to modify calendar permissions on the mailbox
+                            // after it has been created
+                            db.DelayedUserTask.Add(new DelayedUserTasks()
+                                {
+                                    Created = DateTime.Now,
+                                    DelayedUntil = DateTime.Now.AddMinutes(10),
+                                    Status = CloudPanel.Base.Other.TaskStatus.NotStarted,
+                                    UserID = newUser.ID,
+                                    LastMessage = "Waiting for execution..."
+                                });
+
                             db.SaveChanges();
                         }
                         else

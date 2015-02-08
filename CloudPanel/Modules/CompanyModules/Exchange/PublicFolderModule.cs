@@ -1,6 +1,7 @@
 ﻿using CloudPanel.ActiveDirectory;
 using CloudPanel.Base.Config;
 using CloudPanel.Database.EntityFramework;
+using CloudPanel.Exchange;
 using log4net;
 using Nancy;
 using System;
@@ -53,11 +54,14 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     #endregion
                 };
 
+            /*
             Post["/", c => (Settings.ExchangeVersion == 2010)] = _ =>
                 {
+                    
                     string companyCode = _.CompanyCode;
                     CloudPanelContext db = null;
                     ADGroups groups = null;
+                    Exch2010 exchange = null;
                     try
                     {
                         db = new CloudPanelContext(Settings.ConnectionString);
@@ -82,7 +86,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                         if (db != null)
                             db.Dispose();
                     }
-                };
+                };*/
         }
     }
 }

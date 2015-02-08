@@ -1,6 +1,4 @@
-﻿using CloudPanel.Base.Config;
-using log4net;
-//
+﻿//
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.
 //
@@ -36,6 +34,8 @@ using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Security;
 using System.Text;
+using CloudPanel.Base.Config;
+using log4net;
 
 namespace CloudPanel.Exchange
 {

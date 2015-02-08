@@ -346,11 +346,6 @@ namespace CloudPanel.Modules
 
                             logger.DebugFormat("User has been removed. Now cleaning up the database to remove all traces of the user");
 
-                            logger.DebugFormat("Clearing user from queues");
-                            var queues = from d in db.SvcQueue where d.UserPrincipalName == user.UserPrincipalName select d;
-                            if (queues != null)
-                                db.SvcQueue.RemoveRange(queues);
-
                             logger.DebugFormat("Clearing user from mailbox sizes");
                             var mailboxSizes = from d in db.StatMailboxSize where d.UserPrincipalName == user.UserPrincipalName select d;
                             if (mailboxSizes != null)

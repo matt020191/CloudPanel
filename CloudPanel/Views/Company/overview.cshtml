@@ -5,6 +5,7 @@
     Layout = "__master.cshtml";
     var companyCode = this.RenderContext.Context.GetCompanyCode();
 }
+
 @section HEAD{
 <link href="~/Content/plugins/charts-morrisjs/morris.css" rel="stylesheet" />
 }
@@ -167,6 +168,7 @@
                     data: data
                 }).done(function () {
                     ShowSuccess("Successfully updated company");
+                    window.location.href = window.location.href;
                 }).fail(function (returnData) {
                     ShowError(returnData);
                 }).always(function () {

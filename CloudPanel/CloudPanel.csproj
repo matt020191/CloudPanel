@@ -126,6 +126,7 @@
     <Content Include="Content\img\donate_button.png" />
     <Content Include="Content\img\donate_button_sm.png" />
     <Content Include="Content\img\error.png" />
+    <Content Include="Content\img\reports\exchange2013.jpg" />
     <Content Include="Content\img\indicator.gif" />
     <Content Include="Content\img\indicator_blue_large.gif" />
     <Content Include="Content\img\install_icon.ico" />
