@@ -11,7 +11,7 @@ namespace CloudPanel.ActiveDirectory
 {
     public class ADUsers : IDisposable
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(Users));
+        private readonly ILog logger = LogManager.GetLogger(typeof(ADUsers));
 
         private string _username;
         private string _password;
@@ -141,7 +141,7 @@ namespace CloudPanel.ActiveDirectory
                 returnUser.UserGuid = user.Guid.Value;
 
                 logger.DebugFormat("Getting AuthorizationGroups for {0}", username);
-                var groups = user.GetAuthorizationGroups();
+                var groups = user.GetGroups();
                 var groupsList = new List<string>();
                 foreach (var g in groups)
                 {
@@ -223,8 +223,9 @@ namespace CloudPanel.ActiveDirectory
                 // Get groups
                 logger.DebugFormat("Retrieving groups");
                 List<string> groups = new List<string>();
-                foreach (var g in usr.GetAuthorizationGroups())
+                foreach (var g in usr.GetGroups())
                 {
+                    logger.DebugFormat("Found group {0} with distinguishedname {1}", g.Name, g.DistinguishedName);
                     groups.Add(g.Name);
                 }
                 foundUser.MemberOf = groups.ToArray();

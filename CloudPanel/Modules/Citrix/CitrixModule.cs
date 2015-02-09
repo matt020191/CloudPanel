@@ -747,6 +747,7 @@ namespace CloudPanel.Modules.Citrix
         {
             CloudPanelContext db = null;
             ADGroups ad = null;
+            ReverseActions reverse = new ReverseActions();
             try
             {
                 db = new CloudPanelContext(Settings.ConnectionString);
@@ -762,12 +763,12 @@ namespace CloudPanel.Modules.Citrix
                 {
                     #region New desktop group
                     logger.DebugFormat("Desktop group is new. Creating security group");
-                    //var group = CreateSecurityGroup(desktopGroup.Name, desktopGroup.UUID.ToString());
-                    //reverse.AddAction(Actions.CreateSecurityGroup, group.Name);
+                    var group = CreateSecurityGroup(desktopGroup.Name, desktopGroup.UUID.ToString());
+                    reverse.AddAction(Actions.CreateSecurityGroup, group.Name);
 
                     //logger.DebugFormat("Adding the new security group to the desktop group");
                     //xd7.AddGroupOrUserToDesktopGroup(desktopGroup.Uid, group.SamAccountName);
-                    //desktopGroup.SecurityGroup = group.Name;
+                    desktopGroup.SecurityGroup = group.Name;
 
                     logger.DebugFormat("Checking applications if they are user filter enabled to create a security group");
                     if (desktopGroup.Applications != null)
@@ -803,18 +804,18 @@ namespace CloudPanel.Modules.Citrix
                     existingGroup.Description = desktopGroup.Description;
                     existingGroup.LastRetrieved = desktopGroup.LastRetrieved;
 
-                    /* Check if the security group is null
+                    // Check if the security group is null
                     if (string.IsNullOrEmpty(existingGroup.SecurityGroup))
                     {
                         logger.DebugFormat("Desktop group is existing but missing security group. Creating security group");
                         var group = CreateSecurityGroup(existingGroup.Name, existingGroup.UUID.ToString());
                         reverse.AddAction(Actions.CreateSecurityGroup, group.Name);
 
-                        logger.DebugFormat("Adding the new security group to the desktop group");
-                        xd7.AddGroupOrUserToDesktopGroup(existingGroup.Uid, group.SamAccountName);
+                        //logger.DebugFormat("Adding the new security group to the desktop group");
+                        //xd7.AddGroupOrUserToDesktopGroup(existingGroup.Uid, group.SamAccountName);
 
                         existingGroup.SecurityGroup = group.Name;
-                    }*/
+                    }
 
                     #region Update desktops
                     if (desktopGroup.Desktops != null && desktopGroup.Desktops.Count > 0)
@@ -929,7 +930,7 @@ namespace CloudPanel.Modules.Citrix
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error importing desktop groups {0}", ex.ToString());
-                //reverse.RollbackNow();
+                reverse.RollbackNow();
                 throw;
             }
             finally

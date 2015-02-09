@@ -43,10 +43,7 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
                         db = new CloudPanelContext(Settings.ConnectionString);
                         db.Database.Connection.Open();
 
-                        var users = db.Users
-                                      .Where(x => x.CompanyCode == companyCode)
-                                      .ToList();
-
+                        var users = db.Users.Where(x => x.CompanyCode == companyCode).ToList();
                         var desktopGroups = db.CitrixDesktopGroup
                                               .Where(x =>
                                                      x.Companies.Any(c =>
@@ -137,6 +134,7 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
                         var allUsers = (from d in db.Users
                                                     .Include(x => x.CitrixDesktopGroups)
                                         where d.CompanyCode == companyCode
+                                        orderby d.DisplayName
                                         select new {
                                             UserGuid = d.UserGuid,
                                             DisplayName = d.DisplayName,
@@ -185,17 +183,20 @@ namespace CloudPanel.Modules.CompanyModules.Citrix
                         }
 
                         // Get the desktop group from the database
+                        logger.DebugFormat("Retrieving desktop group id {0} from the database", id);
                         var desktopGroup = db.CitrixDesktopGroup.Where(x => x.DesktopGroupID == id).Single();
                         if (string.IsNullOrEmpty(desktopGroup.SecurityGroup))
                             throw new ArgumentNullException("SecurityGroup");
 
                         // Get the company and the users that belong to the company
+                        logger.DebugFormat("Retrieving company code {0} and users from the database", companyCode);
                         var company = db.Companies.Where(x => x.CompanyCode == companyCode).Single();
                         var users = db.Users.Include(x => x.CitrixDesktopGroups).Where(x => x.CompanyCode == companyCode).ToList();
 
                         // Validate that a security group exists for this desktop group for the company
+                        logger.DebugFormat("Checking if the security group for the desktop group and company code {0} already exist", companyCode);
                         adGroup = new ADGroups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-                        var securityGroup = db.CitrixSecurityGroup.Where(x => x.DesktopGroupID == desktopGroup.DesktopGroupID && x.CompanyCode == companyCode).Single();
+                        var securityGroup = db.CitrixSecurityGroup.Where(x => x.DesktopGroupID == desktopGroup.DesktopGroupID && x.CompanyCode == companyCode).FirstOrDefault();
                         if (securityGroup == null)
                         {
                             // Security group does not exist for this desktop group & company. Create it!

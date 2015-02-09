@@ -129,9 +129,11 @@
                         selectedGuids.push(item.userGuid);
                 });
 
+                $.blockUI();
                 $.post("", { "UserGuid[]": selectedGuids })
                  .done(function () {
                      ShowSuccess("Updated user membership");
+                     $.unblockUI();
                  })
                  .fail(function (data) {
                      ShowError(data);
