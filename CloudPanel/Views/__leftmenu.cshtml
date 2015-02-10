@@ -57,6 +57,10 @@
                                     <li><a href="~/plans/exchange/activesync/new">Activesync</a></li>
                                     <li><a href="~/plans/exchange/archiving/new">Archiving</a></li>
                                     <li><a href="~/plans/exchange/mailbox/new">Mailbox</a></li>
+                                    @if (Settings.ExchangePFEnabled)
+                                    {
+                                        <li><a href="~/plans/exchange/publicfolder/new">Public Folder</a></li>
+                                    }
                                 </ul>
                             </li>
                         }
@@ -84,7 +88,9 @@
                             <li><a href="~/company/@companyCode/exchange/bulk">Bulk Modification</a></li>
                             <li><a href="~/company/@companyCode/exchange/contacts">Contacts</a></li>
                             <li><a href="~/company/@companyCode/exchange/groups">Distribution Groups</a></li>
-                            <!--<li><a href="~/company/@companyCode/exchange/publicfolders">Public Folders</a></li>-->
+                            @if (Settings.ExchangePFEnabled) {
+                                <li><a href="~/company/@companyCode/exchange/publicfolders">Public Folders</a></li>
+                            }
                             <li><a href="~/company/@companyCode/exchange/resourcemailboxes">Resource Mailboxes</a></li>
                         }
                     </ul>

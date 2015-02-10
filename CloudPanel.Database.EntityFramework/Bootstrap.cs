@@ -137,6 +137,7 @@ namespace CloudPanel.Database.EntityFramework
         public virtual DbSet<CitrixSecurityGroups> CitrixSecurityGroup { get; set; }
         public virtual DbSet<UserActiveSyncDevices> UserActiveSyncDevice { get; set; }
         public virtual DbSet<DelayedUserTasks> DelayedUserTask { get; set; }
+        public virtual DbSet<PublicFolderMailboxes> PublicFolderMailboxes { get; set; }
         #endregion
     }
 }

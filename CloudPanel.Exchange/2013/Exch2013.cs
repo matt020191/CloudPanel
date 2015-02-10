@@ -394,11 +394,11 @@ namespace CloudPanel.Exchange
         /// <param name="displayName"></param>
         /// <param name="organizationalUnit"></param>
         /// <param name="primarySmtpAddress"></param>
-        public void New_PublicFolderMailbox(string publicFolderName, string displayName, string organizationalUnit, string primarySmtpAddress, string addressBookPolicy)
+        public void New_PublicFolderMailbox(string name, string displayName, string organizationalUnit, string primarySmtpAddress, string addressBookPolicy)
         {
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("New-Mailbox");
-            cmd.AddParameter("Name", publicFolderName);
+            cmd.AddParameter("Name", name);
             cmd.AddParameter("PublicFolder");
             cmd.AddParameter("DisplayName", displayName);
             cmd.AddParameter("OrganizationalUnit", organizationalUnit);
@@ -412,26 +412,42 @@ namespace CloudPanel.Exchange
         }
 
         /// <summary>
+        /// Creates a new public folder
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="mailbox"></param>
+        /// <param name="path"></param>
+        public void New_PublicFolder(string name, string mailbox, string path)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("New-PublicFolder");
+            cmd.AddParameter("Name", name);
+            cmd.AddParameter("Mailbox", mailbox);
+            cmd.AddParameter("Path", path);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        /// <summary>
         /// Updates a public folder mailbox with plan settings
         /// </summary>
         /// <param name="publicFolderName"></param>
         /// <param name="companyCode"></param>
         /// <param name="p"></param>
-        public void Set_PublicFolderMailbox(string publicFolderName, string companyCode, Plans_ExchangeMailbox p)
+        public void Set_PublicFolderMailbox(string identity, string companyCode, Plans_ExchangePublicFolders p)
         {
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-Mailbox");
-            cmd.AddParameter("Identity", publicFolderName);
+            cmd.AddParameter("Identity", identity);
             cmd.AddParameter("PublicFolder");
             cmd.AddParameter("EmailAddressPolicyEnabled", false);
             cmd.AddParameter("IssueWarningQuota", string.Format("{0}MB", p.MailboxSizeMB * 0.90));
-            cmd.AddParameter("MaxReceiveSize", string.Format("{0}KB", p.MaxReceiveKB));
-            cmd.AddParameter("MaxSendSize", string.Format("{0}KB", p.MaxSendKB));
             cmd.AddParameter("OfflineAddressBook", string.Format(Settings.ExchangeOALName, companyCode));
             cmd.AddParameter("ProhibitSendQuota", string.Format("{0}MB", p.MailboxSizeMB));
             cmd.AddParameter("ProhibitSendReceiveQuota", string.Format("{0}MB", p.MailboxSizeMB));
-            cmd.AddParameter("RecipientLimits", string.Format("{0}", p.MaxRecipients));
-            cmd.AddParameter("RetainDeletedItemsFor", p.MaxKeepDeletedItems > 0 ? p.MaxKeepDeletedItems : 30);
             cmd.AddParameter("UseDatabaseQuotaDefaults", false);
             cmd.AddParameter("UseDatabaseRetentionDefaults", false);
             cmd.AddParameter("RetainDeletedItemsUntilBackup", true);
@@ -447,13 +463,34 @@ namespace CloudPanel.Exchange
         /// Removes a public folder mailbox
         /// </summary>
         /// <param name="publicFolderName"></param>
-        public void Remove_PublicFolderMailbox(string publicFolderName)
+        public void Remove_PublicFolderMailbox(string identity)
         {
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Remove-Mailbox");
-            cmd.AddParameter("Identity", publicFolderName);
+            cmd.AddParameter("Identity", identity);
             cmd.AddParameter("PublicFolder");
             cmd.AddParameter("Confirm", false);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        /// <summary>
+        /// Removes a public folder
+        /// </summary>
+        /// <param name="identity"></param>
+        /// <param name="isRecurse"></param>
+        public void Remove_PublicFolder(string identity, bool isRecurse)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Remove-PublicFolder");
+            cmd.AddParameter("Identity", identity);
+            cmd.AddParameter("DomainController", this._domainController);
+
+            if (isRecurse)
+                cmd.AddParameter("Recurse");
+
             _powershell.Commands = cmd;
             _powershell.Invoke();
 
@@ -464,7 +501,7 @@ namespace CloudPanel.Exchange
         /// Adds public folder client permissions
         /// </summary>
         /// <param name="publicFolderPath"></param>
-        /// <param name="permissions"></param>
+        /// <param name="permissions">Key is the permission and value is the user</param>
         public void Add_PublicFolderClientPermission(string publicFolderPath, string publicFolderMailbox, Dictionary<string, string> permissions)
         {
             PSCommand cmd = new PSCommand();
@@ -481,14 +518,14 @@ namespace CloudPanel.Exchange
             var currentUsers = from o in obj select o.Members["User"].Value;
             foreach (var kvp in permissions)
             {
-                if (!currentUsers.Any(x => x.ToString().Equals(kvp.Key, StringComparison.InvariantCultureIgnoreCase)))
+                if (!currentUsers.Any(x => x.ToString().Equals(kvp.Value, StringComparison.InvariantCultureIgnoreCase)))
                 {
                     cmd = new PSCommand();
                     cmd.AddCommand("Add-PublicFolderClientPermission");
                     cmd.AddParameter("Identity", publicFolderPath);
                     cmd.AddParameter("Mailbox", publicFolderMailbox);
-                    cmd.AddParameter("User", kvp.Key);
-                    cmd.AddParameter("AccessRights", kvp.Value);
+                    cmd.AddParameter("User", kvp.Value);
+                    cmd.AddParameter("AccessRights", kvp.Key);
                     cmd.AddParameter("Confirm", false);
                     cmd.AddParameter("DomainController", this._domainController);
                     _powershell.Commands = cmd;

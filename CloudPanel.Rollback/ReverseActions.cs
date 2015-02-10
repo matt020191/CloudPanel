@@ -22,7 +22,9 @@ namespace CloudPanel.Rollback
         CreateEquipmentMailbox,
         CreateSharedMailbox,
         CreateMailbox,
-        CreateArchiveMailbox
+        CreateArchiveMailbox,
+        CreatePublicFolderMailbox,
+        CreatePublicFolder
     }
 
     public class ReverseActionValue
@@ -90,6 +92,8 @@ namespace CloudPanel.Rollback
                     case Actions.CreateRoomMailbox:
                     case Actions.CreateEquipmentMailbox:
                     case Actions.CreateSharedMailbox:
+                    case Actions.CreatePublicFolderMailbox:
+                    case Actions.CreatePublicFolder:
                         RollbackExchangeAction(a._PerformedAction, new[] { a._ActionAttribute });
                         break;
                     default:
@@ -191,6 +195,12 @@ namespace CloudPanel.Rollback
                         break;
                     case Actions.CreateArchiveMailbox:
                         powershell.Disable_ArchiveMailbox(attribute[0].ToString());
+                        break;
+                    case Actions.CreatePublicFolderMailbox:
+                        powershell.Remove_PublicFolderMailbox(attribute[0].ToString());
+                        break;
+                    case Actions.CreatePublicFolder:
+                        powershell.Remove_PublicFolder(attribute[0].ToString(), true);
                         break;
                     default:
                         log.DebugFormat("Unknown action {0}... Skipping...", action.ToString());

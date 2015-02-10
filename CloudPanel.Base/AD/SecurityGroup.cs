@@ -47,6 +47,8 @@ namespace CloudPanel.Base.AD
 
         public int SamAccountType { get; set; }
 
+        public bool IsUniversalGroup { get; set; }
+
         public string[] MemberOf { get; set; }
 
         public object[] Members { get; set; }

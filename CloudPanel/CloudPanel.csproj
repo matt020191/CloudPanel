@@ -1391,6 +1391,7 @@
     <Compile Include="Modules\Dashboard\DashboardModule.cs" />
     <Compile Include="Modules\PlansModules\ActiveSyncPlanModule.cs" />
     <Compile Include="Modules\PlansModules\ArchivePlanModule.cs" />
+    <Compile Include="Modules\PlansModules\PublicFolderPlanModule.cs" />
     <Compile Include="Modules\Reports\ReportsModule.cs" />
     <Compile Include="Modules\ResellersModule.cs" />
     <Compile Include="Modules\LoginModule.cs" />
@@ -1711,7 +1712,8 @@
     <Content Include="Views\Reports\reports.cshtml" />
     <Content Include="Views\Citrix\sessions.cshtml" />
     <Content Include="Views\Company\Citrix\groups.cshtml" />
-    <Content Include="Views\Company\Exchange\publicfolder_2010.cshtml" />
+    <Content Include="Views\Company\Exchange\publicfolders_enable.cshtml" />
+    <Content Include="Views\Plans\publicfolders.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

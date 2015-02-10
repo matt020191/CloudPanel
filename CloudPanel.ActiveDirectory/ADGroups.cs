@@ -89,23 +89,28 @@ namespace CloudPanel.ActiveDirectory
                 //if (group.SamAccountName.Length > 19)
                     //throw new ArgumentOutOfRangeException(group.SamAccountName);
 
-                log.DebugFormat("Prerequisites were satisfied. Continuing...");
-                ctx = new PrincipalContext(ContextType.Domain, _domainController, parentOU, _username, _password);
-                grp = new GroupPrincipal(ctx, group.SamAccountName);
-                grp.Name = group.Name;
-                grp.IsSecurityGroup = true;
+                log.DebugFormat("Prerequisites were satisfied. Checking if group exists or not...");
+                ctx = new PrincipalContext(ContextType.Domain, _domainController, _username, _password);
+                grp = GroupPrincipal.FindByIdentity(pc, IdentityType.Name, group.Name);
 
-                if (!string.IsNullOrEmpty(group.Description))
-                    grp.Description = group.Description;
+                if (grp == null)
+                {
+                    ctx = new PrincipalContext(ContextType.Domain, _domainController, parentOU, _username, _password);
+                    grp = new GroupPrincipal(ctx, group.SamAccountName);
+                    grp.Name = group.Name;
+                    grp.IsSecurityGroup = true;
+                    grp.GroupScope = group.IsUniversalGroup ? GroupScope.Universal : GroupScope.Global;
 
-                if (!string.IsNullOrEmpty(group.DisplayName))
-                    grp.DisplayName = group.DisplayName;
+                    if (!string.IsNullOrEmpty(group.Description))
+                        grp.Description = group.Description;
 
-                grp.Save();
+                    if (!string.IsNullOrEmpty(group.DisplayName))
+                        grp.DisplayName = group.DisplayName;
+
+                    grp.Save();
+                }
 
                 log.DebugFormat("Successfully created new group {0}", group.Name);
-
-                // Update the values
                 group.DistinguishedName = grp.DistinguishedName;
                 group.ObjectGUID = (Guid)grp.Guid;
 
