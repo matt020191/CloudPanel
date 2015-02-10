@@ -93,25 +93,32 @@ namespace CloudPanel
                 if (authenticatedUser == null)
                     throw new Exception("Login failed. Please try again or contact support.");
 
-                var authUser = new AuthenticatedUser()
+                // See if the user already exists
+                var authUser = loggedInUsers.Where(x => x.UserName.Equals(username, StringComparison.CurrentCultureIgnoreCase)).FirstOrDefault();
+                if (authUser == null)
                 {
-                    UserGuid = authenticatedUser.UserGuid,
-                    UserName = authenticatedUser.UserPrincipalName,
-                    DisplayName = authenticatedUser.DisplayName
-                };
+                    logger.DebugFormat("The user {0} is not cached. Adding to collection", username);
+                    var newUser = new AuthenticatedUser()
+                        {
+                            UserGuid = authenticatedUser.UserGuid,
+                            UserName = authenticatedUser.UserPrincipalName,
+                            DisplayName = authenticatedUser.DisplayName
+                        };
+                    loggedInUsers.Add(newUser);
+                    authUser = newUser;
+                }
+                else
+                    logger.DebugFormat("The user {0} is cached. Updating security claims", username);
 
                 // Add all the claims for the user
                 var claims = new List<string>();
                 foreach (var memberof in authenticatedUser.MemberOf) {
                     logger.DebugFormat("Checking group {0} against {1}", memberof, Settings.SuperAdminsAsString);
-
-                    var isSuper = Settings.SuperAdmins.Any(x =>
-                                                           x.Equals(memberof,StringComparison.InvariantCultureIgnoreCase));
+                    var isSuper = Settings.SuperAdmins.Any(x => x.Equals(memberof,StringComparison.InvariantCultureIgnoreCase));
                     if (isSuper)
                     {
                         claims.Add("SuperAdmin");
                         logger.DebugFormat("Adding claim SuperAdmin to user {0}", authUser.UserName);
-
                         break;
                     }
                 }
@@ -154,6 +161,8 @@ namespace CloudPanel
                         claims.Add("ResellerAdmin");
                         logger.InfoFormat("Adding claim ResellerAdmin to {0}", authUser.UserName);
                     }
+                    else
+                        logger.DebugFormat("User {0} is NOT a ResellerAdmin", authUser.UserName);
 
                     if (sqlUser.IsCompanyAdmin == true)
                     { // Check if the user is a company admin
@@ -176,10 +185,12 @@ namespace CloudPanel
                             }
                         }
                     }
+                    else
+                        logger.DebugFormat("User {0} is NOT a CompanyAdmin", authUser.UserName);
                 }
 
+                logger.DebugFormat("Setting the claims for user {0} to {1}", username, String.Join(", ", claims));
                 authUser.Claims = claims;
-                loggedInUsers.Add(authUser);
 
                 return authUser;
             }
