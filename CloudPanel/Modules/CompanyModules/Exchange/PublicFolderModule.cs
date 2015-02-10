@@ -5,6 +5,7 @@ using CloudPanel.Base.Database.Models;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Exchange;
 using CloudPanel.Rollback;
+using System.Data.Entity;
 using log4net;
 using Nancy;
 using System;
@@ -54,7 +55,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     #endregion
                 };
 
-            Post["/"] = _ =>
+            Post["/enable"] = _ =>
                 {
                     #region Enables the company for public folders
                     string companyCode = _.CompanyCode;
@@ -62,10 +63,48 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     ReverseActions reverse = new ReverseActions();
                     try
                     {
+                        if (!Request.Form.Username.HasValue)
+                            throw new ArgumentNullException("Username");
+
+                        if (!Request.Form.Domain.HasValue)
+                            throw new ArgumentNullException("Domain");
+
+                        if (!Request.Form.PlanID.HasValue)
+                            throw new ArgumentNullException("PlanID");
+
                         db = new CloudPanelContext(Settings.ConnectionString);
                         db.Database.Connection.Open();
 
-                        var pfMailbox = db.Companies.Where(x => x.CompanyCode == companyCode).Single();
+                        // Form Values
+                        string username = Request.Form.Username.Value;
+                        string domain = Request.Form.Domain.Value;
+                        int planId = Request.Form.PlanID;
+
+                        var sqlCompany = db.Companies.Include(x => x.PublicFolderMailboxes).Where(x => x.CompanyCode == companyCode).Single();
+                        var sqlDomain = db.Domains.Where(x => x.Domain == domain).Where(x => x.CompanyCode == companyCode).Single();
+                        var sqlPlan = db.Plans_ExchangePublicFolder.Where(x => x.ID == planId).Single();
+
+                        if (sqlCompany.PublicFolderMailboxes == null || sqlCompany.PublicFolderMailboxes.Count == 0)
+                        {
+                            var newPFMailbox = new PublicFolderMailboxes();
+                            newPFMailbox.CompanyID = sqlCompany.CompanyId;
+                            newPFMailbox.PlanID = Request.Form.PlanID;
+                            newPFMailbox.Identity = string.Format("{0}@{1}", username.Trim(), domain.Trim());
+
+                            // Create the security groups
+                            CreateSecurityGroups(sqlCompany.CompanyCode, sqlCompany.DistinguishedName, ref reverse);
+
+                            // Create the public folders
+                            CreatePublicFolders(sqlCompany.CompanyCode, sqlCompany.DistinguishedName, newPFMailbox.Identity, sqlPlan, ref reverse);
+
+                            // Add to database
+                            db.PublicFolderMailboxes.Add(newPFMailbox);
+                            db.SaveChanges();
+                        }
+
+                        return Negotiate.WithModel(new { success = "Successfully enabled public folders" })
+                                        .WithView("Company/Exchange/publicfolders_enable.cshtml")
+                                        .WithStatusCode(HttpStatusCode.OK);
                     }
                     catch (Exception ex)
                     {
@@ -108,18 +147,18 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     IsUniversalGroup = true
                 });
                 reverse.AddAction(Actions.CreateSecurityGroup, adminPfGroup.Name);
-                groups.AddGroup("Admins@" + companyCode, adminPfGroup.Name);
+                groups.AddGroup(adminPfGroup.Name, "Admins@" + companyCode);
 
                 logger.DebugFormat("Creating new public folder users security group");
                 var userPfGroup = groups.Create(exchangeOUPath, new SecurityGroup()
                 {
                     Name = "PublicFolderUsers@" + companyCode,
                     DisplayName = "PublicFolderUsers@" + companyCode,
-                    SamAccountName = "PublicFolderAdmins_" + companyCode,
+                    SamAccountName = "PublicFolderUsers_" + companyCode,
                     IsUniversalGroup = true
                 });
                 reverse.AddAction(Actions.CreateSecurityGroup, userPfGroup.Name);
-                groups.AddGroup("AllUsers@" + companyCode, userPfGroup.Name);
+                groups.AddGroup(userPfGroup.Name, "AllUsers@" + companyCode);
             }
             catch (Exception ex)
             {
@@ -133,6 +172,14 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
             }
         }
 
+        /// <summary>
+        /// Creates the public folder mailbox and parent public folder
+        /// </summary>
+        /// <param name="companyCode"></param>
+        /// <param name="companyDistinguishedName"></param>
+        /// <param name="email"></param>
+        /// <param name="plan"></param>
+        /// <param name="reverse"></param>
         private void CreatePublicFolders(string companyCode, string companyDistinguishedName, string email, Plans_ExchangePublicFolders plan, ref ReverseActions reverse)
         {
             Exch2013 powershell = null;

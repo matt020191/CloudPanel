@@ -24,7 +24,7 @@ namespace CloudPanel.Modules.PlansModules
             Get["/new"] = _ =>
             {
                 return Negotiate.WithModel(new { plan = new Plans_ExchangePublicFolders() })
-                                .WithView("~/plans/publicfolders.cshtml");
+                                .WithView("plans/publicfolders.cshtml");
             };
 
             Post["/new"] = _ =>
@@ -70,7 +70,7 @@ namespace CloudPanel.Modules.PlansModules
                                 select d).Single();
 
                     return Negotiate.WithModel(new { plan = plan })
-                                    .WithView("~/plans/publicfolders.cshtml");
+                                    .WithView("plans/publicfolders.cshtml");
                 }
                 catch (Exception ex)
                 {
@@ -143,7 +143,7 @@ namespace CloudPanel.Modules.PlansModules
                     if (companiesWithPlan > 0)
                     {
                         return Negotiate.WithModel(new { plan = plan, error = "Unable to delete plan because it is in use." })
-                                        .WithView("~/plans/publicfolders.cshtml");
+                                        .WithView("plans/publicfolders.cshtml");
                     }
                     else
                     {

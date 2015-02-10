@@ -487,6 +487,7 @@ namespace CloudPanel.Exchange
             cmd.AddCommand("Remove-PublicFolder");
             cmd.AddParameter("Identity", identity);
             cmd.AddParameter("DomainController", this._domainController);
+            cmd.AddParameter("Confirm", false);
 
             if (isRecurse)
                 cmd.AddParameter("Recurse");
@@ -523,7 +524,6 @@ namespace CloudPanel.Exchange
                     cmd = new PSCommand();
                     cmd.AddCommand("Add-PublicFolderClientPermission");
                     cmd.AddParameter("Identity", publicFolderPath);
-                    cmd.AddParameter("Mailbox", publicFolderMailbox);
                     cmd.AddParameter("User", kvp.Value);
                     cmd.AddParameter("AccessRights", kvp.Key);
                     cmd.AddParameter("Confirm", false);

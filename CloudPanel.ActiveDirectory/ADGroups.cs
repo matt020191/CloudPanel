@@ -91,7 +91,7 @@ namespace CloudPanel.ActiveDirectory
 
                 log.DebugFormat("Prerequisites were satisfied. Checking if group exists or not...");
                 ctx = new PrincipalContext(ContextType.Domain, _domainController, _username, _password);
-                grp = GroupPrincipal.FindByIdentity(pc, IdentityType.Name, group.Name);
+                grp = GroupPrincipal.FindByIdentity(ctx, IdentityType.Name, group.Name);
 
                 if (grp == null)
                 {

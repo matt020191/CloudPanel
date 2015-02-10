@@ -22,41 +22,48 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <div class="panel panel-primary">
-                <div class="panel-heading">Public Folders</div>
-                <div class="panel-body">
-                    <div class="form-horizontal">
-                        <div class="form-group">
-                            <label for="focusedinput" class="col-sm-3 control-label">Username</label>
-                            <div class="col-sm-6">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="Username" name="Username" data-parsley-required="true">
-                                    <span class="input-group-addon">@@</span>
-                                    <select id="DomainID" name="DomainID" class="form-control">
-                                        @foreach (var domains in CloudPanel.Modules.DomainsModule.GetAcceptedDomains(companyCode))
+            <form action="@Url.Content("~/company/"+this.RenderContext.Context.Parameters.CompanyCode+"/exchange/publicfolders/enable")" method="post">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Public Folders</div>
+                    <div class="panel-body">
+                        <div class="form-horizontal">
+                            <div class="form-group">
+                                <label for="focusedinput" class="col-sm-3 control-label">Username</label>
+                                <div class="col-sm-6">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="Username" name="Username" data-parsley-required="true">
+                                        <span class="input-group-addon">@@</span>
+                                        <select id="Domain" name="Domain" class="form-control">
+                                            @foreach (var domains in CloudPanel.Modules.DomainsModule.GetAcceptedDomains(companyCode))
+                                            {
+                                                <option value="@domains.Domain">@domains.Domain</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="focusedinput" class="col-sm-3 control-label">Plan</label>
+                                <div class="col-sm-6">
+                                    <select id="PlanID" name="PlanID" class="form-control">
+                                        @foreach (var plans in CloudPanel.Modules.PlansModules.PublicFolderPlanModule.GetPublicFolderPlans(companyCode))
                                         {
-                                            <option value="@domains.DomainID">@domains.Domain</option>
+                                            <option value="@plans.ID">@plans.Name</option>
                                         }
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="focusedinput" class="col-sm-3 control-label">Plan</label>
-                            <div class="col-sm-6">
-                                <select id="PlanID" name="PlanID" class="form-control">
-                                    @foreach (var plans in CloudPanel.Modules.PlansModules.PublicFolderPlanModule.GetPublicFolderPlans(companyCode))
-                                    {
-                                        <option value="@plans.ID">@plans.Name</option>
-                                    }
-                                </select>
+                    </div>
+                    <div class="panel-footer">
+                        <div class="row">
+                            <div class="btn-toolbar text-right">
+                                <button class="btn-primary btn" type="submit">Submit</button>
                             </div>
-
                         </div>
                     </div>
                 </div>
-                <div class="panel-footer"></div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
