@@ -1,7 +1,7 @@
 ﻿namespace CloudPanel
 {
     using CloudPanel.Base.Config;
-    using CloudPanel.Base.Database.Models;
+    using CloudPanel.Base.Models.Database;
     using CloudPanel.Code;
     using CloudPanel.Database.EntityFramework;
     using CloudPanel.Database.EntityFramework.Migrations;

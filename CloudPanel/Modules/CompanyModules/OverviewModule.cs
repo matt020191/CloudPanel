@@ -6,7 +6,7 @@ using Nancy.ModelBinding;
 using CloudPanel.Code;
 using System;
 using System.Linq;
-using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Models.Database;
 using log4net;
 
 namespace CloudPanel.Modules

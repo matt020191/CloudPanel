@@ -119,7 +119,7 @@ namespace CloudPanel.Base.Config
         private static string _exchangegalfilter;
         public static string ExchangeGALFilter
         {
-            get { return string.IsNullOrEmpty(_exchangegalfilter) ? "{{(Alias -ne $null) -and (CustomAttribute1 -eq '{0}')}}" : _exchangegalfilter; }
+            get { return string.IsNullOrEmpty(_exchangegalfilter) ? "(Alias -ne $null) -and (CustomAttribute1 -eq '{0}')" : _exchangegalfilter; }
             set { _exchangegalfilter = value; }
         }
 
@@ -147,7 +147,7 @@ namespace CloudPanel.Base.Config
         private static string _exchangeusersfilter;
         public static string ExchangeUSERSFilter
         {
-            get { return string.IsNullOrEmpty(_exchangeusersfilter) ? "{{(RecipientType -eq 'UserMailbox') -and (CustomAttribute1 -eq '{0}')}}" : _exchangeusersfilter; }
+            get { return string.IsNullOrEmpty(_exchangeusersfilter) ? "(RecipientType -eq 'UserMailbox') -and (CustomAttribute1 -eq '{0}')" : _exchangeusersfilter; }
             set { _exchangeusersfilter = value; }
         }
 
@@ -161,7 +161,7 @@ namespace CloudPanel.Base.Config
         private static string _exchangecontactsfilter;
         public static string ExchangeCONTACTSFilter
         {
-            get { return string.IsNullOrEmpty(_exchangecontactsfilter) ? "{{((RecipientType -eq 'MailContact') -or (RecipientType -eq 'MailUser')) -and (CustomAttribute1 -eq '{0}')}}" : _exchangecontactsfilter; }
+            get { return string.IsNullOrEmpty(_exchangecontactsfilter) ? "((RecipientType -eq 'MailContact') -or (RecipientType -eq 'MailUser')) -and (CustomAttribute1 -eq '{0}')" : _exchangecontactsfilter; }
             set { _exchangecontactsfilter = value; }
         }
 
@@ -175,7 +175,7 @@ namespace CloudPanel.Base.Config
         private static string _exchangeroomsfilter;
         public static string ExchangeROOMSFilter
         {
-            get { return string.IsNullOrEmpty(_exchangeroomsfilter) ? "{{(Alias -ne $null) -and ((RecipientDisplayType -eq 'ConferenceRoomMailbox') -or (RecipientDisplayType -eq 'SyncedConferenceRoomMailbox')) -and (CustomAttribute1 -eq '{0}')}}" : _exchangeroomsfilter; }
+            get { return string.IsNullOrEmpty(_exchangeroomsfilter) ? "(Alias -ne $null) -and ((RecipientDisplayType -eq 'ConferenceRoomMailbox') -or (RecipientDisplayType -eq 'SyncedConferenceRoomMailbox')) -and (CustomAttribute1 -eq '{0}')" : _exchangeroomsfilter; }
             set { _exchangeroomsfilter = value; }
         }
 
@@ -189,7 +189,7 @@ namespace CloudPanel.Base.Config
         private static string _exchangegroupsfilter;
         public static string ExchangeGROUPSFilter
         {
-            get { return string.IsNullOrEmpty(_exchangegroupsfilter) ? "{{((RecipientType -eq 'MailUniversalDistributionGroup') -or (RecipientType -eq 'DynamicDistributionGroup')) -and (CustomAttribute1 -eq '{0}')}}" : _exchangegroupsfilter; }
+            get { return string.IsNullOrEmpty(_exchangegroupsfilter) ? "((RecipientType -eq 'MailUniversalDistributionGroup') -or (RecipientType -eq 'DynamicDistributionGroup')) -and (CustomAttribute1 -eq '{0}')" : _exchangegroupsfilter; }
             set { _exchangegroupsfilter = value; }
         }
 

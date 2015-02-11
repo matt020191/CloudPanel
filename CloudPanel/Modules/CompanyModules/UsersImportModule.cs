@@ -1,6 +1,6 @@
 ﻿using CloudPanel.ActiveDirectory;
 using CloudPanel.Base.Config;
-using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Models.Database;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Exchange;
 using CloudPanel.Rollback;
@@ -197,7 +197,7 @@ namespace CloudPanel.Modules
                             powershell.Set_Mailbox(newUser, plan, new string[] { "SMTP:" + newUser.Email });
 
                             logger.DebugFormat("Setting CAS mailbox for {0}", newUser.UserPrincipalName);
-                            powershell.Set_CASMailbox(newUser.UserPrincipalName, plan);
+                            powershell.Set_CASMailbox(newUser.UserGuid, plan);
 
                             logger.DebugFormat("Updating database with Exchange info for {0}", newUser.UserPrincipalName);
                             newUser.MailboxPlan = planId;

@@ -4,7 +4,7 @@
 // Jacob Dixon 1/16/2015
 //
 
-using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Models.Database;
 using CloudPanel.Base.Exchange;
 using RestSharp;
 using RestSharp.Deserializers;

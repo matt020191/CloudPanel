@@ -10,7 +10,7 @@ using CloudPanel.Database.EntityFramework;
 using CloudPanel.Base.Config;
 using CloudPanel.Base.Exchange;
 using CloudPanel.Exchange;
-using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Models.Database;
 
 namespace CloudPanel.Modules.Admin
 {

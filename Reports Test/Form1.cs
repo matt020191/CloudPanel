@@ -1,6 +1,6 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Database.EntityFramework;
-using CloudPanel.Reports.Exchange.Classes;
+using CloudPanel.Reports.Exchange;
 using System;
 using System.IO;
 using System.Linq;

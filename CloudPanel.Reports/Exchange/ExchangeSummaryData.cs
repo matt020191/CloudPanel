@@ -1,4 +1,4 @@
-﻿using CloudPanel.Base.Database.Models;
+﻿using CloudPanel.Base.Models.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;

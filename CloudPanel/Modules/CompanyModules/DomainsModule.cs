@@ -1,6 +1,6 @@
 ﻿using CloudPanel.ActiveDirectory;
 using CloudPanel.Base.Config;
-using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Models.Database;
 using CloudPanel.Base.Enums;
 using CloudPanel.Code;
 using CloudPanel.Database.EntityFramework;

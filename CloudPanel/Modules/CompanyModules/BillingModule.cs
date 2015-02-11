@@ -1,6 +1,6 @@
 ﻿using CloudPanel.Base.Billing;
 using CloudPanel.Base.Config;
-using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Models.Database;
 using CloudPanel.Code;
 using CloudPanel.Database.EntityFramework;
 using log4net;

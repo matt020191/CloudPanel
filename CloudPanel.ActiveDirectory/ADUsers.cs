@@ -1,5 +1,5 @@
 ﻿using CloudPanel.ActiveDirectory.Extensions;
-using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Models.Database;
 using log4net;
 using System;
 using System.Linq;

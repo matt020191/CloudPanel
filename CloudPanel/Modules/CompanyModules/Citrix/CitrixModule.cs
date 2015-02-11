@@ -1,6 +1,6 @@
 ﻿using CloudPanel.Base.Citrix;
 using CloudPanel.Base.Config;
-using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Models.Database;
 using CloudPanel.Citrix;
 using CloudPanel.Code;
 using CloudPanel.ActiveDirectory;

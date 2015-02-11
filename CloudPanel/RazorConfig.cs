@@ -20,7 +20,7 @@ namespace CloudPanel
             yield return "System.Collections.Generic";
             yield return "System.Linq";
             yield return "CloudPanel";
-            yield return "CloudPanel.Base.Database.Models";
+            yield return "CloudPanel.Base.Models.Database";
         }
 
         public bool AutoIncludeModelNamespace

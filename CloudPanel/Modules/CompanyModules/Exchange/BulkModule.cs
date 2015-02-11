@@ -1,10 +1,12 @@
 ﻿using CloudPanel.Base.Config;
+using CloudPanel.Base.Models.ViewModels;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Exchange;
 using CloudPanel.Rollback;
 using log4net;
 using Nancy;
 using Nancy.Security;
+using Nancy.ModelBinding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,26 +16,6 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
     public class BulkModule : NancyModule
     {
         private static readonly ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
-        private enum ActionToTake
-        {
-            Enable = 0,
-            Change = 2,
-            Disable = 1
-        }
-
-        public enum EmailFormat
-        {
-            Username = 0,
-            Firstname = 1,
-            Lastname = 2,
-            FirstNameDotLastname = 3,
-            FirstnameLastname = 4,
-            LastnameDotFirstname = 5,
-            LastnameFirstname = 6,
-            FirstInitialLastname = 7,
-            LastnameFirstInitial = 8
-        }
 
         public BulkModule() : base("/company/{CompanyCode}/exchange/bulk")
         {
@@ -56,9 +38,10 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     if (!Request.Form.ActionToTake.HasValue)
                         throw new Exception("No action was selected.");
 
-                    logger.DebugFormat("Unparsed users is {0}", Request.Form.CheckedUsers.Value);
-                    string users = Request.Form.CheckedUsers.Value;
-                    string[] userGuids = users.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    logger.DebugFormat("Binding model from form...");
+                    var model = this.Bind<ExchangeBulkEditViewModel>();
+
+                    logger.DebugFormat("Unparsed users is {0}", String.Join(", ", model.CheckedUsers));
 
                     // For our results
                     Dictionary<string, string> results = new Dictionary<string,string>();
@@ -68,7 +51,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     {
                         case ActionToTake.Disable:
                             logger.DebugFormat("Disable action was taken");
-                            results = DisableMailboxes(userGuids, companyCode);
+                            results = DisableMailboxes(model.CheckedUsers, companyCode);
                             break;
                         case ActionToTake.Enable:
                             logger.DebugFormat("Enable action was taken");
@@ -88,8 +71,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                             if (!Request.Form.ActiveSyncPlan.HasValue)
                                 throw new MissingFieldException("", "ActiveSyncPlan");
 
-                            EmailFormat format = Enum.Parse(typeof(EmailFormat), Request.Form.EmailFormat.Value);
-                            results = EnableMailboxes(userGuids, companyCode, format, Request.Form.MailboxPlan, Request.Form.SizeInMB, Request.Form.EmailDomain, Request.Form.ActiveSyncPlan);
+                            results = EnableMailboxes(model.CheckedUsers, companyCode, model.EmailFormat, Request.Form.MailboxPlan, Request.Form.SizeInMB, Request.Form.EmailDomain, Request.Form.ActiveSyncPlan);
                             break;
                         case ActionToTake.Change:
                             logger.DebugFormat("Change action was taken.. Checking Litigation Hold settings");
@@ -100,7 +82,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                             if (changeLitigationHold || changeLitigationUrl || changeLitigationComment)
                             {
                                 logger.DebugFormat("We are updating litigation hold information. Hold: {0}, Url: {1}, Comment: {2}", changeLitigationHold, changeLitigationUrl, changeLitigationComment);
-                                results = ModifyLitigationHold(userGuids, companyCode, 
+                                results = ModifyLitigationHold(model.CheckedUsers, companyCode, 
                                                                (changeLitigationHold == true ? (bool?)Request.Form.LitigationHoldEnabled : null),
                                                                (changeLitigationUrl == true ? Request.Form.cbChangeLitigationHoldUrl.Value : null),
                                                                (changeLitigationComment == true ? Request.Form.RetentionComment.Value : null));
@@ -117,7 +99,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                             {
                                 logger.DebugFormat("We are updating archive mailbox information. Archive: {0}, Name: {1}, Plan: {2}", changeArchive, changeArchiveName, changeArchivePlan);
 
-                                Dictionary<string, string> r2 = ModifyArchiveMailbox(userGuids, companyCode,
+                                Dictionary<string, string> r2 = ModifyArchiveMailbox(model.CheckedUsers, companyCode,
                                                                                     (changeArchive == true ? (bool?)Request.Form.ArchivingEnabledChecked : null),
                                                                                     (changeArchiveName == true ? Request.Form.ArchiveName.Value : null),
                                                                                     (changeArchivePlan == true || changeArchive == true) ? (int?)Request.Form.ArchivePlan : null);
@@ -132,7 +114,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                             {
                                 logger.DebugFormat("We are updating ActiveSync policy information.");
 
-                                Dictionary<string, string> r3 = ModifyActiveSyncPolicy(userGuids, companyCode, (int)Request.Form.ActiveSyncPlan.Value);
+                                Dictionary<string, string> r3 = ModifyActiveSyncPolicy(model.CheckedUsers, companyCode, (int)Request.Form.ChgActiveSyncPlan.Value);
 
                                 results = results.Union(r3).ToDictionary(k => k.Key, v => v.Value);
                             }
@@ -396,10 +378,10 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     }
                     catch (Exception ex)
                     {
+                        reverse.RollbackNow();
+
                         logger.ErrorFormat("Error enabling mailbox for {0}: {1}", u, ex.ToString());
                         results.Add(u, ex.Message);
-
-                        reverse.RollbackNow();
                     }
                 }
 

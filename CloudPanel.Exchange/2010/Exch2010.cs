@@ -1,5 +1,5 @@
 ﻿using CloudPanel.Base.Config;
-using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Models.Database;
 using CloudPanel.Base.Enums;
 using CloudPanel.Base.Exchange;
 using log4net;
@@ -1213,6 +1213,26 @@ namespace CloudPanel.Exchange
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Disable-Mailbox");
             cmd.AddParameter("Identity", userGuid.ToString());
+            cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors(ignoreNotFound, false);
+        }
+
+        /// <summary>
+        /// Disables an Exchange mailbox
+        /// </summary>
+        /// <param name="identity"></param>
+        /// <param name="ignoreNotFound"></param>
+        public void Disable_Mailbox(string identity, bool ignoreNotFound = false)
+        {
+            logger.DebugFormat("Removing mailbox {0}", identity);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Disable-Mailbox");
+            cmd.AddParameter("Identity", identity);
             cmd.AddParameter("Confirm", false);
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;

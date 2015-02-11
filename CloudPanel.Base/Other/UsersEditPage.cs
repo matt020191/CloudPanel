@@ -1,4 +1,4 @@
-﻿using CloudPanel.Base.Database.Models;
+﻿using CloudPanel.Base.Models.Database;
 //
 // Copyright (c) 2014, Jacob Dixon
 // All rights reserved.

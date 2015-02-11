@@ -1,7 +1,7 @@
 ﻿using CloudPanel.ActiveDirectory;
 using CloudPanel.Base.AD;
 using CloudPanel.Base.Config;
-using CloudPanel.Base.Database.Models;
+using CloudPanel.Base.Models.Database;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Exchange;
 using CloudPanel.Rollback;

@@ -32,7 +32,7 @@
                     <div class="list-group">
                         @if (Model != null && Model.Permissions != null)
                         {
-                            foreach (CloudPanel.Base.Database.Models.UserRoles p in Model.Permissions)
+                            foreach (CloudPanel.Base.Models.Database.UserRoles p in Model.Permissions)
                             {
                                 <a href="~/company/@companyCode/permissions/@p.RoleID" class="list-group-item"><i class="fa fa-lock"></i> @p.DisplayName</a>
                             }

@@ -1,4 +1,4 @@
-﻿using CloudPanel.Base.Database.Models;
+﻿using CloudPanel.Base.Models.Database;
 using Nancy.Security;
 using System;
 using System.Collections.Generic;
