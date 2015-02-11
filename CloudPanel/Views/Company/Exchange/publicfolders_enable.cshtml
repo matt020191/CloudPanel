@@ -22,7 +22,7 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <form action="@Url.Content("~/company/"+companyCode+"/exchange/publicfolders/enable")" method="post">
+            <form id="pfEnableForm" action="@Url.Content("~/company/"+companyCode+"/exchange/publicfolders/enable")" method="post">
                 <div class="panel panel-primary">
                     <div class="panel-heading">Public Folders</div>
                     <div class="panel-body">
@@ -71,6 +71,24 @@
 @section JAVASCRIPT{
     <script type="text/javascript">
         $(document).ready(function () {
+            $("#pfEnableForm").submit(function (event) {
+                event.preventDefault();
+                var data = $("#pfEnableForm").serialize();
+
+                $.blockUI();
+                $.ajax({
+                    type: "POST",
+                    data: data,
+                    url: $("#pfEnableForm").attr("action")
+                }).done(function () {
+                    ShowSuccess("Successfully enable public folders");
+                    window.location.href = window.location.href;
+                }).fail(function (returnData) {
+                    ShowError(returnData);
+                }).always(function () {
+                    $.unblockUI();
+                });;
+            });
         });
     </script>
 }

@@ -7,10 +7,13 @@ using CloudPanel.Exchange;
 using CloudPanel.Rollback;
 using log4net;
 using Nancy;
+using Nancy.Security;
+using Nancy.Responses.Negotiation;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using CloudPanel.Code;
 
 namespace CloudPanel.Modules.CompanyModules.Exchange
 {
@@ -22,6 +25,8 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
         {
             Get["/"] = _ =>
                 {
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vExchangePublicFolders"));
+
                     #region Returns the public folder view
                     string companyCode = _.CompanyCode;
                     CloudPanelContext db = null;
@@ -30,14 +35,20 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                         db = new CloudPanelContext(Settings.ConnectionString);
                         db.Database.Connection.Open();
 
-                        var pfMailbox = db.Companies
+                        var company = db.Companies
+                                          .Include(x => x.PublicFolderMailboxes)
                                           .Where(x => x.CompanyCode == companyCode)
-                                          .FirstOrDefault();
+                                          .Single();
 
-                        if (pfMailbox == null)
-                            return Negotiate.WithView("Company/Exchange/publicfolders_enable.cshtml");
+                        if (company.PublicFolderMailboxes.Count > 0)
+                        {
+                            return Negotiate.WithModel(new { PlanID = company.PublicFolderMailboxes.First().PlanID })
+                                            .WithView("Company/Exchange/publicfolders_modify.cshtml");
+                        }
                         else
+                        {
                             return Negotiate.WithView("Company/Exchange/publicfolders_enable.cshtml");
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -56,6 +67,8 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
 
             Post["/enable"] = _ =>
                 {
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "cExchangePublicFolders"));
+
                     #region Enables the company for public folders
 
                     string companyCode = _.CompanyCode;
@@ -162,7 +175,6 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                         }
 
                         return Negotiate.WithModel(new { success = "Successfully enabled public folders" })
-                                        .WithView("Company/Exchange/publicfolders_enable.cshtml")
                                         .WithStatusCode(HttpStatusCode.OK);
                     }
                     catch (Exception ex)
@@ -187,8 +199,68 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     #endregion
                 };
 
-            Post["/disable"] = _ =>
+            Post["/modify"] = _ =>
                 {
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eExchangePublicFolders"));
+
+                    #region Modifies the public folders
+
+                    string companyCode = _.CompanyCode;
+                    CloudPanelContext db = null;
+                    dynamic powershell = null;
+                    try
+                    {
+                        #region Required values
+                        if (!Request.Form.PlanID.HasValue)
+                            throw new ArgumentNullException("PlanID");
+                        #endregion
+
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
+
+                        // Form Values
+                        int planId = Request.Form.PlanID;
+
+                        var pfMailbox = db.Companies
+                                          .Include(x => x.PublicFolderMailboxes)
+                                          .Where(x => x.CompanyCode == companyCode)
+                                          .Single()
+                                          .PublicFolderMailboxes
+                                          .First();
+
+                        var sqlPlan = db.Plans_ExchangePublicFolder
+                                        .Where(x => x.ID == planId)
+                                        .Single();
+
+                        powershell = ExchPowershell.GetClass();
+                        logger.DebugFormat("Setting size on the public folder mailbox");
+                        powershell.Set_PublicFolderMailbox(pfMailbox.Identity, companyCode, sqlPlan);
+
+                        return Negotiate.WithModel(new { success = "Successfully updated public folder plan" })
+                                        .WithStatusCode(HttpStatusCode.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error updating public folder plan for {0}: {1}", companyCode, ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithView("error/500.cshtml")
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (powershell != null)
+                            powershell.Dispose();
+
+                        if (db != null)
+                            db.Dispose();
+                    }
+                    #endregion
+                };
+
+            Post["/delete"] = _ =>
+                {
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "dExchangePublicFolders"));
+
                     #region Disables public folders for a company
 
                     string companyCode = _.CompanyCode;
@@ -201,37 +273,42 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                         db = new CloudPanelContext(Settings.ConnectionString);
                         db.Database.Connection.Open();
 
-                        var sqlCompany = db.Companies.Include(x => x.PublicFolderMailboxes).Where(x => x.CompanyCode == companyCode).Single();
-                        var sqlGroups = db.DistributionGroups.Where(x => x.CompanyCode == companyCode && x.IsSecurityGroup == true).ToList();
+                        var pfMailbox = db.Companies
+                                          .Include(x => x.PublicFolderMailboxes)
+                                          .Where(x => x.CompanyCode == companyCode)
+                                          .Single()
+                                          .PublicFolderMailboxes
+                                          .First();
 
-                        if (sqlCompany.PublicFolderMailboxes.Count > 0)
+                        var sqlGroups = db.DistributionGroups
+                                          .Where(x => x.CompanyCode == companyCode && x.IsSecurityGroup == true)
+                                          .ToList();
+
+                        powershell = ExchPowershell.GetClass();
+
+                        // Delete the security groups
+                        if (sqlGroups.Count > 0)
                         {
-                            powershell = ExchPowershell.GetClass();
-
-                            // Delete the security groups
-                            if (sqlGroups.Count > 0)
+                            sqlGroups.ForEach(x =>
                             {
-                                sqlGroups.ForEach(x =>
-                                {
-                                    logger.DebugFormat("Removing security group {0}", x.DistinguishedName);
-                                    powershell.Remove_DistributionGroup(x.DistinguishedName);
-                                    db.DistributionGroups.Remove(x);
-                                });
-                            }
-
-                            // Delete public folder mailboxes
-                            foreach (var pfm in sqlCompany.PublicFolderMailboxes)
-                            {
-                                powershell.Remove_PublicFolderMailbox(pfm.Identity);
-                                db.PublicFolderMailboxes.Remove(pfm);
-                            }
-
-                            // Add to database
-                            db.SaveChanges();
+                                logger.DebugFormat("Removing security group {0}", x.DistinguishedName);
+                                powershell.Remove_DistributionGroup(x.DistinguishedName);
+                                db.DistributionGroups.Remove(x);
+                            });
                         }
 
+                        // Delete public folder mailbox
+                        logger.DebugFormat("Removing public folders for {0}", companyCode);
+                        powershell.Remove_PublicFolders(pfMailbox.Identity, companyCode);
+
+                        logger.DebugFormat("Removing public folder mailbox {0}", pfMailbox.Identity);
+                        powershell.Remove_PublicFolderMailbox(pfMailbox.Identity);
+                        db.PublicFolderMailboxes.Remove(pfMailbox);
+
+                        // Add to database
+                        db.SaveChanges();
+
                         return Negotiate.WithModel(new { success = "Successfully disabled public folders" })
-                                        .WithView("Company/Exchange/publicfolders_enable.cshtml")
                                         .WithStatusCode(HttpStatusCode.OK);
                     }
                     catch (Exception ex)

@@ -773,7 +773,7 @@ namespace CloudPanel.Exchange
             _powershell.Commands = cmd;
             _powershell.Invoke();
 
-            HandleErrors(true, false);
+            HandleErrors(ignoredNotFound: true);
         }
 
         public List<GroupObjectSelector> Get_DistributionGroupMembers(string identity)

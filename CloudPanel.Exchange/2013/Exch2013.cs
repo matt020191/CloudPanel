@@ -487,6 +487,8 @@ namespace CloudPanel.Exchange
         /// <param name="publicFolderName"></param>
         public void Remove_PublicFolderMailbox(string identity)
         {
+            logger.DebugFormat("Removing public folder mailbox {0}", identity);
+
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Remove-Mailbox");
             cmd.AddParameter("Identity", identity);
@@ -495,7 +497,27 @@ namespace CloudPanel.Exchange
             _powershell.Commands = cmd;
             _powershell.Invoke();
 
-            HandleErrors();
+            HandleErrors(ignoredNotFound: true);
+        }
+
+        /// <summary>
+        /// Removes all public folders
+        /// </summary>
+        /// <param name="mailbox"></param>
+        /// <param name="companyCode"></param>
+        public void Remove_PublicFolders(string mailbox, string companyCode)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-PublicFolder");
+            cmd.AddParameter("Identity", @"\" + companyCode);
+            cmd.AddParameter("Mailbox", mailbox);
+            cmd.AddParameter("Recurse");
+            cmd.AddCommand("Remove-PublicFolder");
+            cmd.AddParameter("Confirm", false);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors(ignoredNotFound: true);
         }
 
         /// <summary>

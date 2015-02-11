@@ -1714,6 +1714,7 @@
     <Content Include="Views\Company\Citrix\groups.cshtml" />
     <Content Include="Views\Company\Exchange\publicfolders_enable.cshtml" />
     <Content Include="Views\Plans\publicfolders.cshtml" />
+    <Content Include="Views\Company\Exchange\publicfolders_modify.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

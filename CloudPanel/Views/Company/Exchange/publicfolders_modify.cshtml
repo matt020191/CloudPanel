@@ -1,0 +1,106 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@using CloudPanel
+
+@{
+    Layout = "__master.cshtml";
+
+    string companyCode = this.RenderContext.Context.Parameters.CompanyCode;
+}
+
+
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li><a href="~/company/@companyCode/overview">@this.RenderContext.Context.GetCompanyName()</a></li>
+        <li>Exchange</li>
+        <li class="active">Enable Public Folders</li>
+    </ol>
+
+    <h1>Modify Public Folders</h1>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <form id="pfModifyForm" action="@Url.Content("~/company/"+companyCode+"/exchange/publicfolders/modify")" method="post">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Modify Public Folders</div>
+                    <div class="panel-body">
+                        <div class="form-horizontal">
+                            <div class="form-group">
+                                <label for="focusedinput" class="col-sm-3 control-label">Plan</label>
+                                <div class="col-sm-6">
+                                    <select id="PlanID" name="PlanID" class="form-control">
+                                        @foreach (var plans in CloudPanel.Modules.PlansModules.PublicFolderPlanModule.GetPublicFolderPlans(companyCode))
+                                        {
+                                            <option value="@plans.ID" @(Model.PlanID == plans.ID ? "selected" : "")>@plans.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <div class="row">
+                            <div class="btn-toolbar text-right">
+                                <button class="btn-danger btn" type="button" onclick="javascript: DeletePublicFolders();">Disable</button>
+                                <button class="btn-primary btn" type="submit">Update</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section JAVASCRIPT{
+    <script type="text/javascript">
+    $(document).ready(function () {
+        $("#pfModifyForm").submit(function (event) {
+            event.preventDefault();
+            var data = $("#pfModifyForm").serialize();
+
+            $.blockUI();
+            $.ajax({
+                type: "POST",
+                data: data,
+                url: $("#pfModifyForm").attr("action")
+            }).done(function () {
+                ShowSuccess("Successfully modified public folders");
+            }).fail(function (returnData) {
+                ShowError(returnData);
+            }).always(function () {
+                $.unblockUI();
+            });;
+        });
+    });
+
+    function DeletePublicFolders() {
+        swal({
+            title: "Delete Public Folders?",
+            text: "Are you sure you want to delete public folders? All data will be removed and not restorable.",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Yes",
+            cancelButtonText: "No",
+            closeOnConfirm: false,
+            closeOnCancel: true
+        },
+        function (isconfirm) {
+            if (isconfirm) {
+                $.blockUI();
+                $.post("@Url.Content("~/company/"+companyCode+"/exchange/publicfolders/delete")", function (data) {
+                    ShowSuccess(data);
+                    window.location.href = window.location.href;
+                }).always(function () {
+                    $.unblockUI();
+                }).fail(function (data) {
+                    ShowError(data);
+                });
+            }
+        });
+    }
+    </script>
+}
