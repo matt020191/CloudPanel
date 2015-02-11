@@ -5,13 +5,12 @@ using CloudPanel.Base.Database.Models;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Exchange;
 using CloudPanel.Rollback;
-using System.Data.Entity;
 using log4net;
 using Nancy;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
-using System.Web;
 
 namespace CloudPanel.Modules.CompanyModules.Exchange
 {
@@ -58,11 +57,16 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
             Post["/enable"] = _ =>
                 {
                     #region Enables the company for public folders
+
                     string companyCode = _.CompanyCode;
                     CloudPanelContext db = null;
+                    ADGroups groups = null;
+                    dynamic powershell = null;
+
                     ReverseActions reverse = new ReverseActions();
                     try
                     {
+                        #region Required values
                         if (!Request.Form.Username.HasValue)
                             throw new ArgumentNullException("Username");
 
@@ -71,6 +75,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
 
                         if (!Request.Form.PlanID.HasValue)
                             throw new ArgumentNullException("PlanID");
+                        #endregion
 
                         db = new CloudPanelContext(Settings.ConnectionString);
                         db.Database.Connection.Open();
@@ -86,16 +91,70 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
 
                         if (sqlCompany.PublicFolderMailboxes == null || sqlCompany.PublicFolderMailboxes.Count == 0)
                         {
+                            powershell = ExchPowershell.GetClass();
+                            groups = new ADGroups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+
                             var newPFMailbox = new PublicFolderMailboxes();
                             newPFMailbox.CompanyID = sqlCompany.CompanyId;
                             newPFMailbox.PlanID = Request.Form.PlanID;
                             newPFMailbox.Identity = string.Format("{0}@{1}", username.Trim(), domain.Trim());
 
+                            // Get the exchange path
+                            var exchangePath = Settings.ExchangeOuPath(sqlCompany.DistinguishedName);
+
                             // Create the security groups
-                            CreateSecurityGroups(sqlCompany.CompanyCode, sqlCompany.DistinguishedName, ref reverse);
+                            #region Create Security Groups
+                            logger.DebugFormat("Creating new public folder admin group");
+                            var adminGroup = powershell.New_SecurityGroup(new DistributionGroups()
+                                                                     {
+                                                                         DisplayName = "PublicFolderAdmins@" + companyCode,
+                                                                         Email = "PublicFolderAdmins@" + domain,
+                                                                         IsSecurityGroup = true
+                                                                     }, exchangePath);
+                            reverse.AddAction(Actions.CreateDistributionGroup, adminGroup.DistinguishedName);
+                            powershell.Set_SecurityGroupCustomAttribute(adminGroup.Email, companyCode); // Set the custom attribute to the company code
+                            groups.AddGroup(adminGroup.DisplayName, "Admins@" + companyCode); // Add PublicFolderAdmins@ to the Admins@ security group
+                            db.DistributionGroups.Add(adminGroup); // Add the distribution group to the database with the IsSecurityGroup flag
+
+                            logger.DebugFormat("Creating new public folder users group");
+                            var userGroup = powershell.New_SecurityGroup(new DistributionGroups() 
+                                                                     { 
+                                                                         DisplayName = "PublicFolderUsers@" + companyCode,
+                                                                         Email = "PublicFolderUsers@" + domain,
+                                                                         IsSecurityGroup = true
+                                                                     }, exchangePath);
+                            reverse.AddAction(Actions.CreateDistributionGroup, userGroup.DistinguishedName);
+                            powershell.Set_SecurityGroupCustomAttribute(userGroup.Email, companyCode); // Set the custom attribute to the company code
+                            groups.AddGroup(userGroup.DisplayName, "AllUsers@" + companyCode); // Add PublicFolderUsers@ to the AllUsers@ security group
+                            db.DistributionGroups.Add(userGroup); // Add the distribution group to the database with the IsSecurityGroup flag
+                            #endregion
 
                             // Create the public folders
-                            CreatePublicFolders(sqlCompany.CompanyCode, sqlCompany.DistinguishedName, newPFMailbox.Identity, sqlPlan, ref reverse);
+                            #region Create Public Folders
+                            powershell.New_PublicFolderMailbox(newPFMailbox.Identity, newPFMailbox.Identity, exchangePath, newPFMailbox.Identity, string.Format(Settings.ExchangeABPName, companyCode));
+                            reverse.AddAction(Actions.CreatePublicFolderMailbox, newPFMailbox.Identity);
+
+                            logger.DebugFormat("Setting size on the public folder mailbox");
+                            powershell.Set_PublicFolderMailbox(newPFMailbox.Identity, companyCode, sqlPlan);
+
+                            logger.DebugFormat("Creating first public folder");
+                            powershell.New_PublicFolder(companyCode, newPFMailbox.Identity, @"\");
+                            reverse.AddAction(Actions.CreatePublicFolder, @"\" + companyCode);
+
+                            logger.DebugFormat("Removing default permissions");
+                            powershell.Remove_PublicFolderClientPermission(@"\" + companyCode, newPFMailbox.Identity, new[] { "Default" });
+
+                            logger.DebugFormat("Adding public folder admin permissions");
+                            var newPermissions = new Dictionary<string, string>();
+                            newPermissions.Add("Owner", adminGroup.Email);
+                            newPermissions.Add("Reviewer", userGroup.Email);
+
+                            powershell.Add_PublicFolderClientPermission(@"\" + companyCode, newPFMailbox.Identity, newPermissions);
+                            #endregion
+
+                            // Add all mailbox users to the new public folder
+                            logger.DebugFormat("Associating all mailbox users with the new public folder mailbox");
+                            powershell.Set_DefaultPublicFolderMailbox(companyCode, newPFMailbox.Identity);
 
                             // Add to database
                             db.PublicFolderMailboxes.Add(newPFMailbox);
@@ -116,109 +175,82 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     }
                     finally
                     {
+                        if (powershell != null)
+                            powershell.Dispose();
+
+                        if (groups != null)
+                            groups.Dispose();
+
                         if (db != null)
                             db.Dispose();
                     }
                     #endregion
                 };
-        }
 
-        /// <summary>
-        /// Creates the required security groups for public folders
-        /// </summary>
-        /// <param name="companyCode"></param>
-        /// <param name="companyDistinguishedName"></param>
-        private void CreateSecurityGroups(string companyCode, string companyDistinguishedName, ref ReverseActions reverse)
-        {
-            ADGroups groups = null;
-            try
-            {
-                groups = new ADGroups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-
-                logger.DebugFormat("Generating Exchange path for {0}", companyDistinguishedName);
-                var exchangeOUPath = Settings.ExchangeOuPath(companyDistinguishedName);
-
-                logger.DebugFormat("Creating new public folder admin security group");
-                var adminPfGroup = groups.Create(exchangeOUPath, new SecurityGroup()
+            Post["/disable"] = _ =>
                 {
-                    Name = "PublicFolderAdmins@" + companyCode,
-                    DisplayName = "PublicFolderAdmins@" + companyCode,
-                    SamAccountName = "PublicFolderAdmins_" + companyCode,
-                    IsUniversalGroup = true
-                });
-                reverse.AddAction(Actions.CreateSecurityGroup, adminPfGroup.Name);
-                groups.AddGroup(adminPfGroup.Name, "Admins@" + companyCode);
+                    #region Disables public folders for a company
 
-                logger.DebugFormat("Creating new public folder users security group");
-                var userPfGroup = groups.Create(exchangeOUPath, new SecurityGroup()
-                {
-                    Name = "PublicFolderUsers@" + companyCode,
-                    DisplayName = "PublicFolderUsers@" + companyCode,
-                    SamAccountName = "PublicFolderUsers_" + companyCode,
-                    IsUniversalGroup = true
-                });
-                reverse.AddAction(Actions.CreateSecurityGroup, userPfGroup.Name);
-                groups.AddGroup(userPfGroup.Name, "AllUsers@" + companyCode);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error creating public folder secuity groups: {0}", ex.ToString());
-                throw;
-            }
-            finally
-            {
-                if (groups != null)
-                    groups.Dispose();
-            }
-        }
+                    string companyCode = _.CompanyCode;
+                    CloudPanelContext db = null;
+                    dynamic powershell = null;
 
-        /// <summary>
-        /// Creates the public folder mailbox and parent public folder
-        /// </summary>
-        /// <param name="companyCode"></param>
-        /// <param name="companyDistinguishedName"></param>
-        /// <param name="email"></param>
-        /// <param name="plan"></param>
-        /// <param name="reverse"></param>
-        private void CreatePublicFolders(string companyCode, string companyDistinguishedName, string email, Plans_ExchangePublicFolders plan, ref ReverseActions reverse)
-        {
-            Exch2013 powershell = null;
-            try
-            {
-                logger.DebugFormat("Generating Exchange path for {0}", companyDistinguishedName);
-                var exchangeOUPath = Settings.ExchangeOuPath(companyDistinguishedName);
+                    ReverseActions reverse = new ReverseActions();
+                    try
+                    {
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
 
-                powershell = ExchPowershell.GetClass();
-                powershell.New_PublicFolderMailbox(email, email, exchangeOUPath, email, string.Format(Settings.ExchangeABPName, companyCode));
-                reverse.AddAction(Actions.CreatePublicFolderMailbox, email);
+                        var sqlCompany = db.Companies.Include(x => x.PublicFolderMailboxes).Where(x => x.CompanyCode == companyCode).Single();
+                        var sqlGroups = db.DistributionGroups.Where(x => x.CompanyCode == companyCode && x.IsSecurityGroup == true).ToList();
 
-                logger.DebugFormat("Setting size on the public folder mailbox");
-                powershell.Set_PublicFolderMailbox(email, companyCode, plan);
+                        if (sqlCompany.PublicFolderMailboxes.Count > 0)
+                        {
+                            powershell = ExchPowershell.GetClass();
 
-                logger.DebugFormat("Creating first public folder");
-                powershell.New_PublicFolder(companyCode, email, @"\");
-                reverse.AddAction(Actions.CreatePublicFolder, @"\" + companyCode);
+                            // Delete the security groups
+                            if (sqlGroups.Count > 0)
+                            {
+                                sqlGroups.ForEach(x =>
+                                {
+                                    logger.DebugFormat("Removing security group {0}", x.DistinguishedName);
+                                    powershell.Remove_DistributionGroup(x.DistinguishedName);
+                                    db.DistributionGroups.Remove(x);
+                                });
+                            }
 
-                logger.DebugFormat("Removing default permissions");
-                powershell.Remove_PublicFolderClientPermission(@"\" + companyCode, email, new[] { "Default" });
+                            // Delete public folder mailboxes
+                            foreach (var pfm in sqlCompany.PublicFolderMailboxes)
+                            {
+                                powershell.Remove_PublicFolderMailbox(pfm.Identity);
+                                db.PublicFolderMailboxes.Remove(pfm);
+                            }
 
-                logger.DebugFormat("Adding public folder admin permissions");
-                var newPermissions = new Dictionary<string, string>();
-                newPermissions.Add("Owner", "PublicFolderAdmins@" + companyCode);
-                newPermissions.Add("Reviewer", "PublicFolderUsers@"+companyCode);
+                            // Add to database
+                            db.SaveChanges();
+                        }
 
-                powershell.Add_PublicFolderClientPermission(@"\" + companyCode, email, newPermissions);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error creating public folders: {0}", ex.ToString());
-                throw;
-            }
-            finally
-            {
-                if (powershell != null)
-                    powershell.Dispose();
-            }
+                        return Negotiate.WithModel(new { success = "Successfully disabled public folders" })
+                                        .WithView("Company/Exchange/publicfolders_enable.cshtml")
+                                        .WithStatusCode(HttpStatusCode.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error disabling public folders for {0}: {1}", companyCode, ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithView("error/500.cshtml")
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (powershell != null)
+                            powershell.Dispose();
+
+                        if (db != null)
+                            db.Dispose();
+                    }
+                    #endregion
+                };
         }
     }
 }

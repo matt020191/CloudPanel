@@ -57,6 +57,9 @@ namespace CloudPanel.Base.Database.Models
         [StringLength(255)]
         public string Email { get; set; }
 
+        [Required]
+        public bool IsSecurityGroup { get; set; }
+
         public bool Hidden { get; set; }
 
         #region Not Mapped

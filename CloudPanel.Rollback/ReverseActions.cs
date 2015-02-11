@@ -18,6 +18,7 @@ namespace CloudPanel.Rollback
         CreateOfflineAddressBook,
         CreateAddressBookPolicy,
         CreateMailContact,
+        CreateDistributionGroup,
         CreateRoomMailbox,
         CreateEquipmentMailbox,
         CreateSharedMailbox,
@@ -94,6 +95,7 @@ namespace CloudPanel.Rollback
                     case Actions.CreateSharedMailbox:
                     case Actions.CreatePublicFolderMailbox:
                     case Actions.CreatePublicFolder:
+                    case Actions.CreateDistributionGroup:
                         RollbackExchangeAction(a._PerformedAction, new[] { a._ActionAttribute });
                         break;
                     default:
@@ -201,6 +203,9 @@ namespace CloudPanel.Rollback
                         break;
                     case Actions.CreatePublicFolder:
                         powershell.Remove_PublicFolder(attribute[0].ToString(), true);
+                        break;
+                    case Actions.CreateDistributionGroup:
+                        powershell.Remove_DistributionGroup(attribute[0].ToString());
                         break;
                     default:
                         log.DebugFormat("Unknown action {0}... Skipping...", action.ToString());

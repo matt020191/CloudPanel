@@ -19,6 +19,28 @@ namespace CloudPanel.Exchange
         {
         }
 
+        #region Mailboxes
+
+        public void Set_DefaultPublicFolderMailbox(string companyCode, string publicFolderMailbox)
+        {
+            logger.DebugFormat("Associate all the company's mailbox for {0} with public folder mailbox {1}", companyCode, publicFolderMailbox);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-Mailbox");
+            cmd.AddParameter("Filter", string.Format("CustomAttribute1 -eq \"{0}\"", companyCode));
+            cmd.AddParameter("ResultSize", "Unlimited");
+            cmd.AddParameter("DomainController", this._domainController);
+            cmd.AddCommand("Set-Mailbox");
+            cmd.AddParameter("DefaultPublicFolderMailbox", publicFolderMailbox);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
+        #endregion
+
         #region GAL / OAL / Address Book Policies
 
         public override string New_OfflineAddressBook(string companyCode)

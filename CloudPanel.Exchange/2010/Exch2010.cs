@@ -533,6 +533,40 @@ namespace CloudPanel.Exchange
             return group;
         }
 
+        public DistributionGroups New_SecurityGroup(DistributionGroups group, string organizationalUnit)
+        {
+            logger.DebugFormat("Creating new security distribution group {0} for {1}", group.DisplayName, group.CompanyCode);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("New-DistributionGroup");
+            cmd.AddParameter("Name", group.DisplayName);
+            cmd.AddParameter("DisplayName", group.DisplayName);
+            cmd.AddParameter("OrganizationalUnit", organizationalUnit);
+            cmd.AddParameter("PrimarySmtpAddress", group.Email);
+            cmd.AddParameter("Type", "Security");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                foreach (var o in psObjects)
+                {
+                    if (o.Properties["DistinguishedName"] != null)
+                    {
+                        group.DistinguishedName = o.Properties["DistinguishedName"].Value.ToString();
+                        break;
+                    }
+                }
+            }
+
+            HandleErrors();
+
+            return group;
+        }
+
         public DistributionGroups Update_DistributionGroup(DistributionGroups group, string originalIdentity)
         {
             logger.DebugFormat("Updating distribution group {0} for {1}", group.DisplayName, group.CompanyCode);
@@ -624,6 +658,19 @@ namespace CloudPanel.Exchange
             }
 
             return group;
+        }
+
+        public void Set_SecurityGroupCustomAttribute(string groupEmail, string companyCode)
+        {
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Set-DistributionGroup");
+            cmd.AddParameter("Identity", groupEmail);
+            cmd.AddParameter("CustomAttribute1", companyCode);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
         }
 
         public DistributionGroups Get_DistributionGroup(string identity)

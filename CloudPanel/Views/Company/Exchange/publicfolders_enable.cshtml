@@ -4,7 +4,7 @@
 @{
     Layout = "__master.cshtml";
 
-    string companyCode = this.RenderContext.Context.GetCompanyCode();
+    string companyCode = this.RenderContext.Context.Parameters.CompanyCode;
 }
 
 
@@ -22,7 +22,7 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <form action="@Url.Content("~/company/"+this.RenderContext.Context.Parameters.CompanyCode+"/exchange/publicfolders/enable")" method="post">
+            <form action="@Url.Content("~/company/"+companyCode+"/exchange/publicfolders/enable")" method="post">
                 <div class="panel panel-primary">
                     <div class="panel-heading">Public Folders</div>
                     <div class="panel-body">
