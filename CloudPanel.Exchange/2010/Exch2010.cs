@@ -20,6 +20,7 @@ namespace CloudPanel.Exchange
         public Exch2010(string uri, string username, string password, bool kerberos, string domainController) :
             base(uri, username, password, kerberos, domainController)
         {
+
         }
 
         #region Address Lists
@@ -879,6 +880,7 @@ namespace CloudPanel.Exchange
                 throw new MissingFieldException("Users", "Email");
             #endregion
 
+            logger.DebugFormat("Enabling mailbox for {0}", user.DisplayName);
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Enable-Mailbox");
             cmd.AddParameter("Identity", user.UserGuid.ToString());

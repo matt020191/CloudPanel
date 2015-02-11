@@ -11,11 +11,13 @@ using log4net;
 using Nancy;
 using Nancy.Security;
 using Nancy.ViewEngines.Razor;
+using Nancy.ModelBinding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using CloudPanel.Base.Models.ViewModels;
 
 namespace CloudPanel.Modules
 {
@@ -198,8 +200,8 @@ namespace CloudPanel.Modules
                         throw new Exception("You have reached the user limit.");
                     #endregion
 
-                    int domainID = Request.Form.DomainID;
                     string companyCode = _.CompanyCode;
+                    var model = this.Bind<CreateUserViewModel>();
 
                     logger.DebugFormat("Getting selected domain from the database");
                     db = new CloudPanelContext(Settings.ConnectionString);
@@ -207,7 +209,7 @@ namespace CloudPanel.Modules
 
                     var domain = (from d in db.Domains
                                   where d.CompanyCode == companyCode
-                                  where d.DomainID == domainID
+                                  where d.DomainID == model.DomainID
                                   select d).FirstOrDefault();
 
                     if (domain == null)
@@ -218,12 +220,12 @@ namespace CloudPanel.Modules
 
                         Users newUser = new Users();
                         newUser.CompanyCode = companyCode;
-                        newUser.Name = Request.Form.DisplayName; // TODO: MAKE THIS USE EITHER DISPLAY NAME OR EMAIL BASED ON CONFIG FILE
-                        newUser.DisplayName = Request.Form.DisplayName;
-                        newUser.Firstname = Request.Form.Firstname.HasValue ? Request.Form.Firstname.Value : string.Empty;
-                        newUser.Middlename = Request.Form.Middlename.HasValue ? Request.Form.Middlename.Value : string.Empty;
-                        newUser.Lastname = Request.Form.Lastname.HasValue ? Request.Form.Lastname.Value : string.Empty;
-                        newUser.Department = Request.Form.Department.HasValue ? Request.Form.Department.Value : string.Empty;
+                        newUser.Name = model.DisplayName.Trim(); // TODO: MAKE THIS USE EITHER DISPLAY NAME OR EMAIL BASED ON CONFIG FILE
+                        newUser.DisplayName = model.DisplayName.Trim();
+                        newUser.Firstname = model.Firstname.Trim();
+                        newUser.Middlename = model.Middlename.Trim();
+                        newUser.Lastname = model.Lastname.Trim();
+                        newUser.Department = model.Department.Trim();
                         newUser.Email = string.Empty;
                         newUser.IsResellerAdmin = false;
                         newUser.IsCompanyAdmin = false;
@@ -236,7 +238,7 @@ namespace CloudPanel.Modules
                         newUser.IsEnabled = true;
 
                         logger.DebugFormat("Formatting the UserPrincipalName");
-                        string upn = string.Format("{0}@{1}", Request.Form.Username, domain.Domain);
+                        string upn = string.Format("{0}@{1}", model.Username, domain.Domain);
 
                         logger.DebugFormat("Replacing whitespace characters in UPN: {0}", upn);
                         upn = upn.Replace(" ", string.Empty);
@@ -266,7 +268,7 @@ namespace CloudPanel.Modules
                             {
                                 logger.DebugFormat("Creating user in Active Directory now");
                                 adUsers = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-                                newUser = adUsers.Create(Settings.UsersOuPath(company.DistinguishedName), Request.Form.Pwd, newUser, Settings.SamAccountNameFormat);
+                                newUser = adUsers.Create(Settings.UsersOuPath(company.DistinguishedName), model.Pwd, newUser, Settings.SamAccountNameFormat);
                                 reverse.AddAction(Actions.AddUsers, newUser.UserGuid);
 
                                 logger.DebugFormat("User {0} created in Active Directory. Adding to the AllUsers security group", upn);
