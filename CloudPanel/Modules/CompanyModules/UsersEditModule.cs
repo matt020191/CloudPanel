@@ -552,14 +552,33 @@ namespace CloudPanel.Modules.CompanyModules
                             else if (user.MailboxPlan < 1 && boundUser.IsMailboxEnabled)
                             {
                                 #region Enable Mailbox
+
                                 // Enable mailbox
                                 logger.InfoFormat("Enabling mailbox for {0}", userGuid);
 
                                 powershell.Enable_Mailbox(boundUser);
-                                reverse.AddAction(Actions.CreateMailbox, userGuid);
+                                reverse.AddAction(Actions.CreateMailbox, userGuid.ToString());
 
+                                logger.DebugFormat("Setting the mailbox properties");
                                 powershell.Set_Mailbox(boundUser, plan, validatedEmails.ToArray());
+
+                                logger.DebugFormat("Settings the cas mailbox properties");
                                 powershell.Set_CASMailbox(boundUser.UserGuid, plan, null);
+
+                                logger.DebugFormat("Checking for public folders");
+                                if (Settings.ExchangePFEnabled)
+                                {
+                                    var company = db.Companies
+                                                    .Include(x => x.PublicFolderMailboxes)
+                                                    .Where(x => x.CompanyCode == companyCode)
+                                                    .Single();
+
+                                    if (company.PublicFolderMailboxes.Count > 0)
+                                    {
+                                        var pfMailbox = company.PublicFolderMailboxes.First();
+                                        powershell.Set_DefaultPublicFolderMailbox(companyCode, pfMailbox.Identity, boundUser.UserGuid.ToString());
+                                    }
+                                }
 
                                 user.MailboxPlan = plan.MailboxPlanID;
                                 user.Email = boundUser.Email;

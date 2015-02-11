@@ -39,6 +39,21 @@ namespace CloudPanel.Exchange
             HandleErrors();
         }
 
+        public void Set_DefaultPublicFolderMailbox(string companyCode, string publicFolderMailbox, string user)
+        {
+            logger.DebugFormat("Associate {0} with public folder mailbox {1}", user, publicFolderMailbox);
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Set-Mailbox");
+            cmd.AddParameter("Identity", user);
+            cmd.AddParameter("DefaultPublicFolderMailbox", publicFolderMailbox);
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            _powershell.Invoke();
+
+            HandleErrors();
+        }
+
         #endregion
 
         #region GAL / OAL / Address Book Policies

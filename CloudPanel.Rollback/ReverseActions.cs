@@ -96,6 +96,7 @@ namespace CloudPanel.Rollback
                     case Actions.CreatePublicFolderMailbox:
                     case Actions.CreatePublicFolder:
                     case Actions.CreateDistributionGroup:
+                    case Actions.CreateMailbox:
                         RollbackExchangeAction(a._PerformedAction, new[] { a._ActionAttribute });
                         break;
                     default:
