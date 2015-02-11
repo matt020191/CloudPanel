@@ -23,11 +23,17 @@ namespace CloudPanel.Modules.Dashboard
 
                     var user = Context.CurrentUser as AuthenticatedUser;
                     if (user.HasClaim("SuperAdmin"))
+                    {
                         return View["Dashboard/dashboard_super.cshtml"];
+                    }
                     else if (user.HasClaim("ResellerAdmin"))
+                    {
                         return View["Dashboard/dashboard_reseller.cshtml"];
+                    }
                     else
+                    {
                         return this.Response.AsRedirect("~/company/" + user.CompanyCode + "/overview");
+                    }
                 };
 
             Get["/admin/all"] = _ =>
@@ -107,7 +113,8 @@ namespace CloudPanel.Modules.Dashboard
                         db = new CloudPanelContext(Settings.ConnectionString);
                         var statistics = (from d in db.Statistics
                                           where d.Retrieved >= (DateTime)DbFunctions.AddMonths(DateTime.Now, -months)
-                                          group d by DbFunctions.TruncateTime(d.Retrieved) into g
+                                          //group d by DbFunctions.TruncateTime(d.Retrieved) into g
+                                          group d by d.Retrieved into g
                                           select new
                                           {
                                               Retrieved = DbFunctions.TruncateTime(g.Key),
