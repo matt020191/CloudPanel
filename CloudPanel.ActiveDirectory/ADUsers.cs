@@ -457,8 +457,8 @@ namespace CloudPanel.ActiveDirectory
                 if (string.IsNullOrEmpty(userObject.DisplayName))
                     throw new MissingFieldException("User", "DisplayName");
 
-                if (string.IsNullOrEmpty(userObject.Name))
-                    throw new MissingFieldException("User", "Name");
+                //if (string.IsNullOrEmpty(userObject.Name))
+                    //throw new MissingFieldException("User", "Name");
 
                 // Check if the user exists
                 pc = GetPrincipalContext(); // Used for querying purposes
@@ -573,10 +573,10 @@ namespace CloudPanel.ActiveDirectory
                     throw new NoMatchingPrincipalException(userObject.UserPrincipalName);
 
                 DirectoryEntry deEntry = usr.GetUnderlyingObject() as DirectoryEntry;
-                deEntry.Properties["givenName"].Value = userObject.Firstname;
                 deEntry.Properties["DisplayName"].Value = userObject.DisplayName;
 
                 logger.DebugFormat("Setting AD property values for {0}", userObject.UserPrincipalName);
+                SetPropertyValue(ref deEntry, "givenName", userObject.Firstname);
                 SetPropertyValue(ref deEntry, "sn", userObject.Lastname);
                 SetPropertyValue(ref deEntry, "streetAddress", userObject.Street);
                 SetPropertyValue(ref deEntry, "l", userObject.City);

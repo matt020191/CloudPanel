@@ -41,7 +41,7 @@ namespace CloudPanel.Modules.PlansModules
 
                     return Negotiate.WithModel(new { plan = new Plans_ExchangePublicFolders() })
                                     .WithMediaRangeModel("application/json", HttpStatusCode.OK)
-                                    .WithView("~/Plans/publicfolders.cshtml");
+                                    .WithView("plans/publicfolders.cshtml");
                 }
                 catch (Exception ex)
                 {

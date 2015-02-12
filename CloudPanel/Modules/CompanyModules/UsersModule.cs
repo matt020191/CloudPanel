@@ -221,10 +221,10 @@ namespace CloudPanel.Modules
                         Users newUser = new Users();
                         newUser.CompanyCode = companyCode;
                         newUser.DisplayName = model.DisplayName.Trim();
-                        newUser.Firstname = model.Firstname.Trim();
-                        newUser.Middlename = model.Middlename.Trim();
-                        newUser.Lastname = model.Lastname.Trim();
-                        newUser.Department = model.Department.Trim();
+                        newUser.Firstname = !string.IsNullOrEmpty(model.Firstname) ? model.Firstname.Trim() : string.Empty;
+                        newUser.Middlename = !string.IsNullOrEmpty(model.Middlename) ? model.Middlename.Trim() : string.Empty;
+                        newUser.Lastname = !string.IsNullOrEmpty(model.Lastname) ? model.Lastname.Trim() : string.Empty;
+                        newUser.Department = !string.IsNullOrEmpty(model.Department) ? model.Department.Trim() : string.Empty;
                         newUser.Email = string.Empty;
                         newUser.IsResellerAdmin = false;
                         newUser.IsCompanyAdmin = false;
@@ -267,7 +267,7 @@ namespace CloudPanel.Modules
                             {
                                 logger.DebugFormat("Creating user in Active Directory now");
                                 adUsers = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-                                newUser = adUsers.Create(Settings.UsersOuPath(company.DistinguishedName), model.Pwd, newUser, Settings.SamAccountNameFormat);
+                                newUser = adUsers.Create(Settings.UsersOuPath(company.DistinguishedName), model.Pwd, newUser, Settings.SamAccountNameFormat, Settings.ADCNFormat);
                                 reverse.AddAction(Actions.AddUsers, newUser.UserGuid);
 
                                 logger.DebugFormat("User {0} created in Active Directory. Adding to the AllUsers security group", upn);

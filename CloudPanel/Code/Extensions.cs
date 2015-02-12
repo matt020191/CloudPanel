@@ -285,10 +285,23 @@ namespace CloudPanel
             return user.Claims.Any(x => (x.Contains("SuperAdmin") || x.Contains("ResellerAdmin") || x.Contains("CompanyAdmin")));
         }
 
-
-        public static bool HasPermission(this NancyContext context)
+        /// <summary>
+        /// Checks if a user has a certain permission or not
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="permission"></param>
+        /// <returns></returns>
+        public static bool HasPermission(this NancyContext context, string permission)
         {
-            return false;
+             foreach (var p in context.CurrentUser.Claims)
+             {
+                 if (p.Equals(permission))
+                 {
+                     return true;
+                 }
+             }
+
+             return false;
         }
 
         public static IEnumerable<T> Except<T, TKey>(this IEnumerable<T> items, IEnumerable<T> other, Func<T, TKey> getKey)

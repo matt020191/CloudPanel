@@ -22,8 +22,6 @@ namespace CloudPanel.Modules
 
         public ContactsModule() : base("/company/{CompanyCode}/exchange/contacts")
         {
-            this.RequiresAuthentication();
-
             Get["/"] = _ =>
             {
                 this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vExchangeContacts"));
@@ -149,7 +147,7 @@ namespace CloudPanel.Modules
                                        select d).ToList();
 
                         logger.DebugFormat("Finding default domain...");
-                        string defaultDomain = domains.Where(x => x.IsDefault) == null ? 
+                        string defaultDomain = domains.Where(x => x.IsDefault).FirstOrDefault() == null ? 
                                                        domains.First().Domain : domains.Where(x => x.IsDefault).First().Domain;
 
                         logger.DebugFormat("Creating contact {0} in Exchange", newContact.Email);

@@ -60,14 +60,14 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     db.SaveChanges();
 
                     var blankPlan = new Plans_ExchangeActiveSync();
-                    return View["Company/Exchange/activesync.cshtml", new { Plan = blankPlan, success = "Successfully created plan" }];
+                    return Negotiate.WithModel(new { Plan = blankPlan, success = "Successfully created plan" })
+                                    .WithView("Company/Exchange/activesync.cshtml");
                 }
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error updating Activesync policy {0}: {1}", _.ID, ex.ToString());
-
-                    ViewBag.error = ex.Message;
-                    return View["error.cshtml"];
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithView("Error/500.cshtml");
                 }
                 finally
                 {
@@ -95,14 +95,14 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                                 where d.ASID == id
                                 select d).FirstOrDefault();
 
-                    return View["Company/Exchange/activesync.cshtml", new { Plan = plan }];
+                    return Negotiate.WithModel(new { Plan = plan })
+                                    .WithView("Company/Exchange/activesync.cshtml");
                 }
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error getting activesync plan {0}: {1}", _.ID, ex.ToString());
-
-                    ViewBag.error = ex.Message;
-                    return View["error.cshtml"];
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithView("Error/500.cshtml");
                 }
                 finally
                 {
@@ -153,14 +153,14 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
                     }
 
                     db.SaveChanges();
-                    return View["Company/Exchange/activesync.cshtml", new { Plan = plan, success = "Successfully updated plan" }];
+                    return Negotiate.WithModel(new { Plan = plan, success = "Successfully updated plan" })
+                                    .WithView("Company/Exchange/activesync.cshtml");
                 }
                 catch (Exception ex)
                 {
                     logger.ErrorFormat("Error updating Activesync policy {0}: {1}", _.ID, ex.ToString());
-
-                    ViewBag.error = ex.Message;
-                    return View["error.cshtml"];
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithView("Error/500.cshtml");
                 }
                 finally
                 {

@@ -214,7 +214,7 @@
                                                                         <input id="Fax" name="Fax" type="text" value="@Model.Fax" class="form-control input-sm">
                                                                     </div>
                                                                 </div>
-                                                                @if (this.RenderContext.Context.IsSuperOrResellerAdmin())
+                                                                @if (this.RenderContext.Context.IsSuperOrResellerAdmin() || this.RenderContext.Context.HasPermission("ePermissions"))
                                                                 {
                                                                 <div class="form-group">
                                                                     <label for="smallinput" class="col-sm-3 control-label">Company Admin</label>
@@ -755,7 +755,7 @@
             $.ajax({
                 type: "GET",
                 url: "@Html.RenderContext.Context.Request.Url/mailbox",
-            })
+              })
               .done(function(data) {
                   console.log(data);
 
@@ -778,6 +778,7 @@
                   });
 
                   $("#EmailSendOnBehalf").select2("val", data.mailbox.emailSendOnBehalf);
+                  $("#ForwardTo").select2("val", data.mailbox.forwardTo);
                   $("#DeliverToMailboxAndForward").val(data.mailbox.deliverToMailboxAndForward);
                   $("#DeliverToMailboxAndForward").prop("checked", data.mailbox.deliverToMailboxAndForward);
 

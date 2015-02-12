@@ -23,7 +23,7 @@ namespace CloudPanel.Modules
         {
             Get["/new"] = _ =>
             {
-                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vPermission"));
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "ePermissions"));
 
                 #region Get roles and show default screen
                 string companyCode = _.CompanyCode;
@@ -36,7 +36,7 @@ namespace CloudPanel.Modules
 
             Post["/new"] = _ =>
             {
-                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "cPermission"));
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "ePermissions"));
 
                 #region Create new permissions model
                 CloudPanelContext db = null;
@@ -74,7 +74,7 @@ namespace CloudPanel.Modules
 
             Get["/{ID:int}"] = _ =>
             {
-                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vPermission"));
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "ePermissions"));
 
                 #region Gets a specific permission model
                 CloudPanelContext db = null;
@@ -114,7 +114,7 @@ namespace CloudPanel.Modules
 
             Post["/{ID:int}"] = _ =>
             {
-                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "ePermission"));
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "ePermissions"));
 
                 #region Updates a specific permission model
                 CloudPanelContext db = null;
@@ -207,7 +207,7 @@ namespace CloudPanel.Modules
 
             Delete["/{ID:int}"] = _ =>
             {
-                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "dPermission"));
+                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "dPermissions"));
 
                 #region Deletes a specific permission model
                 CloudPanelContext db = null;

@@ -182,32 +182,33 @@ namespace CloudPanel.Modules.CompanyModules
                         //user.sAMAccountName = boundUser.sAMAccountName;
                         user.DistinguishedName = boundUser.DistinguishedName;
                         user.DisplayName = boundUser.DisplayName.Trim();
-                        user.Firstname = boundUser.Firstname.Trim();
-                        user.Middlename = boundUser.Middlename.Trim();
-                        user.Lastname = boundUser.Lastname.Trim();
-                        user.Department = boundUser.Department.Trim();
-                        user.Skype = boundUser.Skype.Trim();
-                        user.Facebook = boundUser.Facebook.Trim();
-                        user.Twitter = boundUser.Twitter.Trim();
-                        user.Dribbble = boundUser.Dribbble.Trim();
-                        user.Tumblr = boundUser.Tumblr.Trim();
-                        user.LinkedIn = boundUser.LinkedIn.Trim();
-                        user.Street = boundUser.Street.Trim();
-                        user.City = boundUser.City.Trim();
-                        user.State = boundUser.State.Trim();
-                        user.PostalCode = boundUser.PostalCode.Trim();
-                        user.Country = boundUser.Country.Trim();
-                        user.Company = boundUser.Company.Trim();
-                        user.JobTitle = boundUser.JobTitle.Trim();
-                        user.TelephoneNumber = boundUser.TelephoneNumber.Trim();
-                        user.Fax = boundUser.Fax.Trim();
-                        user.HomePhone = boundUser.HomePhone.Trim();
-                        user.MobilePhone = boundUser.MobilePhone.Trim();
+                        user.Firstname = !string.IsNullOrEmpty(boundUser.Firstname) ? boundUser.Firstname.Trim() : string.Empty;
+                        user.Middlename = !string.IsNullOrEmpty(boundUser.Middlename) ? boundUser.Middlename.Trim() : string.Empty;
+                        user.Lastname = !string.IsNullOrEmpty(boundUser.Lastname) ? boundUser.Lastname.Trim() : string.Empty;
+                        user.Department = !string.IsNullOrEmpty(boundUser.Department) ? boundUser.Department.Trim() : string.Empty;
+                        user.Skype = boundUser.Skype;
+                        user.Facebook = boundUser.Facebook;
+                        user.Twitter = boundUser.Twitter;
+                        user.Dribbble = boundUser.Dribbble;
+                        user.Tumblr = boundUser.Tumblr;
+                        user.LinkedIn = boundUser.LinkedIn;
+                        user.Street = boundUser.Street;
+                        user.City = boundUser.City;
+                        user.State = boundUser.State;
+                        user.PostalCode = boundUser.PostalCode;
+                        user.Country = boundUser.Country;
+                        user.Company = boundUser.Company;
+                        user.JobTitle = boundUser.JobTitle;
+                        user.TelephoneNumber = boundUser.TelephoneNumber;
+                        user.Fax = boundUser.Fax;
+                        user.HomePhone = boundUser.HomePhone;
+                        user.MobilePhone = boundUser.MobilePhone;
                         user.Notes = boundUser.Notes;
                         
-                        if (this.Context.IsSuperOrResellerAdmin())
+                        // Check if we are updating permissions. Only update this section if the logged in user has rights.
+                        if (this.Context.IsSuperOrResellerAdmin() || this.Context.CurrentUser.HasClaim("ePermissions"))
                         {
-                            logger.DebugFormat("Checking changes to the user role since the logged in user is a super admin or reseller admin");
+                            logger.DebugFormat("Checking if the logged in user is a super, reseller, or company admin with ePermissions security role.");
                             if (boundUser.RoleID > 0)
                             {
                                 logger.DebugFormat("Role ID is {0}", boundUser.RoleID);
@@ -226,7 +227,6 @@ namespace CloudPanel.Modules.CompanyModules
                         adUsers.UpdateUser(user);
 
                         db.SaveChanges();
-
                         return Negotiate.WithModel(new { success = "Successfully updated user values" })
                                         .WithStatusCode(HttpStatusCode.OK);
                     }
