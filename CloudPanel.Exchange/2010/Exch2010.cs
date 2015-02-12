@@ -253,6 +253,7 @@ namespace CloudPanel.Exchange
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("New-MailContact");
             cmd.AddParameter("Name", mailContact.Email);
+            cmd.AddParameter("DisplayName", mailContact.DisplayName);
             cmd.AddParameter("PrimarySmtpAddress", primarySmtpAddress);
             cmd.AddParameter("ExternalEmailAddress", mailContact.Email);
             cmd.AddParameter("OrganizationalUnit", organizationalUnit);
