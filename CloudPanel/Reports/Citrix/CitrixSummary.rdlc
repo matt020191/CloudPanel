@@ -8,18 +8,11 @@
             <ChartMember>
               <Group Name="Chart2_CategoryGroup">
                 <GroupExpressions>
-                  <GroupExpression>=Fields!MailboxPlan.Value</GroupExpression>
+                  <GroupExpression>=Fields!DesktopGroupName.Value</GroupExpression>
                 </GroupExpressions>
                 <Filters>
                   <Filter>
-                    <FilterExpression>=Fields!MailboxPlan.Value</FilterExpression>
-                    <Operator>GreaterThan</Operator>
-                    <FilterValues>
-                      <FilterValue DataType="Integer">0</FilterValue>
-                    </FilterValues>
-                  </Filter>
-                  <Filter>
-                    <FilterExpression>=Count(Fields!MailboxPlan.Value)</FilterExpression>
+                    <FilterExpression>=Count(Fields!UserPrincipalName.Value)</FilterExpression>
                     <Operator>TopN</Operator>
                     <FilterValues>
                       <FilterValue>5</FilterValue>
@@ -27,7 +20,12 @@
                   </Filter>
                 </Filters>
               </Group>
-              <Label>=Fields!MailboxPlanName.Value</Label>
+              <SortExpressions>
+                <SortExpression>
+                  <Value>=Fields!DesktopGroupName.Value</Value>
+                </SortExpression>
+              </SortExpressions>
+              <Label>=Fields!DesktopGroupName.Value</Label>
             </ChartMember>
           </ChartMembers>
         </ChartCategoryHierarchy>
@@ -44,7 +42,7 @@
               <ChartDataPoints>
                 <ChartDataPoint>
                   <ChartDataPointValues>
-                    <X>=Fields!MailboxPlan.Value</X>
+                    <X>=Fields!DesktopGroupName.Value</X>
                     <Y>=Count(Fields!UserPrincipalName.Value)</Y>
                   </ChartDataPointValues>
                   <ChartDataLabel>
@@ -257,7 +255,7 @@
         </ChartLegends>
         <ChartTitles>
           <ChartTitle Name="Default">
-            <Caption>Top Mailbox Plans</Caption>
+            <Caption>Top Desktop Groups</Caption>
             <Style>
               <BackgroundGradientType>None</BackgroundGradientType>
               <FontWeight>Bold</FontWeight>
@@ -282,9 +280,9 @@
             <VerticalAlign>Top</VerticalAlign>
           </Style>
         </ChartNoDataMessage>
-        <DataSetName>Users</DataSetName>
-        <Top>2.31111in</Top>
-        <Left>0.13542in</Left>
+        <DataSetName>DesktopGroups</DataSetName>
+        <Top>0.2in</Top>
+        <Left>0.18401in</Left>
         <Height>2in</Height>
         <Width>4.03125in</Width>
         <Style>
@@ -302,31 +300,24 @@
             <ChartMember>
               <Group Name="Chart3_CategoryGroup">
                 <GroupExpressions>
-                  <GroupExpression>=Fields!ArchivePlan.Value</GroupExpression>
+                  <GroupExpression>=Fields!ApplicationName.Value</GroupExpression>
                 </GroupExpressions>
                 <Filters>
                   <Filter>
-                    <FilterExpression>=Fields!ArchivePlan.Value</FilterExpression>
-                    <Operator>GreaterThan</Operator>
-                    <FilterValues>
-                      <FilterValue DataType="Integer">0</FilterValue>
-                    </FilterValues>
-                  </Filter>
-                  <Filter>
-                    <FilterExpression>=Fields!ArchivePlan.Value</FilterExpression>
+                    <FilterExpression>=Count(Fields!UserPrincipalName.Value)</FilterExpression>
                     <Operator>TopN</Operator>
                     <FilterValues>
-                      <FilterValue DataType="Integer">5</FilterValue>
+                      <FilterValue>5</FilterValue>
                     </FilterValues>
                   </Filter>
                 </Filters>
               </Group>
               <SortExpressions>
                 <SortExpression>
-                  <Value>=Fields!ArchivePlanName.Value</Value>
+                  <Value>=Fields!ApplicationName.Value</Value>
                 </SortExpression>
               </SortExpressions>
-              <Label>=Fields!ArchivePlanName.Value</Label>
+              <Label>=Fields!ApplicationName.Value</Label>
             </ChartMember>
           </ChartMembers>
         </ChartCategoryHierarchy>
@@ -343,7 +334,7 @@
               <ChartDataPoints>
                 <ChartDataPoint>
                   <ChartDataPointValues>
-                    <X>=Fields!ArchivePlan.Value</X>
+                    <X>=Fields!ApplicationName.Value</X>
                     <Y>=Count(Fields!UserPrincipalName.Value)</Y>
                   </ChartDataPointValues>
                   <ChartDataLabel>
@@ -556,7 +547,7 @@
         </ChartLegends>
         <ChartTitles>
           <ChartTitle Name="Default">
-            <Caption>Top Archive Plans</Caption>
+            <Caption>Top Applications</Caption>
             <Style>
               <BackgroundGradientType>None</BackgroundGradientType>
               <FontWeight>Bold</FontWeight>
@@ -581,9 +572,9 @@
             <VerticalAlign>Top</VerticalAlign>
           </Style>
         </ChartNoDataMessage>
-        <DataSetName>Users</DataSetName>
-        <Top>2.3125in</Top>
-        <Left>4.16667in</Left>
+        <DataSetName>Applications</DataSetName>
+        <Top>0.2in</Top>
+        <Left>4.21526in</Left>
         <Height>2in</Height>
         <Width>3.92363in</Width>
         <ZIndex>1</ZIndex>
@@ -730,7 +721,7 @@
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>Total Used in GB</Value>
+                              <Value />
                               <Style>
                                 <FontWeight>Bold</FontWeight>
                                 <TextDecoration>Underline</TextDecoration>
@@ -764,7 +755,7 @@
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>Total Allocated in GB</Value>
+                              <Value />
                               <Style>
                                 <FontWeight>Bold</FontWeight>
                                 <TextDecoration>Underline</TextDecoration>
@@ -907,9 +898,7 @@
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>=IIF(Sum(Fields!MailboxSizeInBytes.Value) &gt; 0, 
-Round(((Sum(Fields!MailboxSizeInBytes.Value) / 1024) / 1024) / 1024, 2) &amp; "GB", 
-0 &amp; "GB")</Value>
+                              <Value />
                               <Style>
                                 <FontFamily>Times New Roman</FontFamily>
                                 <FontWeight>Bold</FontWeight>
@@ -945,9 +934,7 @@ Round(((Sum(Fields!MailboxSizeInBytes.Value) / 1024) / 1024) / 1024, 2) &amp; "G
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>=IIF(Sum(Fields!MailboxAllocated.Value) &gt; 0,
-Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
-0 &amp; "GB")</Value>
+                              <Value />
                               <Style>
                                 <FontFamily>Times New Roman</FontFamily>
                                 <FontWeight>Bold</FontWeight>
@@ -1020,7 +1007,7 @@ Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>User</Value>
+                              <Value>Desktop Group</Value>
                               <Style>
                                 <FontFamily>times New Roman</FontFamily>
                                 <FontWeight>Bold</FontWeight>
@@ -1057,7 +1044,7 @@ Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>Plan</Value>
+                              <Value>Users</Value>
                               <Style>
                                 <FontFamily>times New Roman</FontFamily>
                                 <FontWeight>Bold</FontWeight>
@@ -1094,7 +1081,7 @@ Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>Used</Value>
+                              <Value />
                               <Style>
                                 <FontFamily>times New Roman</FontFamily>
                                 <FontWeight>Bold</FontWeight>
@@ -1131,7 +1118,7 @@ Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>Size Limit</Value>
+                              <Value />
                               <Style>
                                 <FontFamily>times New Roman</FontFamily>
                                 <FontWeight>Bold</FontWeight>
@@ -1196,14 +1183,14 @@ Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
                 </TablixCell>
                 <TablixCell>
                   <CellContents>
-                    <Textbox Name="UserPrincipalName2">
+                    <Textbox Name="DesktopGroupName">
                       <CanGrow>true</CanGrow>
                       <KeepTogether>true</KeepTogether>
                       <Paragraphs>
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>=Fields!UserDisplayName.Value</Value>
+                              <Value>=Fields!DesktopGroupName.Value</Value>
                               <Style>
                                 <FontFamily>times New Roman</FontFamily>
                               </Style>
@@ -1212,7 +1199,7 @@ Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
                           <Style />
                         </Paragraph>
                       </Paragraphs>
-                      <rd:DefaultName>UserPrincipalName2</rd:DefaultName>
+                      <rd:DefaultName>DesktopGroupName</rd:DefaultName>
                       <Style>
                         <Border>
                           <Style>None</Style>
@@ -1234,9 +1221,10 @@ Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>=Fields!MailboxPlanName.Value</Value>
+                              <Value>=Count(Fields!UserPrincipalName.Value)</Value>
                               <Style>
-                                <FontFamily>times New Roman</FontFamily>
+                                <FontFamily>Times New Roman</FontFamily>
+                                <FontWeight>Bold</FontWeight>
                               </Style>
                             </TextRun>
                           </TextRuns>
@@ -1258,14 +1246,14 @@ Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
                 </TablixCell>
                 <TablixCell>
                   <CellContents>
-                    <Textbox Name="MailboxSizeReadable">
+                    <Textbox Name="Cost">
                       <CanGrow>true</CanGrow>
                       <KeepTogether>true</KeepTogether>
                       <Paragraphs>
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>=Fields!MailboxSizeReadable.Value</Value>
+                              <Value />
                               <Style>
                                 <FontFamily>times New Roman</FontFamily>
                               </Style>
@@ -1274,7 +1262,7 @@ Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
                           <Style />
                         </Paragraph>
                       </Paragraphs>
-                      <rd:DefaultName>MailboxSizeReadable</rd:DefaultName>
+                      <rd:DefaultName>Cost</rd:DefaultName>
                       <Style>
                         <Border>
                           <Style>None</Style>
@@ -1289,14 +1277,14 @@ Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
                 </TablixCell>
                 <TablixCell>
                   <CellContents>
-                    <Textbox Name="MailboxAllocatedReadable">
+                    <Textbox Name="Price">
                       <CanGrow>true</CanGrow>
                       <KeepTogether>true</KeepTogether>
                       <Paragraphs>
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>=Fields!MailboxAllocatedReadable.Value</Value>
+                              <Value />
                               <Style>
                                 <FontFamily>times New Roman</FontFamily>
                               </Style>
@@ -1305,7 +1293,7 @@ Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
                           <Style />
                         </Paragraph>
                       </Paragraphs>
-                      <rd:DefaultName>MailboxAllocatedReadable</rd:DefaultName>
+                      <rd:DefaultName>Price</rd:DefaultName>
                       <Style>
                         <Border>
                           <Style>None</Style>
@@ -1506,14 +1494,14 @@ Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
                 <TablixMember>
                   <TablixMembers>
                     <TablixMember>
-                      <Group Name="UserGuid">
+                      <Group Name="DesktopGroupName">
                         <GroupExpressions>
-                          <GroupExpression>=Fields!UserGuid.Value</GroupExpression>
+                          <GroupExpression>=Fields!DesktopGroupName.Value</GroupExpression>
                         </GroupExpressions>
                       </Group>
                       <SortExpressions>
                         <SortExpression>
-                          <Value>=Fields!UserDisplayName.Value</Value>
+                          <Value>=Fields!DesktopGroupName.Value</Value>
                         </SortExpression>
                       </SortExpressions>
                       <TablixMembers>
@@ -1529,14 +1517,14 @@ Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
         </TablixRowHierarchy>
         <RepeatRowHeaders>true</RepeatRowHeaders>
         <KeepTogether>true</KeepTogether>
-        <DataSetName>Users</DataSetName>
+        <DataSetName>DesktopGroups</DataSetName>
         <SortExpressions>
           <SortExpression>
             <Value>=Fields!CompanyName.Value</Value>
           </SortExpression>
         </SortExpressions>
-        <Top>4.38541in</Top>
-        <Left>0.13542in</Left>
+        <Top>2.43055in</Top>
+        <Left>0.18401in</Left>
         <Height>1.22917in</Height>
         <Width>7.95486in</Width>
         <ZIndex>2</ZIndex>
@@ -1546,318 +1534,38 @@ Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
           </Border>
         </Style>
       </Tablix>
-      <Chart Name="Chart1">
-        <ChartCategoryHierarchy>
-          <ChartMembers>
-            <ChartMember>
-              <Group Name="Chart1_CategoryGroup">
-                <GroupExpressions>
-                  <GroupExpression>=Fields!UserPrincipalName.Value</GroupExpression>
-                </GroupExpressions>
-                <Filters>
-                  <Filter>
-                    <FilterExpression>=Fields!MailboxSizeInBytes.Value</FilterExpression>
-                    <Operator>TopN</Operator>
-                    <FilterValues>
-                      <FilterValue DataType="Integer">10</FilterValue>
-                    </FilterValues>
-                  </Filter>
-                </Filters>
-              </Group>
-              <SortExpressions>
-                <SortExpression>
-                  <Value>=Fields!MailboxSizeInBytes.Value</Value>
-                </SortExpression>
-              </SortExpressions>
-              <Label>=Fields!UserDisplayName.Value</Label>
-            </ChartMember>
-          </ChartMembers>
-        </ChartCategoryHierarchy>
-        <ChartSeriesHierarchy>
-          <ChartMembers>
-            <ChartMember>
-              <Label>Mailbox Size In Bytes</Label>
-            </ChartMember>
-          </ChartMembers>
-        </ChartSeriesHierarchy>
-        <ChartData>
-          <ChartSeriesCollection>
-            <ChartSeries Name="MailboxSizeInBytes">
-              <ChartDataPoints>
-                <ChartDataPoint>
-                  <ChartDataPointValues>
-                    <Y>=Sum(Fields!MailboxSizeInBytes.Value)</Y>
-                  </ChartDataPointValues>
-                  <ChartDataLabel>
-                    <Style />
-                    <Label>=Fields!MailboxSizeReadable.Value</Label>
-                    <Visible>true</Visible>
-                  </ChartDataLabel>
-                  <Style>
-                    <BackgroundGradientType>LeftRight</BackgroundGradientType>
-                  </Style>
-                  <ChartMarker>
-                    <Style />
-                  </ChartMarker>
-                  <DataElementOutput>Output</DataElementOutput>
-                </ChartDataPoint>
-              </ChartDataPoints>
-              <Type>Bar</Type>
-              <Style />
-              <ChartEmptyPoints>
-                <Style />
-                <ChartMarker>
-                  <Style />
-                </ChartMarker>
-                <ChartDataLabel>
-                  <Style />
-                </ChartDataLabel>
-              </ChartEmptyPoints>
-              <ValueAxisName>Primary</ValueAxisName>
-              <CategoryAxisName>Primary</CategoryAxisName>
-              <ChartSmartLabel>
-                <CalloutLineColor>Black</CalloutLineColor>
-                <MinMovingDistance>0pt</MinMovingDistance>
-              </ChartSmartLabel>
-            </ChartSeries>
-          </ChartSeriesCollection>
-        </ChartData>
-        <ChartAreas>
-          <ChartArea Name="Default">
-            <ChartCategoryAxes>
-              <ChartAxis Name="Primary">
-                <Style>
-                  <FontSize>8pt</FontSize>
-                </Style>
-                <ChartAxisTitle>
-                  <Caption />
-                  <Style>
-                    <FontSize>8pt</FontSize>
-                  </Style>
-                </ChartAxisTitle>
-                <Interval>1</Interval>
-                <ChartMajorGridLines>
-                  <Enabled>False</Enabled>
-                  <Style>
-                    <Border>
-                      <Color>Gainsboro</Color>
-                    </Border>
-                  </Style>
-                </ChartMajorGridLines>
-                <ChartMinorGridLines>
-                  <Style>
-                    <Border>
-                      <Color>Gainsboro</Color>
-                      <Style>Dotted</Style>
-                    </Border>
-                  </Style>
-                </ChartMinorGridLines>
-                <ChartMinorTickMarks>
-                  <Enabled>True</Enabled>
-                  <Length>0.5</Length>
-                </ChartMinorTickMarks>
-                <CrossAt>NaN</CrossAt>
-                <Minimum>NaN</Minimum>
-                <Maximum>NaN</Maximum>
-                <PreventWordWrap>true</PreventWordWrap>
-                <LabelsAutoFitDisabled>true</LabelsAutoFitDisabled>
-                <ChartAxisScaleBreak>
-                  <Style />
-                </ChartAxisScaleBreak>
-              </ChartAxis>
-              <ChartAxis Name="Secondary">
-                <Style>
-                  <FontSize>8pt</FontSize>
-                </Style>
-                <ChartAxisTitle>
-                  <Caption>Axis Title</Caption>
-                  <Style>
-                    <FontSize>8pt</FontSize>
-                  </Style>
-                </ChartAxisTitle>
-                <ChartMajorGridLines>
-                  <Enabled>False</Enabled>
-                  <Style>
-                    <Border>
-                      <Color>Gainsboro</Color>
-                    </Border>
-                  </Style>
-                </ChartMajorGridLines>
-                <ChartMinorGridLines>
-                  <Style>
-                    <Border>
-                      <Color>Gainsboro</Color>
-                      <Style>Dotted</Style>
-                    </Border>
-                  </Style>
-                </ChartMinorGridLines>
-                <ChartMinorTickMarks>
-                  <Length>0.5</Length>
-                </ChartMinorTickMarks>
-                <CrossAt>NaN</CrossAt>
-                <Location>Opposite</Location>
-                <Minimum>NaN</Minimum>
-                <Maximum>NaN</Maximum>
-                <ChartAxisScaleBreak>
-                  <Style />
-                </ChartAxisScaleBreak>
-              </ChartAxis>
-            </ChartCategoryAxes>
-            <ChartValueAxes>
-              <ChartAxis Name="Primary">
-                <Visible>False</Visible>
-                <Style>
-                  <FontSize>8pt</FontSize>
-                </Style>
-                <ChartAxisTitle>
-                  <Caption />
-                  <Style>
-                    <FontSize>8pt</FontSize>
-                  </Style>
-                </ChartAxisTitle>
-                <ChartMajorGridLines>
-                  <Style>
-                    <Border>
-                      <Color>Gainsboro</Color>
-                    </Border>
-                  </Style>
-                </ChartMajorGridLines>
-                <ChartMinorGridLines>
-                  <Style>
-                    <Border>
-                      <Color>Gainsboro</Color>
-                      <Style>Dotted</Style>
-                    </Border>
-                  </Style>
-                </ChartMinorGridLines>
-                <ChartMinorTickMarks>
-                  <Length>0.5</Length>
-                </ChartMinorTickMarks>
-                <CrossAt>NaN</CrossAt>
-                <Minimum>NaN</Minimum>
-                <Maximum>NaN</Maximum>
-                <ChartAxisScaleBreak>
-                  <Style />
-                </ChartAxisScaleBreak>
-              </ChartAxis>
-              <ChartAxis Name="Secondary">
-                <Style>
-                  <FontSize>8pt</FontSize>
-                </Style>
-                <ChartAxisTitle>
-                  <Caption>Axis Title</Caption>
-                  <Style>
-                    <FontSize>8pt</FontSize>
-                  </Style>
-                </ChartAxisTitle>
-                <ChartMajorGridLines>
-                  <Style>
-                    <Border>
-                      <Color>Gainsboro</Color>
-                    </Border>
-                  </Style>
-                </ChartMajorGridLines>
-                <ChartMinorGridLines>
-                  <Style>
-                    <Border>
-                      <Color>Gainsboro</Color>
-                      <Style>Dotted</Style>
-                    </Border>
-                  </Style>
-                </ChartMinorGridLines>
-                <ChartMinorTickMarks>
-                  <Length>0.5</Length>
-                </ChartMinorTickMarks>
-                <CrossAt>NaN</CrossAt>
-                <Location>Opposite</Location>
-                <Minimum>NaN</Minimum>
-                <Maximum>NaN</Maximum>
-                <ChartAxisScaleBreak>
-                  <Style />
-                </ChartAxisScaleBreak>
-              </ChartAxis>
-            </ChartValueAxes>
-            <Style>
-              <BackgroundGradientType>None</BackgroundGradientType>
-            </Style>
-          </ChartArea>
-        </ChartAreas>
-        <ChartTitles>
-          <ChartTitle Name="Default">
-            <Caption>Top Mailbox Sizes</Caption>
-            <Style>
-              <BackgroundGradientType>None</BackgroundGradientType>
-              <FontWeight>Bold</FontWeight>
-              <TextAlign>General</TextAlign>
-              <VerticalAlign>Top</VerticalAlign>
-            </Style>
-          </ChartTitle>
-        </ChartTitles>
-        <Palette>BrightPastel</Palette>
-        <ChartBorderSkin>
-          <Style>
-            <BackgroundColor>Gray</BackgroundColor>
-            <BackgroundGradientType>None</BackgroundGradientType>
-            <Color>White</Color>
-          </Style>
-        </ChartBorderSkin>
-        <ChartNoDataMessage Name="NoDataMessage">
-          <Caption>No Data Available</Caption>
-          <Style>
-            <BackgroundGradientType>None</BackgroundGradientType>
-            <TextAlign>General</TextAlign>
-            <VerticalAlign>Top</VerticalAlign>
-          </Style>
-        </ChartNoDataMessage>
-        <DataSetName>Users</DataSetName>
-        <Top>0.11111in</Top>
-        <Left>0.09376in</Left>
-        <Height>2.07986in</Height>
-        <Width>7.99654in</Width>
-        <ZIndex>3</ZIndex>
-        <Style>
-          <Border>
-            <Color>LightGrey</Color>
-            <Style>None</Style>
-          </Border>
-          <BackgroundColor>White</BackgroundColor>
-          <BackgroundGradientType>None</BackgroundGradientType>
-        </Style>
-      </Chart>
     </ReportItems>
-    <Height>5.78125in</Height>
+    <Height>3.95139in</Height>
     <Style />
   </Body>
-  <Width>8.27083in</Width>
+  <Width>8.28125in</Width>
   <Page>
     <PageHeader>
       <Height>1in</Height>
       <PrintOnFirstPage>true</PrintOnFirstPage>
       <PrintOnLastPage>true</PrintOnLastPage>
       <ReportItems>
-        <Textbox Name="Textbox1">
+        <Textbox Name="Textbox80">
           <CanGrow>true</CanGrow>
           <KeepTogether>true</KeepTogether>
           <Paragraphs>
             <Paragraph>
               <TextRuns>
                 <TextRun>
-                  <Value>="Page " &amp; Globals!PageNumber &amp; "/" &amp; Globals!OverallTotalPages</Value>
+                  <Value>Citrix</Value>
                   <Style>
-                    <FontWeight>Bold</FontWeight>
+                    <FontSize>20pt</FontSize>
                   </Style>
                 </TextRun>
               </TextRuns>
-              <Style>
-                <TextAlign>Right</TextAlign>
-              </Style>
+              <Style />
             </Paragraph>
           </Paragraphs>
-          <rd:DefaultName>Textbox1</rd:DefaultName>
+          <rd:DefaultName>Textbox80</rd:DefaultName>
           <Top>0.16667in</Top>
-          <Left>5.69792in</Left>
-          <Height>0.25in</Height>
-          <Width>2.15625in</Width>
+          <Left>0.28125in</Left>
+          <Height>0.41667in</Height>
+          <Width>4.03125in</Width>
           <Style>
             <Border>
               <Style>None</Style>
@@ -1886,7 +1594,7 @@ Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
           </Paragraphs>
           <rd:DefaultName>Textbox2</rd:DefaultName>
           <Top>0.58333in</Top>
-          <Left>0.13542in</Left>
+          <Left>0.28125in</Left>
           <Height>0.25in</Height>
           <Width>4.03125in</Width>
           <ZIndex>1</ZIndex>
@@ -1900,27 +1608,29 @@ Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
             <PaddingBottom>2pt</PaddingBottom>
           </Style>
         </Textbox>
-        <Textbox Name="Textbox80">
+        <Textbox Name="Textbox1">
           <CanGrow>true</CanGrow>
           <KeepTogether>true</KeepTogether>
           <Paragraphs>
             <Paragraph>
               <TextRuns>
                 <TextRun>
-                  <Value>Exchange Details</Value>
+                  <Value>="Page " &amp; Globals!PageNumber &amp; "/" &amp; Globals!OverallTotalPages</Value>
                   <Style>
-                    <FontSize>20pt</FontSize>
+                    <FontWeight>Bold</FontWeight>
                   </Style>
                 </TextRun>
               </TextRuns>
-              <Style />
+              <Style>
+                <TextAlign>Right</TextAlign>
+              </Style>
             </Paragraph>
           </Paragraphs>
-          <rd:DefaultName>Textbox80</rd:DefaultName>
-          <Top>0.16667in</Top>
-          <Left>0.13542in</Left>
-          <Height>0.41667in</Height>
-          <Width>4.03125in</Width>
+          <rd:DefaultName>Textbox1</rd:DefaultName>
+          <Top>0.1875in</Top>
+          <Left>5.84375in</Left>
+          <Height>0.25in</Height>
+          <Width>2.15625in</Width>
           <ZIndex>2</ZIndex>
           <Style>
             <Border>
@@ -1957,18 +1667,25 @@ Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
   </Page>
   <AutoRefresh>0</AutoRefresh>
   <DataSources>
-    <DataSource Name="CloudPanelReportsExchange">
+    <DataSource Name="CloudPanelReportsCitrix">
       <ConnectionProperties>
         <DataProvider>System.Data.DataSet</DataProvider>
         <ConnectString>/* Local Connection */</ConnectString>
       </ConnectionProperties>
-      <rd:DataSourceID>751ee199-d260-4d1d-9a13-f2d23334f23a</rd:DataSourceID>
+      <rd:DataSourceID>4bdabbc7-7144-41e7-b76a-a514c601ade6</rd:DataSourceID>
+    </DataSource>
+    <DataSource Name="CloudPanelReportsCitrix1">
+      <ConnectionProperties>
+        <DataProvider>System.Data.DataSet</DataProvider>
+        <ConnectString>/* Local Connection */</ConnectString>
+      </ConnectionProperties>
+      <rd:DataSourceID>7b144cfa-6412-419b-b54e-e7e19c16367a</rd:DataSourceID>
     </DataSource>
   </DataSources>
   <DataSets>
-    <DataSet Name="Users">
+    <DataSet Name="DesktopGroups">
       <Query>
-        <DataSourceName>CloudPanelReportsExchange</DataSourceName>
+        <DataSourceName>CloudPanelReportsCitrix</DataSourceName>
         <CommandText>/* Local Query */</CommandText>
       </Query>
       <Fields>
@@ -1992,87 +1709,77 @@ Round(Sum(Fields!MailboxAllocated.Value) / 1024, 2) &amp; "GB",
           <DataField>UserDisplayName</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="MailboxPlan">
-          <DataField>MailboxPlan</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
-        </Field>
-        <Field Name="MailboxPlanName">
-          <DataField>MailboxPlanName</DataField>
+        <Field Name="DesktopGroupName">
+          <DataField>DesktopGroupName</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="MailboxPlanSizeInMB">
-          <DataField>MailboxPlanSizeInMB</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
-        </Field>
-        <Field Name="MailboxAdditionalMB">
-          <DataField>MailboxAdditionalMB</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
-        </Field>
-        <Field Name="MailboxPlanCost">
-          <DataField>MailboxPlanCost</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
-        </Field>
-        <Field Name="MailboxPlanPrice">
-          <DataField>MailboxPlanPrice</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
-        </Field>
-        <Field Name="MailboxPlanPriceCustom">
-          <DataField>MailboxPlanPriceCustom</DataField>
-          <rd:TypeName>System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]</rd:TypeName>
-        </Field>
-        <Field Name="MailboxPlanAdditionalPrice">
-          <DataField>MailboxPlanAdditionalPrice</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
-        </Field>
-        <Field Name="MailboxSizeInBytes">
-          <DataField>MailboxSizeInBytes</DataField>
-          <rd:TypeName>System.Int64</rd:TypeName>
-        </Field>
-        <Field Name="ArchivePlan">
-          <DataField>ArchivePlan</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
-        </Field>
-        <Field Name="ArchivePlanName">
-          <DataField>ArchivePlanName</DataField>
+        <Field Name="Cost">
+          <DataField>Cost</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="ArchivePlanCost">
-          <DataField>ArchivePlanCost</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
-        </Field>
-        <Field Name="ArchivePlanPrice">
-          <DataField>ArchivePlanPrice</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
-        </Field>
-        <Field Name="ArchiveSizeInBytes">
-          <DataField>ArchiveSizeInBytes</DataField>
-          <rd:TypeName>System.Int64</rd:TypeName>
-        </Field>
-        <Field Name="ArchivePlanPriceCustom">
-          <DataField>ArchivePlanPriceCustom</DataField>
-          <rd:TypeName>System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]</rd:TypeName>
-        </Field>
-        <Field Name="MailboxAllocated">
-          <DataField>MailboxAllocated</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
-        </Field>
-        <Field Name="MailboxAllocatedReadable">
-          <DataField>MailboxAllocatedReadable</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="MailboxSizeReadable">
-          <DataField>MailboxSizeReadable</DataField>
+        <Field Name="Price">
+          <DataField>Price</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
       <rd:DataSetInfo>
-        <rd:DataSetName>CloudPanel.Reports.Exchange</rd:DataSetName>
-        <rd:TableName>ExchangeDetails</rd:TableName>
-        <rd:ObjectDataSourceSelectMethod>GetDetails</rd:ObjectDataSourceSelectMethod>
-        <rd:ObjectDataSourceType>CloudPanel.Reports.Exchange.ExchangeDetails, CloudPanel.Reports, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</rd:ObjectDataSourceType>
+        <rd:DataSetName>CloudPanel.Reports.Citrix</rd:DataSetName>
+        <rd:TableName>CitrixDetails</rd:TableName>
+        <rd:ObjectDataSourceSelectMethod>GetDesktopGroupData</rd:ObjectDataSourceSelectMethod>
+        <rd:ObjectDataSourceType>CloudPanel.Reports.Citrix.CitrixDetails, CloudPanel.Reports, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</rd:ObjectDataSourceType>
+      </rd:DataSetInfo>
+    </DataSet>
+    <DataSet Name="Applications">
+      <Query>
+        <DataSourceName>CloudPanelReportsCitrix1</DataSourceName>
+        <CommandText>/* Local Query */</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="CompanyCode">
+          <DataField>CompanyCode</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="CompanyName">
+          <DataField>CompanyName</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="DesktopGroupName">
+          <DataField>DesktopGroupName</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="UserGuid">
+          <DataField>UserGuid</DataField>
+          <rd:TypeName>System.Guid</rd:TypeName>
+        </Field>
+        <Field Name="UserPrincipalName">
+          <DataField>UserPrincipalName</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="UserDisplayName">
+          <DataField>UserDisplayName</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="ApplicationName">
+          <DataField>ApplicationName</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Cost">
+          <DataField>Cost</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Price">
+          <DataField>Price</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+      <rd:DataSetInfo>
+        <rd:DataSetName>CloudPanel.Reports.Citrix</rd:DataSetName>
+        <rd:TableName>CitrixDetails</rd:TableName>
+        <rd:ObjectDataSourceSelectMethod>GetAppData</rd:ObjectDataSourceSelectMethod>
+        <rd:ObjectDataSourceType>CloudPanel.Reports.Citrix.CitrixDetails, CloudPanel.Reports, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</rd:ObjectDataSourceType>
       </rd:DataSetInfo>
     </DataSet>
   </DataSets>
   <rd:ReportUnitType>Inch</rd:ReportUnitType>
-  <rd:ReportID>769c9465-a747-4186-863e-cabc18ab6601</rd:ReportID>
+  <rd:ReportID>e6bf32cf-b03e-452b-9e98-0fb8ba90a940</rd:ReportID>
 </Report>

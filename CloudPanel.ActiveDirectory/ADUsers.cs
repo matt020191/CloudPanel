@@ -433,7 +433,7 @@ namespace CloudPanel.ActiveDirectory
         /// <param name="clearTextPassword"></param>
         /// <param name="userObject"></param>
         /// <returns></returns>
-        public Users Create(string usersOU, string clearTextPassword, Users userObject, int samAccountNameFormat = 0)
+        public Users Create(string usersOU, string clearTextPassword, Users userObject, int samAccountNameFormat = 0, int cnFormat = 0)
         {
             PrincipalContext ctx = null;
             UserPrincipalExt usr = null;
@@ -468,6 +468,7 @@ namespace CloudPanel.ActiveDirectory
 
                 // Now we can create the user!
                 logger.DebugFormat("User doesn't exist. Continuing...");
+                userObject.Name = GetCNFormat(userObject, cnFormat);
                 userObject.sAMAccountName = GetAvailableSamAccountName(userObject.UserPrincipalName, samAccountNameFormat);
                 ctx = new PrincipalContext(ContextType.Domain, this._domainController, usersOU, this._username, this._password); // Used for creating new user
                 
@@ -1237,6 +1238,16 @@ namespace CloudPanel.ActiveDirectory
             }
         }
 
+        private string GetCNFormat(Users user, int cnFormat)
+        {
+            switch (cnFormat)
+            {
+                case 1:
+                    return user.UserPrincipalName;
+                default:
+                    return user.DisplayName;
+            }
+        }
         #endregion
 
         #region Dispose

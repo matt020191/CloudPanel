@@ -5,12 +5,14 @@ using log4net;
 using Microsoft.Reporting.WebForms;
 using Nancy;
 using Nancy.Security;
+using System.Data.Entity;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Web;
+using CloudPanel.Reports.Citrix;
 
 namespace CloudPanel.Modules.Reports
 {
@@ -262,6 +264,112 @@ namespace CloudPanel.Modules.Reports
                     }
                     #endregion
                 };
+
+            Get["/citrix/summary"] = _ =>
+            {
+                #region Citrix summary report
+
+                CloudPanelContext db = null;
+                Assembly assembly = null;
+                Stream stream = null;
+
+                ReportViewer reportViewer = null;
+                try
+                {
+                    logger.DebugFormat("Generating Citrix summary report..");
+                    db = new CloudPanelContext(Settings.ConnectionString);
+                    db.Database.Connection.Open();
+
+                    string companyCode = string.Empty;
+                    if (Request.Query.CompanyCode.HasValue)
+                        companyCode = Request.Query.CompanyCode.Value;
+
+
+                    var desktopGroups = new List<CitrixDesktopGroupData>();
+                    var applications = new List<CitrixAppsData>();
+
+                    var citrixDesktopGroups = (from d in db.CitrixDesktopGroup orderby d.Name select d).ToList();
+                    citrixDesktopGroups.ForEach(x =>
+                        {
+                            var data = (from d in db.Users
+                                                     .Include(c => c.CitrixDesktopGroups)
+                                         join c in db.Companies on d.CompanyCode equals c.CompanyName into c1
+                                         from company in c1.DefaultIfEmpty()
+                                         where d.CitrixDesktopGroups.Any(a => a.Name == x.Name)
+                                         select new CitrixDesktopGroupData()
+                                         {
+                                              CompanyCode = d.CompanyCode,
+                                              CompanyName = company.CompanyName,
+                                              DesktopGroupName = x.Name,
+                                              UserGuid = d.UserGuid,
+                                              UserDisplayName = d.DisplayName,
+                                              UserPrincipalName = d.UserPrincipalName
+                                         }).ToList();
+
+                            if (data.Count > 0) 
+                            {
+                                desktopGroups.AddRange(data);
+                            }
+                        });
+
+                    var citrixApplications = (from d in db.CitrixApplication.Include(x => x.DesktopGroups) orderby d.Name select d).ToList();
+                    citrixApplications.ForEach(x =>
+                        {
+                            var data = (from d in db.Users
+                                                    .Include(c => c.CitrixApplications)
+                                        join c in db.Companies on d.CompanyCode equals c.CompanyName into c1
+                                        from company in c1.DefaultIfEmpty()
+                                        where d.CitrixApplications.Any(a => a.Name == x.Name)
+                                        select new CitrixAppsData()
+                                        {
+                                            CompanyCode = d.CompanyCode,
+                                            CompanyName = company.CompanyName,
+                                            ApplicationName = x.ApplicationName,
+                                            UserDisplayName = d.DisplayName,
+                                            UserGuid = d.UserGuid,
+                                            UserPrincipalName = d.UserPrincipalName
+                                        }).ToList();
+
+                            if (data.Count > 0)
+                            {
+                                applications.AddRange(data);
+                            }
+                        });
+
+                    logger.DebugFormat("Found a total of {0} desktop groups for the Citrix summary report", desktopGroups.Count);
+                    logger.DebugFormat("Found a total of {0} applications for the Citrix summary report", applications.Count);
+
+                    reportViewer = new ReportViewer();
+                    reportViewer.LocalReport.ReportEmbeddedResource = "CloudPanel.Reports.Citrix.CitrixSummary.rdlc";
+                    reportViewer.LocalReport.DataSources.Add(new ReportDataSource() { Name = "DesktopGroups", Value = desktopGroups });
+                    reportViewer.LocalReport.DataSources.Add(new ReportDataSource() { Name = "Applications", Value = applications });
+
+                    reportViewer.LocalReport.Refresh();
+                    byte[] reportData = reportViewer.LocalReport.Render("pdf");
+                    return Response.FromByteArray(reportData, "application/pdf");
+                }
+                catch (Exception ex)
+                {
+                    return Negotiate.WithModel(new { error = ex.ToString() })
+                                    .WithStatusCode(HttpStatusCode.InternalServerError)
+                                    .WithView("Error/500.cshtml");
+                }
+                finally
+                {
+                    if (reportViewer != null)
+                        reportViewer.Dispose();
+
+                    if (stream != null)
+                        stream.Dispose();
+
+                    if (assembly != null)
+                        assembly = null;
+
+                    if (db != null)
+                        db.Dispose();
+                }
+                #endregion
+            };
         }
     }
 }

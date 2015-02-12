@@ -89,6 +89,7 @@ namespace CloudPanel.Code
                 // Advanced
                 logger.DebugFormat("Loading advanced section");
                 Settings.SamAccountNameFormat = int.Parse(Read(ref x, "Advanced", "SamAccountNameFormat"));
+                Settings.ADCNFormat = int.Parse(Read(ref x, "Advanced", "ADCNFormat"));
             }
             catch (Exception ex)
             {

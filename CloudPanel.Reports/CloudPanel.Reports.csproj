@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Citrix\CitrixSummaryData.cs" />
     <Compile Include="Exchange\ExchangeDetailedData.cs" />
     <Compile Include="Exchange\ExchangeSummaryData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

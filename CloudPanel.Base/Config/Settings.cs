@@ -289,6 +289,8 @@ namespace CloudPanel.Base.Config
 
         public static int SamAccountNameFormat { get; set; }
 
+        public static int ADCNFormat { get; set; }
+
         #endregion
 
         #region Other Getters & Setters

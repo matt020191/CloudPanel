@@ -143,6 +143,7 @@
     <Content Include="Content\img\patterns\vertical_cloth.png" />
     <Content Include="Content\img\patterns\wild_oliva.png" />
     <Content Include="Content\img\reports\ExchangeSummary.png" />
+    <Content Include="Content\img\reports\xendesktop7.jpg" />
     <Content Include="Content\img\sidebar-toggle.png" />
     <Content Include="Content\img\success.png" />
     <Content Include="Content\img\wait_animation.gif" />
@@ -1761,6 +1762,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Reports\Citrix\CitrixSummary.rdlc" />
     <EmbeddedResource Include="Reports\Exchange\ExchangeDetails.rdlc" />
     <EmbeddedResource Include="Reports\Exchange\ExchangeSummaryReport.rdlc" />
   </ItemGroup>

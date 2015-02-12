@@ -220,7 +220,6 @@ namespace CloudPanel.Modules
 
                         Users newUser = new Users();
                         newUser.CompanyCode = companyCode;
-                        newUser.Name = model.DisplayName.Trim(); // TODO: MAKE THIS USE EITHER DISPLAY NAME OR EMAIL BASED ON CONFIG FILE
                         newUser.DisplayName = model.DisplayName.Trim();
                         newUser.Firstname = model.Firstname.Trim();
                         newUser.Middlename = model.Middlename.Trim();
