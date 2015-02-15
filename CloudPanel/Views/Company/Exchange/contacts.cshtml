@@ -137,6 +137,7 @@
     <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
+
             $("#dataTable").DataTable({
                 "dom": "<'row'<'col-xs-6 toolbar'l><'col-xs-6'f>><'row'<'col-xs-6'i><'col-xs-6'p>r>t<'row'<'col-xs-12'p>>",
                 "autoWidth": false,
@@ -168,6 +169,15 @@
                         }
                     },
                 ]
+            });
+
+            // Checkboxes to set the appropriate values
+            $("input[type=checkbox]").click(function () {
+                if ($(this).is(':checked')) {
+                    $(this).val("true");
+                } else {
+                    $(this).val("false");
+                }
             });
         });
 
