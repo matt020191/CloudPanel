@@ -278,21 +278,25 @@
                         {
                             <tr>
                                 <td>
-                                    @if (obj.ObjectType == CloudPanel.Base.Enums.ExchangeValues.Group) { 
-                                        <i class="fa fa-group"></i>
-                                    }
-                                    else if (obj.ObjectType == CloudPanel.Base.Enums.ExchangeValues.Contact)
+                                    @switch (obj.ObjectType)
                                     {
-                                        <i class="fa-envelope-o"></i>
-                                    }
-                                    else
-                                    {
-                                        <i class="fa fa-user"></i>
+                                        case CloudPanel.Base.Enums.ExchangeValues.Group:
+                                            <i class="fa fa-group"></i>
+                                            break;
+                                        case CloudPanel.Base.Enums.ExchangeValues.Contact:
+                                            <i class="fa fa-envelope"></i>
+                                            break;
+                                        case CloudPanel.Base.Enums.ExchangeValues.User:
+                                            <i class="fa fa-user"></i>
+                                            break;
+                                        default:
+                                            <i class="fa fa-question"></i>
+                                            break;
                                     }
                                 </td>
-                                <td>@obj.DisplayName</td>
-                                <td>@obj.Email</td>
-                                <td style="display: none">@obj.Identifier</td>
+                                <td>@obj.Text</td>
+                                <td>@obj.Attribute1</td>
+                                <td style="display: none">@obj.Value</td>
                                 <td style="display: none">@obj.ObjectType</td>
                             </tr>
                         }

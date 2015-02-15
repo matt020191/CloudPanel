@@ -1,8 +1,9 @@
 ﻿using CloudPanel.Base.AD;
 using CloudPanel.Base.Config;
-using CloudPanel.Base.Models.Database;
 using CloudPanel.Base.Enums;
 using CloudPanel.Base.Exchange;
+using CloudPanel.Base.Models.Database;
+using CloudPanel.Base.Models.ViewModels;
 using CloudPanel.Code;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Exchange;
@@ -23,8 +24,6 @@ namespace CloudPanel.Modules
 
         public GroupsModule() : base("/company/{CompanyCode}/exchange/groups")
         {
-            this.RequiresAuthentication();
-
             Get["/"] = _ =>
             {
                 this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vExchangeGroups"));
@@ -500,9 +499,9 @@ namespace CloudPanel.Modules
             }
         }
 
-        public static List<GroupObjectSelector> GetAll(string companyCode)
+        public static List<SelectObjectViewModel> GetAll(string companyCode)
         {
-            var returnObject = new List<GroupObjectSelector>();
+            var returnObject = new List<SelectObjectViewModel>();
 
             CloudPanelContext db = null;
             try
@@ -511,49 +510,52 @@ namespace CloudPanel.Modules
                 db.Database.Connection.Open();
 
                 logger.DebugFormat("Getting mailbox users for {0}", companyCode);
-                var users = (from u in db.Users where u.CompanyCode == companyCode 
-                             where u.MailboxPlan > 0
-                             orderby u.DisplayName select u).ToList();
-
-                if (users != null)
-                {
-                    logger.DebugFormat("Found a total of {0} mailbox users", users.Count());
-                    users.ForEach(x =>
-                        {
-                            returnObject.Add(new GroupObjectSelector()
-                                {
-                                    ObjectType = ExchangeValues.User,
-                                    DisplayName = x.DisplayName,
-                                    Email = x.Email,
-                                    Identifier = x.UserGuid.ToString()
-                                });
-                        });
-                }
+                var users = (from d in db.Users
+                             where d.CompanyCode == companyCode && d.MailboxPlan > 0
+                             orderby d.DisplayName
+                             select new SelectObjectViewModel()
+                             {
+                                 Value = d.UserGuid.ToString(),
+                                 Text = d.DisplayName,
+                                 ObjectType = ExchangeValues.User,
+                                 Attribute1 = d.Email
+                             }).ToList();
+                if (users.Count > 0)
+                    returnObject.AddRange(users);
 
                 logger.DebugFormat("Getting distribution groups for {0}", companyCode);
-                var groups = (from d in db.DistributionGroups 
-                              where d.CompanyCode == companyCode
-                              where !string.IsNullOrEmpty(d.Email)
-                              orderby d.DisplayName select d).ToList();
+                var groups = (from d in db.DistributionGroups
+                              where d.CompanyCode == companyCode && d.IsSecurityGroup != true
+                              orderby d.DisplayName
+                              select new SelectObjectViewModel()
+                              {
+                                  Value = d.Email,
+                                  Text = d.DisplayName,
+                                  ObjectType = ExchangeValues.Group,
+                                  Attribute1 = d.Email
+                              }).ToList();
+                if (groups.Count > 0)
+                    returnObject.AddRange(groups);
 
-                if (groups != null)
-                {
-                    logger.DebugFormat("Found a total of {0} groups", groups.Count());
-                    groups.ForEach(x =>
-                        {
-                            returnObject.Add(new GroupObjectSelector()
+                logger.DebugFormat("Getting contacts for {0}", companyCode);
+                var contacts = (from d in db.Contacts
+                                where d.CompanyCode == companyCode
+                                orderby d.DisplayName
+                                select new SelectObjectViewModel()
                                 {
-                                    ObjectType = ExchangeValues.Group,
-                                    DisplayName = x.DisplayName,
-                                    Email = x.Email,
-                                    Identifier = x.Email
-                                });
-                        });
-                }
+                                    Value = d.DistinguishedName,
+                                    Text = d.DisplayName,
+                                    ObjectType = ExchangeValues.Contact,
+                                    Attribute1 = d.Email
+                                }).ToList();
+                if (contacts.Count > 0)
+                    returnObject.AddRange(contacts);
+
+                return returnObject;
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error getting mailbox users for permissions: {0}", ex.ToString());
+                logger.ErrorFormat("Error all objects: {0}", ex.ToString());
                 throw;
             }
             finally
@@ -561,8 +563,6 @@ namespace CloudPanel.Modules
                 if (db != null)
                     db.Dispose();
             }
-
-            return returnObject;
         }
     }
 }

@@ -43,6 +43,8 @@ namespace CloudPanel.Base.Models.Database
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
 
+        public Guid ObjectGuid { get; set; }
+
         [StringLength(255)]
         public string DistinguishedName { get; set; }
 

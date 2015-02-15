@@ -39,6 +39,8 @@ namespace CloudPanel.Base.Models.Database
     {
         [Key]
         public int ID { get; set; }
+
+        public Guid ObjectGuid { get; set; }
         
         [Required]
         [StringLength(255)]

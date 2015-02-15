@@ -92,6 +92,10 @@
     <Compile Include="Migrations\201502082157350_ReplacedQueuedAndTasksTable.Designer.cs">
       <DependentUpon>201502082157350_ReplacedQueuedAndTasksTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201502150142164_AddObjectGuidToGroupsAndContacts.cs" />
+    <Compile Include="Migrations\201502150142164_AddObjectGuidToGroupsAndContacts.Designer.cs">
+      <DependentUpon>201502150142164_AddObjectGuidToGroupsAndContacts.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -135,6 +139,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201502082157350_ReplacedQueuedAndTasksTable.resx">
       <DependentUpon>201502082157350_ReplacedQueuedAndTasksTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201502150142164_AddObjectGuidToGroupsAndContacts.resx">
+      <DependentUpon>201502150142164_AddObjectGuidToGroupsAndContacts.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

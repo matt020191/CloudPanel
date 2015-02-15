@@ -269,10 +269,10 @@ namespace CloudPanel.Exchange
                 foreach (var o in psObjects)
                 {
                     if (o.Properties["DistinguishedName"] != null)
-                    {
                         mailContact.DistinguishedName = o.Properties["DistinguishedName"].Value.ToString();
-                        break;
-                    }
+
+                    if (o.Properties["Guid"] != null)
+                        mailContact.ObjectGuid = (Guid)o.Properties["Guid"].Value;
                 }
 
                 cmd.Clear();
@@ -495,10 +495,10 @@ namespace CloudPanel.Exchange
                 foreach (var o in psObjects)
                 {
                     if (o.Properties["DistinguishedName"] != null)
-                    {
                         group.DistinguishedName = o.Properties["DistinguishedName"].Value.ToString();
-                        break;
-                    }
+
+                    if (o.Properties["Guid"] != null)
+                        group.ObjectGuid = (Guid)o.Properties["Guid"].Value;
                 }
 
                 cmd.Clear();
