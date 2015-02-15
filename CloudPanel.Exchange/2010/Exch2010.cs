@@ -297,7 +297,7 @@ namespace CloudPanel.Exchange
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-MailContact");
-            cmd.AddParameter("Identity", mailContact.DistinguishedName);
+            cmd.AddParameter("Identity", mailContact.ObjectGuid.ToString());
             cmd.AddParameter("Name", mailContact.Email);
             cmd.AddParameter("DisplayName", mailContact.DisplayName);
             cmd.AddParameter("HiddenFromAddressListsEnabled", mailContact.Hidden);
@@ -317,11 +317,45 @@ namespace CloudPanel.Exchange
             return mailContact;
         }
 
-        public void Remove_MailContact(string distinguishedName)
+        public List<Contacts> Get_AllContacts()
+        {
+            logger.DebugFormat("Gets all contacts from Exchange");
+            var allContacts = new List<Contacts>();
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-MailContact");
+            cmd.AddParameter("ResultSize", "Unlimited");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            // Handle any errors first
+            HandleErrors();
+
+            var psObjects = _powershell.Invoke();
+            foreach (var contact in psObjects)
+            {
+                var newContact = new Contacts();
+                newContact.ObjectGuid = (Guid)contact.Properties["Guid"].Value;
+                newContact.DistinguishedName = contact.Properties["DistinguishedName"].Value.ToString();
+                newContact.DisplayName = contact.Properties["DisplayName"].Value.ToString();
+                newContact.Hidden = (bool)contact.Properties["HiddenFromAddressListsenabled"].Value;
+                newContact.Email = contact.Properties["ExternalEmailAddress"].Value.ToString();
+                newContact.PrimarySmtpAddress = contact.Properties["PrimarySmtpAddress"].Value.ToString();
+
+                if (contact.Properties["CustomAttribute1"].Value != null)
+                    newContact.CompanyCode = contact.Properties["CustomAttribute1"].Value.ToString();
+
+                allContacts.Add(newContact);
+            }
+
+            return allContacts;
+        }
+
+        public void Remove_MailContact(string identity)
         {
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Remove-MailContact");
-            cmd.AddParameter("Identity", distinguishedName);
+            cmd.AddParameter("Identity", identity);
             cmd.AddParameter("Confirm", false);
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
@@ -557,10 +591,10 @@ namespace CloudPanel.Exchange
                 foreach (var o in psObjects)
                 {
                     if (o.Properties["DistinguishedName"] != null)
-                    {
                         group.DistinguishedName = o.Properties["DistinguishedName"].Value.ToString();
-                        break;
-                    }
+
+                    if (o.Properties["Guid"] != null)
+                        group.ObjectGuid = (Guid)o.Properties["Guid"].Value;
                 }
             }
 
@@ -662,11 +696,11 @@ namespace CloudPanel.Exchange
             return group;
         }
 
-        public void Set_SecurityGroupCustomAttribute(string groupEmail, string companyCode)
+        public void Set_SecurityGroupCustomAttribute(string identity, string companyCode)
         {
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Set-DistributionGroup");
-            cmd.AddParameter("Identity", groupEmail);
+            cmd.AddParameter("Identity", identity);
             cmd.AddParameter("CustomAttribute1", companyCode);
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
@@ -695,6 +729,7 @@ namespace CloudPanel.Exchange
 
                 // Get the distinguished name of the new object
                 var foundGroup = psObjects[0];
+                returnGroup.ObjectGuid = (Guid)foundGroup.Properties["Guid"].Value;
                 returnGroup.DisplayName = foundGroup.Properties["DisplayName"].Value.ToString();
                 returnGroup.DistinguishedName = foundGroup.Properties["DistinguishedName"].Value.ToString();
                 returnGroup.CompanyCode = foundGroup.Properties["CustomAttribute1"].Value.ToString();
@@ -761,6 +796,39 @@ namespace CloudPanel.Exchange
 
                 return returnGroup;
             }
+        }
+
+        public List<DistributionGroups> Get_AllDistributionGroups()
+        {
+            logger.DebugFormat("Get all distribution groups from Exchange");
+            var allGroups = new List<DistributionGroups>();
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-DistributionGroup");
+            cmd.AddParameter("ResultSize", "Unlimited");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            // Handle any errors first
+            HandleErrors();
+
+            var psObjects = _powershell.Invoke();
+            foreach (var group in psObjects)
+            {
+                var newGroup = new DistributionGroups();
+                newGroup.ObjectGuid = (Guid)group.Properties["Guid"].Value;
+                newGroup.DistinguishedName = group.Properties["DistinguishedName"].Value.ToString();
+                newGroup.DisplayName = group.Properties["DisplayName"].Value.ToString();
+                newGroup.Hidden = (bool)group.Properties["HiddenFromAddressListsenabled"].Value;
+                newGroup.Email = group.Properties["PrimarySmtpAddress"].Value.ToString();
+
+                if (group.Properties["CustomAttribute1"].Value != null)
+                    newGroup.CompanyCode = group.Properties["CustomAttribute1"].Value.ToString();
+
+                allGroups.Add(newGroup);
+            }
+
+            return allGroups;
         }
 
         public void Remove_DistributionGroup(string identity)

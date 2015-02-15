@@ -112,7 +112,7 @@ namespace CloudPanel.Modules
                 dynamic powershell = null;
                 try
                 {
-                    int id = Request.Form.ID;
+                    Guid guid = Request.Form.Guid;
                     string companyCode = _.CompanyCode;
 
                     // Get the group from the database
@@ -120,7 +120,7 @@ namespace CloudPanel.Modules
                     db = new CloudPanelContext(Settings.ConnectionString);
                     var dbGroup = (from d in db.DistributionGroups
                                    where d.CompanyCode == companyCode
-                                   where d.ID == id
+                                   where d.ObjectGuid == guid
                                    select d).FirstOrDefault();
                     if (dbGroup == null)
                         throw new Exception("Unable to find distribution group in the dabase.");
@@ -128,7 +128,7 @@ namespace CloudPanel.Modules
                     {
                         logger.DebugFormat("Removing group {0} from Exchange", dbGroup.Email);
                         powershell = ExchPowershell.GetClass();
-                        powershell.Remove_DistributionGroup(dbGroup.Email);
+                        powershell.Remove_DistributionGroup(dbGroup.ObjectGuid.ToString());
 
                         logger.DebugFormat("Removing group {0} from the database", dbGroup.Email);
                         db.DistributionGroups.Remove(dbGroup);
@@ -156,7 +156,7 @@ namespace CloudPanel.Modules
                 #endregion
             };
 
-            Get["/{ID:int}"] = _ =>
+            Get["/{Guid:guid}"] = _ =>
             {
                 this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vExchangeGroups"));
 
@@ -165,17 +165,17 @@ namespace CloudPanel.Modules
                 dynamic powershell = null;
                 try
                 {
-                    int id = _.ID;
+                    Guid guid = _.Guid;
                     string companyCode = _.CompanyCode;
 
                     // Get group from database first
-                    logger.DebugFormat("Retrieving distribution group {0} from the database", _.ID);
+                    logger.DebugFormat("Retrieving distribution group {0} from the database", guid);
                     db = new CloudPanelContext(Settings.ConnectionString);
                     db.Database.Connection.Open();
 
                     var dbGroup = (from d in db.DistributionGroups
                                    where d.CompanyCode == companyCode
-                                   where d.ID == id
+                                   where d.ObjectGuid == guid
                                    select d).FirstOrDefault();
                     if (dbGroup == null)
                         throw new Exception("Unable to find group in database.");
@@ -231,7 +231,7 @@ namespace CloudPanel.Modules
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error getting group {0} for {1}: {2}", _.ID, _.CompanyCode, ex.ToString());
+                    logger.ErrorFormat("Error getting group {0} for {1}: {2}", _.Guid, _.CompanyCode, ex.ToString());
                     return Negotiate.WithModel(new { error = ex.Message })
                                     .WithView("Error/500.cshtml")
                                     .WithStatusCode(HttpStatusCode.InternalServerError);
@@ -247,7 +247,7 @@ namespace CloudPanel.Modules
                 #endregion
             };
 
-            Get["/{ID:int}/members"] = _ =>
+            Get["/{Guid:guid}/members"] = _ =>
             {
                 this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vExchangeGroups"));
 
@@ -256,15 +256,15 @@ namespace CloudPanel.Modules
                 dynamic powershell = null;
                 try
                 {
-                    int id = _.ID;
+                    Guid guid = _.Guid;
                     string companyCode = _.CompanyCode;
 
-                    logger.DebugFormat("Getting distribution group {0} from database for {1}", id, companyCode);
+                    logger.DebugFormat("Getting distribution group {0} from database for {1}", guid, companyCode);
                     db = new CloudPanelContext(Settings.ConnectionString);
 
                     var group = (from d in db.DistributionGroups
                                  where d.CompanyCode == companyCode
-                                 where d.ID == id
+                                 where d.ObjectGuid == guid
                                  select d).FirstOrDefault();
                     if (group == null)
                         throw new Exception("Unable to find distribution group in the database");
@@ -281,7 +281,7 @@ namespace CloudPanel.Modules
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error getting members for group {0}: {1}", _.ID, ex.ToString());
+                    logger.ErrorFormat("Error getting members for group {0}: {1}", _.Guid, ex.ToString());
                     return Response.AsJson(new { error = ex.ToString() }, HttpStatusCode.InternalServerError);
                 }
                 finally
@@ -292,7 +292,7 @@ namespace CloudPanel.Modules
                 #endregion
             };
 
-            Post["/{ID:int}"] = _ =>
+            Post["/{Guid:guid}"] = _ =>
             {
                 this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eExchangeGroups"));
 
@@ -301,7 +301,7 @@ namespace CloudPanel.Modules
                 dynamic powershell = null;
                 try
                 {
-                    int id = _.ID;
+                    Guid guid = _.Guid;
                     string companyCode = _.CompanyCode;
 
                     // Bind our class to the form
@@ -313,7 +313,7 @@ namespace CloudPanel.Modules
                     db = new CloudPanelContext(Settings.ConnectionString);
                     var dbGroup = (from d in db.DistributionGroups
                                    where d.CompanyCode == companyCode
-                                   where d.ID == id
+                                   where d.ObjectGuid == guid
                                    select d).FirstOrDefault();
                     if (dbGroup == null)
                         throw new Exception("Unable to find distribution group in the dabase.");
@@ -421,8 +421,6 @@ namespace CloudPanel.Modules
                         else
                         {
                             // Format the attributes
-
-
                             logger.DebugFormat("Formatting the email and other attributes..");
                             newGroup.Email = string.Format("{0}@{1}", newGroup.EmailFirst.Replace(" ", string.Empty), domain.Domain);
                             newGroup.CompanyCode = companyCode;
@@ -529,7 +527,7 @@ namespace CloudPanel.Modules
                               orderby d.DisplayName
                               select new SelectObjectViewModel()
                               {
-                                  Value = d.Email,
+                                  Value = d.ObjectGuid.ToString(),
                                   Text = d.DisplayName,
                                   ObjectType = ExchangeValues.Group,
                                   Attribute1 = d.Email
@@ -543,7 +541,7 @@ namespace CloudPanel.Modules
                                 orderby d.DisplayName
                                 select new SelectObjectViewModel()
                                 {
-                                    Value = d.DistinguishedName,
+                                    Value = d.ObjectGuid.ToString(),
                                     Text = d.DisplayName,
                                     ObjectType = ExchangeValues.Contact,
                                     Attribute1 = d.Email

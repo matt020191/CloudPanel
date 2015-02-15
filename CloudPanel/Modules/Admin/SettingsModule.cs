@@ -1,10 +1,15 @@
-﻿using CloudPanel.Base.Security;
+﻿using CloudPanel.Base.Config;
+using CloudPanel.Base.Models.Database;
+using CloudPanel.Base.Security;
 using CloudPanel.Code;
+using CloudPanel.Database.EntityFramework;
 using CloudPanel.Exchange;
 using log4net;
 using Nancy;
 using Nancy.Security;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CloudPanel.Modules.Admin
 {
@@ -130,6 +135,113 @@ namespace CloudPanel.Modules.Admin
                         }
                         #endregion
                     }
+                };
+
+            Post["/fix/exchange/contacts"] = _ =>
+                {
+                    #region Queries Exchange and gets the ObjectGuid for the contacts
+                    dynamic powershell = null;
+                    CloudPanelContext db = null;
+                    try
+                    {
+                        powershell = ExchPowershell.GetClass();
+
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
+
+                        // Get all contacts from the database
+                        var contacts = (from d in db.Contacts
+                                        select d).ToList();
+
+                        // Get all contacts from Exchange
+                        List<Contacts> allContacts = powershell.Get_AllContacts();
+                        if (allContacts != null && allContacts.Count > 0)
+                        {
+                            allContacts.ForEach(x =>
+                                {
+                                    logger.DebugFormat("Found contact {0} from Exchange. Searching sql...", x.DistinguishedName);
+                                    var sqlContact = contacts.Where(c => c.DistinguishedName == x.DistinguishedName)
+                                                             .FirstOrDefault();
+
+                                    if (sqlContact != null)
+                                        sqlContact.ObjectGuid = x.ObjectGuid;
+                                    else
+                                        logger.DebugFormat("Unable to find {0} in the database", x.DistinguishedName);
+                                });
+                        }
+
+                        db.SaveChanges();
+                        return Negotiate.WithModel(new { success = "Successfully updated all contacts in the database" })
+                                        .WithStatusCode(HttpStatusCode.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error getting contacts from Exchange: {0}", ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+
+                        if (powershell != null)
+                            powershell.Dispose();
+                    }
+                    #endregion
+                };
+
+            Post["/fix/exchange/groups"] = _ =>
+                {
+                    #region Queries Exchange and gets the ObjectGuid for the groups
+                    dynamic powershell = null;
+                    CloudPanelContext db = null;
+                    try
+                    {
+                        powershell = ExchPowershell.GetClass();
+
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
+
+                        // Get all groups from the database
+                        var groups = (from d in db.DistributionGroups
+                                        select d).ToList();
+
+                        // Get all groups from Exchange
+                        List<DistributionGroups> allGroups = powershell.Get_AllDistributionGroups();
+                        if (allGroups != null && allGroups.Count > 0)
+                        {
+                            allGroups.ForEach(x =>
+                            {
+                                logger.DebugFormat("Found distribution group {0} from Exchange. Searching sql...", x.DistinguishedName);
+                                var sqlGroup = groups.Where(c => c.DistinguishedName == x.DistinguishedName).FirstOrDefault();
+
+                                if (sqlGroup != null)
+                                    sqlGroup.ObjectGuid = x.ObjectGuid;
+                                else
+                                    logger.DebugFormat("Unable to find {0} in the database", x.DistinguishedName);
+                            });
+                        }
+
+                        db.SaveChanges();
+                        return Negotiate.WithModel(new { success = "Successfully updated all distribution groups in the database" })
+                                        .WithStatusCode(HttpStatusCode.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error getting distribution groups from Exchange: {0}", ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+
+                        if (powershell != null)
+                            powershell.Dispose();
+                    }
+                    #endregion
                 };
         }
     }

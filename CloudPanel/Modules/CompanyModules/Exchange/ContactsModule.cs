@@ -196,23 +196,23 @@ namespace CloudPanel.Modules
                 {
                     string companyCode = _.CompanyCode;
 
-                    logger.DebugFormat("Preparing to delete contact... Getting ID..");
-                    if (!Request.Form.ContactID.HasValue)
-                        throw new Exception("Contact ID was not provided.");
+                    logger.DebugFormat("Preparing to delete contact... Getting Guid..");
+                    if (!Request.Form.Guid.HasValue)
+                        throw new Exception("Contact Guid was not provided.");
                     else
                     {
-                        int contactId = Request.Form.ContactID;
+                        Guid contactGuid = Request.Form.Guid;
 
-                        logger.DebugFormat("Getting contact {0} from the database", contactId);
+                        logger.DebugFormat("Getting contact {0} from the database", contactGuid);
                         db = new CloudPanelContext(Settings.ConnectionString);
                         var existingContact = (from d in db.Contacts
                                                where d.CompanyCode == companyCode
-                                               where d.ID == contactId
+                                               where d.ObjectGuid == contactGuid
                                                select d).First();
 
                         logger.DebugFormat("Found contact {0}. Removing from Exchange", existingContact.DistinguishedName);
                         powershell = ExchPowershell.GetClass();
-                        powershell.Remove_MailContact(existingContact.DistinguishedName);
+                        powershell.Remove_MailContact(existingContact.ObjectGuid.ToString());
 
                         logger.DebugFormat("Contact {0} was removed from Exchange.. removing from database", existingContact.DistinguishedName);
                         db.Contacts.Remove(existingContact);
@@ -240,7 +240,7 @@ namespace CloudPanel.Modules
                 #endregion
             };
 
-            Get["/{ContactID:int}"] = _ =>
+            Get["/{Guid:guid}"] = _ =>
             {
                 this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vExchangeContacts"));
 
@@ -248,18 +248,18 @@ namespace CloudPanel.Modules
                 CloudPanelContext db = null;
                 try
                 {
-                    logger.DebugFormat("Getting contact id {0}", _.ContactID);
+                    logger.DebugFormat("Getting contact guid {0}", _.Guid);
                     db = new CloudPanelContext(Settings.ConnectionString);
 
                     string companyCode = _.CompanyCode;
-                    int contactId = _.ContactID;
+                    Guid contactGuid = _.Guid;
                     var contact = (from d in db.Contacts
                                    where d.CompanyCode == companyCode
-                                   where d.ID == contactId
+                                   where d.ObjectGuid == contactGuid
                                    select d).FirstOrDefault();
 
                     if (contact == null)
-                        throw new Exception("Unable to find contact id {0} in the database.", _.ContactID);
+                        throw new Exception("Unable to find contact guid " + contactGuid + " in the database.");
                     else
                     {
                         return Negotiate.WithModel(new { contact = contact })
@@ -280,7 +280,7 @@ namespace CloudPanel.Modules
                 #endregion
             };
 
-            Put["/{ContactID:int}"] = _ =>
+            Put["/{Guid:guid}"] = _ =>
             {
                 this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eExchangeContacts"));
 
@@ -290,10 +290,10 @@ namespace CloudPanel.Modules
                 dynamic powershell = null;
                 try
                 {
-                    int contactId = _.ContactID;
+                    Guid contactGuid = _.Guid;
                     string companyCode = _.CompanyCode;
 
-                    logger.DebugFormat("Preparing to update contact {0} for company {1}... Validating required data", contactId);
+                    logger.DebugFormat("Preparing to update contact {0} for company {1}... Validating required data", contactGuid);
 
                     if (!Request.Form.DisplayName.HasValue)
                         throw new Exception("Missing required field DisplayName");
@@ -302,7 +302,7 @@ namespace CloudPanel.Modules
                     db = new CloudPanelContext(Settings.ConnectionString);
                     var existingContact = (from d in db.Contacts
                                            where d.CompanyCode == companyCode
-                                           where d.ID == contactId
+                                           where d.ObjectGuid == contactGuid
                                            select d).FirstOrDefault();
 
                     if (existingContact == null)

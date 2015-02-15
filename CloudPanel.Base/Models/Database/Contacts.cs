@@ -65,6 +65,9 @@ namespace CloudPanel.Base.Models.Database
         [NotMapped]
         public string CanoncialName { get; set; }
 
+        [NotMapped]
+        public string PrimarySmtpAddress { get; set; }
+
         #endregion
     }
 }

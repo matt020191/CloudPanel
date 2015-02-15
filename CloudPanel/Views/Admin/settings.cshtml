@@ -34,6 +34,7 @@
                                 <li><a href="#exchange" data-toggle="tab">Exchange</a></li>
                                 <li><a href="#citrix" data-toggle="tab">Citrix</a></li>
                                 <li><a href="#notifications" data-toggle="tab">Notifications</a></li>
+                                <li><a href="#migrationupdates" data-toggle="tab">Migration Updates</a></li>
                             </ul>
                             <div class="tab-content">
                                 <div class="tab-pane active" id="ad">
@@ -602,6 +603,32 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div id="migrationupdates" class="tab-pane">
+                                    <div class="form-horizontal">
+                                        <h2>Migration Updates</h2>
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Description</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Query all contacts in Exchange and insert the GUID in the database</td>
+                                                    <td><a href="javascript:;" class="btn btn-primary" onclick="javascript: FixContacts();">Fix</a></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Query all distribution groups in Exchange and insert the GUID in the database</td>
+                                                    <td><a href="javascript:;" class="btn btn-primary" onclick="javascript: FixDistributionGroups();">Fix</a></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <br />
+                                        <br />
+                                        <br />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -623,70 +650,96 @@
     <script src="~/Content/plugins/form-inputmask/jquery.inputmask.bundle.min.js"></script>
     <script src="~/Content/plugins/form-select2/select2.min.js"></script>
     <script type="text/javascript">
-        $(document).ready(function () {
-            $("#form").parsley();
+    $(document).ready(function () {
+        $("#form").parsley();
 
-            $("input[type=checkbox]").click(function () {
-                if ($(this).is(':checked')) {
-                    $(this).val("true");
-                } else {
-                    $(this).val("false");
-                }
-            });
+        $("input[type=checkbox]").click(function () {
+            if ($(this).is(':checked')) {
+                $(this).val("true");
+            } else {
+                $(this).val("false");
+            }
         });
+    });
 
-        function GetExchangeDatabases()
+    function GetExchangeDatabases()
+    {
+        $(".panel").block();
+        $.getJSON("@ResolveUrl("~/admin/settings/exchange/databases")", function (data) {
+            var input = $("#ExchangeDatabases");
+            input.val("");
+
+            $.each(data.databases, function (index) {
+                input.val(input.val() + data.databases[index].identity + ",");
+            });
+        })
+        .fail(function (data) {
+            ShowError(data);
+        })
+        .always(function (data) {
+            $(".panel").unblock();
+        });
+    }
+
+    function SetExchangeDefaults()
+    {
+        $("#ExchangeRoleAssignment").val("Alternate Assignment Policy");
+        $("#ExchangeGALName").val("{0} GAL");
+        $("#ExchangeABPName").val("{0} ABP");
+        $("#ExchangeOALName").val("{0} OAL");
+        $("#ExchangeUSERSName").val("{0} - All Users");
+        $("#ExchangeCONTACTSName").val("{0} - All Contacts");
+        $("#ExchangeROOMSName").val("{0} - All Rooms");
+        $("#ExchangeGROUPSName").val("{0} - All Groups");
+        $("#ExchangeGroupsOU").val("Exchange");
+        $("#ExchangeContactsOU").val("Exchange");
+        $("#ExchangeRoomsOU").val("Exchange");
+        $("#ExchangeResourceOU").val("Exchange");
+    }
+
+    function SubmitForm()
+    {
+        if ($("#form").parsley().validate())
         {
-            $(".panel").block();
-            $.getJSON("@ResolveUrl("~/admin/settings/exchange/databases")", function (data) {
-                var input = $("#ExchangeDatabases");
-                input.val("");
+            var data = $("#form").serialize();
 
-                $.each(data.databases, function (index) {
-                    input.val(input.val() + data.databases[index].identity + ",");
-                });
+            $(".panel").block();
+            $.post("", data).done(function (returnData) {
+                ShowSuccess(returnData.success);
+            }).fail(function (returnData) {
+                ShowError(returnData);
+            }).always(function () {
+                $(".panel").unblock();
+            });
+        }
+        else
+            ShowWarning("You are missing some required fields!");
+    }
+
+    function FixContacts() {
+        $.blockUI();
+        var jqxhr = $.post("@Url.Content("~/admin/settings/fix/exchange/contacts")", function (data) {
+                ShowSuccess(data.success);
             })
             .fail(function (data) {
                 ShowError(data);
             })
-            .always(function (data) {
-                $(".panel").unblock();
+            .always(function () {
+                $.unblockUI();
             });
         }
 
-        function SetExchangeDefaults()
-        {
-            $("#ExchangeRoleAssignment").val("Alternate Assignment Policy");
-            $("#ExchangeGALName").val("{0} GAL");
-            $("#ExchangeABPName").val("{0} ABP");
-            $("#ExchangeOALName").val("{0} OAL");
-            $("#ExchangeUSERSName").val("{0} - All Users");
-            $("#ExchangeCONTACTSName").val("{0} - All Contacts");
-            $("#ExchangeROOMSName").val("{0} - All Rooms");
-            $("#ExchangeGROUPSName").val("{0} - All Groups");
-            $("#ExchangeGroupsOU").val("Exchange");
-            $("#ExchangeContactsOU").val("Exchange");
-            $("#ExchangeRoomsOU").val("Exchange");
-            $("#ExchangeResourceOU").val("Exchange");
-        }
-
-        function SubmitForm()
-        {
-            if ($("#form").parsley().validate())
-            {
-                var data = $("#form").serialize();
-
-                $(".panel").block();
-                $.post("", data).done(function (returnData) {
-                    ShowSuccess(returnData.success);
-                }).fail(function (returnData) {
-                    ShowError(returnData);
-                }).always(function () {
-                    $(".panel").unblock();
-                });
-            }
-            else
-                ShowWarning("You are missing some required fields!");
+        function FixDistributionGroups() {
+            $.blockUI();
+            var jqxhr = $.post("@Url.Content("~/admin/settings/fix/exchange/groups")", function (data) {
+                ShowSuccess(data.success);
+            })
+            .fail(function (data) {
+                ShowError(data);
+            })
+            .always(function () {
+                $.unblockUI();
+            });
         }
     </script>
 }

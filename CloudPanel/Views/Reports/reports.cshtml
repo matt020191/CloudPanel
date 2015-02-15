@@ -21,38 +21,32 @@
     <div class="row">
         <div class="panel panel-primary">
             <div class="panel-body">
-                <div class="col-sm-6 col-md-4">
-                    <div class="thumbnail">
-                        <img src="~/Content/img/reports/exchange2013.jpg" alt="Exchange Summary" />
-                        <div class="caption">
-                            <h3>Exchange Summary</h3>
-                            <p>Run a report to view information on a per company basis. This report includes costs, profits, top mailbox plans, archiving information, and much more. </p>
-                            <p><a href="~/Reports/exchange/summary" class="btn btn-primary" role="button">Run</a></p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-sm-6 col-md-4">
-                    <div class="thumbnail">
-                        <img src="~/Content/img/reports/exchange2013.jpg" alt="Exchange Detailed" />
-                        <div class="caption">
-                            <h3>Exchange Detailed</h3>
-                            <p>Runs a detailed report that gives information on a per-user basis including the size of the user's mailbox, archive mailbox, and the maximum size set by the plan.</p>
-                            <p><a href="~/Reports/exchange/detailed" class="btn btn-primary" role="button">Run</a></p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-sm-6 col-md-4">
-                    <div class="thumbnail">
-                        <img src="~/Content/img/reports/xendesktop7.jpg" alt="Citrix Summary" />
-                        <div class="caption">
-                            <h3>Citrix Summary</h3>
-                            <p>Run a report to view all Citrix desktop groups and Citrix applications on a per company basis. </p>
-                            <p><a href="~/reports/citrix/summary" class="btn btn-primary" role="button">Run</a></p>
-                        </div>
-                    </div>
-                </div>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Details</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Exchange</td>
+                            <td>Summary report that shows costs, profits, and a break down of plans on a per company basis</td>
+                            <td><a href="~/Reports/exchange/summary" class="btn btn-primary" target="_blank" role="button">Run</a></td>
+                        </tr>
+                        <tr>
+                            <td>Exchange</td>
+                            <td>Detailed report that shows a break down of plans on a per user basis along witd mailbox sizes</td>
+                            <td><a href="~/Reports/exchange/detailed" class="btn btn-primary" target="_blank" role="button">Run</a></td>
+                        </tr>
+                        <tr>
+                            <td>Citrix</td>
+                            <td>Summary report that shows a break down of Citrix desktop groups and applications on a per company basis</td>
+                            <td><a href="~/reports/citrix/summary" class="btn btn-primary" target="_blank" role="button">Run</a></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
