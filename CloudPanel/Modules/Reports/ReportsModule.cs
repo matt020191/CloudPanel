@@ -13,6 +13,7 @@ using System.Linq;
 using System.Reflection;
 using System.Web;
 using CloudPanel.Reports.Citrix;
+using CloudPanel.Base.Models.ViewModels;
 
 namespace CloudPanel.Modules.Reports
 {
@@ -22,7 +23,7 @@ namespace CloudPanel.Modules.Reports
 
         public ReportsModule() : base("/reports")
         {
-            this.RequiresClaims(new[] { "SuperAdmin" });
+            //this.RequiresClaims(new[] { "SuperAdmin" });
 
             Get["/"] = _ =>
                 {
@@ -285,6 +286,7 @@ namespace CloudPanel.Modules.Reports
                         companyCode = Request.Query.CompanyCode.Value;
 
 
+                    var companies = db.Companies.ToList();
                     var desktopGroups = new List<CitrixDesktopGroupData>();
                     var applications = new List<CitrixAppsData>();
 
@@ -293,21 +295,22 @@ namespace CloudPanel.Modules.Reports
                         {
                             var data = (from d in db.Users
                                                      .Include(c => c.CitrixDesktopGroups)
-                                         join c in db.Companies on d.CompanyCode equals c.CompanyName into c1
-                                         from company in c1.DefaultIfEmpty()
-                                         where d.CitrixDesktopGroups.Any(a => a.Name == x.Name)
-                                         select new CitrixDesktopGroupData()
-                                         {
-                                              CompanyCode = d.CompanyCode,
-                                              CompanyName = company.CompanyName,
-                                              DesktopGroupName = x.Name,
-                                              UserGuid = d.UserGuid,
-                                              UserDisplayName = d.DisplayName,
-                                              UserPrincipalName = d.UserPrincipalName
-                                         }).ToList();
+                                        where d.CitrixDesktopGroups.Any(a => a.Name == x.Name)
+                                        select new CitrixDesktopGroupData()
+                                        {
+                                            CompanyCode = d.CompanyCode,
+                                            CompanyName = "",
+                                            DesktopGroupName = x.Name,
+                                            UserGuid = d.UserGuid,
+                                            UserDisplayName = d.DisplayName,
+                                            UserPrincipalName = d.UserPrincipalName
+                                        }).ToList();
 
                             if (data.Count > 0) 
                             {
+                                data.ForEach(d => {
+                                    d.CompanyName = companies.Where(c => c.CompanyCode == d.CompanyCode).Single().CompanyName;
+                                });
                                 desktopGroups.AddRange(data);
                             }
                         });
@@ -317,13 +320,11 @@ namespace CloudPanel.Modules.Reports
                         {
                             var data = (from d in db.Users
                                                     .Include(c => c.CitrixApplications)
-                                        join c in db.Companies on d.CompanyCode equals c.CompanyName into c1
-                                        from company in c1.DefaultIfEmpty()
                                         where d.CitrixApplications.Any(a => a.Name == x.Name)
                                         select new CitrixAppsData()
                                         {
                                             CompanyCode = d.CompanyCode,
-                                            CompanyName = company.CompanyName,
+                                            CompanyName = "",
                                             ApplicationName = x.ApplicationName,
                                             UserDisplayName = d.DisplayName,
                                             UserGuid = d.UserGuid,
@@ -332,6 +333,10 @@ namespace CloudPanel.Modules.Reports
 
                             if (data.Count > 0)
                             {
+                                data.ForEach(d =>
+                                {
+                                    d.CompanyName = companies.Where(c => c.CompanyCode == d.CompanyCode).Single().CompanyName;
+                                });
                                 applications.AddRange(data);
                             }
                         });

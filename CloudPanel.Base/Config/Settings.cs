@@ -6,10 +6,11 @@ namespace CloudPanel.Base.Config
     public static class Settings
     {
 #if DEBUG
-        public static string ConnectionString {
-            get {
-                return @"server=DXN-PC\SQLEXPRESS;database=CP30901B;uid=CloudPanel;password=password;";
-            }
+        private static string _connectionstring;
+        public static string ConnectionString
+        {
+            get { return @"server=DXN-PC\SQLEXPRESS;database=CP30901B;uid=CloudPanel;password=password;"; }
+            set { _connectionstring = value; }
         }
 #else
         public static string ConnectionString { get; set; }
