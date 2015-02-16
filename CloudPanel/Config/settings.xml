@@ -56,6 +56,7 @@
     <MailPassword>1jr3Kd5dEDI=</MailPassword>
   </Notifications>
   <Advanced>
+    <CompanyCodeFormat>0</CompanyCodeFormat> <!-- 0: Auto generated company code (default); 1: Use company's name instead of auto generating company code -->
     <SamAccountNameFormat>0</SamAccountNameFormat> <!-- SAM Format. 0: Uses text before the @ in the login name; 1: Formats firstpart_domain up to 19 characters  -->
     <ADCNFormat>0</ADCNFormat> <!-- AD CN Format. 0: DisplayName; 1: UserPrincipalName -->
   </Advanced>

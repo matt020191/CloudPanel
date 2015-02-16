@@ -287,6 +287,8 @@ namespace CloudPanel.Base.Config
             set { _applicationsouname = value; }
         }
 
+        public static int CompanyCodeFormat { get; set; }
+
         public static int SamAccountNameFormat { get; set; }
 
         public static int ADCNFormat { get; set; }

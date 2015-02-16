@@ -166,7 +166,7 @@ namespace CloudPanel.Modules
                         // Create reseller in Active Directory
                         logger.DebugFormat("Populating OrganizationalUnit object");
                         var newResellerOrg = new OrganizationalUnit() {
-                            Name = Settings.UseNameInsteadOfCompanyCode ? newReseller.CompanyName : companyCode,
+                            Name = companyCode,
                             Street = newReseller.Street,
                             City = newReseller.City,
                             State = newReseller.State,

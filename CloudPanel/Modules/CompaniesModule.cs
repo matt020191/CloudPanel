@@ -192,7 +192,7 @@ namespace CloudPanel.Modules
                     logger.DebugFormat("Populating OrganizationalUnit object");
                     var newCompanyOrg = new OrganizationalUnit()
                     {
-                        Name = Settings.UseNameInsteadOfCompanyCode ? newCompany.CompanyName : companyCode,
+                        Name = companyCode,
                         Street = newCompany.Street,
                         City = newCompany.City,
                         State = newCompany.State,

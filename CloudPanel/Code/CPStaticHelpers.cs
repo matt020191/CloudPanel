@@ -47,33 +47,56 @@ namespace CloudPanel
                 db = new CloudPanelContext(Settings.ConnectionString);
                 db.Database.Connection.Open();
 
-                // Generate code
-                char[] arr = companyName.ToCharArray();
-                arr = Array.FindAll<char>(arr, (c => (char.IsLetterOrDigit(c))));
-
-                string companyCode = new string(arr).ToUpper();
-                if (companyCode.Length > 3)
-                    companyCode = companyCode.Substring(0, 3);
-
-                // Make sure it doesn't exist in the database
-                int count = 1;
-                string validCompanyCode = companyCode;
-                while (true)
+                logger.DebugFormat("Generating a new company code for {0}", companyName);
+                if (Settings.CompanyCodeFormat > 0)
                 {
-                    logger.DebugFormat("Checking if code {0} exists", validCompanyCode);
-                    int codeExist = (from d in db.Companies where d.CompanyCode == validCompanyCode select d).Count();
+                    // Remove all invalid characters
+                    logger.DebugFormat("Using company's name for the company code. Removing invalid characters from {0}", companyName);
+                    char[] arr = companyName.ToCharArray();
+                    arr = Array.FindAll<char>(arr, (c => (char.IsLetterOrDigit(c) || char.IsWhiteSpace(c)) ));
+
+                    string companyCode = new string(arr);
+                    logger.DebugFormat("New company code is {0} for {1}", companyCode, companyName);
+
+                    logger.DebugFormat("Checking if company code {0} exists in the database", companyCode);
+                    int codeExist = (from d in db.Companies where d.CompanyCode == companyCode select d).Count();
                     if (codeExist > 0)
-                    {
-                        validCompanyCode = string.Format("{0}{1}", companyCode, count);
-                        count = count + 1;
-
-                        logger.DebugFormat("Code already existed. Increasing number and trying {0}", validCompanyCode);
-                    }
+                        throw new ArgumentException(companyCode);
                     else
-                        break;
+                        return companyCode;
                 }
+                else
+                {
+                    // Remove all invalid characters
+                    logger.DebugFormat("Auto generating company code. Removing invalid characters from {0}", companyName);
+                    char[] arr = companyName.ToCharArray();
+                    arr = Array.FindAll<char>(arr, (c => (char.IsLetterOrDigit(c))));
 
-                return validCompanyCode;
+                    string companyCode = new string(arr).ToUpper();
+                    if (companyCode.Length > 3)
+                        companyCode = companyCode.Substring(0, 3);
+                    logger.DebugFormat("New company code is {0} for {1}", companyCode, companyName);
+
+                    // Make sure it doesn't exist in the database
+                    int count = 1;
+                    string validCompanyCode = companyCode;
+                    while (true)
+                    {
+                        logger.DebugFormat("Checking if code {0} exists", validCompanyCode);
+                        int codeExist = (from d in db.Companies where d.CompanyCode == validCompanyCode select d).Count();
+                        if (codeExist > 0)
+                        {
+                            validCompanyCode = string.Format("{0}{1}", companyCode, count);
+                            count = count + 1;
+
+                            logger.DebugFormat("Code already existed. Increasing number and trying {0}", validCompanyCode);
+                        }
+                        else
+                            break;
+                    }
+
+                    return validCompanyCode;
+                }
             }
             catch (Exception ex)
             {
