@@ -433,6 +433,8 @@ namespace CloudPanel.Exchange
         /// <param name="primarySmtpAddress"></param>
         public void New_PublicFolderMailbox(string name, string displayName, string organizationalUnit, string primarySmtpAddress, string addressBookPolicy)
         {
+            logger.DebugFormat("Creating new public folder mailbox {0}, {1}, {2}, {3}, {4}", name, displayName, organizationalUnit, primarySmtpAddress, addressBookPolicy);
+
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("New-Mailbox");
             cmd.AddParameter("Name", name);
@@ -456,6 +458,8 @@ namespace CloudPanel.Exchange
         /// <param name="path"></param>
         public void New_PublicFolder(string name, string mailbox, string path)
         {
+            logger.DebugFormat("Creating new public folder {0}, {1}, {2}", name, mailbox, path);
+
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("New-PublicFolder");
             cmd.AddParameter("Name", name);
@@ -509,6 +513,7 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("Identity", identity);
             cmd.AddParameter("PublicFolder");
             cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
             _powershell.Invoke();
 
@@ -529,6 +534,7 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("Recurse");
             cmd.AddCommand("Remove-PublicFolder");
             cmd.AddParameter("Confirm", false);
+            cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
             _powershell.Invoke();
 
@@ -602,6 +608,8 @@ namespace CloudPanel.Exchange
         /// <param name="permissions"></param>
         public void Remove_PublicFolderClientPermission(string publicFolderPath, string publicFolderMailbox, string[] users)
         {
+            logger.DebugFormat("Removing {0} from path {1} in public folder mailbox {2}", String.Join(", ", users), publicFolderPath, publicFolderMailbox);
+
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Get-PublicFolderClientPermission");
             cmd.AddParameter("Identity", publicFolderPath);

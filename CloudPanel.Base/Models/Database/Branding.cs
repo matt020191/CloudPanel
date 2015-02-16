@@ -55,7 +55,6 @@ namespace CloudPanel.Base.Models.Database
         [Required]
         public string LoginLogo { get; set; }
 
-        [Required]
         public string HeaderLogo { get; set; }
 
         [Required]

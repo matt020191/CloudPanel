@@ -144,6 +144,7 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
 
                             // Create the public folders
                             #region Create Public Folders
+                            logger.DebugFormat("Creating new public folder mailbox for {0}", companyCode);
                             powershell.New_PublicFolderMailbox(newPFMailbox.Identity, newPFMailbox.Identity, exchangePath, newPFMailbox.Identity, string.Format(Settings.ExchangeABPName, companyCode));
                             reverse.AddAction(Actions.CreatePublicFolderMailbox, newPFMailbox.Identity);
 

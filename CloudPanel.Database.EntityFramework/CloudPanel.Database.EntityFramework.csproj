@@ -96,6 +96,10 @@
     <Compile Include="Migrations\201502150142164_AddObjectGuidToGroupsAndContacts.Designer.cs">
       <DependentUpon>201502150142164_AddObjectGuidToGroupsAndContacts.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201502160129263_HeaderLogoNotRequired.cs" />
+    <Compile Include="Migrations\201502160129263_HeaderLogoNotRequired.Designer.cs">
+      <DependentUpon>201502160129263_HeaderLogoNotRequired.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -142,6 +146,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201502150142164_AddObjectGuidToGroupsAndContacts.resx">
       <DependentUpon>201502150142164_AddObjectGuidToGroupsAndContacts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201502160129263_HeaderLogoNotRequired.resx">
+      <DependentUpon>201502160129263_HeaderLogoNotRequired.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

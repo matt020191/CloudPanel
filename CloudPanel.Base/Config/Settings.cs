@@ -8,7 +8,7 @@ namespace CloudPanel.Base.Config
 #if DEBUG
         public static string ConnectionString {
             get {
-                return @"server=DXN-PC\SQLEXPRESS;database=CPBETA;uid=CloudPanel;password=password;";
+                return @"server=DXN-PC\SQLEXPRESS;database=CP30901B;uid=CloudPanel;password=password;";
             }
         }
 #else
