@@ -8,6 +8,7 @@ using Nancy.Security;
 using Nancy.ViewEngines.Razor;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -34,7 +35,7 @@ namespace CloudPanel.Modules.PlansModules
                     try
                     {
                         logger.DebugFormat("Creating new archive plan");
-                        var plan = this.Bind<Plans_ExchangeArchiving>();
+                        var plan = this.Bind<Plans_ExchangeArchiving>(new[] { "Cost", "Price" });
 
                         logger.DebugFormat("Validating required data");
                         if (!Request.Form.DisplayName.HasValue)
@@ -60,6 +61,9 @@ namespace CloudPanel.Modules.PlansModules
 
                         logger.DebugFormat("Data has been validated. Adding to SQL");
                         db = new CloudPanelContext(Settings.ConnectionString);
+                        plan.Cost = decimal.Parse(Request.Form.Cost.Value);
+                        plan.Price = decimal.Parse(Request.Form.Price.Value);
+
                         db.Plans_ExchangeArchiving.Add(plan);
                         db.SaveChanges();
 
@@ -121,7 +125,7 @@ namespace CloudPanel.Modules.PlansModules
                     try
                     {
                         logger.DebugFormat("Updating archive plan {0}", _.ID);
-                        var plan = this.Bind<Plans_ExchangeArchiving>();
+                        var plan = this.Bind<Plans_ExchangeArchiving>(new[] { "Cost", "Price" });
 
                         logger.DebugFormat("Validating required data");
                         if (!Request.Form.DisplayName.HasValue)
@@ -141,6 +145,8 @@ namespace CloudPanel.Modules.PlansModules
 
                         logger.DebugFormat("Data has been validated. Updating to SQL");
                         db = new CloudPanelContext(Settings.ConnectionString);
+                        plan.Cost = decimal.Parse(Request.Form.Cost.Value);
+                        plan.Price = decimal.Parse(Request.Form.Price.Value);
 
                         int id = _.ID;
                         var sqlPlan = (from d in db.Plans_ExchangeArchiving

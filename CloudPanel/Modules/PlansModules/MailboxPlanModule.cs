@@ -9,6 +9,7 @@ using Nancy.Security;
 using Nancy.ViewEngines.Razor;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -37,7 +38,10 @@ namespace CloudPanel.Modules.PlansModules
                 {
                     db = new CloudPanelContext(Settings.ConnectionString);
 
-                    var newPlan = this.Bind<Plans_ExchangeMailbox>();
+                    var newPlan = this.Bind<Plans_ExchangeMailbox>(new[] { "Cost", "Price", "AdditionalGBPrice" } );
+                    newPlan.Cost = decimal.Parse(Request.Form.Cost.Value);
+                    newPlan.Price = decimal.Parse(Request.Form.Price.Value);
+                    newPlan.AdditionalGBPrice = decimal.Parse(Request.Form.AdditionalGBPrice.Value);
 
                     if (newPlan.MaxMailboxSizeMB == null || newPlan.MaxMailboxSizeMB < newPlan.MailboxSizeMB)
                         newPlan.MaxMailboxSizeMB = newPlan.MailboxSizeMB;
@@ -116,15 +120,13 @@ namespace CloudPanel.Modules.PlansModules
                     var oldPlan = (from d in db.Plans_ExchangeMailbox
                                    where d.MailboxPlanID == id
                                    select d).FirstOrDefault();
-                    var updatedPlan = this.Bind<Plans_ExchangeMailbox>("ProductID", "MailboxPlanID", "ResellerCode");
+                    var updatedPlan = this.Bind<Plans_ExchangeMailbox>("ProductID", "MailboxPlanID", "ResellerCode", "Cost", "Price", "AdditionalGBPrice");
                     oldPlan.MailboxPlanName = updatedPlan.MailboxPlanName;
                     oldPlan.MailboxPlanDesc = updatedPlan.MailboxPlanDesc;
                     oldPlan.MaxRecipients = Request.Form.cbMaxRecipients == true ? 0 : updatedPlan.MaxRecipients;
                     oldPlan.MaxKeepDeletedItems = updatedPlan.MaxKeepDeletedItems;
                     oldPlan.MailboxSizeMB = Request.Form.cbMailboxSizeMB == true ? 0 : updatedPlan.MailboxSizeMB;
-
                     oldPlan.MaxMailboxSizeMB = (updatedPlan.MaxMailboxSizeMB == null || updatedPlan.MaxMailboxSizeMB < oldPlan.MailboxSizeMB) ? oldPlan.MailboxSizeMB : updatedPlan.MaxMailboxSizeMB; // Make sure max mailbox size is greater than mailbox size or equal to.
-
                     oldPlan.MaxSendKB = Request.Form.cbMaxSendKB == true ? 0 : updatedPlan.MaxSendKB;
                     oldPlan.MaxReceiveKB = Request.Form.cbMaxReceiveKB == true ? 0 : updatedPlan.MaxReceiveKB;
                     oldPlan.EnablePOP3 = updatedPlan.EnablePOP3;
@@ -133,9 +135,9 @@ namespace CloudPanel.Modules.PlansModules
                     oldPlan.EnableMAPI = updatedPlan.EnableMAPI;
                     oldPlan.EnableAS = updatedPlan.EnableAS;
                     oldPlan.EnableECP = updatedPlan.EnableECP;
-                    oldPlan.Cost = updatedPlan.Cost;
-                    oldPlan.Price = updatedPlan.Price;
-                    oldPlan.AdditionalGBPrice = updatedPlan.AdditionalGBPrice;
+                    oldPlan.Cost = decimal.Parse(Request.Form.Cost.Value);
+                    oldPlan.Price = decimal.Parse(Request.Form.Price.Value);
+                    oldPlan.AdditionalGBPrice = decimal.Parse(Request.Form.AdditionalGBPrice.Value);
                     oldPlan.CompanyCode = updatedPlan.CompanyCode == "0" ? string.Empty : updatedPlan.CompanyCode;
 
                     db.SaveChanges();
@@ -187,7 +189,7 @@ namespace CloudPanel.Modules.PlansModules
 
                     return Negotiate
                                 .WithMediaRangeModel("application/json", HttpStatusCode.OK)
-                                .WithMediaRangeResponse(new MediaRange("text/html"), this.Response.AsRedirect("~/plans/mailbox/new"));
+                                .WithMediaRangeResponse(new MediaRange("text/html"), this.Response.AsRedirect("~/plans/exchange/mailbox/new"));
                 }
                 catch (Exception ex)
                 {

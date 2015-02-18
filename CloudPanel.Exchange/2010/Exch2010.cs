@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Management.Automation;
+using CloudPanel.Base.Extensions;
 
 namespace CloudPanel.Exchange
 {
@@ -1015,12 +1016,11 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("Identity", user.UserGuid.ToString());
             cmd.AddParameter("EmailAddresses", emailAddresses);
             cmd.AddParameter("EmailAddressPolicyEnabled", false);
-            cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
-            cmd.AddParameter("MaxReceiveSize", p.MaxReceiveKB > 0 ? string.Format("{0}KB", p.MaxReceiveKB) : "Unlimited");
+            cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB.GetPercentageAsInvariantString(0.90)) : "Unlimited");
             cmd.AddParameter("MaxSendSize", p.MaxSendKB > 0 ? string.Format("{0}KB", p.MaxSendKB) : "Unlimited");
             cmd.AddParameter("OfflineAddressBook", string.Format(Settings.ExchangeOALName, user.CompanyCode));
-            cmd.AddParameter("ProhibitSendQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB) : "Unlimited");
-            cmd.AddParameter("ProhibitSendReceiveQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB) : "Unlimited");
+            cmd.AddParameter("ProhibitSendQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB.GetNumberAsInvariantString()) : "Unlimited");
+            cmd.AddParameter("ProhibitSendReceiveQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB.GetNumberAsInvariantString()) : "Unlimited");
             cmd.AddParameter("RecipientLimits", p.MaxRecipients > 0 ? string.Format("{0}", p.MaxRecipients) : "Unlimited");
             cmd.AddParameter("RetainDeletedItemsFor", p.MaxKeepDeletedItems > 0 ? p.MaxKeepDeletedItems : 30);
             cmd.AddParameter("UseDatabaseQuotaDefaults", false);
@@ -1096,12 +1096,12 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("Identity", user.UserGuid.ToString());
             cmd.AddParameter("EmailAddresses", emailAddresses);
             cmd.AddParameter("EmailAddressPolicyEnabled", false);
-            cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
+            cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB.GetPercentageAsInvariantString(0.90)) : "Unlimited");
             cmd.AddParameter("MaxReceiveSize", p.MaxReceiveKB > 0 ? string.Format("{0}KB", p.MaxReceiveKB) : "Unlimited");
             cmd.AddParameter("MaxSendSize", p.MaxSendKB > 0 ? string.Format("{0}KB", p.MaxSendKB) : "Unlimited");
             cmd.AddParameter("OfflineAddressBook", string.Format(Settings.ExchangeOALName, user.CompanyCode));
-            cmd.AddParameter("ProhibitSendQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB) : "Unlimited");
-            cmd.AddParameter("ProhibitSendReceiveQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB) : "Unlimited");
+            cmd.AddParameter("ProhibitSendQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB.GetNumberAsInvariantString()) : "Unlimited");
+            cmd.AddParameter("ProhibitSendReceiveQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB.GetNumberAsInvariantString()) : "Unlimited");
             cmd.AddParameter("RecipientLimits", p.MaxRecipients > 0 ? string.Format("{0}", p.MaxRecipients) : "Unlimited");
             cmd.AddParameter("RetainDeletedItemsFor", p.MaxKeepDeletedItems > 0 ? p.MaxKeepDeletedItems : 30);
             cmd.AddParameter("UseDatabaseQuotaDefaults", false);
@@ -2037,12 +2037,12 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("Identity", resourceMailbox.UserPrincipalName);
             cmd.AddParameter("CustomAttribute1", resourceMailbox.CompanyCode);
             cmd.AddParameter("EmailAddresses", emailAddresses);
-            cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
+            cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB.GetPercentageAsInvariantString(0.90)) : "Unlimited");
             cmd.AddParameter("MaxReceiveSize", p.MaxReceiveKB > 0 ? string.Format("{0}KB", p.MaxReceiveKB) : "Unlimited");
             cmd.AddParameter("MaxSendSize", p.MaxSendKB > 0 ? string.Format("{0}KB", p.MaxSendKB) : "Unlimited");
             cmd.AddParameter("OfflineAddressBook", string.Format(Settings.ExchangeOALName, resourceMailbox.CompanyCode));
-            cmd.AddParameter("ProhibitSendQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB) : "Unlimited");
-            cmd.AddParameter("ProhibitSendReceiveQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB) : "Unlimited");
+            cmd.AddParameter("ProhibitSendQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB.GetNumberAsInvariantString()) : "Unlimited");
+            cmd.AddParameter("ProhibitSendReceiveQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB.GetNumberAsInvariantString()) : "Unlimited");
             cmd.AddParameter("RecipientLimits", p.MaxRecipients > 0 ? string.Format("{0}", p.MaxRecipients) : "Unlimited");
             cmd.AddParameter("RetainDeletedItemsFor", p.MaxKeepDeletedItems > 0 ? p.MaxKeepDeletedItems : 30);
             cmd.AddParameter("UseDatabaseQuotaDefaults", false);
@@ -2147,12 +2147,12 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("Identity", resourceMailbox.UserPrincipalName);
             cmd.AddParameter("CustomAttribute1", resourceMailbox.CompanyCode);
             cmd.AddParameter("EmailAddresses", emailAddresses);
-            cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
+            cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB.GetPercentageAsInvariantString(0.90)) : "Unlimited");
             cmd.AddParameter("MaxReceiveSize", p.MaxReceiveKB > 0 ? string.Format("{0}KB", p.MaxReceiveKB) : "Unlimited");
             cmd.AddParameter("MaxSendSize", p.MaxSendKB > 0 ? string.Format("{0}KB", p.MaxSendKB) : "Unlimited");
             cmd.AddParameter("OfflineAddressBook", string.Format(Settings.ExchangeOALName, resourceMailbox.CompanyCode));
-            cmd.AddParameter("ProhibitSendQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB) : "Unlimited");
-            cmd.AddParameter("ProhibitSendReceiveQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB) : "Unlimited");
+            cmd.AddParameter("ProhibitSendQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB.GetNumberAsInvariantString()) : "Unlimited");
+            cmd.AddParameter("ProhibitSendReceiveQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB.GetNumberAsInvariantString()) : "Unlimited");
             cmd.AddParameter("RecipientLimits", p.MaxRecipients > 0 ? string.Format("{0}", p.MaxRecipients) : "Unlimited");
             cmd.AddParameter("RetainDeletedItemsFor", p.MaxKeepDeletedItems > 0 ? p.MaxKeepDeletedItems : 30);
             cmd.AddParameter("UseDatabaseQuotaDefaults", false);
@@ -2257,12 +2257,12 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("Identity", resourceMailbox.UserPrincipalName);
             cmd.AddParameter("CustomAttribute1", resourceMailbox.CompanyCode);
             cmd.AddParameter("EmailAddresses", emailAddresses);
-            cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB * 0.90) : "Unlimited");
+            cmd.AddParameter("IssueWarningQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB.GetPercentageAsInvariantString(0.90)) : "Unlimited");
             cmd.AddParameter("MaxReceiveSize", p.MaxReceiveKB > 0 ? string.Format("{0}KB", p.MaxReceiveKB) : "Unlimited");
             cmd.AddParameter("MaxSendSize", p.MaxSendKB > 0 ? string.Format("{0}KB", p.MaxSendKB) : "Unlimited");
             cmd.AddParameter("OfflineAddressBook", string.Format(Settings.ExchangeOALName, resourceMailbox.CompanyCode));
-            cmd.AddParameter("ProhibitSendQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB) : "Unlimited");
-            cmd.AddParameter("ProhibitSendReceiveQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB) : "Unlimited");
+            cmd.AddParameter("ProhibitSendQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB.GetNumberAsInvariantString()) : "Unlimited");
+            cmd.AddParameter("ProhibitSendReceiveQuota", sizeInMB > 0 ? string.Format("{0}MB", sizeInMB.GetNumberAsInvariantString()) : "Unlimited");
             cmd.AddParameter("RecipientLimits", p.MaxRecipients > 0 ? string.Format("{0}", p.MaxRecipients) : "Unlimited");
             cmd.AddParameter("RetainDeletedItemsFor", p.MaxKeepDeletedItems > 0 ? p.MaxKeepDeletedItems : 30);
             cmd.AddParameter("UseDatabaseQuotaDefaults", false);

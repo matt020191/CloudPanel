@@ -3,8 +3,8 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class ReplacedQueuedAndTasksTable : DbMigration
-    {
+    public partial class ReplacedQueuedAndTasksTable
+    {/*
         public override void Up()
         {
             CreateTable(
@@ -63,6 +63,6 @@ namespace CloudPanel.Database.EntityFramework.Migrations
             DropForeignKey("dbo.DelayedUserTasks", "UserID", "dbo.Users");
             DropIndex("dbo.DelayedUserTasks", new[] { "UserID" });
             DropTable("dbo.DelayedUserTasks");
-        }
+        }*/
     }
 }

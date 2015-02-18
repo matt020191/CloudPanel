@@ -35,7 +35,10 @@ namespace CloudPanel.Modules.PlansModules
                 {
                     db = new CloudPanelContext(Settings.ConnectionString);
 
-                    var newPlan = this.Bind<Plans_ExchangePublicFolders>();
+                    var newPlan = this.Bind<Plans_ExchangePublicFolders>(new[] { "Cost", "Price" });
+                    newPlan.Cost = decimal.Parse(Request.Form.Cost.Value);
+                    newPlan.Price = decimal.Parse(Request.Form.Price.Value);
+
                     db.Plans_ExchangePublicFolder.Add(newPlan);
                     db.SaveChanges();
 
@@ -98,13 +101,15 @@ namespace CloudPanel.Modules.PlansModules
                                    where d.ID == id
                                    select d).FirstOrDefault();
 
-                    var updatedPlan = this.Bind<Plans_ExchangePublicFolders>();
+                    var updatedPlan = this.Bind<Plans_ExchangePublicFolders>(new[] { "Cost", "Price" });
                     oldPlan.Name = updatedPlan.Name;
                     oldPlan.Description = updatedPlan.Description;
                     oldPlan.MailboxSizeMB = updatedPlan.MailboxSizeMB;
                     oldPlan.Cost = updatedPlan.Cost;
                     oldPlan.Price = updatedPlan.Price;
                     oldPlan.CompanyCode = updatedPlan.CompanyCode;
+                    oldPlan.Cost = decimal.Parse(Request.Form.Cost.Value);
+                    oldPlan.Price = decimal.Parse(Request.Form.Price.Value);
                     db.SaveChanges();
 
                     return Negotiate.WithMediaRangeResponse(new MediaRange("text/html"),

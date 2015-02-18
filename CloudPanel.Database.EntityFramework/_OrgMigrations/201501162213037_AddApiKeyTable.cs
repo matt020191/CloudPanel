@@ -4,10 +4,10 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class AddApiKeyTable : DbMigration
+    public partial class AddApiKeyTable
     {
         private static readonly ILog logger = log4net.LogManager.GetLogger("SQL");
-
+        /*
         public override void Up()
         {
             CreateTable(
@@ -28,6 +28,6 @@ namespace CloudPanel.Database.EntityFramework.Migrations
             DropForeignKey("dbo.ApiKeys", "UserID", "dbo.Users");
             DropIndex("dbo.ApiKeys", new[] { "UserID" });
             DropTable("dbo.ApiKeys");
-        }
+        }*/
     }
 }

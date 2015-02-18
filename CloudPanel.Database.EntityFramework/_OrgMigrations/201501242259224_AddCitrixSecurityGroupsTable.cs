@@ -3,8 +3,8 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class AddCitrixSecurityGroupsTable : DbMigration
-    {
+    public partial class AddCitrixSecurityGroupsTable
+    {/*
         public override void Up()
         {
             CreateTable(
@@ -29,6 +29,6 @@ namespace CloudPanel.Database.EntityFramework.Migrations
             DropForeignKey("dbo.CitrixSecurityGroups", "DesktopGroupID", "dbo.CitrixDesktopGroups");
             DropIndex("dbo.CitrixSecurityGroups", new[] { "DesktopGroupID" });
             DropTable("dbo.CitrixSecurityGroups");
-        }
+        }*/
     }
 }

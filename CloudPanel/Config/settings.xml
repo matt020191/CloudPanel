@@ -22,6 +22,7 @@
     <ExchangeVersion>2013</ExchangeVersion>
     <ExchangeSSL>true</ExchangeSSL>
     <ExchangeMaxAliases>10</ExchangeMaxAliases>
+    <ExchangeWarningSizeInPercent>90</ExchangeWarningSizeInPercent>
     <ExchangeConnection>Basic</ExchangeConnection>
     <ExchangeDatabases>Mailbox Database 1047134082</ExchangeDatabases>
     <ExchangeGALName>{0} GAL</ExchangeGALName>

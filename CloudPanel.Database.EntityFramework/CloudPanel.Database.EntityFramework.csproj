@@ -56,51 +56,55 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrap.cs" />
-    <Compile Include="Migrations\201501160343143_Upgrade31Beta.cs" />
-    <Compile Include="Migrations\201501160343143_Upgrade31Beta.Designer.cs">
-      <DependentUpon>201501160343143_Upgrade31Beta.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201501160437359_AddMissingColumns.cs" />
-    <Compile Include="Migrations\201501160437359_AddMissingColumns.Designer.cs">
-      <DependentUpon>201501160437359_AddMissingColumns.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201501161901326_AddMissingUserColumns.cs" />
-    <Compile Include="Migrations\201501161901326_AddMissingUserColumns.Designer.cs">
-      <DependentUpon>201501161901326_AddMissingUserColumns.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201501162213037_AddApiKeyTable.cs" />
-    <Compile Include="Migrations\201501162213037_AddApiKeyTable.Designer.cs">
-      <DependentUpon>201501162213037_AddApiKeyTable.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201501162225514_FixUserPermissionTableAndDropOtherTables.cs" />
-    <Compile Include="Migrations\201501162225514_FixUserPermissionTableAndDropOtherTables.Designer.cs">
-      <DependentUpon>201501162225514_FixUserPermissionTableAndDropOtherTables.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201501191732021_UpdateMailboxDatabaseTable.cs" />
-    <Compile Include="Migrations\201501191732021_UpdateMailboxDatabaseTable.Designer.cs">
-      <DependentUpon>201501191732021_UpdateMailboxDatabaseTable.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201501242259224_AddCitrixSecurityGroupsTable.cs" />
-    <Compile Include="Migrations\201501242259224_AddCitrixSecurityGroupsTable.Designer.cs">
-      <DependentUpon>201501242259224_AddCitrixSecurityGroupsTable.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201502081555331_AddPublicFolderTables.cs" />
-    <Compile Include="Migrations\201502081555331_AddPublicFolderTables.Designer.cs">
-      <DependentUpon>201502081555331_AddPublicFolderTables.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201502082157350_ReplacedQueuedAndTasksTable.cs" />
-    <Compile Include="Migrations\201502082157350_ReplacedQueuedAndTasksTable.Designer.cs">
-      <DependentUpon>201502082157350_ReplacedQueuedAndTasksTable.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201502150142164_AddObjectGuidToGroupsAndContacts.cs" />
-    <Compile Include="Migrations\201502150142164_AddObjectGuidToGroupsAndContacts.Designer.cs">
-      <DependentUpon>201502150142164_AddObjectGuidToGroupsAndContacts.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201502160129263_HeaderLogoNotRequired.cs" />
-    <Compile Include="Migrations\201502160129263_HeaderLogoNotRequired.Designer.cs">
-      <DependentUpon>201502160129263_HeaderLogoNotRequired.cs</DependentUpon>
+    <Compile Include="Migrations\201502171517110_Initial.cs" />
+    <Compile Include="Migrations\201502171517110_Initial.Designer.cs">
+      <DependentUpon>201502171517110_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="_OrgMigrations\201501160343143_Upgrade31Beta.cs" />
+    <Compile Include="_OrgMigrations\201501160343143_Upgrade31Beta.Designer.cs">
+      <DependentUpon>201501160343143_Upgrade31Beta.cs</DependentUpon>
+    </Compile>
+    <Compile Include="_OrgMigrations\201501160437359_AddMissingColumns.cs" />
+    <Compile Include="_OrgMigrations\201501160437359_AddMissingColumns.Designer.cs">
+      <DependentUpon>201501160437359_AddMissingColumns.cs</DependentUpon>
+    </Compile>
+    <Compile Include="_OrgMigrations\201501161901326_AddMissingUserColumns.cs" />
+    <Compile Include="_OrgMigrations\201501161901326_AddMissingUserColumns.Designer.cs">
+      <DependentUpon>201501161901326_AddMissingUserColumns.cs</DependentUpon>
+    </Compile>
+    <Compile Include="_OrgMigrations\201501162213037_AddApiKeyTable.cs" />
+    <Compile Include="_OrgMigrations\201501162213037_AddApiKeyTable.Designer.cs">
+      <DependentUpon>201501162213037_AddApiKeyTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="_OrgMigrations\201501162225514_FixUserPermissionTableAndDropOtherTables.cs" />
+    <Compile Include="_OrgMigrations\201501162225514_FixUserPermissionTableAndDropOtherTables.Designer.cs">
+      <DependentUpon>201501162225514_FixUserPermissionTableAndDropOtherTables.cs</DependentUpon>
+    </Compile>
+    <Compile Include="_OrgMigrations\201501191732021_UpdateMailboxDatabaseTable.cs" />
+    <Compile Include="_OrgMigrations\201501191732021_UpdateMailboxDatabaseTable.Designer.cs">
+      <DependentUpon>201501191732021_UpdateMailboxDatabaseTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="_OrgMigrations\201501242259224_AddCitrixSecurityGroupsTable.cs" />
+    <Compile Include="_OrgMigrations\201501242259224_AddCitrixSecurityGroupsTable.Designer.cs">
+      <DependentUpon>201501242259224_AddCitrixSecurityGroupsTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="_OrgMigrations\201502081555331_AddPublicFolderTables.cs" />
+    <Compile Include="_OrgMigrations\201502081555331_AddPublicFolderTables.Designer.cs">
+      <DependentUpon>201502081555331_AddPublicFolderTables.cs</DependentUpon>
+    </Compile>
+    <Compile Include="_OrgMigrations\201502082157350_ReplacedQueuedAndTasksTable.cs" />
+    <Compile Include="_OrgMigrations\201502082157350_ReplacedQueuedAndTasksTable.Designer.cs">
+      <DependentUpon>201502082157350_ReplacedQueuedAndTasksTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="_OrgMigrations\201502150142164_AddObjectGuidToGroupsAndContacts.cs" />
+    <Compile Include="_OrgMigrations\201502150142164_AddObjectGuidToGroupsAndContacts.Designer.cs">
+      <DependentUpon>201502150142164_AddObjectGuidToGroupsAndContacts.cs</DependentUpon>
+    </Compile>
+    <Compile Include="_OrgMigrations\201502160129263_HeaderLogoNotRequired.cs" />
+    <Compile Include="_OrgMigrations\201502160129263_HeaderLogoNotRequired.Designer.cs">
+      <DependentUpon>201502160129263_HeaderLogoNotRequired.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -117,37 +121,40 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201501160343143_Upgrade31Beta.resx">
+    <EmbeddedResource Include="Migrations\201502171517110_Initial.resx">
+      <DependentUpon>201502171517110_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="_OrgMigrations\201501160343143_Upgrade31Beta.resx">
       <DependentUpon>201501160343143_Upgrade31Beta.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201501160437359_AddMissingColumns.resx">
+    <EmbeddedResource Include="_OrgMigrations\201501160437359_AddMissingColumns.resx">
       <DependentUpon>201501160437359_AddMissingColumns.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201501161901326_AddMissingUserColumns.resx">
+    <EmbeddedResource Include="_OrgMigrations\201501161901326_AddMissingUserColumns.resx">
       <DependentUpon>201501161901326_AddMissingUserColumns.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201501162213037_AddApiKeyTable.resx">
+    <EmbeddedResource Include="_OrgMigrations\201501162213037_AddApiKeyTable.resx">
       <DependentUpon>201501162213037_AddApiKeyTable.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201501162225514_FixUserPermissionTableAndDropOtherTables.resx">
+    <EmbeddedResource Include="_OrgMigrations\201501162225514_FixUserPermissionTableAndDropOtherTables.resx">
       <DependentUpon>201501162225514_FixUserPermissionTableAndDropOtherTables.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201501191732021_UpdateMailboxDatabaseTable.resx">
+    <EmbeddedResource Include="_OrgMigrations\201501191732021_UpdateMailboxDatabaseTable.resx">
       <DependentUpon>201501191732021_UpdateMailboxDatabaseTable.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201501242259224_AddCitrixSecurityGroupsTable.resx">
+    <EmbeddedResource Include="_OrgMigrations\201501242259224_AddCitrixSecurityGroupsTable.resx">
       <DependentUpon>201501242259224_AddCitrixSecurityGroupsTable.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201502081555331_AddPublicFolderTables.resx">
+    <EmbeddedResource Include="_OrgMigrations\201502081555331_AddPublicFolderTables.resx">
       <DependentUpon>201502081555331_AddPublicFolderTables.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201502082157350_ReplacedQueuedAndTasksTable.resx">
+    <EmbeddedResource Include="_OrgMigrations\201502082157350_ReplacedQueuedAndTasksTable.resx">
       <DependentUpon>201502082157350_ReplacedQueuedAndTasksTable.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201502150142164_AddObjectGuidToGroupsAndContacts.resx">
+    <EmbeddedResource Include="_OrgMigrations\201502150142164_AddObjectGuidToGroupsAndContacts.resx">
       <DependentUpon>201502150142164_AddObjectGuidToGroupsAndContacts.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201502160129263_HeaderLogoNotRequired.resx">
+    <EmbeddedResource Include="_OrgMigrations\201502160129263_HeaderLogoNotRequired.resx">
       <DependentUpon>201502160129263_HeaderLogoNotRequired.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>

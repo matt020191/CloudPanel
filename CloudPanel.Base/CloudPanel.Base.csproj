@@ -60,6 +60,7 @@
     <Compile Include="Citrix\BrokerSession.cs" />
     <Compile Include="Citrix\DeliveryType.cs" />
     <Compile Include="Config\Settings.cs" />
+    <Compile Include="Extensions\ExtensionMethods.cs" />
     <Compile Include="Models\Database\ApiKeys.cs" />
     <Compile Include="Models\Database\AuditTrace.cs" />
     <Compile Include="Models\Database\Branding.cs" />

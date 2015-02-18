@@ -181,7 +181,7 @@
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Cost per Mailbox</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control" id="Cost" name="Cost" value="@Model.selectedPlan.Cost" data-parsley-required="true" data-inputmask="'alias': 'numeric', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': true, 'placeholder': '0'">
+                                <input type="text" class="form-control" id="Cost" name="Cost" value="@Model.selectedPlan.Cost" data-parsley-required="true">
                             </div>
                             <div class="col-sm-3">
                                 <p class="help-block">
@@ -194,7 +194,7 @@
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Price per Mailbox</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control" id="Price" name="Price" value="@Model.selectedPlan.Price" data-parsley-required="true" data-inputmask="'alias': 'numeric', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': true, 'placeholder': '0'">
+                                <input type="text" class="form-control" id="Price" name="Price" value="@Model.selectedPlan.Price" data-parsley-required="true">
                             </div>
                             <div class="col-sm-3">
                                 <p class="help-block">
@@ -207,7 +207,7 @@
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Price per additional gigabyte</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control" id="AdditionalGBPrice" name="AdditionalGBPrice" value="@Model.selectedPlan.AdditionalGBPrice" data-parsley-required="true" data-inputmask="'alias': 'numeric', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'placeholder': '0'">
+                                <input type="text" class="form-control" id="AdditionalGBPrice" name="AdditionalGBPrice" value="@Model.selectedPlan.AdditionalGBPrice" data-parsley-required="true">
                             </div>
                             <div class="col-sm-3">
                                 <p class="help-block">
@@ -271,7 +271,6 @@
 
 @section JAVASCRIPT{
     <script src="~/Content/plugins/form-parsley-new/parsley.min.js"></script>
-    <script src="~/Content/plugins/form-inputmask/jquery.inputmask.bundle.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             $("input[type=checkbox]").click(function () {
@@ -299,8 +298,6 @@
             });
 
             CheckCheckboxes();
-
-            $(":input").inputmask();
         });
 
         function DeletePlan(element) {

@@ -1,9 +1,11 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Base.Models.Database;
+using CloudPanel.Base.Extensions;
 using log4net;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Management.Automation;
 using System.Text;
@@ -24,7 +26,7 @@ namespace CloudPanel.Exchange
         public void Set_DefaultPublicFolderMailbox(string companyCode, string publicFolderMailbox)
         {
             logger.DebugFormat("Associate all the company's mailbox for {0} with public folder mailbox {1}", companyCode, publicFolderMailbox);
-
+            
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Get-Mailbox");
             cmd.AddParameter("Filter", string.Format("CustomAttribute1 -eq \"{0}\"", companyCode));
@@ -485,10 +487,10 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("Identity", identity);
             cmd.AddParameter("PublicFolder");
             cmd.AddParameter("EmailAddressPolicyEnabled", false);
-            cmd.AddParameter("IssueWarningQuota", string.Format("{0}MB", p.MailboxSizeMB * 0.90));
+            cmd.AddParameter("IssueWarningQuota", string.Format("{0}MB", p.MailboxSizeMB.GetPercentageAsInvariantString(0.90)));
             cmd.AddParameter("OfflineAddressBook", string.Format(Settings.ExchangeOALName, companyCode));
-            cmd.AddParameter("ProhibitSendQuota", string.Format("{0}MB", p.MailboxSizeMB));
-            cmd.AddParameter("ProhibitSendReceiveQuota", string.Format("{0}MB", p.MailboxSizeMB));
+            cmd.AddParameter("ProhibitSendQuota", string.Format("{0}MB", p.MailboxSizeMB.GetNumberAsInvariantString()));
+            cmd.AddParameter("ProhibitSendReceiveQuota", string.Format("{0}MB", p.MailboxSizeMB.GetNumberAsInvariantString()));
             cmd.AddParameter("UseDatabaseQuotaDefaults", false);
             cmd.AddParameter("UseDatabaseRetentionDefaults", false);
             cmd.AddParameter("RetainDeletedItemsUntilBackup", true);

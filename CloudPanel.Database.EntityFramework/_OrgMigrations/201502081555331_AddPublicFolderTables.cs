@@ -3,8 +3,8 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class AddPublicFolderTables : DbMigration
-    {
+    public partial class AddPublicFolderTables
+    {/*
         public override void Up()
         {
             CreateTable(
@@ -59,6 +59,6 @@ namespace CloudPanel.Database.EntityFramework.Migrations
             DropIndex("dbo.PublicFolderMailboxes", new[] { "CompanyID" });
             DropTable("dbo.Plans_ExchangePublicFolders");
             DropTable("dbo.PublicFolderMailboxes");
-        }
+        }*/
     }
 }

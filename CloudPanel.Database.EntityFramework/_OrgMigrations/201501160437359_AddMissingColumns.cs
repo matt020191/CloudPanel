@@ -3,8 +3,8 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class AddMissingColumns : DbMigration
-    {
+    public partial class AddMissingColumns
+    {/*
         public override void Up()
         {
             // THIS ALREADY EXISTED IN 3.0.906
@@ -16,6 +16,6 @@ namespace CloudPanel.Database.EntityFramework.Migrations
         public override void Down()
         {
             DropColumn("dbo.Plans_Organization", "MaxExchangeActivesyncPolicies");
-        }
+        }*/
     }
 }

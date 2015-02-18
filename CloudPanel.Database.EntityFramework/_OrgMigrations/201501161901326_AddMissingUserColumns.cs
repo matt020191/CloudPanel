@@ -3,8 +3,8 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class AddMissingUserColumns : DbMigration
-    {
+    public partial class AddMissingUserColumns
+    {/*
         public override void Up()
         {
             AddColumn("Users", "Skype", c => c.String());
@@ -23,6 +23,6 @@ namespace CloudPanel.Database.EntityFramework.Migrations
             DropColumn("Users", "Twitter");
             DropColumn("Users", "Facebook");
             DropColumn("Users", "Skype");
-        }
+        }*/
     }
 }

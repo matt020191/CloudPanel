@@ -3,8 +3,8 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class FixUserPermissionTableAndDropOtherTables : DbMigration
-    {
+    public partial class FixUserPermissionTableAndDropOtherTables
+    {/*
         public override void Up()
         {
             CreateIndex("dbo.Users", "RoleID");
@@ -38,6 +38,6 @@ namespace CloudPanel.Database.EntityFramework.Migrations
             
             DropForeignKey("dbo.Users", "RoleID", "dbo.UserRoles");
             DropIndex("dbo.Users", new[] { "RoleID" });
-        }
+        }*/
     }
 }

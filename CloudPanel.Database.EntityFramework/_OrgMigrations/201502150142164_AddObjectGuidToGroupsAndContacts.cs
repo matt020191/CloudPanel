@@ -3,8 +3,8 @@ namespace CloudPanel.Database.EntityFramework.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class AddObjectGuidToGroupsAndContacts : DbMigration
-    {
+    public partial class AddObjectGuidToGroupsAndContacts
+    {/*
         public override void Up()
         {
             AddColumn("dbo.Contacts", "ObjectGuid", c => c.Guid(nullable: false));
@@ -17,6 +17,6 @@ namespace CloudPanel.Database.EntityFramework.Migrations
             DropColumn("dbo.DistributionGroups", "IsSecurityGroup");
             DropColumn("dbo.DistributionGroups", "ObjectGuid");
             DropColumn("dbo.Contacts", "ObjectGuid");
-        }
+        }*/
     }
 }

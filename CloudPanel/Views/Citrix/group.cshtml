@@ -292,7 +292,7 @@
                 confirmButtonText: "Yes, log off!",
                 closeOnConfirm: false
             }, function () {
-                $.post("@Url.Content("~/citrix/logoff")", { 'values': keys })
+                $.post("@Url.Content("~/citrix/logoff")", { 'values[]': keys })
                  .fail(function (data) {
                      ShowError(data);
                  })

@@ -1,4 +1,5 @@
 ﻿using CloudPanel.Base.Config;
+using CloudPanel.Base.Enums;
 using CloudPanel.Database.EntityFramework;
 using CloudPanel.Exchange;
 using log4net;
@@ -100,6 +101,18 @@ namespace CloudPanel.Modules.CompanyModules.Exchange
 
                         logger.DebugFormat("Removing global address list for {0} with format ({1})", companyCode, Settings.ExchangeGALName);
                         powershell.Remove_GlobalAddressList(string.Format(Settings.ExchangeGALName, companyCode));
+
+                        logger.DebugFormat("Removing all accepted domains from Exchange");
+                        var domains = (from d in db.Domains where d.CompanyCode == companyCode && d.IsAcceptedDomain select d).ToList();
+                        if (domains != null)
+                        {
+                            domains.ForEach(x =>
+                            {
+                                powershell.Remove_AcceptedDomain(x);
+                                x.IsAcceptedDomain = false;
+                                x.DomainType = DomainType.Default;
+                            });
+                        }
 
                         logger.DebugFormat("Updating database that Exchange is now disabled for company {0}", companyCode);
                         var company = (from d in db.Companies
