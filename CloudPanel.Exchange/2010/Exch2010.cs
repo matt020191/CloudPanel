@@ -2058,6 +2058,45 @@ namespace CloudPanel.Exchange
         }
 
         /// <summary>
+        /// Gets ALL the room mailboxes in the system
+        /// </summary>
+        /// <returns></returns>
+        public List<ResourceMailboxes> Get_RoomMailboxes()
+        {
+            var allResourceMailboxes = new List<ResourceMailboxes>();
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-Mailbox");
+            cmd.AddParameter("RecipientTypeDetails", "RoomMailbox");
+            cmd.AddParameter("ResultSize", "Unlimited");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                foreach (PSObject ps in psObjects)
+                {
+                    var addResourceMailbox = new ResourceMailboxes();
+                    addResourceMailbox.ResourceGuid = (Guid)ps.Properties["Guid"].Value;
+                    addResourceMailbox.DistinguishedName = ps.Properties["DistinguishedName"].Value.ToString();
+                    addResourceMailbox.DisplayName = ps.Properties["DisplayName"].Value.ToString();
+                    addResourceMailbox.PrimarySmtpAddress = ps.Properties["PrimarySmtpAddress"].Value.ToString();
+                    addResourceMailbox.UserPrincipalName = ps.Properties["UserPrincipalName"].Value.ToString();
+
+                    if (ps.Properties["CustomAttribute1"].Value != null)
+                        addResourceMailbox.CompanyCode = ps.Properties["CustomAttribute1"].Value.ToString();
+
+                    allResourceMailboxes.Add(addResourceMailbox);
+                }
+            }
+
+            return allResourceMailboxes;
+        }
+
+        /// <summary>
         /// Deletes the room mailbox and AD object
         /// </summary>
         /// <param name="resourceGuid"></param>
@@ -2186,6 +2225,45 @@ namespace CloudPanel.Exchange
             HandleErrors();
         }
 
+        /// <summary>
+        /// Gets ALL the equipment mailboxes in the system
+        /// </summary>
+        /// <returns></returns>
+        public List<ResourceMailboxes> Get_EquipmentMailboxes()
+        {
+            var allResourceMailboxes = new List<ResourceMailboxes>();
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-Mailbox");
+            cmd.AddParameter("RecipientTypeDetails", "EquipmentMailbox");
+            cmd.AddParameter("ResultSize", "Unlimited");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                foreach (PSObject ps in psObjects)
+                {
+                    var addResourceMailbox = new ResourceMailboxes();
+                    addResourceMailbox.ResourceGuid = (Guid)ps.Properties["Guid"].Value;
+                    addResourceMailbox.DistinguishedName = ps.Properties["DistinguishedName"].Value.ToString();
+                    addResourceMailbox.DisplayName = ps.Properties["DisplayName"].Value.ToString();
+                    addResourceMailbox.PrimarySmtpAddress = ps.Properties["PrimarySmtpAddress"].Value.ToString();
+                    addResourceMailbox.UserPrincipalName = ps.Properties["UserPrincipalName"].Value.ToString();
+
+                    if (ps.Properties["CustomAttribute1"].Value != null)
+                        addResourceMailbox.CompanyCode = ps.Properties["CustomAttribute1"].Value.ToString();
+
+                    allResourceMailboxes.Add(addResourceMailbox);
+                }
+            }
+
+            return allResourceMailboxes;
+        }
+
         #endregion
 
         #region Shared Mailbox
@@ -2294,6 +2372,45 @@ namespace CloudPanel.Exchange
             _powershell.Invoke();
 
             HandleErrors();
+        }
+
+        /// <summary>
+        /// Gets a list of ALL shared mailboxes
+        /// </summary>
+        /// <returns></returns>
+        public List<ResourceMailboxes> Get_SharedMailboxes()
+        {
+            var allResourceMailboxes = new List<ResourceMailboxes>();
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-Mailbox");
+            cmd.AddParameter("RecipientTypeDetails", "SharedMailbox");
+            cmd.AddParameter("ResultSize", "Unlimited");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                foreach (PSObject ps in psObjects)
+                {
+                    var addResourceMailbox = new ResourceMailboxes();
+                    addResourceMailbox.ResourceGuid = (Guid)ps.Properties["Guid"].Value;
+                    addResourceMailbox.DistinguishedName = ps.Properties["DistinguishedName"].Value.ToString();
+                    addResourceMailbox.DisplayName = ps.Properties["DisplayName"].Value.ToString();
+                    addResourceMailbox.PrimarySmtpAddress = ps.Properties["PrimarySmtpAddress"].Value.ToString();
+                    addResourceMailbox.UserPrincipalName = ps.Properties["UserPrincipalName"].Value.ToString();
+
+                    if (ps.Properties["CustomAttribute1"].Value != null)
+                        addResourceMailbox.CompanyCode = ps.Properties["CustomAttribute1"].Value.ToString();
+
+                    allResourceMailboxes.Add(addResourceMailbox);
+                }
+            }
+
+            return allResourceMailboxes;
         }
 
         #endregion

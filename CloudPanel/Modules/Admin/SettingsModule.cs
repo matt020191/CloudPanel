@@ -243,6 +243,92 @@ namespace CloudPanel.Modules.Admin
                     }
                     #endregion
                 };
+
+            Post["/fix/exchange/resources"] = _ =>
+                {
+                    #region Queries Exchange and gets the ObjectGuid and distinguishedname for the resource mailboxes
+                    dynamic powershell = null;
+                    CloudPanelContext db = null;
+                    try
+                    {
+                        powershell = ExchPowershell.GetClass();
+
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
+
+                        // Get all resources from the database
+                        var resourceMailboxes = (from d in db.ResourceMailboxes
+                                                 select d).ToList();
+
+                        // Get all groups from Exchange
+                        logger.DebugFormat("Getting room mailboxes");
+                        List<ResourceMailboxes> allRooms = powershell.Get_RoomMailboxes();
+                        allRooms.ForEach(x =>
+                        {
+                            logger.DebugFormat("Found resource {0} from Exchange. Searching sql...", x.DistinguishedName);
+                            var sqlGroup = resourceMailboxes.Where(c => c.DistinguishedName == x.DistinguishedName || c.PrimarySmtpAddress == x.PrimarySmtpAddress).FirstOrDefault();
+
+                            if (sqlGroup != null)
+                            {
+                                sqlGroup.ResourceGuid = x.ResourceGuid;
+                                sqlGroup.DistinguishedName = x.DistinguishedName;
+                            }
+                            else
+                                logger.DebugFormat("Unable to find {0} in the database", x.DistinguishedName);
+                        });
+
+                        logger.DebugFormat("Getting equipment mailboxes");
+                        List<ResourceMailboxes> allEquipment = powershell.Get_EquipmentMailboxes();
+                        allEquipment.ForEach(x =>
+                        {
+                            logger.DebugFormat("Found resource {0} from Exchange. Searching sql...", x.DistinguishedName);
+                            var sqlGroup = resourceMailboxes.Where(c => c.DistinguishedName == x.DistinguishedName || c.PrimarySmtpAddress == x.PrimarySmtpAddress).FirstOrDefault();
+
+                            if (sqlGroup != null)
+                            {
+                                sqlGroup.ResourceGuid = x.ResourceGuid;
+                                sqlGroup.DistinguishedName = x.DistinguishedName;
+                            }
+                            else
+                                logger.DebugFormat("Unable to find {0} in the database", x.DistinguishedName);
+                        });
+
+                        logger.DebugFormat("Getting shared mailboxes");
+                        List<ResourceMailboxes> allShared = powershell.Get_SharedMailboxes();
+                        allShared.ForEach(x =>
+                        {
+                            logger.DebugFormat("Found resource {0} from Exchange. Searching sql...", x.DistinguishedName);
+                            var sqlGroup = resourceMailboxes.Where(c => c.DistinguishedName == x.DistinguishedName || c.PrimarySmtpAddress == x.PrimarySmtpAddress).FirstOrDefault();
+
+                            if (sqlGroup != null)
+                            {
+                                sqlGroup.ResourceGuid = x.ResourceGuid;
+                                sqlGroup.DistinguishedName = x.DistinguishedName;
+                            }
+                            else
+                                logger.DebugFormat("Unable to find {0} in the database", x.DistinguishedName);
+                        });
+
+                        db.SaveChanges();
+                        return Negotiate.WithModel(new { success = "Successfully updated all resource mailboxes in the database" })
+                                        .WithStatusCode(HttpStatusCode.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error getting resource mailboxes from Exchange: {0}", ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+
+                        if (powershell != null)
+                            powershell.Dispose();
+                    }
+                    #endregion
+                };
         }
     }
 }

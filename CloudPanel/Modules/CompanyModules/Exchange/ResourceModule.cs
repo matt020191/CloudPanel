@@ -255,22 +255,23 @@ namespace CloudPanel.Modules
                     dynamic powershell = null;
                     try
                     {
-                        if (!Request.Form.UserPrincipalName.HasValue)
-                            throw new MissingFieldException("", "UserPrincipalName");
+                        if (!Request.Form.ResourceGuid.HasValue)
+                            throw new MissingFieldException("", "ResourceGuid");
 
                         string companyCode = _.CompanyCode;
-                        string userPrincipalName = Request.Form.UserPrincipalName;
+                        string resourceGuid = Request.Form.ResourceGuid;
+                        Guid guid = Guid.Parse(resourceGuid);
 
-                        logger.DebugFormat("Attempting to delete resource {0}", userPrincipalName);
+                        logger.DebugFormat("Attempting to delete resource {0}", resourceGuid);
                         db = new CloudPanelContext(Settings.ConnectionString);
                         db.Database.Connection.Open();
 
                         var resource = (from d in db.ResourceMailboxes
                                         where d.CompanyCode == companyCode
-                                        where d.UserPrincipalName == userPrincipalName
+                                        where d.ResourceGuid ==  guid
                                         select d).FirstOrDefault();
                         if (resource == null)
-                            throw new Exception("Unable to find resource mailbox in the database: " + userPrincipalName);
+                            throw new Exception("Unable to find resource mailbox in the database: " + resourceGuid);
                         else
                         {
                             powershell = ExchPowershell.GetClass();
@@ -279,13 +280,13 @@ namespace CloudPanel.Modules
                             switch (resource.ResourceType.ToLower())
                             {
                                 case "room":
-                                    powershell.Remove_RoomMailbox(resource.UserPrincipalName);
+                                    powershell.Remove_RoomMailbox(resourceGuid);
                                     break;
                                 case "equipment":
-                                    powershell.Remove_EquipmentMailbox(resource.UserPrincipalName);
+                                    powershell.Remove_EquipmentMailbox(resourceGuid);
                                     break;
                                 case "shared":
-                                    powershell.Remove_SharedMailbox(resource.UserPrincipalName);
+                                    powershell.Remove_SharedMailbox(resourceGuid);
                                     break;                                
                                 default:
                                     throw new Exception("Unable to determine the type of resource: " + resource.ResourceType);
@@ -295,7 +296,7 @@ namespace CloudPanel.Modules
                             db.ResourceMailboxes.Remove(resource);
                             db.SaveChanges();
 
-                            return Negotiate.WithModel(new { success = "Successfully deleted resource " + userPrincipalName })
+                            return Negotiate.WithModel(new { success = "Successfully deleted resource mailbox" })
                                             .WithStatusCode(HttpStatusCode.OK);
                         }
                     }
@@ -317,13 +318,13 @@ namespace CloudPanel.Modules
                     #endregion
                 };
 
-            Get["/{UserPrincipalName}", c => c.Request.Accept("text/html")] = _ =>
+            Get["/{Guid:guid}", c => c.Request.Accept("text/html")] = _ =>
                 {
                     this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vExchangeResources"));
-                    string companyCode = _.CompanyCode;
+                    Guid guid = _.Guid;
                     try
                     {
-                        return Negotiate.WithModel(new { mailboxusers = UsersModule.GetMailboxUsers(companyCode) })
+                        return Negotiate.WithModel(new { mailboxusers = UsersModule.GetMailboxUsers(_.CompanyCode) })
                                         .WithView("Company/Exchange/resourcemailboxes_edit.cshtml");
                     }
                     catch (Exception ex)
@@ -334,11 +335,11 @@ namespace CloudPanel.Modules
                     }
                 };
 
-            Get["/{UserPrincipalName}", c => !c.Request.Accept("text/html")] = _ =>
+            Get["/{Guid:guid}", c => !c.Request.Accept("text/html")] = _ =>
                 {
                     this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vExchangeResources"));
                     string companyCode = _.CompanyCode;
-                    string upn = _.UserPrincipalName;
+                    Guid guid = _.Guid;
 
                     #region Gets the resource mailbox information
                     CloudPanelContext db = null;
@@ -348,31 +349,26 @@ namespace CloudPanel.Modules
                         db = new CloudPanelContext(Settings.ConnectionString);
                         db.Database.Connection.Open();
 
-                        logger.DebugFormat("Getting resource mailbox {0} in company {1}", upn, companyCode);
+                        logger.DebugFormat("Getting resource mailbox {0} in company {1}", guid, companyCode);
                         var resourceMailbox = (from d in db.ResourceMailboxes
                                                where d.CompanyCode == companyCode
-                                               where d.UserPrincipalName == upn
+                                               where d.ResourceGuid == guid
                                                select d).FirstOrDefault();
                         if (resourceMailbox == null)
-                            throw new Exception("Unable to find resource mailbox in the database: " + upn);
+                            throw new Exception("Unable to find resource mailbox in the database: " + guid);
                         else
                         {
                             powershell = ExchPowershell.GetClass();
 
-                            ResourceMailboxes getMailbox = powershell.Get_ResourceMailbox(resourceMailbox.UserPrincipalName);
+                            ResourceMailboxes getMailbox = powershell.Get_ResourceMailbox(guid.ToString());
                             getMailbox.MailboxPlan = resourceMailbox.MailboxPlan;
                             getMailbox.ResourceType = resourceMailbox.ResourceType;
                             getMailbox.CompanyCode = companyCode;
                             getMailbox.DisplayName = resourceMailbox.DisplayName;
                             getMailbox.AdditionalMB = resourceMailbox.AdditionalMB;
 
-                            // Update DistinguishedName in database
-                            resourceMailbox.ResourceGuid = getMailbox.ResourceGuid;
-                            resourceMailbox.DistinguishedName = getMailbox.DistinguishedName;
-                            db.SaveChanges();
-
                             if (getMailbox == null)
-                                throw new Exception("Unable to find mailbox in Exchange " + resourceMailbox.UserPrincipalName);
+                                throw new Exception("Unable to find mailbox in Exchange " + resourceMailbox.ResourceGuid);
                             else
                             {
                                 return Negotiate.WithModel(new { mailbox = getMailbox });
@@ -388,17 +384,20 @@ namespace CloudPanel.Modules
                     }
                     finally
                     {
+                        if (powershell != null)
+                            powershell.Dispose();
+
                         if (db != null)
                             db.Dispose();
                     }
                     #endregion
                 };
 
-            Post["/{UserPrincipalName}"] = _ =>
+            Post["/{Guid:guid}"] = _ =>
                 {
                     this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eExchangeResources"));
                     string companyCode = _.CompanyCode;
-                    string upn = _.UserPrincipalName;
+                    Guid guid = _.Guid;
 
                     #region Creates a new resource mailbox
                     CloudPanelContext db = null;
@@ -416,20 +415,20 @@ namespace CloudPanel.Modules
 
                         var resourceMailbox = (from d in db.ResourceMailboxes
                                                where d.CompanyCode == companyCode
-                                               where d.UserPrincipalName == upn
+                                               where d.ResourceGuid == guid
                                                select d).Single();
 
                         var boundMailbox = this.Bind<ResourceMailboxes>();
                         boundMailbox.ResourceGuid = resourceMailbox.ResourceGuid;
                         boundMailbox.DistinguishedName = resourceMailbox.DistinguishedName;
-                        boundMailbox.UserPrincipalName = upn;
+                        boundMailbox.UserPrincipalName = resourceMailbox.UserPrincipalName;
                         boundMailbox.CompanyCode = companyCode;
                         boundMailbox.PrimarySmtpAddress = string.Format("{0}@{1}", Request.Form.EmailFirst, Request.Form.EmailDomain);
 
                         logger.DebugFormat("Retrieving the mailbox plan {0}", boundMailbox.MailboxPlan);
                         var plan = (from d in db.Plans_ExchangeMailbox
-                                        where d.MailboxPlanID == boundMailbox.MailboxPlan
-                                        select d).FirstOrDefault();
+                                    where d.MailboxPlanID == boundMailbox.MailboxPlan
+                                    select d).FirstOrDefault();
 
                         if (plan == null)
                             throw new Exception("Unable to find mailbox plan " + boundMailbox.MailboxPlan);

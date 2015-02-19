@@ -240,7 +240,7 @@
             $("#mailboxPlanDescription").text(description)
         }
 
-        function DeleteResource(resourceUPN) {
+        function DeleteResource(guid, resourceUPN) {
             swal({
                 title: "Delete " + resourceUPN + "?",
                 text: "This action is not reversable",
@@ -257,7 +257,7 @@
                     $.blockUI();
                     $.ajax({
                         type: "DELETE",
-                        data: { UserPrincipalName: resourceUPN }
+                        data: { ResourceGuid: guid }
                     }).done(function () {
                         ReloadTable("dataTable");
                         ShowAlert("Deleted!", "Resource was successfully deleted", "success");
@@ -270,14 +270,14 @@
             });
         }
 
-        function GetButton(id, upn) {
+        function GetButton(id, guid, upn) {
             return '<div class="btn-group"> \
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"> \
                                 Modify <span class="caret"></span> \
                             </button> \
                             <ul class="dropdown-menu" role="menu"> \
-                                <li><a href="@Url.Content("~/company/" + companyCode)' + '/exchange/resourcemailboxes/'+upn+'">Edit</a></li> \
-                                <li><a href="javascript:DeleteResource(\''+upn+'\');">Delete</a></li> \
+                                <li><a href="@Url.Content("~/company/" + companyCode)' + '/exchange/resourcemailboxes/'+guid+'">Edit</a></li> \
+                                <li><a href="javascript:DeleteResource(\''+guid+'\',\''+upn+'\');">Delete</a></li> \
                             </ul> \
                     </div>';
         }

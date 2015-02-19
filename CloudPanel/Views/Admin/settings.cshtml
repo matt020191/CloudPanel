@@ -622,6 +622,10 @@
                                                     <td>Query all distribution groups in Exchange and insert the GUID in the database</td>
                                                     <td><a href="javascript:;" class="btn btn-primary" onclick="javascript: FixDistributionGroups();">Fix</a></td>
                                                 </tr>
+                                                <tr>
+                                                    <td>Query all resource mailboxes in Exchange and insert the GUID in the database</td>
+                                                    <td><a href="javascript:;" class="btn btn-primary" onclick="javascript: FixResourceMailboxes();">Fix</a></td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                         <br />
@@ -719,25 +723,33 @@
     function FixContacts() {
         $.blockUI();
         var jqxhr = $.post("@Url.Content("~/admin/settings/fix/exchange/contacts")", function (data) {
-                ShowSuccess(data.success);
-            })
-            .fail(function (data) {
-                ShowError(data);
-            })
-            .always(function () {
-                $.unblockUI();
-            });
-        }
+            ShowSuccess(data.success);
+        }).fail(function (data) {
+            ShowError(data);
+        }).always(function () {
+            $.unblockUI();
+        });
+    }
 
         function FixDistributionGroups() {
             $.blockUI();
             var jqxhr = $.post("@Url.Content("~/admin/settings/fix/exchange/groups")", function (data) {
                 ShowSuccess(data.success);
-            })
-            .fail(function (data) {
+            }).fail(function (data) {
                 ShowError(data);
-            })
-            .always(function () {
+            }).always(function () {
+                $.unblockUI();
+            });
+        }
+
+
+        function FixResourceMailboxes() {
+            $.blockUI();
+            var jqxhr = $.post("@Url.Content("~/admin/settings/fix/exchange/resources")", function (data) {
+                ShowSuccess(data.success);
+            }).fail(function (data) {
+                ShowError(data);
+            }).always(function () {
                 $.unblockUI();
             });
         }
