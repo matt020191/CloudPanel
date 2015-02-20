@@ -1330,6 +1330,7 @@
     <Content Include="Content\scripts\cp30901_schema.sql" />
     <Content Include="Content\scripts\cp30901_to_cp30906.sql" />
     <Content Include="Content\scripts\cp30906_schema.sql" />
+    <Content Include="Content\scripts\cp31030_schema.sql" />
     <Content Include="Content\variations\theme-blue-steel.css" />
     <Content Include="Content\variations\theme-default.css" />
     <Content Include="Content\variations\default.css" />

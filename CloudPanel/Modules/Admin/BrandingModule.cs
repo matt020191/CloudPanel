@@ -11,6 +11,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Hosting;
 using System.IO;
+using Nancy.Responses.Negotiation;
 
 namespace CloudPanel.Modules
 {
@@ -22,8 +23,7 @@ namespace CloudPanel.Modules
 
         public BrandingModule() : base("/admin/brandings")
         {
-            this.RequiresAuthentication();
-            this.RequiresAnyClaim(new[] { "SuperAdmin", "ResellerAdmin" });
+            this.RequiresClaims(new[] { "SuperAdmin" });
 
             Get["/new"] = _ =>
             {
@@ -58,29 +58,32 @@ namespace CloudPanel.Modules
 
                     logger.DebugFormat("Saving images...");
                     var files = Request.Files;
-                    foreach (var f in files) 
+                    if (files != null)
                     {
-                        string ext = f.Name.Split('.').Last().ToString();
-
-                        var newFileName = string.Format("{0}.{1}", Guid.NewGuid(), ext);
-                        var rootPath = string.Format(@"{0}Content\img\branding\{1}", HostingEnvironment.MapPath("~/"), branding.HostName);
-                        var fullPath = Path.Combine(rootPath, newFileName);
-
-                        logger.DebugFormat("Cheacking that path {0} exists", rootPath);
-                        if (!Directory.Exists(rootPath))
-                            Directory.CreateDirectory(rootPath);
-
-                        logger.DebugFormat("Writing file {0}", fullPath);
-                        using (var fs = new FileStream(fullPath, FileMode.CreateNew, FileAccess.Write))
+                        foreach (var f in files)
                         {
-                            f.Value.CopyTo(fs);
-                        }
+                            string ext = f.Name.Split('.').Last().ToString();
 
-                        logger.DebugFormat("Settings values to save to database");
-                        if (f.Key.Equals("LoginLogo", StringComparison.InvariantCultureIgnoreCase))
-                            branding.LoginLogo = string.Format("~/Content/img/branding/{0}/{1}", branding.HostName, newFileName);
-                        else
-                            branding.HeaderLogo = string.Format("~/Content/img/branding/{0}/{1}", branding.HostName, newFileName);
+                            var newFileName = string.Format("{0}.{1}", Guid.NewGuid(), ext);
+                            var rootPath = string.Format(@"{0}Content\img\branding\{1}", HostingEnvironment.MapPath("~/"), branding.HostName);
+                            var fullPath = Path.Combine(rootPath, newFileName);
+
+                            logger.DebugFormat("Cheacking that path {0} exists", rootPath);
+                            if (!Directory.Exists(rootPath))
+                                Directory.CreateDirectory(rootPath);
+
+                            logger.DebugFormat("Writing file {0}", fullPath);
+                            using (var fs = new FileStream(fullPath, FileMode.CreateNew, FileAccess.Write))
+                            {
+                                f.Value.CopyTo(fs);
+                            }
+
+                            logger.DebugFormat("Settings values to save to database");
+                            if (f.Key.Equals("LoginLogo", StringComparison.InvariantCultureIgnoreCase))
+                                branding.LoginLogo = string.Format("~/Content/img/branding/{0}/{1}", branding.HostName, newFileName);
+                            else
+                                branding.HeaderLogo = string.Format("~/Content/img/branding/{0}/{1}", branding.HostName, newFileName);
+                        }
                     }
 
                     if (branding.HeaderLogo == null)
@@ -96,9 +99,7 @@ namespace CloudPanel.Modules
                     logger.DebugFormat("Reloading brandings");
                     LoadAllBrandings();
 
-                    return Negotiate.WithModel(new { brandings = AllBrandings, branding = branding, success = "Successfully created new branding" })
-                                    .WithView("Admin/brandings.cshtml")
-                                    .WithStatusCode(HttpStatusCode.OK);
+                    return Negotiate.WithMediaRangeResponse(new MediaRange("text/html"), this.Response.AsRedirect("~/admin/brandings/new"));
                 }
                 catch (Exception ex)
                 {
@@ -244,9 +245,7 @@ namespace CloudPanel.Modules
                     logger.DebugFormat("Reloading brandings");
                     LoadAllBrandings();
 
-                    return Negotiate.WithModel(new { brandings = AllBrandings, branding = branding, success = "Successfully deleted branding" })
-                                    .WithView("Admin/brandings.cshtml")
-                                    .WithStatusCode(HttpStatusCode.OK);
+                    return Negotiate.WithMediaRangeResponse(new MediaRange("text/html"), this.Response.AsRedirect("~/admin/brandings/new"));
                 }
                 catch (Exception ex)
                 {

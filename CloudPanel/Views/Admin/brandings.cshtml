@@ -143,38 +143,6 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $(".populate").select2({ width: 'resolve' });
-
-            $("#LoginLogo").fileinput({
-                initialPreview: [
-                    "<img src='@Url.Content(Model.branding.LoginLogo)' class='file-preview-image' alt='@Model.branding.Name' title='@Model.branding.Name'>"
-                ],
-                previewFileType: "image",
-                allowedFileTypes: "image",
-                showUpload: false,
-                showRemove: true,
-                browseClass: "btn btn-success",
-                browseLabel: "Pick Image",
-                browseIcon: '<i class="glyphicon glyphicon-picture"></i>',
-                removeClass: "btn btn-danger",
-                removeLabel: "Delete",
-                removeIcon: '<i class="glyphicon glyphicon-trash"></i>'
-            });
-
-            $("#HeaderLogo").fileinput({
-                initialPreview: [
-                    "<img src='@Url.Content(Model.branding.HeaderLogo)' class='file-preview-image' alt='@Model.branding.Name' title='@Model.branding.Name'>"
-                ],
-                previewFileType: "image",
-                allowedFileTypes: "image",
-                showUpload: false,
-                showRemove: true,
-                browseClass: "btn btn-success",
-                browseLabel: "Pick Image",
-                browseIcon: '<i class="glyphicon glyphicon-picture"></i>',
-                removeClass: "btn btn-danger",
-                removeLabel: "Delete",
-                removeIcon: '<i class="glyphicon glyphicon-trash"></i>'
-            });
         });
 
         function DeleteBranding(id)
