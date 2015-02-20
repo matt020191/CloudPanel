@@ -198,29 +198,32 @@ namespace CloudPanel.Modules
                         powershell = ExchPowershell.GetClass();
                     
                         // Determine what kind of resource we are creating
+                        ResourceMailboxes createdMailbox;
                         switch (resourceMailbox.ResourceType.ToLower())
                         {
                             case "room":
-                                powershell.New_RoomMailbox(resourceMailbox, company.DistinguishedName);
-                                reverse.AddAction(Actions.CreateRoomMailbox, resourceMailbox.UserPrincipalName);
+                                createdMailbox = powershell.New_RoomMailbox(resourceMailbox, company.DistinguishedName);
+                                reverse.AddAction(Actions.CreateRoomMailbox, resourceMailbox.ResourceGuid.ToString());
 
                                 powershell.Set_RoomMailbox(resourceMailbox, plan, new string[] { "SMTP:" + resourceMailbox.PrimarySmtpAddress });
                                 break;
                             case "equipment":
-                                powershell.New_EquipmentMailbox(resourceMailbox, company.DistinguishedName);
-                                reverse.AddAction(Actions.CreateEquipmentMailbox, resourceMailbox.UserPrincipalName);
+                                createdMailbox = powershell.New_EquipmentMailbox(resourceMailbox, company.DistinguishedName);
+                                reverse.AddAction(Actions.CreateEquipmentMailbox, resourceMailbox.ResourceGuid.ToString());
 
                                 powershell.Set_EquipmentMailbox(resourceMailbox, plan, new string[] { "SMTP:" + resourceMailbox.PrimarySmtpAddress });
                                 break;
                             case "shared":
-                                powershell.New_SharedMailbox(resourceMailbox, company.DistinguishedName);
-                                reverse.AddAction(Actions.CreateSharedMailbox, resourceMailbox.UserPrincipalName);
+                                createdMailbox = powershell.New_SharedMailbox(resourceMailbox, company.DistinguishedName);
+                                reverse.AddAction(Actions.CreateSharedMailbox, resourceMailbox.ResourceGuid.ToString());
 
                                 powershell.Set_SharedMailbox(resourceMailbox, plan, new string[] { "SMTP:" + resourceMailbox.PrimarySmtpAddress });
                                 break;
                             default:
                                 throw new Exception("Unable to determine if we are creating a room, equipment, or shared mailbox");
                         }
+                        resourceMailbox.ResourceGuid = createdMailbox.ResourceGuid;
+                        resourceMailbox.DistinguishedName = createdMailbox.DistinguishedName;
 
                         db.ResourceMailboxes.Add(resourceMailbox);
                         db.SaveChanges();

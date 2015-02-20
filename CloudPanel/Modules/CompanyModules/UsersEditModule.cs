@@ -152,6 +152,67 @@ namespace CloudPanel.Modules.CompanyModules
                     #endregion
                 };
 
+            Get["/mailbox/details", c => !c.Request.Accept("text/html")] = _ =>
+                {
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
+
+                    #region Returns detailed mailbox information about the user
+                    CloudPanelContext db = null;
+                    try
+                    {
+                        db = new CloudPanelContext(Settings.ConnectionString);
+
+                        string companyCode = _.CompanyCode;
+                        Guid guid = _.UserGuid;
+
+                        var user = (from d in db.Users
+                                    join m in db.Plans_ExchangeMailbox on d.MailboxPlan equals m.MailboxPlanID into d1
+                                    from mailboxplan in d1.DefaultIfEmpty()
+                                    join a in db.Plans_ExchangeArchiving on d.ArchivePlan equals a.ArchivingID into d4
+                                    from archiveplan in d4.DefaultIfEmpty()
+                                    join s in db.StatMailboxSize on d.UserGuid equals s.UserGuid into d2
+                                    from mailboxinfo in d2.DefaultIfEmpty().OrderByDescending(x => x.Retrieved).Take(1)
+                                    join s2 in db.StatMailboxArchiveSize on d.UserGuid equals s2.UserGuid into d5
+                                    from archiveinfo in d5.DefaultIfEmpty().OrderByDescending(x => x.Retrieved).Take(1)
+                                    where d.CompanyCode == companyCode && d.UserGuid == guid
+                                    select new
+                                    {
+                                        UserGuid = d.UserGuid,
+                                        CompanyCode = d.CompanyCode,
+                                        DisplayName = d.DisplayName,
+                                        UserPrincipalName = d.UserPrincipalName,
+                                        SamAccountName = d.sAMAccountName,
+                                        DistinguishedName = d.DistinguishedName,
+                                        Department = d.Department,
+                                        AdditionalMB = d.AdditionalMB == null ? 0 : d.AdditionalMB,
+                                        IsCompanyAdmin = d.IsCompanyAdmin == null ? false : (bool)d.IsCompanyAdmin,
+                                        IsResellerAdmin = d.IsResellerAdmin == null ? false : (bool)d.IsResellerAdmin,
+                                        IsEnabled = d.IsEnabled == null ? true : (bool)d.IsEnabled,
+                                        Created = d.Created,
+                                        Email = d.Email,
+                                        MailboxPlan = mailboxplan,
+                                        MailboxInfo = mailboxinfo,
+                                        ArchiveInfo = archiveinfo,
+                                        ArchivePlan = archiveplan
+                                    }).Single();
+
+                        return Negotiate.WithModel(user)
+                                        .WithStatusCode(HttpStatusCode.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error getting detailed user mailbox information: {0}", ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+                    }
+                    #endregion
+                };
+
             Put["/"] = _ =>
                 {
                     this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "eUsers"));

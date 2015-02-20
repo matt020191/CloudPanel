@@ -11,7 +11,7 @@ namespace CloudPanel.Base.Models.Database
         [Key]
         public int ResourceID { get; set; }
 
-        public Guid ResourceGuid { get; set; }
+        public Guid? ResourceGuid { get; set; }
 
         public string DistinguishedName { get; set; }
 

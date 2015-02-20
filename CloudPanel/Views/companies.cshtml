@@ -262,20 +262,12 @@
         $("#dataTable").DataTable({
             "dom": "<'row'<'col-xs-6 toolbar'l><'col-xs-6'f>><'row'<'col-xs-6'i><'col-xs-6'p>r>t<'row'<'col-xs-12'p>>",
             "autoWidth": false,
-            "language": {
-                "lengthMenu": "_MENU_ records per page",
-                "search": ""
-            },
+            "language": { "lengthMenu": "_MENU_ records per page", "search": "" },
+            "lengthMenu": [[50, 100, 250, -1], [50, 100, 250, "All"]],
             "pagingType": "simple",
             "serverSide": true,
             "processing": true,
-            "ajax": {
-                type: 'GET',
-                dataType: 'json',
-                error: function (xhr) {
-                    ShowError(xhr);
-                },
-            },
+            "ajax": { type: 'GET', dataType: 'json', error: function (xhr) {ShowError(xhr); }, },
             "columns": [
                 { "data": "companyName", "render": function (data, type, full, meta) { return '<a href="@Url.Content("~/company/")' + full["companyCode"] + '/overview">' + data + '</a>';}},
                     { "data": "companyCode" },

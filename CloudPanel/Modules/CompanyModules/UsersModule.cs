@@ -30,351 +30,340 @@ namespace CloudPanel.Modules
             this.RequiresAuthentication();
 
             Get["/", c => c.Request.Accept("text/html")] = _ =>
-            {
-                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
+                {
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
 
-                return View["Company/users.cshtml"];
-            };
+                    return View["Company/users.cshtml"];
+                };
 
             Get["/", c => !c.Request.Accept("text/html")] = _ =>
-            {
-                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
-
-                #region Returns the users view with model or json data based on the request
-                CloudPanelContext db = null;
-                try
                 {
-                    db = new CloudPanelContext(Settings.ConnectionString);
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vUsers"));
 
-                    string companyCode = _.CompanyCode;
-                    var users = (from d in db.Users
-                                 join m in db.Plans_ExchangeMailbox on d.MailboxPlan equals m.MailboxPlanID into d1
-                                 from mailboxplan in d1.DefaultIfEmpty()
-                                 join a in db.Plans_ExchangeArchiving on d.ArchivePlan equals a.ArchivingID into d4
-                                 from archiveplan in d4.DefaultIfEmpty()
-                                 join s in db.StatMailboxSize on d.UserGuid equals s.UserGuid into d2
-                                 from mailboxinfo in d2.DefaultIfEmpty().OrderByDescending(x => x.Retrieved).Take(1)
-                                 join s2 in db.StatMailboxArchiveSize on d.UserGuid equals s2.UserGuid into d5
-                                 from archiveinfo in d5.DefaultIfEmpty().OrderByDescending(x => x.Retrieved).Take(1)
-                                 where d.CompanyCode == companyCode
-                                 select new
-                                 {
-                                     UserGuid = d.UserGuid,
-                                     CompanyCode = d.CompanyCode,
-                                     DisplayName = d.DisplayName,
-                                     UserPrincipalName = d.UserPrincipalName,
-                                     SamAccountName = d.sAMAccountName,
-                                     DistinguishedName = d.DistinguishedName,
-                                     Department = d.Department,
-                                     AdditionalMB = d.AdditionalMB == null ? 0 : d.AdditionalMB,
-                                     IsCompanyAdmin = d.IsCompanyAdmin == null ? false : (bool)d.IsCompanyAdmin,
-                                     IsResellerAdmin = d.IsResellerAdmin == null ? false : (bool)d.IsResellerAdmin,
-                                     IsEnabled = d.IsEnabled == null ? true : (bool)d.IsEnabled,
-                                     Created = d.Created,
-                                     Email = d.Email,
-                                     MailboxPlan = mailboxplan,
-                                     MailboxInfo = mailboxinfo,
-                                     ArchiveInfo = archiveinfo,
-                                     ArchivePlan = archiveplan
-                                 }).ToList();
-
-                    int draw = 0, start = 0, length = 0, recordsTotal = users.Count, recordsFiltered = users.Count, orderColumn = 0;
-                    string searchValue = "", orderColumnName = "";
-                    bool isAscendingOrder = true;
-
-                    if (Request.Query.draw.HasValue)
+                    #region Returns the users view with model or json data based on the request
+                    CloudPanelContext db = null;
+                    try
                     {
-                        draw = Request.Query.draw;
-                        start = Request.Query.start;
-                        length = Request.Query.length;
-                        orderColumn = Request.Query["order[0][column]"];
-                        searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
-                        isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
-                        orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
+                        db = new CloudPanelContext(Settings.ConnectionString);
 
-                        // See if we are using dataTables to search
-                        logger.DebugFormat("Search value was {0}", searchValue);
-                        if (!string.IsNullOrEmpty(searchValue))
+                        string companyCode = _.CompanyCode;
+                        var users = (from d in db.Users
+                                     where d.CompanyCode == companyCode
+                                     select new
+                                     {
+                                         UserGuid = d.UserGuid,
+                                         CompanyCode = d.CompanyCode,
+                                         DisplayName = d.DisplayName,
+                                         UserPrincipalName = d.UserPrincipalName,
+                                         SamAccountName = d.sAMAccountName,
+                                         DistinguishedName = d.DistinguishedName,
+                                         Department = d.Department,
+                                         AdditionalMB = d.AdditionalMB == null ? 0 : d.AdditionalMB,
+                                         IsCompanyAdmin = d.IsCompanyAdmin == null ? false : (bool)d.IsCompanyAdmin,
+                                         IsResellerAdmin = d.IsResellerAdmin == null ? false : (bool)d.IsResellerAdmin,
+                                         IsEnabled = d.IsEnabled == null ? true : (bool)d.IsEnabled,
+                                         Created = d.Created,
+                                         Email = d.Email,
+                                         MailboxPlan = d.MailboxPlan
+                                     }).ToList();
+
+                        int draw = 0, start = 0, length = 0, recordsTotal = users.Count, recordsFiltered = users.Count, orderColumn = 0;
+                        string searchValue = "", orderColumnName = "";
+                        bool isAscendingOrder = true;
+
+                        if (Request.Query.draw.HasValue)
                         {
-                            switch (searchValue.ToLower())
+                            draw = Request.Query.draw;
+                            start = Request.Query.start;
+                            length = Request.Query.length;
+                            orderColumn = Request.Query["order[0][column]"];
+                            searchValue = Request.Query["search[value]"].HasValue ? Request.Query["search[value]"] : string.Empty;
+                            isAscendingOrder = Request.Query["order[0][dir]"] == "asc" ? true : false;
+                            orderColumnName = Request.Query["columns[" + orderColumn + "][data]"];
+
+                            // See if we are using dataTables to search
+                            logger.DebugFormat("Search value was {0}", searchValue);
+                            if (!string.IsNullOrEmpty(searchValue))
                             {
-                                case "mailbox:disabled":
-                                    users = (from d in users where d.MailboxPlan == null select d).ToList();
-                                    break;
-                                case "mailbox:enabled":
-                                    users = (from d in users where d.MailboxPlan != null select d).ToList();
-                                    break;
-                                case "user:disabled":
-                                    users = (from d in users where d.IsEnabled == false select d).ToList();
-                                    break;
-                                case "user:enabled":
-                                    users = (from d in users where d.IsEnabled == true select d).ToList();
-                                    break;
-                                case "user:admin":
-                                    users = (from d in users where d.IsCompanyAdmin == true select d).ToList();
-                                    break;
-                                case "user:notadmin":
-                                    users = (from d in users where d.IsCompanyAdmin == false select d).ToList();
-                                    break;
-                                default:
-                                    users = (from d in users
-                                             where d.DisplayName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                                   d.UserPrincipalName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
-                                                   (d.SamAccountName != null && d.SamAccountName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
-                                                   (d.Department != null && d.Department.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
-                                                   (d.Email != null && d.Email.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1)
-                                             select d).ToList();
-                                    break;
+                                switch (searchValue.ToLower())
+                                {
+                                    case "mailbox:disabled":
+                                        users = (from d in users where d.MailboxPlan == null || d.MailboxPlan == 0 select d).ToList();
+                                        break;
+                                    case "mailbox:enabled":
+                                        users = (from d in users where d.MailboxPlan > 0 select d).ToList();
+                                        break;
+                                    case "user:disabled":
+                                        users = (from d in users where d.IsEnabled == false select d).ToList();
+                                        break;
+                                    case "user:enabled":
+                                        users = (from d in users where d.IsEnabled == true select d).ToList();
+                                        break;
+                                    case "user:admin":
+                                        users = (from d in users where d.IsCompanyAdmin == true select d).ToList();
+                                        break;
+                                    case "user:notadmin":
+                                        users = (from d in users where d.IsCompanyAdmin == false select d).ToList();
+                                        break;
+                                    default:
+                                        users = (from d in users
+                                                 where d.DisplayName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                                       d.UserPrincipalName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1 ||
+                                                       (d.SamAccountName != null && d.SamAccountName.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
+                                                       (d.Department != null && d.Department.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1) ||
+                                                       (d.Email != null && d.Email.IndexOf(searchValue, StringComparison.InvariantCultureIgnoreCase) != -1)
+                                                 select d).ToList();
+                                        break;
+                                }
+
+                                recordsFiltered = users.Count;
+                                logger.DebugFormat("Total records filtered was {0}", recordsFiltered);
                             }
 
-                            recordsFiltered = users.Count;
-                            logger.DebugFormat("Total records filtered was {0}", recordsFiltered);
+                            if (isAscendingOrder)
+                                users = users.OrderBy(x => x.GetType()
+                                                        .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                        .Skip(start)
+                                                        .Take( (length > 0 ? length : users.Count) )
+                                                        .ToList();
+                            else
+                                users = users.OrderByDescending(x => x.GetType()
+                                                        .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
+                                                        .Skip(start)
+                                                        .Take( (length > 0 ? length : users.Count) )
+                                                        .ToList();
                         }
 
-                        if (isAscendingOrder)
-                            users = users.OrderBy(x => x.GetType()
-                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                    .Skip(start)
-                                                    .Take( (length > 0 ? length : users.Count) )
-                                                    .ToList();
-                        else
-                            users = users.OrderByDescending(x => x.GetType()
-                                                    .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
-                                                    .Skip(start)
-                                                    .Take( (length > 0 ? length : users.Count) )
-                                                    .ToList();
+                        return Negotiate.WithModel(new
+                                        {
+                                            draw = draw,
+                                            recordsTotal = recordsTotal,
+                                            recordsFiltered = recordsFiltered,
+                                            data = users
+                                        })
+                                        .WithStatusCode(HttpStatusCode.OK);
                     }
-
-                    return Negotiate.WithModel(new
-                                    {
-                                        draw = draw,
-                                        recordsTotal = recordsTotal,
-                                        recordsFiltered = recordsFiltered,
-                                        data = users
-                                    })
-                                    .WithStatusCode(HttpStatusCode.OK);
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error getting users: {0}", ex.ToString());
-                    return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithStatusCode(HttpStatusCode.InternalServerError);
-                }
-                finally
-                {
-                    if (db != null)
-                        db.Dispose();
-                }
-                #endregion
-            };
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error getting users: {0}", ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (db != null)
+                            db.Dispose();
+                    }
+                    #endregion
+                };
 
             Post["/"] = _ =>
-            {
-                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "cUsers"));
-
-                #region Creates a new user
-
-                CloudPanelContext db = null;
-                ADUsers adUsers = null;
-                ADGroups adGroups = null;
-
-                ReverseActions reverse = new ReverseActions();
-                try
                 {
-                    logger.DebugFormat("Creating a new user... validating parameters");
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "cUsers"));
 
-                    #region Validate parameters
-                    if (!Request.Form.DisplayName.HasValue)
-                        throw new Exception("Display name is a required field");
+                    #region Creates a new user
 
-                    if (!Request.Form.Username.HasValue)
-                        throw new Exception("Username is a required field");
+                    CloudPanelContext db = null;
+                    ADUsers adUsers = null;
+                    ADGroups adGroups = null;
 
-                    if (!Request.Form.DomainID.HasValue)
-                        throw new Exception("DomainID is a required field");
-
-                    if (!Request.Form.Pwd.HasValue)
-                        throw new Exception("Pwd is a required field");
-
-                    if (!CloudPanel.CPStaticHelpers.IsUnderLimit(_.CompanyCode, "user"))
-                        throw new Exception("You have reached the user limit.");
-                    #endregion
-
-                    string companyCode = _.CompanyCode;
-                    var model = this.Bind<CreateUserViewModel>();
-
-                    logger.DebugFormat("Getting selected domain from the database");
-                    db = new CloudPanelContext(Settings.ConnectionString);
-                    db.Database.Connection.Open();
-
-                    var domain = (from d in db.Domains
-                                  where d.CompanyCode == companyCode
-                                  where d.DomainID == model.DomainID
-                                  select d).FirstOrDefault();
-
-                    if (domain == null)
-                        throw new Exception("Unable to find the domain in the database");
-                    else
+                    ReverseActions reverse = new ReverseActions();
+                    try
                     {
-                        logger.DebugFormat("Compiling data into Users object");
+                        logger.DebugFormat("Creating a new user... validating parameters");
 
-                        Users newUser = new Users();
-                        newUser.CompanyCode = companyCode;
-                        newUser.DisplayName = model.DisplayName.Trim();
-                        newUser.Firstname = !string.IsNullOrEmpty(model.Firstname) ? model.Firstname.Trim() : string.Empty;
-                        newUser.Middlename = !string.IsNullOrEmpty(model.Middlename) ? model.Middlename.Trim() : string.Empty;
-                        newUser.Lastname = !string.IsNullOrEmpty(model.Lastname) ? model.Lastname.Trim() : string.Empty;
-                        newUser.Department = !string.IsNullOrEmpty(model.Department) ? model.Department.Trim() : string.Empty;
-                        newUser.Email = string.Empty;
-                        newUser.IsResellerAdmin = false;
-                        newUser.IsCompanyAdmin = false;
-                        newUser.MailboxPlan = 0;
-                        newUser.TSPlan = 0;
-                        newUser.LyncPlan = 0;
-                        newUser.Created = DateTime.Now;
-                        newUser.AdditionalMB = 0;
-                        newUser.ActiveSyncPlan = 0;
-                        newUser.IsEnabled = true;
+                        #region Validate parameters
+                        if (!Request.Form.DisplayName.HasValue)
+                            throw new Exception("Display name is a required field");
 
-                        logger.DebugFormat("Formatting the UserPrincipalName");
-                        string upn = string.Format("{0}@{1}", model.Username, domain.Domain);
+                        if (!Request.Form.Username.HasValue)
+                            throw new Exception("Username is a required field");
 
-                        logger.DebugFormat("Replacing whitespace characters in UPN: {0}", upn);
-                        upn = upn.Replace(" ", string.Empty);
-                        logger.DebugFormat("UPN after replacing whitepsace characters: {0}", upn);
+                        if (!Request.Form.DomainID.HasValue)
+                            throw new Exception("DomainID is a required field");
 
-                        logger.DebugFormat("Making sure the userprincipalname {0} is not already taken", upn);
-                        var takenUPN = (from d in db.Users
-                                        where d.CompanyCode == companyCode
-                                        where d.UserPrincipalName == upn
-                                        select d).Count();
+                        if (!Request.Form.Pwd.HasValue)
+                            throw new Exception("Pwd is a required field");
 
-                        if (takenUPN > 0)
-                            throw new Exception("The username you entered is already taken");
+                        if (!CloudPanel.CPStaticHelpers.IsUnderLimit(_.CompanyCode, "user"))
+                            throw new Exception("You have reached the user limit.");
+                        #endregion
+
+                        string companyCode = _.CompanyCode;
+                        var model = this.Bind<CreateUserViewModel>();
+
+                        logger.DebugFormat("Getting selected domain from the database");
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
+
+                        var domain = (from d in db.Domains
+                                      where d.CompanyCode == companyCode
+                                      where d.DomainID == model.DomainID
+                                      select d).FirstOrDefault();
+
+                        if (domain == null)
+                            throw new Exception("Unable to find the domain in the database");
                         else
                         {
-                            logger.DebugFormat("Username {0} was not taken.. continue creating user... Getting company from database", upn);
-                            newUser.UserPrincipalName = upn;
+                            logger.DebugFormat("Compiling data into Users object");
 
-                            var company = (from d in db.Companies
-                                           where !d.IsReseller
-                                           where d.CompanyCode == companyCode
-                                           select d).FirstOrDefault();
+                            Users newUser = new Users();
+                            newUser.CompanyCode = companyCode;
+                            newUser.DisplayName = model.DisplayName.Trim();
+                            newUser.Firstname = !string.IsNullOrEmpty(model.Firstname) ? model.Firstname.Trim() : string.Empty;
+                            newUser.Middlename = !string.IsNullOrEmpty(model.Middlename) ? model.Middlename.Trim() : string.Empty;
+                            newUser.Lastname = !string.IsNullOrEmpty(model.Lastname) ? model.Lastname.Trim() : string.Empty;
+                            newUser.Department = !string.IsNullOrEmpty(model.Department) ? model.Department.Trim() : string.Empty;
+                            newUser.Email = string.Empty;
+                            newUser.IsResellerAdmin = false;
+                            newUser.IsCompanyAdmin = false;
+                            newUser.MailboxPlan = 0;
+                            newUser.TSPlan = 0;
+                            newUser.LyncPlan = 0;
+                            newUser.Created = DateTime.Now;
+                            newUser.AdditionalMB = 0;
+                            newUser.ActiveSyncPlan = 0;
+                            newUser.IsEnabled = true;
 
-                            if (company == null)
-                                throw new Exception("Unable to find company in database");
+                            logger.DebugFormat("Formatting the UserPrincipalName");
+                            string upn = string.Format("{0}@{1}", model.Username, domain.Domain);
+
+                            logger.DebugFormat("Replacing whitespace characters in UPN: {0}", upn);
+                            upn = upn.Replace(" ", string.Empty);
+                            logger.DebugFormat("UPN after replacing whitepsace characters: {0}", upn);
+
+                            logger.DebugFormat("Making sure the userprincipalname {0} is not already taken", upn);
+                            var takenUPN = (from d in db.Users
+                                            where d.CompanyCode == companyCode
+                                            where d.UserPrincipalName == upn
+                                            select d).Count();
+
+                            if (takenUPN > 0)
+                                throw new Exception("The username you entered is already taken");
                             else
                             {
-                                logger.DebugFormat("Creating user in Active Directory now");
-                                adUsers = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-                                newUser = adUsers.Create(Settings.UsersOuPath(company.DistinguishedName), model.Pwd, newUser, Settings.SamAccountNameFormat, Settings.ADCNFormat);
-                                reverse.AddAction(Actions.AddUsers, newUser.UserGuid);
+                                logger.DebugFormat("Username {0} was not taken.. continue creating user... Getting company from database", upn);
+                                newUser.UserPrincipalName = upn;
 
-                                logger.DebugFormat("User {0} created in Active Directory. Adding to the AllUsers security group", upn);
-                                adGroups = new ADGroups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-                                adGroups.AddUser("AllUsers@" + company.CompanyCode, newUser.UserPrincipalName);
+                                var company = (from d in db.Companies
+                                               where !d.IsReseller
+                                               where d.CompanyCode == companyCode
+                                               select d).FirstOrDefault();
 
-                                logger.DebugFormat("User {0} was created successfully. Adding to database");
-                                db.Users.Add(newUser);
-                                db.SaveChanges();
+                                if (company == null)
+                                    throw new Exception("Unable to find company in database");
+                                else
+                                {
+                                    logger.DebugFormat("Creating user in Active Directory now");
+                                    adUsers = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                                    newUser = adUsers.Create(Settings.UsersOuPath(company.DistinguishedName), model.Pwd, newUser, Settings.SamAccountNameFormat, Settings.ADCNFormat);
+                                    reverse.AddAction(Actions.AddUsers, newUser.UserGuid);
 
-                                return Negotiate.WithModel(new { success = "Created new user " + upn })
-                                                .WithStatusCode(HttpStatusCode.OK);
+                                    logger.DebugFormat("User {0} created in Active Directory. Adding to the AllUsers security group", upn);
+                                    adGroups = new ADGroups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                                    adGroups.AddUser("AllUsers@" + company.CompanyCode, newUser.UserPrincipalName);
+
+                                    logger.DebugFormat("User {0} was created successfully. Adding to database");
+                                    db.Users.Add(newUser);
+                                    db.SaveChanges();
+
+                                    return Negotiate.WithModel(new { success = "Created new user " + upn })
+                                                    .WithStatusCode(HttpStatusCode.OK);
+                                }
                             }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error creating new user for company {0}: {1}", _.CompanyCode, ex.ToString());
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error creating new user for company {0}: {1}", _.CompanyCode, ex.ToString());
 
-                    reverse.RollbackNow();
-                    return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithStatusCode(HttpStatusCode.InternalServerError);
-                }
-                finally
-                {
-                    if (adUsers != null)
-                        adUsers.Dispose();
+                        reverse.RollbackNow();
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (adUsers != null)
+                            adUsers.Dispose();
 
-                    if (db != null)
-                        db.Dispose();
-                }
+                        if (db != null)
+                            db.Dispose();
+                    }
 
-                #endregion
-            };
+                    #endregion
+                };
 
             Delete["/"] = _ =>
-            {
-                this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "dUsers"));
-
-                #region Deletes a user from Active Directory and the database
-                CloudPanelContext db = null;
-                ADUsers adUsers = null;
-                try
                 {
-                    logger.DebugFormat("Opening connection to delete user for {0}", _.CompanyCode);
-                    db = new CloudPanelContext(Settings.ConnectionString);
-                    db.Database.Connection.Open();
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "dUsers"));
 
-                    logger.DebugFormat("Validating parameters");
-                    if (!Request.Form.UserGuid.HasValue)
-                        throw new Exception("UserGuid is a required field");
-                    else
+                    #region Deletes a user from Active Directory and the database
+                    CloudPanelContext db = null;
+                    ADUsers adUsers = null;
+                    try
                     {
-                        logger.DebugFormat("Getting company code and userprincipalname for {0}", _.CompanyCode);
-                        string companyCode = _.CompanyCode;
-                        Guid userGuid = Request.Form.UserGuid;
+                        logger.DebugFormat("Opening connection to delete user for {0}", _.CompanyCode);
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
 
-                        logger.DebugFormat("Getting user {0} from database", userGuid);
-                        var user = (from d in db.Users
-                                    where d.CompanyCode == companyCode
-                                    where d.UserGuid == userGuid
-                                    select d).FirstOrDefault();
-
-                        if (user == null)
-                            throw new Exception("Unable to find user in database");
+                        logger.DebugFormat("Validating parameters");
+                        if (!Request.Form.UserGuid.HasValue)
+                            throw new Exception("UserGuid is a required field");
                         else
                         {
-                            logger.DebugFormat("Deleting {0} from Active Directory", userGuid);
-                            adUsers = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
-                            adUsers.Delete(userGuid);
+                            logger.DebugFormat("Getting company code and userprincipalname for {0}", _.CompanyCode);
+                            string companyCode = _.CompanyCode;
+                            Guid userGuid = Request.Form.UserGuid;
 
-                            logger.DebugFormat("Removing user from database");
-                            int userId = user.ID; // To perform more cleanup
-                            db.Users.Remove(user);
-                            db.SaveChanges();
+                            logger.DebugFormat("Getting user {0} from database", userGuid);
+                            var user = (from d in db.Users
+                                        where d.CompanyCode == companyCode
+                                        where d.UserGuid == userGuid
+                                        select d).FirstOrDefault();
 
-                            logger.DebugFormat("User has been removed. Now cleaning up the database to remove all traces of the user");
+                            if (user == null)
+                                throw new Exception("Unable to find user in database");
+                            else
+                            {
+                                logger.DebugFormat("Deleting {0} from Active Directory", userGuid);
+                                adUsers = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                                adUsers.Delete(userGuid);
 
-                            logger.DebugFormat("Clearing user from mailbox sizes");
-                            var mailboxSizes = from d in db.StatMailboxSize where d.UserPrincipalName == user.UserPrincipalName select d;
-                            if (mailboxSizes != null)
-                                db.StatMailboxSize.RemoveRange(mailboxSizes);
+                                logger.DebugFormat("Removing user from database");
+                                int userId = user.ID; // To perform more cleanup
+                                db.Users.Remove(user);
+                                db.SaveChanges();
 
-                            logger.DebugFormat("Finished cleanup for {0}", user.UserPrincipalName);
-                            db.SaveChanges();
+                                logger.DebugFormat("User has been removed. Now cleaning up the database to remove all traces of the user");
 
-                            return Negotiate.WithModel(new { success = "Deleted user " + user.UserPrincipalName });
+                                logger.DebugFormat("Clearing user from mailbox sizes");
+                                var mailboxSizes = from d in db.StatMailboxSize where d.UserPrincipalName == user.UserPrincipalName select d;
+                                if (mailboxSizes != null)
+                                    db.StatMailboxSize.RemoveRange(mailboxSizes);
+
+                                logger.DebugFormat("Finished cleanup for {0}", user.UserPrincipalName);
+                                db.SaveChanges();
+
+                                return Negotiate.WithModel(new { success = "Deleted user " + user.UserPrincipalName });
+                            }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    logger.DebugFormat("Error deleting user: {0}", ex.ToString());
-                    return Negotiate.WithModel(new { error = ex.Message })
-                                    .WithStatusCode(HttpStatusCode.InternalServerError);
-                }
-                finally
-                {
-                    if (adUsers != null)
-                        adUsers.Dispose();
+                    catch (Exception ex)
+                    {
+                        logger.DebugFormat("Error deleting user: {0}", ex.ToString());
+                        return Negotiate.WithModel(new { error = ex.Message })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError);
+                    }
+                    finally
+                    {
+                        if (adUsers != null)
+                            adUsers.Dispose();
 
-                    if (db != null)
-                        db.Dispose();
-                }
-                #endregion
-            };
+                        if (db != null)
+                            db.Dispose();
+                    }
+                    #endregion
+                };
         }
 
         /// <summary>

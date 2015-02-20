@@ -1403,11 +1403,11 @@ namespace CloudPanel.Exchange
 
                 // Get full access permissions
                 logger.DebugFormat("Retrieving full access permissions");
-                user.EmailFullAccess = Get_FullAccessPermissions(user.UserGuid);
+                user.EmailFullAccess = Get_FullAccessPermissions(user.UserGuid.ToString());
 
                 // Get send as permissions
                 logger.DebugFormat("Retrieving send as permissions");
-                user.EmailSendAs = Get_SendAsPermissions(user.UserGuid);
+                user.EmailSendAs = Get_SendAsPermissions(user.UserGuid.ToString());
 
             }
 
@@ -1547,11 +1547,11 @@ namespace CloudPanel.Exchange
         /// </summary>
         /// <param name="userGuid">Guid of the user to retrieve permissions</param>
         /// <returns></returns>
-        public string[] Get_FullAccessPermissions(Guid userGuid)
+        public string[] Get_FullAccessPermissions(string identity)
         {
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Get-MailboxPermission");
-            cmd.AddParameter("Identity", userGuid.ToString());
+            cmd.AddParameter("Identity", identity);
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
 
@@ -1560,7 +1560,7 @@ namespace CloudPanel.Exchange
                 throw _powershell.Streams.Error[0].Exception;
             else
             {
-                logger.DebugFormat("Found mailbox {0}... retrieving full access permissions", userGuid);
+                logger.DebugFormat("Found mailbox {0}... retrieving full access permissions", identity);
                 var listAccounts = new List<string>();
                 foreach (PSObject ps in _powershell.Invoke())
                 {
@@ -1596,11 +1596,11 @@ namespace CloudPanel.Exchange
         /// </summary>
         /// <param name="userGuid"></param>
         /// <returns></returns>
-        public string[] Get_SendAsPermissions(Guid userGuid)
+        public string[] Get_SendAsPermissions(string identity)
         {
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Get-ADPermission");
-            cmd.AddParameter("Identity", userGuid.ToString());
+            cmd.AddParameter("Identity", identity);
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
 
@@ -1609,7 +1609,7 @@ namespace CloudPanel.Exchange
                 throw _powershell.Streams.Error[0].Exception;
             else
             {
-                logger.DebugFormat("Found mailbox {0}... retrieving send-as permissions", userGuid);
+                logger.DebugFormat("Found mailbox {0}... retrieving send-as permissions", identity);
                 var listAccounts = new List<string>();
                 foreach (PSObject ps in _powershell.Invoke())
                 {
@@ -1956,11 +1956,11 @@ namespace CloudPanel.Exchange
 
                 // Get full access permissions
                 logger.DebugFormat("Retrieving full access permissions");
-                returnMailbox.EmailFullAccess = Get_FullAccessPermissions(returnMailbox.ResourceGuid);
+                returnMailbox.EmailFullAccess = Get_FullAccessPermissions(returnMailbox.ResourceGuid.ToString());
 
                 // Get send as permissions
                 logger.DebugFormat("Retrieving send as permissions");
-                returnMailbox.EmailSendAs = Get_SendAsPermissions(returnMailbox.ResourceGuid);
+                returnMailbox.EmailSendAs = Get_SendAsPermissions(returnMailbox.ResourceGuid.ToString());
 
                 return returnMailbox;
             }
@@ -1975,7 +1975,7 @@ namespace CloudPanel.Exchange
         /// </summary>
         /// <param name="resourceMailbox"></param>
         /// <param name="parentOrganizationalUnit"></param>
-        public void New_RoomMailbox(ResourceMailboxes resourceMailbox, string parentOrganizationalUnit)
+        public ResourceMailboxes New_RoomMailbox(ResourceMailboxes resourceMailbox, string parentOrganizationalUnit)
         {
             logger.DebugFormat("Creating room mailbox {0}", resourceMailbox.DisplayName);
 
@@ -2001,9 +2001,24 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("Room");
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
-            _powershell.Invoke();
 
-            HandleErrors();
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                // Get the distinguished name of the new object
+                foreach (var o in psObjects)
+                {
+                    if (o.Properties["DistinguishedName"] != null)
+                        resourceMailbox.DistinguishedName = o.Properties["DistinguishedName"].Value.ToString();
+
+                    if (o.Properties["Guid"] != null)
+                        resourceMailbox.ResourceGuid = (Guid)o.Properties["Guid"].Value;
+                }
+            }
+
+            return resourceMailbox;
         }
 
         /// <summary>
@@ -2124,7 +2139,7 @@ namespace CloudPanel.Exchange
         /// </summary>
         /// <param name="resourceMailbox"></param>
         /// <param name="parentOrganizationalUnit"></param>
-        public void New_EquipmentMailbox(ResourceMailboxes resourceMailbox, string parentOrganizationalUnit)
+        public ResourceMailboxes New_EquipmentMailbox(ResourceMailboxes resourceMailbox, string parentOrganizationalUnit)
         {
             logger.DebugFormat("Creating equipment mailbox {0}", resourceMailbox.DisplayName);
 
@@ -2150,9 +2165,24 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("Equipment");
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
-            _powershell.Invoke();
 
-            HandleErrors();
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                // Get the distinguished name of the new object
+                foreach (var o in psObjects)
+                {
+                    if (o.Properties["DistinguishedName"] != null)
+                        resourceMailbox.DistinguishedName = o.Properties["DistinguishedName"].Value.ToString();
+
+                    if (o.Properties["Guid"] != null)
+                        resourceMailbox.ResourceGuid = (Guid)o.Properties["Guid"].Value;
+                }
+            }
+
+            return resourceMailbox;
         }
 
         /// <summary>
@@ -2273,7 +2303,7 @@ namespace CloudPanel.Exchange
         /// </summary>
         /// <param name="resourceMailbox"></param>
         /// <param name="parentOrganizationalUnit"></param>
-        public void New_SharedMailbox(ResourceMailboxes resourceMailbox, string parentOrganizationalUnit)
+        public ResourceMailboxes New_SharedMailbox(ResourceMailboxes resourceMailbox, string parentOrganizationalUnit)
         {
             logger.DebugFormat("Creating shared mailbox {0}", resourceMailbox.DisplayName);
 
@@ -2299,9 +2329,24 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("Shared");
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
-            _powershell.Invoke();
 
-            HandleErrors();
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                // Get the distinguished name of the new object
+                foreach (var o in psObjects)
+                {
+                    if (o.Properties["DistinguishedName"] != null)
+                        resourceMailbox.DistinguishedName = o.Properties["DistinguishedName"].Value.ToString();
+
+                    if (o.Properties["Guid"] != null)
+                        resourceMailbox.ResourceGuid = (Guid)o.Properties["Guid"].Value;
+                }
+            }
+
+            return resourceMailbox;
         }
 
         /// <summary>
