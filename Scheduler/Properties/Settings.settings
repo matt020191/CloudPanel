@@ -14,5 +14,8 @@
     <Setting Name="History_Statistics" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">720</Value>
     </Setting>
+    <Setting Name="Exchange_RetrieveMessageCounts" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">720</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

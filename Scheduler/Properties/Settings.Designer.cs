@@ -58,5 +58,14 @@ namespace Scheduler.Properties {
                 return ((int)(this["History_Statistics"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("720")]
+        public int Exchange_RetrieveMessageCounts {
+            get {
+                return ((int)(this["Exchange_RetrieveMessageCounts"]));
+            }
+        }
     }
 }

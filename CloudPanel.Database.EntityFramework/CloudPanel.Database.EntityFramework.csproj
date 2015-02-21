@@ -60,6 +60,14 @@
     <Compile Include="Migrations\201502171517110_Initial.Designer.cs">
       <DependentUpon>201502171517110_Initial.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201502210420574_AddMessageTrackingTable.cs" />
+    <Compile Include="Migrations\201502210420574_AddMessageTrackingTable.Designer.cs">
+      <DependentUpon>201502210420574_AddMessageTrackingTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201502211857270_UpdateMessageTrackingTable.cs" />
+    <Compile Include="Migrations\201502211857270_UpdateMessageTrackingTable.Designer.cs">
+      <DependentUpon>201502211857270_UpdateMessageTrackingTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="_OrgMigrations\201501160343143_Upgrade31Beta.cs" />
     <Compile Include="_OrgMigrations\201501160343143_Upgrade31Beta.Designer.cs">
@@ -123,6 +131,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201502171517110_Initial.resx">
       <DependentUpon>201502171517110_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201502210420574_AddMessageTrackingTable.resx">
+      <DependentUpon>201502210420574_AddMessageTrackingTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201502211857270_UpdateMessageTrackingTable.resx">
+      <DependentUpon>201502211857270_UpdateMessageTrackingTable.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="_OrgMigrations\201501160343143_Upgrade31Beta.resx">
       <DependentUpon>201501160343143_Upgrade31Beta.cs</DependentUpon>

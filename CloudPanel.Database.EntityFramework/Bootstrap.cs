@@ -138,6 +138,7 @@ namespace CloudPanel.Database.EntityFramework
         public virtual DbSet<UserActiveSyncDevices> UserActiveSyncDevice { get; set; }
         public virtual DbSet<DelayedUserTasks> DelayedUserTask { get; set; }
         public virtual DbSet<PublicFolderMailboxes> PublicFolderMailboxes { get; set; }
+        public virtual DbSet<StatMessageTrackingCount> StatMessageTrackingCount { get; set; }
         #endregion
     }
 }

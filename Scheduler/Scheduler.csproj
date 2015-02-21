@@ -99,6 +99,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\CPTimer.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Classes\ExchangeTasks.cs" />
     <Compile Include="Classes\HistoryTasks.cs" />
     <Compile Include="ProjectInstaller.cs">

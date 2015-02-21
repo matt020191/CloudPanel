@@ -22,8 +22,6 @@ namespace CloudPanel.Modules
 
         public ResourceModule() : base("/company/{CompanyCode}/exchange/resourcemailboxes")
         {
-            this.RequiresAuthentication();
-
             Get["/", c => c.Request.Accept("text/html")] = _ =>
                 {
                     this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vExchangeResources"));
@@ -52,6 +50,7 @@ namespace CloudPanel.Modules
                                                  select new
                                                  {
                                                      ResourceID = d.ResourceID,
+                                                     ResourceGuid = d.ResourceGuid,
                                                      DisplayName = d.DisplayName,
                                                      CompanyCode = d.CompanyCode,
                                                      UserPrincipalName = d.UserPrincipalName,
@@ -94,13 +93,13 @@ namespace CloudPanel.Modules
                                 resourceMailboxes = resourceMailboxes.OrderBy(x => x.GetType()
                                                         .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
                                                         .Skip(start)
-                                                        .Take(length)
+                                                        .Take(length > 0 ? length : resourceMailboxes.Count)
                                                         .ToList();
                             else
                                 resourceMailboxes = resourceMailboxes.OrderByDescending(x => x.GetType()
                                                         .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
                                                         .Skip(start)
-                                                        .Take(length)
+                                                        .Take(length > 0 ? length : resourceMailboxes.Count)
                                                         .ToList();
                         }
 

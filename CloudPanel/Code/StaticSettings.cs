@@ -78,19 +78,26 @@ namespace CloudPanel.Code
 
                 // Support Notifications
                 logger.DebugFormat("Loading support notifications node");
-                Settings.SNEnabled = bool.Parse(Read(ref x, "Notifications", "Enabled"));
+                string SNEnabled = Read(ref x, "Notifications", "Enabled");
+                string SNPort = Read(ref x, "Notifications", "MailPort");
+
+                Settings.SNEnabled = string.IsNullOrEmpty(SNEnabled) ? false : bool.Parse(SNEnabled);
                 Settings.SNFrom = Read(ref x, "Notifications", "FromAddress");
                 Settings.SNTo = Read(ref x, "Notifications", "ToAddress");
                 Settings.SNServer = Read(ref x, "Notifications", "MailServer");
-                Settings.SNPort = int.Parse(Read(ref x, "Notifications", "MailPort"));
+                Settings.SNPort = string.IsNullOrEmpty(SNPort) ? 25 : int.Parse(SNPort);
                 Settings.SNUsername = Read(ref x, "Notifications", "MailUsername");
                 Settings.SNEncryptedPassword = Read(ref x, "Notifications", "MailPassword");
 
                 // Advanced
                 logger.DebugFormat("Loading advanced section");
-                Settings.CompanyCodeFormat = int.Parse(Read(ref x, "Advanced", "CompanyCodeFormat"));
-                Settings.SamAccountNameFormat = int.Parse(Read(ref x, "Advanced", "SamAccountNameFormat"));
-                Settings.ADCNFormat = int.Parse(Read(ref x, "Advanced", "ADCNFormat"));
+                string ccFormat = Read(ref x, "Advanced", "CompanyCodeFormat");
+                string samFormat = Read(ref x, "Advanced", "SamAccountNameFormat");
+                string cnFormat = Read(ref x, "Advanced", "ADCNFormat");
+
+                Settings.CompanyCodeFormat = string.IsNullOrEmpty(ccFormat) ? 0 : int.Parse(ccFormat);
+                Settings.SamAccountNameFormat = string.IsNullOrEmpty(samFormat) ? 0 : int.Parse(samFormat);
+                Settings.ADCNFormat = string.IsNullOrEmpty(cnFormat) ? 0 : int.Parse(cnFormat);
             }
             catch (Exception ex)
             {

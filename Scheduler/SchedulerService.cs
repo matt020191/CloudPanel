@@ -11,10 +11,6 @@ namespace Scheduler
     {
         private static readonly ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public static Timer _ExchangeMailboxSizesTimer = null;
-        public static Timer _ExchangeMailboxDatabaseSizesTimer = null;
-        public static Timer _HistoryStatisticsTimer = null;
-
         public SchedulerService()
         {
             InitializeComponent();
@@ -30,93 +26,29 @@ namespace Scheduler
             }
             else
             {
-                StartTimers();
+                // Start our Exchange timers
+                ExchangeTasks.StartTimers();
+
+                // Start the history timers
+                HistoryTasks.StartTimers();
             }
         }
-
-        private void StartTimers()
-        {
-            int _exchMbxSizesInMin = Settings.Default.Exchange_RetrieveMailboxSizes;
-            int _exchMbxDbSizesInMin = Settings.Default.Exchange_RetrieveDatabaseSizes;
-            int _historyStatsInMin = Settings.Default.History_Statistics;
-
-            _ExchangeMailboxSizesTimer = new Timer(GetMillisecondsFromMinutes(_exchMbxSizesInMin));
-            _ExchangeMailboxSizesTimer.Elapsed += _ExchangeMailboxSizesTimer_Elapsed;
-            _ExchangeMailboxSizesTimer.Start();
-            logger.DebugFormat("Querying mailbox sizes in {0}", TimeSpan.FromMilliseconds(_ExchangeMailboxSizesTimer.Interval));
-
-            _ExchangeMailboxDatabaseSizesTimer = new Timer(GetMillisecondsFromMinutes(_exchMbxDbSizesInMin));
-            _ExchangeMailboxDatabaseSizesTimer.Elapsed += _ExchangeMailboxDatabaseSizesTimer_Elapsed;
-            _ExchangeMailboxDatabaseSizesTimer.Start();
-            logger.DebugFormat("Querying mailbox database sizes in {0}", TimeSpan.FromMilliseconds(_ExchangeMailboxDatabaseSizesTimer.Interval));
-
-            _HistoryStatisticsTimer = new Timer(GetMillisecondsFromMinutes(_historyStatsInMin));
-            _HistoryStatisticsTimer.Elapsed += _HistoryStatisticsTimer_Elapsed;
-            _HistoryStatisticsTimer.Start();
-            logger.DebugFormat("Querying history statistics in {0}", TimeSpan.FromMilliseconds(_HistoryStatisticsTimer.Interval));
-        }
-
-        #region Timer Elapsed
-
-        private void _ExchangeMailboxDatabaseSizesTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            logger.Debug("Time elasped for mailbox database sizes... querying...");
-            _ExchangeMailboxDatabaseSizesTimer.Stop();
-
-            // Query the mailbox database sizes
-            ExchangeTasks.GetMailboxDatabaseSizes();
-
-            // Start the timer agin
-            _ExchangeMailboxDatabaseSizesTimer.Start();
-        }
-
-        private void _ExchangeMailboxSizesTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            logger.Debug("Time elasped for mailbox sizes... querying...");
-            _ExchangeMailboxSizesTimer.Stop();
-
-            // Query the mailbox sizes
-            ExchangeTasks.GetMailboxSizes();
-
-            // Start the timer again
-            _ExchangeMailboxSizesTimer.Start();
-        }
-
-        private void _HistoryStatisticsTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            logger.Debug("Time elasped for mailbox sizes... querying...");
-            _HistoryStatisticsTimer.Stop();
-
-            // Query statistics
-            HistoryTasks.UpdateCompanyStatistics();
-
-            // Start the timer again
-            _HistoryStatisticsTimer.Start();
-        }
-
-        #endregion
-
-        #region Private Methods 
-
-        private static double GetMillisecondsFromMinutes(double minutes)
-        {
-            return TimeSpan.FromMinutes(minutes).TotalMilliseconds;
-        }
-
-        #endregion
 
         protected override void OnStop()
         {
             EventLog.WriteEntry("Stopping the CloudPanel service");
 
-            if (_ExchangeMailboxDatabaseSizesTimer != null)
-                _ExchangeMailboxDatabaseSizesTimer.Dispose();
+            if (ExchangeTasks._databaseSizesTimer != null)
+                ExchangeTasks._databaseSizesTimer.Dispose();
 
-            if (_ExchangeMailboxSizesTimer != null)
-                _ExchangeMailboxSizesTimer.Dispose();
+            if (ExchangeTasks._mailboxSizesTimer != null)
+                ExchangeTasks._mailboxSizesTimer.Dispose();
 
-            if (_HistoryStatisticsTimer != null)
-                _HistoryStatisticsTimer.Dispose();
+            if (ExchangeTasks._messageLogCountTimer != null)
+                ExchangeTasks._messageLogCountTimer.Dispose();
+
+            if (HistoryTasks._companyStats != null)
+                HistoryTasks._companyStats.Dispose();
         }
     }
 }

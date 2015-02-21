@@ -115,6 +115,8 @@ namespace CloudPanel.Base.Models.Database
         [ForeignKey("RoleID")]
         public virtual UserRoles Role { get; set; }
 
+        public virtual ICollection<StatMessageTrackingCount> UserMessageTrackingCount { get; set; }
+
         public virtual ICollection<CitrixDesktopGroups> CitrixDesktopGroups { get; set; }
 
         public virtual ICollection<CitrixApplications> CitrixApplications { get; set; }

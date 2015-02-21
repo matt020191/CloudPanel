@@ -1917,11 +1917,11 @@ namespace CloudPanel.Exchange
 
         #region Resource Mailboxes
 
-        public ResourceMailboxes Get_ResourceMailbox(Guid resourceIdentity)
+        public ResourceMailboxes Get_ResourceMailbox(string resourceIdentity)
         {
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Get-Mailbox");
-            cmd.AddParameter("Identity", resourceIdentity.ToString());
+            cmd.AddParameter("Identity", resourceIdentity);
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
 
@@ -2846,6 +2846,105 @@ namespace CloudPanel.Exchange
             return foundList;
         }
 
+        #endregion
+
+        #region Statistics
+
+        /// <summary>
+        /// Gets a list of message tracking logs between a time period for sent messages
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
+        public List<MessageTrackingLog> Get_TotalSentMessages(DateTime start, DateTime end)
+        {
+            logger.DebugFormat("Querying total sent messages from message logs beginning {0} and ending {1}", start.ToString(), end.ToString());
+            var totalSentMessages = new List<MessageTrackingLog>();
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-TransportServer");
+            cmd.AddCommand("Get-MessageTrackingLog");
+            cmd.AddParameter("EventId", "RECEIVE");
+            cmd.AddParameter("Start", start.ToString("MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture));
+            cmd.AddParameter("End", end.ToString("MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture));
+            cmd.AddParameter("ResultSize", "Unlimited");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                logger.DebugFormat("Found a total of {0} messages... filtering...", psObjects.Count);
+                
+                foreach (PSObject ps in psObjects)
+                {
+                    var newLog = new MessageTrackingLog();
+                    newLog.Timestamp = DateTime.Parse(ps.Members["Timestamp"].Value.ToString());
+                    newLog.ServerHostname = ps.Members["ServerHostname"].Value.ToString();
+                    newLog.Source = ps.Members["Source"].Value.ToString();
+                    newLog.EventId = ps.Members["EventId"].Value.ToString();
+                    newLog.TotalBytes = long.Parse(ps.Members["TotalBytes"].Value.ToString());
+
+                    newLog.Users = new List<string>();
+                    newLog.Users.Add(ps.Members["Sender"].Value.ToString());
+
+                    totalSentMessages.Add(newLog);
+                }
+            }
+
+            return totalSentMessages;
+        }
+
+        /// <summary>
+        /// Gets a list of message tracking logs between a time period for received messages
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
+        public List<MessageTrackingLog> Get_TotalReceivedMessages(DateTime start, DateTime end)
+        {
+            logger.DebugFormat("Querying total received messages from message logs beginning {0} and ending {1}", start.ToString(), end.ToString());
+            var totalReceivedMessages = new List<MessageTrackingLog>();
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-TransportServer");
+            cmd.AddCommand("Get-MessageTrackingLog");
+            cmd.AddParameter("EventId", "DELIVER");
+            cmd.AddParameter("Start", start.ToString("MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture));
+            cmd.AddParameter("End", end.ToString("MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture));
+            cmd.AddParameter("ResultSize", "Unlimited");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                logger.DebugFormat("Found a total of {0} messages... filtering...", psObjects.Count);
+
+                foreach (PSObject ps in psObjects)
+                {
+                    var newLog = new MessageTrackingLog();
+                    newLog.Timestamp = DateTime.Parse(ps.Members["Timestamp"].Value.ToString());
+                    newLog.ServerHostname = ps.Members["ServerHostname"].Value.ToString();
+                    newLog.Source = ps.Members["Source"].Value.ToString();
+                    newLog.EventId = ps.Members["EventId"].Value.ToString();
+                    newLog.TotalBytes = long.Parse(ps.Members["TotalBytes"].Value.ToString());
+
+                    var multiValue = ps.Members["Recipients"].Value as PSObject;
+                    var users = multiValue.BaseObject as ArrayList;
+                    var array = users.ToArray(typeof(string)) as string[];
+                    newLog.Users = array.ToList();
+
+                    totalReceivedMessages.Add(newLog);
+                }
+            }
+
+            return totalReceivedMessages;
+        }
         #endregion
 
         #region Private methods

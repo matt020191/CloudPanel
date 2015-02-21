@@ -6,12 +6,45 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Timers;
+using PropertyConfig = Scheduler.Properties.Settings;
 
 namespace Scheduler.Classes
 {
     public class HistoryTasks
     {
         private static readonly ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        public static CPTimer _companyStats = null;
+
+        public static void StartTimers()
+        {
+            //  Company statistics 
+            int companyStatsMin = PropertyConfig.Default.History_Statistics;
+            logger.DebugFormat("Starting company statistics history timer with {0}min interval", companyStatsMin);
+            _companyStats = new CPTimer("HistoryStatistics");
+            _companyStats.Interval = companyStatsMin > 0 ? new TimeSpan(0, companyStatsMin, 0).TotalMilliseconds : new TimeSpan(0, 1440, 0).TotalMilliseconds;
+            _companyStats.Elapsed += Timer_Elapsed;
+            _companyStats.Start();
+
+            if (companyStatsMin == 0)
+                Timer_Elapsed(_companyStats, null);
+            else if (companyStatsMin == -1)
+                _companyStats.Stop();
+        }
+
+        static void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            CPTimer senderTimer = sender as CPTimer;
+            logger.DebugFormat("Timer {0} elapsed. Executing...", senderTimer.Name);
+
+            if (senderTimer.Name == "HistoryStatistics")
+            {
+                _companyStats.Stop();
+                UpdateCompanyStatistics();
+                _companyStats.Start();
+            }
+        }
 
         public static void UpdateCompanyStatistics()
         {

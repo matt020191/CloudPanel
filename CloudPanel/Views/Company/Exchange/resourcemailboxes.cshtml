@@ -199,7 +199,7 @@
                     { "data": "mailboxPlanName" },
                     {
                         "data": "resourceID", "orderable": false, "className": "text-right", "render": function (data, type, full, meta) {
-                            return GetButton(data, full["userPrincipalName"]);
+                            return GetButton(data, full["resourceGuid"], full["userPrincipalName"]);
                         }
                     },
                 ]

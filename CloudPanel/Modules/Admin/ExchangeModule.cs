@@ -76,11 +76,11 @@ namespace CloudPanel.Modules.Admin
                             newDatabase.DatabaseSize = d.DatabaseSize;
                             newDatabase.Retrieved = d.Retrieved;
 
-                            db.StatMailboxDatabaseSizes.Add(newDatabase);
-
+                            returnDatabases.Add(newDatabase);
                             logger.DebugFormat("Processed database name {0}", d.Identity);
                         }
 
+                        db.StatMailboxDatabaseSizes.AddRange(returnDatabases);
                         db.SaveChanges();
                     }
 

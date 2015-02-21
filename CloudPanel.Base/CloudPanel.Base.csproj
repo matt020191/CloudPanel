@@ -60,6 +60,7 @@
     <Compile Include="Citrix\BrokerSession.cs" />
     <Compile Include="Citrix\DeliveryType.cs" />
     <Compile Include="Config\Settings.cs" />
+    <Compile Include="Exchange\MessageTrackingLog.cs" />
     <Compile Include="Extensions\ExtensionMethods.cs" />
     <Compile Include="Models\Database\ApiKeys.cs" />
     <Compile Include="Models\Database\AuditTrace.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="Models\Database\StatMailboxArchiveSizes.cs" />
     <Compile Include="Models\Database\StatMailboxSizes.cs" />
     <Compile Include="Models\Database\StatMailboxDatabaseSizes.cs" />
+    <Compile Include="Models\Database\StatMessageTrackingCount.cs" />
     <Compile Include="Models\Database\UserActiveSyncDevices.cs" />
     <Compile Include="Models\Database\UserPermission.cs" />
     <Compile Include="Models\Database\UserRoles.cs" />

@@ -93,13 +93,13 @@ namespace CloudPanel.Modules
                             companies = companies.OrderBy(x => x.GetType()
                                                     .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
                                                     .Skip(start)
-                                                    .Take( (length > 0 ? length : companies.Count) )
+                                                    .Take(length > 0 ? length : companies.Count)
                                                     .ToList();
                         else
                             companies = companies.OrderByDescending(x => x.GetType()
                                                     .GetProperty(orderColumnName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(x, null))
                                                     .Skip(start)
-                                                    .Take( (length > 0 ? length : companies.Count) )
+                                                    .Take(length > 0 ? length : companies.Count)
                                                     .ToList();
                     }
 
