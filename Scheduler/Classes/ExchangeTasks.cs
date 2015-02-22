@@ -291,6 +291,7 @@ namespace Scheduler
                                                      select d).ToList();
 
                             var newTrackingCount = new StatMessageTrackingCount();
+                            newTrackingCount.UserID = x.ID;
                             newTrackingCount.Start = start;
                             newTrackingCount.End = end;
                             newTrackingCount.TotalSent = totalSentLogs.Count;

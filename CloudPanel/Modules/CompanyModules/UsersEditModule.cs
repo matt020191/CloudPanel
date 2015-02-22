@@ -174,6 +174,8 @@ namespace CloudPanel.Modules.CompanyModules
                                     from mailboxinfo in d2.DefaultIfEmpty().OrderByDescending(x => x.Retrieved).Take(1)
                                     join s2 in db.StatMailboxArchiveSize on d.UserGuid equals s2.UserGuid into d5
                                     from archiveinfo in d5.DefaultIfEmpty().OrderByDescending(x => x.Retrieved).Take(1)
+                                    join m2 in db.StatMessageTrackingCount on d.ID equals m2.UserID into d6
+                                    from messagelog in d6.DefaultIfEmpty().OrderByDescending(x => x.Start).Take(1)
                                     where d.CompanyCode == companyCode && d.UserGuid == guid
                                     select new
                                     {
@@ -193,7 +195,8 @@ namespace CloudPanel.Modules.CompanyModules
                                         MailboxPlan = mailboxplan,
                                         MailboxInfo = mailboxinfo,
                                         ArchiveInfo = archiveinfo,
-                                        ArchivePlan = archiveplan
+                                        ArchivePlan = archiveplan,
+                                        MessageLog = messagelog
                                     }).Single();
 
                         return Negotiate.WithModel(user)
