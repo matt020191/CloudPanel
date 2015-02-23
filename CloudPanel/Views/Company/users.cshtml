@@ -357,6 +357,11 @@
                                           '<tr><td align="right" width="200px">Retrieved:</td><td>' + moment(d.mailboxInfo.retrieved).format('LLLL') + '</td></tr>';
                         }
 
+                        if (d.messageLog != null) {
+                            returnData += '<tr><td align="right">Messages Sent:</td><td>' + d.messageLog.totalSent + ' (' + bytesToSize(d.messageLog.totalBytesSent) + ' from ' + moment(d.messageLog.start).format('L') + ' - ' + moment(d.messageLog.end).format('L') + ')</td></tr>' +
+                                          '<tr><td align="right">Messages Recieved:</td><td>' + d.messageLog.totalReceived + ' (' + bytesToSize(d.messageLog.totalBytesReceived) + ' from ' + moment(d.messageLog.start).format('L') + ' - ' + moment(d.messageLog.end).format('L') + ')</td></tr>';
+                        }
+
                         returnData += '</tbody></table>';
                     }
 

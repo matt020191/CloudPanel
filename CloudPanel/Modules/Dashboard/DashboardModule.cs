@@ -1,4 +1,5 @@
 ﻿using CloudPanel.Base.Config;
+using CloudPanel.Base.Models.ViewModels;
 using CloudPanel.Database.EntityFramework;
 using log4net;
 using Nancy;
@@ -138,6 +139,45 @@ namespace CloudPanel.Modules.Dashboard
                     }
                     #endregion
                 };
+
+            Get["/admin/history/exchange/messagelog/{DAYS:int}"] = _ =>
+            {
+                this.RequiresAnyClaim(new[] { "SuperAdmin" });
+
+                #region Get history data for message logs
+                int days = _.DAYS;
+                CloudPanelContext db = null;
+                try
+                {
+                    db = new CloudPanelContext(Settings.ConnectionString);
+                    var statistics = (from d in db.StatMessageTrackingCount
+                                      where d.End >= (DateTime)DbFunctions.AddDays(DateTime.Now, -days)
+                                      //group d by DbFunctions.TruncateTime(d.Retrieved) into g
+                                      group d by d.End into g
+                                      select new ExchangeMessageLogCountViewModel()
+                                      {
+                                          Retrieved = DbFunctions.TruncateTime(g.Key),
+                                          TotalSent = g.Sum(x => x.TotalSent),
+                                          TotalReceived = g.Sum(x => x.TotalReceived),
+                                          TotalBytesSent = g.Sum(x => x.TotalBytesSent),
+                                          TotalBytesReceived = g.Sum(x => x.TotalBytesReceived)
+                                      }).ToList();
+
+                    return Negotiate.WithModel(statistics);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error pulling exchange message log history data: {0}", ex.Message);
+                    return Negotiate.WithModel(new { error = ex.Message })
+                                    .WithStatusCode(HttpStatusCode.InternalServerError);
+                }
+                finally
+                {
+                    if (db != null)
+                        db.Dispose();
+                }
+                #endregion
+            };
 
             Get["/admin/exchange/databases"] = _ =>
                 {

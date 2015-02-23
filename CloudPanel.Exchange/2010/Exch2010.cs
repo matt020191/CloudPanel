@@ -2876,7 +2876,7 @@ namespace CloudPanel.Exchange
                 throw _powershell.Streams.Error[0].Exception;
             else
             {
-                logger.DebugFormat("Found a total of {0} messages... filtering...", psObjects.Count);
+                logger.DebugFormat("Found a total of {0} sent messages from {1} to {2}... filtering...", psObjects.Count, start.ToString(), end.ToString());
                 
                 foreach (PSObject ps in psObjects)
                 {
@@ -2890,8 +2890,11 @@ namespace CloudPanel.Exchange
                     newLog.Users = new List<string>();
                     newLog.Users.Add(ps.Members["Sender"].Value.ToString());
 
-                    totalSentMessages.Add(newLog);
+                    if (newLog.Source.Equals("STOREDRIVER"))
+                        totalSentMessages.Add(newLog);
                 }
+
+                logger.DebugFormat("Finished filtering sent messages from {0} to {1}", start.ToString(), end.ToString());
             }
 
             return totalSentMessages;
@@ -2923,7 +2926,7 @@ namespace CloudPanel.Exchange
                 throw _powershell.Streams.Error[0].Exception;
             else
             {
-                logger.DebugFormat("Found a total of {0} messages... filtering...", psObjects.Count);
+                logger.DebugFormat("Found a total of {0} received messages from {1} to {2}... filtering...", psObjects.Count, start.ToString(), end.ToString());
 
                 foreach (PSObject ps in psObjects)
                 {
@@ -2941,6 +2944,8 @@ namespace CloudPanel.Exchange
 
                     totalReceivedMessages.Add(newLog);
                 }
+
+                logger.DebugFormat("Finished filtering received messages from {0} to {1}", start.ToString(), end.ToString());
             }
 
             return totalReceivedMessages;

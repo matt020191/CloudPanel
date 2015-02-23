@@ -4,6 +4,7 @@
 @{
     Layout = "__master.cshtml";
     var companyCode = this.RenderContext.Context.GetCompanyCode();
+    var isExchangeEnabled = CloudPanel.CPStaticHelpers.IsExchangeEnabled(companyCode);
 }
 
 @section HEAD{
@@ -21,7 +22,6 @@
 
 <div class="container">
     <div class="row">
-
         <!-- Company Info -->
         <form id="overviewForm" class="form-horizontal" action="" method="post" data-parsley-validate>
             <input type="hidden" name="_method" value="PUT" />
@@ -107,7 +107,7 @@
                                         <div class="progress-bar progress-bar-primary _domains" style="width: @((int)(0.5f + ((100f * Model.totalDomains) / Model.companyPlan.MaxDomains)))%"></div>
                                     </div>
                                 </div> <!-- Domains -->
-                                 @if (CloudPanel.CPStaticHelpers.IsExchangeEnabled(companyCode)) {
+                                 @if (isExchangeEnabled) {
                                     <div class="contextual-progress">
                                         <div class="clearfix">
                                             <div class="progress-title">Mailboxes</div>
@@ -153,10 +153,39 @@
             </div>
         </div>
     </div>
+
+    <div class="row">
+        @if (isExchangeEnabled) {
+            <div class="col-md-12">
+                <div class="panel panel-info">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-12 clearfix">
+                                <h4 class="pull-left" style="margin: 0 0 20px;">Message History</h4>
+                                <div class="btn-group pull-right">
+                                    <a href="javascript:GetMessageLogHistory(7);" class="btn btn-default btn-sm">7 Days</a>
+                                    <a href="javascript:GetMessageLogHistory(14);" class="btn btn-default btn-sm">14 Days</a>
+                                    <a href="javascript:GetMessageLogHistory(31);" class="btn btn-default btn-sm">31 Days</a>
+                                    <a href="javascript:GetMessageLogHistory(180);" class="btn btn-default btn-sm">180 Days</a>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div id="messageLogChart" style="height:250px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
 
 @section JAVASCRIPT{
+    <script src="~/Content/plugins/charts-highcharts/js/highcharts.js"></script>
+    <script src="~/Content/plugins/moment/moment-with-locales.js"></script>
     <script type="text/javascript">
+        var isExchangeEnabled = @isExchangeEnabled.ToString().ToLower();
+
         $(document).ready(function () {
             $("#overviewForm").submit(function (event) {
                 event.preventDefault();
@@ -175,6 +204,68 @@
                     $.unblockUI();
                 });;
             });
+
+            if (isExchangeEnabled) {
+                GetMessageLogHistory(7);
+            }
         });
-    </script>
+
+        function GetMessageLogHistory(pastDays) {
+            $.getJSON("@Url.Content("~/company/"+companyCode+"/overview/exchange/messagelog/")" + pastDays, function (data) {
+                var GB = 1073741824;
+                var MB = 1048576;
+                var KB = 1024;
+
+                var line = new Highcharts.Chart({
+                    chart: { type: 'line', renderTo: 'messageLogChart' },
+                    title: { text: '' },
+                    xAxis: {
+                        type: 'datetime'
+                    },
+                    yAxis: [{
+                        min: 0,
+                        title: ''
+                    }, {
+                        min: 0,
+                        title: '',
+                        opposite: true,
+                        labels: {
+                            formatter: function () {
+                                var maxElement = this.axis.max;
+                                if (maxElement >= GB) {
+                                    return (this.value / GB).toFixed(1) + " GB";
+                                } else if (maxElement >= MB) {
+                                    return (this.value / MB).toFixed(1) + " MB";
+                                } else if (maxElement >= KB) {
+                                    return (this.value / KB).toFixed(1) + " KB";
+                                } else {
+                                    return (this.value) + " B";
+                                }
+                            }
+                        }
+                    }],
+                    tooltip: { shared: true },
+                    credits: { enabled: false }
+                });
+
+                var totalSent = [], totalReceived = [], totalBytesSent = [], totalBytesReceived = [];
+                $.each(data, function (i, val) {
+                    if (val.retrieved.length) {
+                        var check = moment(val.retrieved, 'YYYY/MM/DD');
+                        totalSent.push([check.valueOf(), val.totalSent]);
+                        totalReceived.push([check.valueOf(), val.totalReceived]);
+                        totalBytesSent.push([check.valueOf(), val.totalBytesSent]);
+                        totalBytesReceived.push([check.valueOf(), val.totalBytesReceived]);
+                    }
+                });
+
+                line.addSeries({ name: "Total Sent", data: totalSent, yAxis: 0 });
+                line.addSeries({ name: "Total Received", data: totalReceived, yAxis: 0 });
+                line.addSeries({ name: "Total Bytes Sent", data: totalBytesSent, yAxis: 1 });
+                line.addSeries({ name: "Total Bytes Received", data: totalBytesReceived, yAxis: 1 });
+
+                line.redraw();
+            });
+        }
+</script>
 }
