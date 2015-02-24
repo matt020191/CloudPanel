@@ -1,4 +1,5 @@
-﻿using CloudPanel.Base.AD;
+﻿using CloudPanel.ActiveDirectory.Extensions;
+using CloudPanel.Base.AD;
 using CloudPanel.Base.Models.Database;
 using log4net;
 using System;
@@ -14,7 +15,7 @@ namespace CloudPanel.ActiveDirectory
 {
     public class ADOrganizationalUnits : IDisposable
     {
-        private readonly ILog log = LogManager.GetLogger(typeof(ADOrganizationalUnits));
+        private readonly ILog logger = LogManager.GetLogger(typeof(ADOrganizationalUnits));
 
         private string _username;
         private string _password;
@@ -38,7 +39,7 @@ namespace CloudPanel.ActiveDirectory
 
         private DirectoryEntry GetDirectoryEntry(string dnPath = null)
         {
-            log.DebugFormat("Retrieving the DirectoryEntry... Path: {0}", dnPath);
+            logger.DebugFormat("Retrieving the DirectoryEntry... Path: {0}", dnPath);
 
             if (de == null)
                 de = new DirectoryEntry(this._ldapStr, this._username, this._password);
@@ -48,13 +49,13 @@ namespace CloudPanel.ActiveDirectory
             else
                 de.Path = this._ldapStr;
 
-            log.DebugFormat("Directory entry retrieved path is {0}", de.Path);
+            logger.DebugFormat("Directory entry retrieved path is {0}", de.Path);
             return de;
         }
 
         private PrincipalContext GetPrincipalContext()
         {
-            log.Debug("Retrieving the PrincipalContext...");
+            logger.Debug("Retrieving the PrincipalContext...");
 
             if (pc == null)
                 pc = new PrincipalContext(ContextType.Domain, this._domainController, this._username, this._password);
@@ -72,7 +73,7 @@ namespace CloudPanel.ActiveDirectory
             DirectorySearcher ds = null;
             try
             {
-                log.DebugFormat("Creating new organizational unit {0} in {1}", newOU.Name, parent);
+                logger.DebugFormat("Creating new organizational unit {0} in {1}", newOU.Name, parent);
 
                 if (string.IsNullOrEmpty(newOU.Name))
                     throw new MissingFieldException("OrganizationalUnit", "Name");
@@ -87,7 +88,7 @@ namespace CloudPanel.ActiveDirectory
                 var searchResult = ds.FindOne();
                 if (searchResult != null)
                 {
-                    log.DebugFormat("Skipping creating OU {0} because it already exists", newOU.Name);
+                    logger.DebugFormat("Skipping creating OU {0} because it already exists", newOU.Name);
 
                     // Set the values to send back
                     newOU.DistinguishedName = searchResult.GetDirectoryEntry().Properties["DistinguishedName"].Value.ToString();
@@ -98,7 +99,7 @@ namespace CloudPanel.ActiveDirectory
                     child = de.Children.Add("OU=" + newOU.Name, "OrganizationalUnit");
 
                     // Add available properties
-                    log.Debug("Iterating through all the properties to add to the new organizational unit.");
+                    logger.Debug("Iterating through all the properties to add to the new organizational unit.");
                     if (!string.IsNullOrEmpty(newOU.Description))
                         child.Properties["Description"].Value = newOU.Description;
 
@@ -124,9 +125,9 @@ namespace CloudPanel.ActiveDirectory
                         foreach (var u in newOU.UPNSuffixes)
                             child.Properties["uPNSuffixes"].Add(u);
 
-                    log.Debug("Done going through all the properties. Now saving the organizational unit...");
+                    logger.Debug("Done going through all the properties. Now saving the organizational unit...");
                     child.CommitChanges();
-                    log.DebugFormat("Successfully saved new organizational unit {0} in {1}... Retrieving new values...", newOU.Name, parent);
+                    logger.DebugFormat("Successfully saved new organizational unit {0} in {1}... Retrieving new values...", newOU.Name, parent);
 
                     // Set the values to send back
                     newOU.DistinguishedName = child.Properties["distinguishedName"].Value.ToString();
@@ -136,13 +137,121 @@ namespace CloudPanel.ActiveDirectory
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error creating new organizational unit {0} in {1}. Exception: {2}", newOU.Name, parent, ex.ToString());
+                logger.ErrorFormat("Error creating new organizational unit {0} in {1}. Exception: {2}", newOU.Name, parent, ex.ToString());
                 throw;
             }
             finally
             {
                 if (child != null)
                     child.Dispose();
+            }
+        }
+
+        public OrganizationalUnit GetOU(string orgUnitDN)
+        {
+            DirectoryEntry de = null;
+
+            try
+            {
+                OrganizationalUnit company = new OrganizationalUnit();
+
+                // Connect to AD
+                logger.DebugFormat("Connecting to AD and binding to {0}", orgUnitDN);
+                de = new DirectoryEntry("LDAP://" + _domainController + "/" + orgUnitDN, _username, _password);
+
+                // Retrieve attributes
+                Guid result = new Guid();
+                Guid.TryParse(de.Properties["objectGUID"].Value.ToString(), out result);
+                logger.DebugFormat("{0}", de.Properties["objectGUID"].Value.ToString());
+
+                company.ObjectGUID = result;
+                company.Name = de.Properties["name"].Value.ToString();
+                company.DisplayName = de.Properties["name"].Value.ToString();
+                company.DistinguishedName = de.Properties["distinguishedName"].Value.ToString();
+                company.WhenCreated = de.Properties["whenCreated"].Value.ToString();
+
+                if (de.Properties["uPNSuffixes"] != null && de.Properties["uPNSuffixes"].Count > 0)
+                {
+                    List<string> domains = new List<string>();
+
+                    for (int i = 0; i < de.Properties["uPNSuffixes"].Count; i++)
+                    {
+                        if (!string.IsNullOrEmpty(de.Properties["uPNSuffixes"][i].ToString()))
+                            domains.Add(de.Properties["uPNSuffixes"][i].ToString());
+                    }
+
+                    // Set company domains
+                    company.UPNSuffixes = domains.ToArray();
+                }
+
+                // If we got here then the OU exist because it didn't throw an error
+                return company;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting organizational unit {0}: {1}", orgUnitDN, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (de != null)
+                    de.Dispose();
+            }
+        }
+
+        public List<OrganizationalUnit> GetChildOUs(string orgUnitDN)
+        {
+            DirectoryEntry de = null;
+            DirectorySearcher ds = null;
+
+            try
+            {
+                List<OrganizationalUnit> foundChildOUs = new List<OrganizationalUnit>();
+
+                // DEBUG //
+                logger.Debug("Checking for child OUs in " + orgUnitDN);
+
+                // Connect to AD
+                de = new DirectoryEntry("LDAP://" + _domainController + "/" + orgUnitDN, _username, _password);
+                ds = new DirectorySearcher(de);
+                ds.Filter = "(objectCategory=organizationalUnit)";
+                ds.SearchScope = SearchScope.OneLevel;
+
+                foreach (SearchResult sr in ds.FindAll())
+                {
+                    OrganizationalUnit company = new OrganizationalUnit();
+
+                    // Create our DirectoryEntry object
+                    DirectoryEntry found = sr.GetDirectoryEntry();
+                    company.Name = found.Properties["name"].Value.ToString();
+                    company.DistinguishedName = company.Name;
+                    company.DistinguishedName = found.Properties["DistinguishedName"].Value.ToString();
+
+                    if (found.Properties["DisplayName"].Value != null)
+                        company.DisplayName = found.Properties["DisplayName"].Value.ToString();
+                    else
+                        company.DisplayName = company.Name;
+
+                    // Add to our list but not if it is the parent ou
+                    if (!company.DistinguishedName.Equals(orgUnitDN, StringComparison.CurrentCultureIgnoreCase))
+                        foundChildOUs.Add(company);
+                }
+
+                // Return list of child OU's
+                return foundChildOUs;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error getting company child OU's in {0}: {1}", orgUnitDN, ex.ToString());
+                throw;
+            }
+            finally
+            {
+                if (ds != null)
+                    ds.Dispose();
+
+                if (de != null)
+                    de.Dispose();
             }
         }
 
@@ -156,7 +265,7 @@ namespace CloudPanel.ActiveDirectory
                 if (string.IsNullOrEmpty(org.DisplayName))
                     throw new MissingFieldException("OrganizationalUnit", "DisplayName");
 
-                log.DebugFormat("Updating organizational unit {0}", org.DistinguishedName);
+                logger.DebugFormat("Updating organizational unit {0}", org.DistinguishedName);
 
                 de = GetDirectoryEntry(org.DistinguishedName);
 
@@ -195,11 +304,11 @@ namespace CloudPanel.ActiveDirectory
                     de.Properties["c"].Clear();
 
                 de.CommitChanges();
-                log.DebugFormat("Successfully updated organizational unit {0}.", org.DistinguishedName);
+                logger.DebugFormat("Successfully updated organizational unit {0}.", org.DistinguishedName);
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error updating organizational unit {0}. Exception: {2}", org.DistinguishedName, ex.ToString());
+                logger.ErrorFormat("Error updating organizational unit {0}. Exception: {2}", org.DistinguishedName, ex.ToString());
                 throw;
             }
         }
@@ -213,12 +322,12 @@ namespace CloudPanel.ActiveDirectory
                 if (string.IsNullOrEmpty(distinguishedName))
                     throw new MissingFieldException("OrganizationalUnits", "DistinguishedName");
 
-                log.DebugFormat("Preparing to delete {0}.", distinguishedName);
+                logger.DebugFormat("Preparing to delete {0}.", distinguishedName);
 
                 de = GetDirectoryEntry(distinguishedName);
                 if (safeDelete)
                 {
-                    log.Debug("Safe delete was selected... checking for users...");
+                    logger.Debug("Safe delete was selected... checking for users...");
 
                     // Check for users and OU's
                     ds = new DirectorySearcher(de, "(objectClass=user)");
@@ -229,7 +338,7 @@ namespace CloudPanel.ActiveDirectory
                         throw new MultipleMatchesException(sr.Count.ToString()); // Do not delete if we found users in the OU
                     else
                     {
-                        log.DebugFormat("No users were found in {0}. It is now safe to delete", distinguishedName);
+                        logger.DebugFormat("No users were found in {0}. It is now safe to delete", distinguishedName);
                         de.DeleteTree();
                     }
                 }
@@ -241,7 +350,7 @@ namespace CloudPanel.ActiveDirectory
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error deleting organizational unit {0}. Exception: {1}", distinguishedName, ex.ToString());
+                logger.ErrorFormat("Error deleting organizational unit {0}. Exception: {1}", distinguishedName, ex.ToString());
                 throw;
             }
             finally
@@ -263,7 +372,7 @@ namespace CloudPanel.ActiveDirectory
                 if (domains == null || domains.Length < 1)
                     throw new MissingFieldException("OrganizationalUnits", "Domains");
 
-                log.DebugFormat("Adding the following domains {0} to all organizational units under {1}", string.Join(", ", domains), distinguishedName);
+                logger.DebugFormat("Adding the following domains {0} to all organizational units under {1}", string.Join(", ", domains), distinguishedName);
 
                 de = GetDirectoryEntry(distinguishedName);
                 dr = new DirectorySearcher(de);
@@ -287,12 +396,12 @@ namespace CloudPanel.ActiveDirectory
                     // Save changes
                     tmp.CommitChanges();
 
-                    log.DebugFormat("Successfully added domains {0} to {1}", string.Join(", ", domains), tmp.Properties["distinguishedName"].Value.ToString());
+                    logger.DebugFormat("Successfully added domains {0} to {1}", string.Join(", ", domains), tmp.Properties["distinguishedName"].Value.ToString());
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error adding domains {0} to {1}. Exception: {2}", string.Join(", ", domains), distinguishedName, ex.ToString());
+                logger.ErrorFormat("Error adding domains {0} to {1}. Exception: {2}", string.Join(", ", domains), distinguishedName, ex.ToString());
                 throw;
             }
             finally
@@ -314,7 +423,7 @@ namespace CloudPanel.ActiveDirectory
                 if (domains == null || domains.Length < 1)
                     throw new MissingFieldException("OrganizationalUnits", "Domains");
 
-                log.DebugFormat("Removing the following domains {0} to all organizational units under {1}", string.Join(", ", domains), distinguishedName);
+                logger.DebugFormat("Removing the following domains {0} to all organizational units under {1}", string.Join(", ", domains), distinguishedName);
 
                 de = GetDirectoryEntry(distinguishedName);
                 dr = new DirectorySearcher(de);
@@ -338,12 +447,12 @@ namespace CloudPanel.ActiveDirectory
                     // Save changes
                     tmp.CommitChanges();
 
-                    log.InfoFormat("Successfully removed domains {0} from {1}", string.Join(", ", domains), tmp.Properties["distinguishedName"].Value.ToString());
+                    logger.InfoFormat("Successfully removed domains {0} from {1}", string.Join(", ", domains), tmp.Properties["distinguishedName"].Value.ToString());
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error removing domains {0} to {1}. Exception: {2}", string.Join(", ", domains), distinguishedName, ex.ToString());
+                logger.ErrorFormat("Error removing domains {0} to {1}. Exception: {2}", string.Join(", ", domains), distinguishedName, ex.ToString());
                 throw;
             }
             finally
@@ -364,13 +473,13 @@ namespace CloudPanel.ActiveDirectory
                 if (string.IsNullOrEmpty(groupName))
                     throw new MissingFieldException("OrganizationalUnit", "GroupName");
 
-                log.DebugFormat("Adding rights to {0}", distinguishedName);
+                logger.DebugFormat("Adding rights to {0}", distinguishedName);
 
                 de = GetDirectoryEntry(distinguishedName);
                 pc = GetPrincipalContext();
 
                 string nospaceGroup = groupName.Replace(" ", string.Empty);
-                log.DebugFormat("Attempting to find group {0}", nospaceGroup);
+                logger.DebugFormat("Attempting to find group {0}", nospaceGroup);
 
                 gp = GroupPrincipal.FindByIdentity(pc, IdentityType.Name, nospaceGroup);
                 de.ObjectSecurity.AddAccessRule(
@@ -383,11 +492,11 @@ namespace CloudPanel.ActiveDirectory
                     new ActiveDirectoryAccessRule(gp.Sid, ActiveDirectoryRights.ListChildren, AccessControlType.Deny, ActiveDirectorySecurityInheritance.All));
 
                 de.CommitChanges();
-                log.InfoFormat("Successfully adding access rights to {0} for group {1}", distinguishedName, nospaceGroup);
+                logger.InfoFormat("Successfully adding access rights to {0} for group {1}", distinguishedName, nospaceGroup);
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error adding rights for {0} to {1}. Exception: {2}", groupName, distinguishedName, ex.ToString());
+                logger.ErrorFormat("Error adding rights for {0} to {1}. Exception: {2}", groupName, distinguishedName, ex.ToString());
                 throw;
             }
             finally
@@ -407,7 +516,7 @@ namespace CloudPanel.ActiveDirectory
                 if (string.IsNullOrEmpty(identity))
                     throw new MissingFieldException("OrganizationalUnit", "GroupName");
 
-                log.DebugFormat("Removing rights from {0} for {1}", distinguishedName, identity);
+                logger.DebugFormat("Removing rights from {0} for {1}", distinguishedName, identity);
 
                 bool modified = false;
                 de = GetDirectoryEntry(distinguishedName);
@@ -424,13 +533,13 @@ namespace CloudPanel.ActiveDirectory
                 de.CommitChanges();
 
                 if (modified)
-                    log.InfoFormat("Successfully removed {0} from {1}", identity, distinguishedName);
+                    logger.InfoFormat("Successfully removed {0} from {1}", identity, distinguishedName);
                 else
-                    log.InfoFormat("Successfully ran but was unable to find matching identities for {0} on {1}", identity, distinguishedName);
+                    logger.InfoFormat("Successfully ran but was unable to find matching identities for {0} on {1}", identity, distinguishedName);
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error removing rights for {0} on {1}. Exception: {2}", identity, distinguishedName, ex.ToString());
+                logger.ErrorFormat("Error removing rights for {0} on {1}. Exception: {2}", identity, distinguishedName, ex.ToString());
                 throw;
             }
         }
@@ -446,118 +555,118 @@ namespace CloudPanel.ActiveDirectory
                 if (string.IsNullOrEmpty(securityGroup))
                     throw new MissingFieldException("OrganizationalUnit", "SecurityGroup");
 
-                log.DebugFormat("Setting company rights on {0} for {1}", distinguishedName, securityGroup);
+                logger.DebugFormat("Setting company rights on {0} for {1}", distinguishedName, securityGroup);
                 pc = GetPrincipalContext();
 
                 // Find the security group
-                log.DebugFormat("Finding security group {0}", securityGroup);
+                logger.DebugFormat("Finding security group {0}", securityGroup);
                 gp = GroupPrincipal.FindByIdentity(pc, IdentityType.Name, securityGroup);
                 if (gp == null)
                     throw new Exception("Security group was not found.");
                 else
                 {
-                    log.DebugFormat("Getting organizational unit {0} and removing inheritance", distinguishedName);
+                    logger.DebugFormat("Getting organizational unit {0} and removing inheritance", distinguishedName);
                     de = GetDirectoryEntry(distinguishedName);
                     de.ObjectSecurity.SetAccessRuleProtection(true, true);
 
                     // Remove Authenticated users
-                    log.DebugFormat("Removing authenticated users from {0}", distinguishedName);
+                    logger.DebugFormat("Removing authenticated users from {0}", distinguishedName);
                     foreach (ActiveDirectoryAccessRule rule in de.ObjectSecurity.GetAccessRules(true, true, typeof(NTAccount)))
                     {
-                        log.DebugFormat("Checking if {0} equals NT AUTHORITY\\Authenticated Users", rule.IdentityReference.Value);
+                        logger.DebugFormat("Checking if {0} equals NT AUTHORITY\\Authenticated Users", rule.IdentityReference.Value);
                         if (rule.IdentityReference.Value.Equals(@"NT AUTHORITY\Authenticated Users"))
                         {
-                            log.DebugFormat("***** FOUND MATCH {0} *****", rule.IdentityReference.Value);
+                            logger.DebugFormat("***** FOUND MATCH {0} *****", rule.IdentityReference.Value);
                             de.ObjectSecurity.RemoveAccessRule(rule);
                         }
                     }
 
                     // Add security group to have read access
-                    log.DebugFormat("Adding security group {0} to {1}", securityGroup, distinguishedName);
+                    logger.DebugFormat("Adding security group {0} to {1}", securityGroup, distinguishedName);
                     var newRule = new ActiveDirectoryAccessRule(gp.Sid, ActiveDirectoryRights.GenericRead, AccessControlType.Allow, ActiveDirectorySecurityInheritance.All);
                     de.ObjectSecurity.AddAccessRule(newRule);
 
                     // Save changes
-                    log.DebugFormat("Saving changes..");
+                    logger.DebugFormat("Saving changes..");
                     de.CommitChanges();
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error setting company rights on {0} for {1}", distinguishedName, securityGroup);
+                logger.ErrorFormat("Error setting company rights on {0} for {1}", distinguishedName, securityGroup);
                 throw;
             }
         }
 
         public List<Users> GetUsers(string distinguishedName)
         {
-            DirectorySearcher dr = null;
-
+            UserPrincipalExt up = null;
+            PrincipalSearcher sr = null;
             List<Users> foundUsers = new List<Users>();
             try
             {
                 if (string.IsNullOrEmpty(distinguishedName))
                     throw new MissingFieldException("OrganizationalUnits", "DistinguishedName");
 
-                log.DebugFormat("Retrieving a list of users from {0}", distinguishedName);
+                logger.DebugFormat("Retrieving a list of users from {0}", distinguishedName);
+                pc = new PrincipalContext(ContextType.Domain, _domainController, distinguishedName, _username, _password);
+                up = new UserPrincipalExt(pc);
+                sr = new PrincipalSearcher(up);
 
-                de = GetDirectoryEntry(distinguishedName);
-                dr = new DirectorySearcher(de, "(objectClass=user)", null, SearchScope.Subtree);
+                var users = sr.FindAll();
 
-                foreach (var user in dr.FindAll())
+                logger.DebugFormat("Found a total of {0} users", users.Count());
+                foreach (var user in users)
                 {
-                    // Get our organizational unit
-                    DirectoryEntry tmp = (DirectoryEntry)user;
+                    // Get our user
+                    UserPrincipalExt tmp = user as UserPrincipalExt;
+                    if (tmp != null)
+                    {
+                        Users foundUser = new Users();
+                        foundUser.UserGuid = (Guid)tmp.Guid;
+                        foundUser.Street = tmp.StreetAddress;
+                        foundUser.City = tmp.City;
+                        foundUser.State = tmp.State;
+                        foundUser.PostalCode = tmp.ZipCode;
+                        foundUser.Country = tmp.Country;
+                        foundUser.Company = tmp.Company;
+                        foundUser.Department = tmp.Department;
+                        foundUser.Description = tmp.Description;
+                        foundUser.Firstname = tmp.GivenName;
+                        foundUser.Lastname = tmp.LastName;
+                        foundUser.DisplayName = tmp.DisplayName;
+                        foundUser.Name = tmp.Name;
+                        foundUser.UserPrincipalName = tmp.UserPrincipalName;
+                        foundUser.Fax = tmp.Fax;
+                        foundUser.TelephoneNumber = tmp.TelephoneNumber;
+                        foundUser.HomePhone = tmp.HomePhone;
+                        foundUser.IPPhone = tmp.IPPhone;
+                        foundUser.JobTitle = tmp.JobTitle;
+                        foundUser.MobilePhone = tmp.MobilePhone;
+                        foundUser.Office = tmp.Office;
+                        foundUser.Pager = tmp.Pager;
+                        foundUser.ScriptPath = tmp.ScriptPath;
+                        foundUser.Webpage = tmp.Website;
+                        foundUser.Email = tmp.EmailAddress;
 
-                    Users foundUser = new Users();
-                    foundUser.AccountExpires = GetPropertyValue(ref tmp, "accountExpires", "long");
-                    foundUser.BadPasswordTime = GetPropertyValue(ref tmp, "badPasswordTime", "long");
-                    foundUser.BadPwdCount = GetPropertyValue(ref tmp, "badPwdCount", "int");
-                    foundUser.UserAccountControl = GetPropertyValue(ref tmp, "userAccountControl", "int");
-                    foundUser.PwdLastSet = GetPropertyValue(ref tmp, "pwdLastSet", "long");
-                    foundUser.SamAccountType = GetPropertyValue(ref tmp, "sAMAccountType", "int");
-                    foundUser.UserGuid = GetPropertyValue(ref tmp, "objectGuid");
-                    foundUser.Street = GetPropertyValue(ref tmp, "streetAddress");
-                    foundUser.City = GetPropertyValue(ref tmp, "l");
-                    foundUser.State = GetPropertyValue(ref tmp, "st");
-                    foundUser.PostalCode = GetPropertyValue(ref tmp, "postalCode");
-                    foundUser.Country = GetPropertyValue(ref tmp, "co");
-                    foundUser.CountryCode = GetPropertyValue(ref tmp, "c");
-                    foundUser.Company = GetPropertyValue(ref tmp, "company");
-                    foundUser.Department = GetPropertyValue(ref tmp, "department");
-                    foundUser.Description = GetPropertyValue(ref tmp, "description");
-                    foundUser.Firstname = GetPropertyValue(ref tmp, "givenName");
-                    foundUser.Lastname = GetPropertyValue(ref tmp, "sn");
-                    foundUser.DisplayName = GetPropertyValue(ref tmp, "displayName");
-                    foundUser.Name = GetPropertyValue(ref tmp, "name");
-                    foundUser.UserPrincipalName = GetPropertyValue(ref tmp, "userPrincipalName");
-                    foundUser.Fax = GetPropertyValue(ref tmp, "facsimileTelephoneNumber");
-                    foundUser.TelephoneNumber = GetPropertyValue(ref tmp, "telephoneNumber");
-                    foundUser.HomePhone = GetPropertyValue(ref tmp, "homePhone");
-                    foundUser.IPPhone = GetPropertyValue(ref tmp, "ipPhone");
-                    foundUser.JobTitle = GetPropertyValue(ref tmp, "title");
-                    foundUser.MobilePhone = GetPropertyValue(ref tmp, "mobile");
-                    foundUser.Office = GetPropertyValue(ref tmp, "physicalDeliveryOfficeName");
-                    foundUser.Pager = GetPropertyValue(ref tmp, "pager");
-                    foundUser.POBox = GetPropertyValue(ref tmp, "postOfficeBox");
-                    foundUser.ScriptPath = GetPropertyValue(ref tmp, "scriptPath");
-                    foundUser.ProfilePath = GetPropertyValue(ref tmp, "profilePath");
-                    foundUser.Webpage = GetPropertyValue(ref tmp, "wWWHomePage");
-
-                    foundUsers.Add(foundUser);
+                        foundUsers.Add(foundUser);
+                    }
                 }
 
                 return foundUsers;
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error retrieving users from {0}. Exception: {1}", distinguishedName, ex.ToString());
+                logger.ErrorFormat("Error retrieving users from {0}. Exception: {1}", distinguishedName, ex.ToString());
                 throw;
             }
             finally
             {
-                if (dr != null)
-                    dr.Dispose();
+                if (up != null)
+                    up.Dispose();
+
+                if (sr != null)
+                    sr.Dispose();
             }
         }
 

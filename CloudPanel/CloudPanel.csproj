@@ -1370,6 +1370,7 @@
     </Compile>
     <Compile Include="Modules\Admin\BrandingModule.cs" />
     <Compile Include="Modules\Admin\ExchangeModule.cs" />
+    <Compile Include="Modules\Admin\ImportModule.cs" />
     <Compile Include="Modules\Admin\MassEmailModule.cs" />
     <Compile Include="Modules\Admin\SettingsModule.cs" />
     <Compile Include="Modules\ApiModule.cs" />
@@ -1382,6 +1383,7 @@
     <Compile Include="Modules\CompanyModules\Exchange\BulkModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\MailboxModule.cs" />
     <Compile Include="Modules\CompanyModules\Exchange\PublicFolderModule.cs" />
+    <Compile Include="Modules\CompanyModules\ImportModule.cs" />
     <Compile Include="Modules\CompanyModules\OverviewModule.cs" />
     <Compile Include="Modules\CompanyModules\PermissionsModule.cs" />
     <Compile Include="Modules\CompanyModules\UsersImportModule.cs" />
@@ -1719,6 +1721,8 @@
     <Content Include="Views\Company\Exchange\publicfolders_enable.cshtml" />
     <Content Include="Views\Plans\publicfolders.cshtml" />
     <Content Include="Views\Company\Exchange\publicfolders_modify.cshtml" />
+    <Content Include="Views\Admin\import_companies.cshtml" />
+    <Content Include="Views\Admin\import_users.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

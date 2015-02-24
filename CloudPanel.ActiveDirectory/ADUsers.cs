@@ -174,7 +174,7 @@ namespace CloudPanel.ActiveDirectory
                 pc = GetPrincipalContext();
 
                 logger.DebugFormat("Attempting to retrieve user {0}", username);
-                usr = UserPrincipal.FindByIdentity(pc, IdentityType.UserPrincipalName, username);
+                usr = UserPrincipal.FindByIdentity(pc, username);
 
                 if (usr == null)
                     throw new Exception("Unable to find user " + username);
@@ -182,12 +182,14 @@ namespace CloudPanel.ActiveDirectory
                 logger.DebugFormat("Found user.. now retrieving property values...");
                 DirectoryEntry tmp = (DirectoryEntry)usr.GetUnderlyingObject();
                 foundUser.UserGuid = tmp.Guid;
+                foundUser.DistinguishedName = GetPropertyValue(ref tmp, "DistinguishedName");
                 //foundUser.AccountExpires = GetPropertyValue(ref tmp, "accountExpires", "long");
                 //foundUser.BadPasswordTime = GetPropertyValue(ref tmp, "badPasswordTime", "long");
                 foundUser.BadPwdCount = GetPropertyValue(ref tmp, "badPwdCount", "int");
                 foundUser.UserAccountControl = GetPropertyValue(ref tmp, "userAccountControl", "int");
                 //foundUser.PwdLastSet = GetPropertyValue(ref tmp, "pwdLastSet", "long");
                 foundUser.SamAccountType = GetPropertyValue(ref tmp, "sAMAccountType", "int");
+                foundUser.sAMAccountName = GetPropertyValue(ref tmp, "sAMAccountName");
                 foundUser.Street = GetPropertyValue(ref tmp, "streetAddress");
                 foundUser.City = GetPropertyValue(ref tmp, "l");
                 foundUser.State = GetPropertyValue(ref tmp, "st");
@@ -250,7 +252,7 @@ namespace CloudPanel.ActiveDirectory
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
-        public Users GetUserWithoutGroups(string username)
+        public Users GetUserWithoutGroups(string identity)
         {
             UserPrincipal usr = null;
 
@@ -259,17 +261,19 @@ namespace CloudPanel.ActiveDirectory
             {
                 pc = GetPrincipalContext();
 
-                logger.DebugFormat("Attempting to retrieve user {0}", username);
-                usr = UserPrincipal.FindByIdentity(pc, IdentityType.UserPrincipalName, username);
+                logger.DebugFormat("Attempting to retrieve user {0}", identity);
+                usr = UserPrincipal.FindByIdentity(pc, identity);
 
                 DirectoryEntry tmp = (DirectoryEntry)usr.GetUnderlyingObject();
+                foundUser.UserGuid = tmp.Guid;
+                foundUser.DistinguishedName = GetPropertyValue(ref tmp, "DistinguishedName");
                 //foundUser.AccountExpires = GetPropertyValue(ref tmp, "accountExpires", "long");
                 //foundUser.BadPasswordTime = GetPropertyValue(ref tmp, "badPasswordTime", "long");
                 foundUser.BadPwdCount = GetPropertyValue(ref tmp, "badPwdCount", "int");
                 foundUser.UserAccountControl = GetPropertyValue(ref tmp, "userAccountControl", "int");
                 //foundUser.PwdLastSet = GetPropertyValue(ref tmp, "pwdLastSet", "long");
                 foundUser.SamAccountType = GetPropertyValue(ref tmp, "sAMAccountType", "int");
-                foundUser.UserGuid = tmp.Guid;
+                foundUser.sAMAccountName = GetPropertyValue(ref tmp, "sAMAccountName");
                 foundUser.Street = GetPropertyValue(ref tmp, "streetAddress");
                 foundUser.City = GetPropertyValue(ref tmp, "l");
                 foundUser.State = GetPropertyValue(ref tmp, "st");
@@ -304,7 +308,7 @@ namespace CloudPanel.ActiveDirectory
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error retrieving user {0}. Exception: {1}", username, ex.ToString());
+                logger.ErrorFormat("Error retrieving user {0}. Exception: {1}", identity, ex.ToString());
                 throw;
             }
             finally
@@ -313,6 +317,7 @@ namespace CloudPanel.ActiveDirectory
                     usr.Dispose();
             }
         }
+
 
         /// <summary>
         /// Get user information and properties including the photo

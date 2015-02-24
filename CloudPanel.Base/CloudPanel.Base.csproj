@@ -108,6 +108,8 @@
     <Compile Include="Models\ViewModels\CreateUserViewModel.cs" />
     <Compile Include="Models\ViewModels\ExchangeBulkEditViewModel.cs" />
     <Compile Include="Models\ViewModels\ExchangeMessageLogCountViewModel.cs" />
+    <Compile Include="Models\ViewModels\ImportCompanyViewModel.cs" />
+    <Compile Include="Models\ViewModels\ImportUserViewModel.cs" />
     <Compile Include="Models\ViewModels\SelectObjectViewModel.cs" />
     <Compile Include="Other\DynamicHandlers.cs" />
     <Compile Include="Other\Error.cs" />

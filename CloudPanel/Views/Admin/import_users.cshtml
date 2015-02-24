@@ -1,0 +1,91 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+@{
+    Layout = "__master.cshtml";
+}
+
+@section HEAD{
+
+}
+
+<div id="page-heading">
+    <ol class="breadcrumb">
+        <li><a href="~/dashboard">Dashboard</a></li>
+        <li>Admin</li>
+        <li class="active">Import Users</li>
+    </ol>
+
+    <h1>Import Users</h1>
+</div>
+
+<form id="form" action="" method="post">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Import Users</div>
+                    <div class="panel-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Guid</th>
+                                    <th>UserPrincipalName</th>
+                                    <th>Email</th>
+                                    <th>Mailbox Plan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.users != null)
+                                {
+                                    int count = 0;
+                                    foreach (CloudPanel.Base.Models.Database.Users user in Model.users)
+                                    {
+                                        <tr>
+                                            <td><input name="IsChecked[@count]" type="checkbox" value="false" /></td>
+                                            <td><input name="UserGuid[@count]" type="text" value="@user.UserGuid" class="form-control" readonly /></td>
+                                            <td><input name="UserPrincipalName[@count]" type="text" value="@user.UserPrincipalName" class="form-control" readonly /></td>
+                                            <td><input name="Email[@count]" type="text" value="@user.Email" class="form-control" readonly /></td>
+                                            <td>
+                                                <select name="MailboxPlan[@count]" class="form-control">
+                                                    <option value="0">--- Email Not Enabled ---</option>
+                                                    @foreach (var plan in CloudPanel.Modules.PlansModules.MailboxPlanModule.GetMailboxPlans(user.CompanyCode))
+                                                    {
+                                                        <option value="@plan.MailboxPlanID">@plan.MailboxPlanName</option>
+                                                    }
+                                                </select>
+                                            </td>
+                                        </tr>
+
+                                        count++;
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="panel-footer">
+                        <div class="row">
+                            <div class="btn-toolbar text-right">
+                                <button class="btn-primary btn" type="submit">Import</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section JAVASCRIPT{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("input[type=checkbox]").click(function () {
+                if ($(this).is(':checked')) {
+                    $(this).val("true");
+                } else {
+                    $(this).val("false");
+                }
+            });
+        });
+    </script>
+}

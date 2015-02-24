@@ -68,7 +68,7 @@ namespace CloudPanel.ActiveDirectory
         /// <param name="parentOU"></param>
         /// <param name="group"></param>
         /// <returns></returns>
-        public SecurityGroup Create(string parentOU, SecurityGroup group)
+        public SecurityGroup Create(string parentOU, SecurityGroup group, bool ignoreExisting = false)
         {
             PrincipalContext ctx = null;
             GroupPrincipal grp = null;
@@ -108,6 +108,11 @@ namespace CloudPanel.ActiveDirectory
                         grp.DisplayName = group.DisplayName;
 
                     grp.Save();
+                }
+                else
+                {
+                    if (!ignoreExisting) // Throw exception if we are NOT ignoring existing security group
+                        throw new PrincipalExistsException(grp.DistinguishedName);
                 }
 
                 log.DebugFormat("Successfully created new group {0}", group.Name);

@@ -457,6 +457,48 @@ namespace CloudPanel.Exchange
             logger.InfoFormat("Removed accepted domain {0}", deleteDomain.Domain);
         }
 
+        public List<Domains> Get_AcceptedDomains()
+        {
+            List<Domains> domains = new List<Domains>();
+
+            PSCommand cmd = new PSCommand();
+            cmd.AddCommand("Get-AcceptedDomain");
+            cmd.AddParameter("ResultSize", "Unlimited");
+            cmd.AddParameter("DomainController", this._domainController);
+            _powershell.Commands = cmd;
+            
+            var psObjects = _powershell.Invoke();
+            if (_powershell.HadErrors)
+                throw _powershell.Streams.Error[0].Exception;
+            else
+            {
+                foreach (PSObject ps in psObjects)
+                {
+                    Domains newDomain = new Domains();
+                    newDomain.Domain = ps.Members["DomainName"].Value.ToString();
+                    newDomain.IsAcceptedDomain = true;
+
+                    string domainType = ps.Members["DomainType"].Value.ToString();
+                    switch (domainType.ToLower())
+                    {
+                        case "internalrelay":
+                            newDomain.DomainType = DomainType.InternalRelay;
+                            break;
+                        case "externalrelay":
+                            newDomain.DomainType = DomainType.ExternalRelay;
+                            break;
+                        default:
+                            newDomain.DomainType = DomainType.Authoritative;
+                            break;
+                    }
+
+                    domains.Add(newDomain);
+                }
+            }
+
+            return domains;
+        }
+
         #endregion
 
         #region Groups
