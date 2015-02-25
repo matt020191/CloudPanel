@@ -1166,7 +1166,10 @@ namespace CloudPanel.ActiveDirectory
 
             if (dEntry.Properties[property] != null && dEntry.Properties[property].Value != null)
             {
-                return dEntry.Properties[property].Value;
+                if (dEntry.Properties[property].Value is byte[] && expectedType == "guid")
+                    return new Guid((byte[])dEntry.Properties[property].Value);
+                else
+                    return dEntry.Properties[property].Value;
             }
             else
             {
