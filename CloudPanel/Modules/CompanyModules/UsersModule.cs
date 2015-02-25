@@ -64,7 +64,8 @@ namespace CloudPanel.Modules
                                          IsEnabled = d.IsEnabled == null ? true : (bool)d.IsEnabled,
                                          Created = d.Created,
                                          Email = d.Email,
-                                         MailboxPlan = d.MailboxPlan
+                                         MailboxPlan = d.MailboxPlan,
+                                         ArchivePlan = d.ArchivePlan
                                      }).ToList();
 
                         int draw = 0, start = 0, length = 0, recordsTotal = users.Count, recordsFiltered = users.Count, orderColumn = 0;
