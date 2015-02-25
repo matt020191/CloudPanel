@@ -183,11 +183,8 @@ namespace CloudPanel.ActiveDirectory
                 DirectoryEntry tmp = (DirectoryEntry)usr.GetUnderlyingObject();
                 foundUser.UserGuid = tmp.Guid;
                 foundUser.DistinguishedName = GetPropertyValue(ref tmp, "DistinguishedName");
-                //foundUser.AccountExpires = GetPropertyValue(ref tmp, "accountExpires", "long");
-                //foundUser.BadPasswordTime = GetPropertyValue(ref tmp, "badPasswordTime", "long");
                 foundUser.BadPwdCount = GetPropertyValue(ref tmp, "badPwdCount", "int");
                 foundUser.UserAccountControl = GetPropertyValue(ref tmp, "userAccountControl", "int");
-                //foundUser.PwdLastSet = GetPropertyValue(ref tmp, "pwdLastSet", "long");
                 foundUser.SamAccountType = GetPropertyValue(ref tmp, "sAMAccountType", "int");
                 foundUser.sAMAccountName = GetPropertyValue(ref tmp, "sAMAccountName");
                 foundUser.Street = GetPropertyValue(ref tmp, "streetAddress");
@@ -216,6 +213,8 @@ namespace CloudPanel.ActiveDirectory
                 foundUser.ScriptPath = GetPropertyValue(ref tmp, "scriptPath");
                 foundUser.ProfilePath = GetPropertyValue(ref tmp, "profilePath");
                 foundUser.Webpage = GetPropertyValue(ref tmp, "wWWHomePage");
+                foundUser.Email = GetPropertyValue(ref tmp, "mail");
+                foundUser.msExchMailboxGuid = GetPropertyValue(ref tmp, "msExchMailboxGuid", "guid");
 
                 logger.DebugFormat("Making sure the user is enabled");
                 int flags = (int)tmp.Properties["userAccountControl"].Value;
@@ -267,11 +266,8 @@ namespace CloudPanel.ActiveDirectory
                 DirectoryEntry tmp = (DirectoryEntry)usr.GetUnderlyingObject();
                 foundUser.UserGuid = tmp.Guid;
                 foundUser.DistinguishedName = GetPropertyValue(ref tmp, "DistinguishedName");
-                //foundUser.AccountExpires = GetPropertyValue(ref tmp, "accountExpires", "long");
-                //foundUser.BadPasswordTime = GetPropertyValue(ref tmp, "badPasswordTime", "long");
                 foundUser.BadPwdCount = GetPropertyValue(ref tmp, "badPwdCount", "int");
                 foundUser.UserAccountControl = GetPropertyValue(ref tmp, "userAccountControl", "int");
-                //foundUser.PwdLastSet = GetPropertyValue(ref tmp, "pwdLastSet", "long");
                 foundUser.SamAccountType = GetPropertyValue(ref tmp, "sAMAccountType", "int");
                 foundUser.sAMAccountName = GetPropertyValue(ref tmp, "sAMAccountName");
                 foundUser.Street = GetPropertyValue(ref tmp, "streetAddress");
@@ -300,6 +296,8 @@ namespace CloudPanel.ActiveDirectory
                 foundUser.ScriptPath = GetPropertyValue(ref tmp, "scriptPath");
                 foundUser.ProfilePath = GetPropertyValue(ref tmp, "profilePath");
                 foundUser.Webpage = GetPropertyValue(ref tmp, "wWWHomePage");
+                foundUser.Email = GetPropertyValue(ref tmp, "mail");
+                foundUser.msExchMailboxGuid = GetPropertyValue(ref tmp, "msExchMailboxGuid", "guid");
 
                 int flags = (int)tmp.Properties["userAccountControl"].Value;
                 foundUser.IsEnabled = !Convert.ToBoolean(flags & 0x0002);
@@ -337,13 +335,12 @@ namespace CloudPanel.ActiveDirectory
                 usr = UserPrincipal.FindByIdentity(pc, IdentityType.UserPrincipalName, username);
 
                 DirectoryEntry tmp = (DirectoryEntry)usr.GetUnderlyingObject();
-                foundUser.AccountExpires = GetPropertyValue(ref tmp, "accountExpires", "long");
-                foundUser.BadPasswordTime = GetPropertyValue(ref tmp, "badPasswordTime", "long");
+                foundUser.UserGuid = tmp.Guid;
+                foundUser.DistinguishedName = GetPropertyValue(ref tmp, "DistinguishedName");
                 foundUser.BadPwdCount = GetPropertyValue(ref tmp, "badPwdCount", "int");
                 foundUser.UserAccountControl = GetPropertyValue(ref tmp, "userAccountControl", "int");
-                foundUser.PwdLastSet = GetPropertyValue(ref tmp, "pwdLastSet", "long");
                 foundUser.SamAccountType = GetPropertyValue(ref tmp, "sAMAccountType", "int");
-                foundUser.UserGuid = GetPropertyValue(ref tmp, "objectGuid");
+                foundUser.sAMAccountName = GetPropertyValue(ref tmp, "sAMAccountName");
                 foundUser.Street = GetPropertyValue(ref tmp, "streetAddress");
                 foundUser.City = GetPropertyValue(ref tmp, "l");
                 foundUser.State = GetPropertyValue(ref tmp, "st");
@@ -370,6 +367,8 @@ namespace CloudPanel.ActiveDirectory
                 foundUser.ScriptPath = GetPropertyValue(ref tmp, "scriptPath");
                 foundUser.ProfilePath = GetPropertyValue(ref tmp, "profilePath");
                 foundUser.Webpage = GetPropertyValue(ref tmp, "wWWHomePage");
+                foundUser.Email = GetPropertyValue(ref tmp, "mail");
+                foundUser.msExchMailboxGuid = GetPropertyValue(ref tmp, "msExchMailboxGuid", "guid");
 
                 // Get groups
                 List<string> groups = new List<string>();
@@ -1165,7 +1164,7 @@ namespace CloudPanel.ActiveDirectory
         {
             logger.DebugFormat("Parsing property {0} with expected type {1}", property, expectedType);
 
-            if (dEntry.Properties[property] != null)
+            if (dEntry.Properties[property] != null && dEntry.Properties[property].Value != null)
             {
                 return dEntry.Properties[property].Value;
             }
@@ -1177,7 +1176,7 @@ namespace CloudPanel.ActiveDirectory
                     case "int":
                         return 0;
                     case "guid":
-                        return Guid.Parse(dEntry.Properties[property].Value.ToString());
+                        return Guid.Parse("00000000-0000-0000-0000-000000000000");
                     default:
                         return string.Empty;
                 }

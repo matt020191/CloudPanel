@@ -15,6 +15,7 @@ using Nancy.Responses.Negotiation;
 using CloudPanel.Base.Models.ViewModels;
 using CloudPanel.Exchange;
 using CloudPanel.Base.Enums;
+using Nancy.Security;
 
 namespace CloudPanel.Modules.Admin
 {
@@ -24,6 +25,8 @@ namespace CloudPanel.Modules.Admin
 
         public ImportModule() : base("/import")
         {
+            this.RequiresClaims(new[] { "SuperAdmin" });
+
             Get["/{ResellerCode}"] = _ =>
                 {
                     #region Get a list of organizational units in the reseller OU that are not in the database
@@ -116,8 +119,10 @@ namespace CloudPanel.Modules.Admin
                                 newCompany.AdminName = string.IsNullOrEmpty(company.AdminDisplayName) ? "Unknown" : company.AdminDisplayName;
                                 newCompany.AdminEmail = "Unknown";
                                 newCompany.PhoneNumber = "Unknown";
+                                newCompany.ExchEnabled = c.IsExchangeEnabled;
 
                                 // Create missing organizational units
+                                logger.DebugFormat("Creating organizational units");
                                 org.Create(newCompany.DistinguishedName, new OrganizationalUnit() { Name = Settings.ExchangeOUName });
                                 org.Create(newCompany.DistinguishedName, new OrganizationalUnit() { Name = Settings.ApplicationsOUName });
                                 org.Create(newCompany.DistinguishedName, new OrganizationalUnit() { Name = Settings.ExchangeGroupsOU });
@@ -129,6 +134,7 @@ namespace CloudPanel.Modules.Admin
                                     org.Create(newCompany.DistinguishedName, new OrganizationalUnit() { Name = Settings.UsersOU });
 
                                 // Create security groups
+                                logger.DebugFormat("Creating security groups");
                                 string cc = newCompany.CompanyCode;
                                 group.Create(c.DistinguishedName, new SecurityGroup() { Name = "AllTSUsers@" + cc, SamAccountName = "AllTSUsers@" + cc }, true);
                                 group.Create(c.DistinguishedName, new SecurityGroup() { Name = "AllUsers@" + cc, SamAccountName = "AllUsers@" + cc }, true);

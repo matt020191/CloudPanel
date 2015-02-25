@@ -6,6 +6,7 @@ using log4net;
 using Nancy;
 using Nancy.ModelBinding;
 using Nancy.Responses.Negotiation;
+using Nancy.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,8 @@ namespace CloudPanel.Modules.CompanyModules
 
         public ImportModule(): base("/company/{CompanyCode}/import")
         {
+            this.RequiresClaims(new[] { "SuperAdmin" });
+
             Get["/users"] = _ =>
                 {
                     #region Get a list of users not in the database
@@ -46,7 +49,7 @@ namespace CloudPanel.Modules.CompanyModules
                         org = new ADOrganizationalUnits(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
 
                         var users = org.GetUsers(company.DistinguishedName);
-                        users = users.Where(x => sqlUsers.Contains(x.UserGuid)).ToList();
+                        users = users.Where(x => !sqlUsers.Contains(x.UserGuid)).ToList();
 
                         logger.DebugFormat("Found a total of {0} users", users.Count);
                         return Negotiate.WithModel(new { users = users })
@@ -93,12 +96,21 @@ namespace CloudPanel.Modules.CompanyModules
                         foreach (var u in checkedUsers)
                         {
                             logger.DebugFormat("Preparing to import user {0}", u.UserPrincipalName);
-                            var tmpADUser = users.GetUserWithoutGroups(u.UserGuid.ToString());
-                            tmpADUser.UserGuid = u.UserGuid;
-                            tmpADUser.CompanyCode = companyCode;
-                            tmpADUser.MailboxPlan = isExchangeEnabled ? u.MailboxPlan : 0;
+                            if (u.IsChecked)
+                            {
+                                var tmpADUser = users.GetUserWithoutGroups(u.UserGuid.ToString());
+                                tmpADUser.UserGuid = u.UserGuid;
+                                tmpADUser.CompanyCode = companyCode;
 
-                            db.Users.Add(tmpADUser);
+                                if (isExchangeEnabled) {
+                                    if (tmpADUser.msExchMailboxGuid != Guid.Parse("00000000-0000-0000-0000-000000000000") && u.MailboxPlan > 0)
+                                        tmpADUser.MailboxPlan = u.MailboxPlan;
+                                }
+
+                                db.Users.Add(tmpADUser);
+                            }
+                            else
+                                logger.DebugFormat("Skipping user {0} because it was not checked", u.UserPrincipalName);
                         }
 
                         db.SaveChanges();

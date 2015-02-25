@@ -463,7 +463,6 @@ namespace CloudPanel.Exchange
 
             PSCommand cmd = new PSCommand();
             cmd.AddCommand("Get-AcceptedDomain");
-            cmd.AddParameter("ResultSize", "Unlimited");
             cmd.AddParameter("DomainController", this._domainController);
             _powershell.Commands = cmd;
             

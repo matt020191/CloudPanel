@@ -533,10 +533,10 @@
         if (isResellerAdmin)
             html.push('<span class="badge badge-info tooltip-ex" data-toggle="tooltip" data-original-title="Reseller Administrator"><i class="fa fa-gears"></i></span><span class="tab-space"></span>');
 
-        if (hasMailbox != null)
+        if (hasMailbox > 0)
             html.push('<span class="badge badge-warning tooltip-ex" data-toggle="tooltip" data-original-title="Has a Mailbox"><i class="fa fa-envelope"></i></span><span class="tab-space"></span>');
 
-        if (hasArchiveMailbox != null)
+        if (hasArchiveMailbox > 0)
             html.push('<span class="badge badge-primary tooltip-ex" data-toggle="tooltip" data-original-title="Has a Archive Mailbox"><i class="fa fa-database"></i></span><span class="tab-space"></span>');
 
 

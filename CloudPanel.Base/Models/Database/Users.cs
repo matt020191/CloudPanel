@@ -416,6 +416,9 @@ namespace CloudPanel.Base.Models.Database
         [NotMapped] // Used on reports
         public long ArchiveSizeInBytes { get; set; }
 
+        [NotMapped]
+        public Guid msExchMailboxGuid { get; set; }
+
         #endregion
 
         #region Modified notifications
