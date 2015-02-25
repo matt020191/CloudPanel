@@ -2,10 +2,12 @@
 
 @{
     Layout = "__master.cshtml";
+    var companyCode = this.RenderContext.Context.Parameters.CompanyCode;
+    var mailboxPlans = CloudPanel.Modules.PlansModules.MailboxPlanModule.GetMailboxPlans(companyCode);
 }
 
 @section HEAD{
-
+    
 }
 
 <div id="page-heading">
@@ -28,11 +30,20 @@
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th></th>
+                                    <th><input id="SelectAll" type="checkbox" /></th>
                                     <th>Guid</th>
                                     <th>UserPrincipalName</th>
                                     <th>Email</th>
-                                    <th>Mailbox Plan</th>
+                                    <th>
+                                        <select id="SelectAllMailboxPlan" name="SelectAllMailboxPlan" class="form-control">
+                                            <option value="0">--- Email Not Enabled ---</option>
+                                            @foreach (var plan in mailboxPlans)
+                                            {
+                                                <option value="@plan.MailboxPlanID">@plan.MailboxPlanName</option>
+                                            }
+                                        </select>
+
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -49,7 +60,7 @@
                                             <td>
                                                 <select name="MailboxPlan[@count]" class="form-control">
                                                     <option value="0">--- Email Not Enabled ---</option>
-                                                    @foreach (var plan in CloudPanel.Modules.PlansModules.MailboxPlanModule.GetMailboxPlans(user.CompanyCode))
+                                                    @foreach (var plan in mailboxPlans)
                                                     {
                                                         <option value="@plan.MailboxPlanID">@plan.MailboxPlanName</option>
                                                     }
@@ -84,6 +95,20 @@
                     $(this).val("true");
                 } else {
                     $(this).val("false");
+                }
+            });
+
+            $("#SelectAllMailboxPlan").on("change", function () {
+                $("select").val($(this).val());
+            });
+
+            $("#SelectAll").change(function () {
+                if (this.checked) {
+                    $("input[type=checkbox]").prop("checked", true);
+                    $("input[type=checkbox]").val(true);
+                } else {
+                    $("input[type=checkbox]").prop("checked", false);
+                    $("input[type=checkbox]").val(false);
                 }
             });
         });
