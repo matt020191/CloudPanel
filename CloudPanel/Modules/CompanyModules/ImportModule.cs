@@ -79,6 +79,7 @@ namespace CloudPanel.Modules.CompanyModules
                     string companyCode = _.CompanyCode;
 
                     ADUsers users = null;
+                    ADGroups groups = null;
                     CloudPanelContext db = null;
                     try
                     {
@@ -92,7 +93,10 @@ namespace CloudPanel.Modules.CompanyModules
                         logger.DebugFormat("Checking if company {0} is enabled for Exchange", companyCode);
                         var isExchangeEnabled = CloudPanel.CPStaticHelpers.IsExchangeEnabled(companyCode);
 
+                        string allUsersGroup = string.Format("AllUsers@{0}", companyCode);
+
                         users = new ADUsers(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
+                        groups = new ADGroups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
                         foreach (var u in checkedUsers)
                         {
                             logger.DebugFormat("Preparing to import user {0}", u.UserPrincipalName);
@@ -106,6 +110,9 @@ namespace CloudPanel.Modules.CompanyModules
                                     if (tmpADUser.msExchMailboxGuid != Guid.Parse("00000000-0000-0000-0000-000000000000") && u.MailboxPlan > 0)
                                         tmpADUser.MailboxPlan = u.MailboxPlan;
                                 }
+
+                                // Add to group
+                                groups.AddUser(allUsersGroup, tmpADUser.UserPrincipalName);
 
                                 db.Users.Add(tmpADUser);
                             }
