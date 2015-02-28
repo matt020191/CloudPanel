@@ -405,6 +405,9 @@ namespace CloudPanel.Base.Models.Database
         public string CanoncialName { get; set; }
 
         [NotMapped]
+        public string MailboxDatabase { get; set; }
+
+        [NotMapped]
         public bool AutoMapping { get; set; }
 
         [NotMapped]

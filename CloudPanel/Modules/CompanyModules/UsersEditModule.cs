@@ -617,9 +617,12 @@ namespace CloudPanel.Modules.CompanyModules
                             {
                                 #region Enable Mailbox
 
+                                // Check mailbox database
+                                if (!Context.IsSuperAdmin())
+                                    boundUser.MailboxDatabase = string.Empty;
+
                                 // Enable mailbox
                                 logger.InfoFormat("Enabling mailbox for {0}", userGuid);
-
                                 powershell.Enable_Mailbox(boundUser);
                                 reverse.AddAction(Actions.CreateMailbox, userGuid.ToString());
 

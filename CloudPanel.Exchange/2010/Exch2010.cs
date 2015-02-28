@@ -1000,6 +1000,9 @@ namespace CloudPanel.Exchange
             cmd.AddParameter("Alias", string.Format("{0}_{1}", user.EmailFirst, user.EmailDomain));
             cmd.AddParameter("DomainController", this._domainController);
 
+            if (!string.IsNullOrEmpty(user.MailboxDatabase))
+                cmd.AddParameter("Database", user.MailboxDatabase);
+
             logger.DebugFormat("Executing powershell commands...");
             _powershell.Commands = cmd;
             _powershell.Invoke();

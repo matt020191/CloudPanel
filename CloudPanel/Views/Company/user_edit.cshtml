@@ -420,6 +420,27 @@
                                                         </div>
                                                     </div>
 
+                                                    @if (Model.MailboxPlan == null || Model.MailboxPlan == 0) {
+                                                        <hr />
+                                                        <h4>Mailbox Database</h4>
+                                                        <p><small>Choose the database to put the mailbox on when enabling a new mailbox</small></p>
+                                                        <div class="form-group">
+                                                            <label for="smallinput" class="col-sm-3 control-label">Database</label>
+                                                            <div class="col-sm-6">
+                                                                <select id="MailboxDatabase" name="MailboxDatabase" class="form-control">
+                                                                    <option value="">Let Exchange Decide</option>
+                                                                    @if (Settings.ExchangeDatabases != null)
+                                                                    {
+                                                                        @foreach (string database in Settings.ExchangeDatabases)
+                                                                        {
+                                                                            <option value="@database">@database</option>
+                                                                        }
+                                                                    }
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    }
+
                                                     <hr />
                                                     <h4>Modify Email Aliases</h4>
                                                     <p><small>Add additional email addresses to this mailbox by typing in the email and pressing enter after each email.</small></p><br />
