@@ -2893,14 +2893,13 @@ namespace CloudPanel.Exchange
         #endregion
 
         #region Statistics
-
         /// <summary>
         /// Gets a list of message tracking logs between a time period for sent messages
         /// </summary>
         /// <param name="start"></param>
         /// <param name="end"></param>
         /// <returns></returns>
-        public List<MessageTrackingLog> Get_TotalSentMessages(DateTime start, DateTime end)
+        public virtual List<MessageTrackingLog> Get_TotalSentMessages(DateTime start, DateTime end)
         {
             logger.DebugFormat("Querying total sent messages from message logs beginning {0} and ending {1}", start.ToString(), end.ToString());
             var totalSentMessages = new List<MessageTrackingLog>();
@@ -2950,7 +2949,7 @@ namespace CloudPanel.Exchange
         /// <param name="start"></param>
         /// <param name="end"></param>
         /// <returns></returns>
-        public List<MessageTrackingLog> Get_TotalReceivedMessages(DateTime start, DateTime end)
+        public virtual List<MessageTrackingLog> Get_TotalReceivedMessages(DateTime start, DateTime end)
         {
             logger.DebugFormat("Querying total received messages from message logs beginning {0} and ending {1}", start.ToString(), end.ToString());
             var totalReceivedMessages = new List<MessageTrackingLog>();
