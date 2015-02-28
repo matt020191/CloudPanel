@@ -420,7 +420,8 @@
                                                         </div>
                                                     </div>
 
-                                                    @if (Model.MailboxPlan == null || Model.MailboxPlan == 0) {
+                                                    @if (this.RenderContext.Context.IsSuperAdmin() && (Model.MailboxPlan == null || Model.MailboxPlan == 0))
+                                                    {
                                                         <hr />
                                                         <h4>Mailbox Database</h4>
                                                         <p><small>Choose the database to put the mailbox on when enabling a new mailbox</small></p>
