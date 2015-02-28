@@ -113,7 +113,6 @@ namespace CloudPanel.Modules.CompanyModules
 
                                 // Add to group
                                 groups.AddUser(allUsersGroup, tmpADUser.UserPrincipalName);
-
                                 db.Users.Add(tmpADUser);
                             }
                             else
@@ -137,6 +136,9 @@ namespace CloudPanel.Modules.CompanyModules
                     {
                         if (db != null)
                             db.Dispose();
+
+                        if (groups != null)
+                            groups.Dispose();
 
                         if (users != null)
                             users.Dispose();
