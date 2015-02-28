@@ -162,6 +162,7 @@ namespace CloudPanel.Modules
                     logger.DebugFormat("Binding to form");
                     var newBranding = this.Bind<Branding>(new[] { "LoginLogo", "HeaderLogo" });
                     oldBranding.Name = newBranding.Name;
+                    oldBranding.HostName = newBranding.HostName;
                     oldBranding.Phone = newBranding.Phone;
                     oldBranding.Email = newBranding.Email;
                     oldBranding.Theme = newBranding.Theme;
