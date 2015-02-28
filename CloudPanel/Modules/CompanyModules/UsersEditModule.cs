@@ -225,6 +225,7 @@ namespace CloudPanel.Modules.CompanyModules
                     #region Updates a specific user's information
                     CloudPanelContext db = null;
                     ADUsers adUsers = null;
+                    ADGroups adGroups = null;
                     try
                     {
                         logger.DebugFormat("Retrieving user {0} in company {1} from database", userGuid, companyCode);
@@ -273,16 +274,21 @@ namespace CloudPanel.Modules.CompanyModules
                         if (this.Context.IsSuperOrResellerAdmin() || this.Context.CurrentUser.HasClaim("ePermissions"))
                         {
                             logger.DebugFormat("Checking if the logged in user is a super, reseller, or company admin with ePermissions security role.");
+                            adGroups = new ADGroups(Settings.Username, Settings.DecryptedPassword, Settings.PrimaryDC);
                             if (boundUser.RoleID > 0)
                             {
                                 logger.DebugFormat("Role ID is {0}", boundUser.RoleID);
                                 user.IsCompanyAdmin = true;
                                 user.RoleID = boundUser.RoleID;
+
+                                adGroups.AddUser("Admins@" + companyCode, user.UserPrincipalName);
                             }
                             else
                             {
                                 user.IsCompanyAdmin = false;
                                 user.RoleID = null;
+
+                                adGroups.RemoveUser("Admins@" + companyCode, user.UserPrincipalName);
                             }
                         }
 
@@ -302,6 +308,9 @@ namespace CloudPanel.Modules.CompanyModules
                     }
                     finally
                     {
+                        if (adGroups != null)
+                            adGroups.Dispose();
+
                         if (adUsers != null)
                             adUsers.Dispose();
 
