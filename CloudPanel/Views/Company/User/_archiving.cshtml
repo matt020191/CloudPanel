@@ -1,0 +1,52 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+@{
+    var companyCode = this.RenderContext.Context.Parameters.CompanyCode;
+}
+
+<div class="tab-pane clearfix" id="archiving">
+    <form id="archivingForm" action="" method="post" autocomplete="off" class="form-horizontal" data-parsley-validate="true">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label for="smallinput" class="col-sm-3 control-label">Plan</label>
+                <div class="col-sm-6">
+                    <select id="ArchivePlan" name="ArchivePlan" class="form-control input-sm">
+                        <option value="0" @(Model.ArchivePlan > 0 ? "" : "selected")>Archiving Disabled</option>
+                        @foreach (var plan in CloudPanel.Modules.PlansModules.ArchivePlanModule.GetArchivePlans(companyCode))
+                        {
+                            <option value="@plan.ArchivingID"
+                                    data-size="@plan.ArchiveSizeMB"
+                                    data-description="@plan.Description"
+                                    @(plan.ArchivingID == Model.ArchivePlan ? "selected" : "")>
+                                @plan.DisplayName
+                            </option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+    // Query data from Exchange for archive mailbox settings
+    function GetArchiving() {
+        archivingUpdated = true;
+    }
+
+    function SubmitArchive() {
+        console.log("Submitting archive");
+        var deferred = $.Deferred();
+        if (archivingUpdated) {
+            $("#WaitMessage #message").text("Updating archiving settings");
+            var archivingForm = $("#archivingForm").serialize();
+            return $.ajax({
+                type: "PUT",
+                url: "@Html.RenderContext.Context.Request.Url/mailbox/archive",
+                data: archivingForm
+            });
+        }
+        else
+            return deferred.resolve();
+    }
+</script>

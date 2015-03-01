@@ -1,0 +1,236 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@using CloudPanel
+
+@{
+    var companyCode = this.RenderContext.Context.Parameters.CompanyCode;
+}
+
+<div class="tab-pane clearfix active" id="user">
+    <div class="col-md-12">
+        <form id="userForm" action="" method="post" autocomplete="off" class="form-horizontal" data-parsley-validate="true">
+
+            <div class="panel-group panel-info" id="accordion">
+                <div class="panel panel-default">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" class="">
+                        <div class="panel-heading"><h4>General</h4></div>
+                    </a>
+                    <div id="collapseOne" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="smallinput" class="col-sm-3 control-label">Username</label>
+                                <div class="col-sm-6">
+                                    <input id="UserPrincipalName" name="UserPrincipalName" type="text" value="@Model.UserPrincipalName" class="form-control input-sm" data-parsley-required="true" readonly>
+                                    <input id="DistinguishedName" name="DistinguishedName" type="hidden" value="@Model.DistinguishedName" data-parsley-required="true" />
+                                    <input id="sAMAccountName" name="sAMAccountName" type="hidden" value="@Model.sAMAccountName" data-parsley-required="true" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="smallinput" class="col-sm-3 control-label">Display Name</label>
+                                <div class="col-sm-6">
+                                    <input id="DisplayName" name="DisplayName" type="text" value="@Model.DisplayName" class="form-control input-sm" data-parsley-required="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="smallinput" class="col-sm-3 control-label">Firstname</label>
+                                <div class="col-sm-6">
+                                    <input id="Firstname" name="Firstname" type="text" value="@Model.Firstname" class="form-control input-sm">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="smallinput" class="col-sm-3 control-label">Middlename</label>
+                                <div class="col-sm-6">
+                                    <input id="Middlename" name="Middlename" type="text" value="@Model.Middlename" class="form-control input-sm">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="smallinput" class="col-sm-3 control-label">Lastname</label>
+                                <div class="col-sm-6">
+                                    <input id="Lastname" name="Lastname" type="text" value="@Model.Lastname" class="form-control input-sm">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" class="collapsed">
+                        <div class="panel-heading"><h4>Company</h4></div>
+                    </a>
+                    <div id="collapseTwo" class="panel-collapse collapse" style="height: 0px;">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="smallinput" class="col-sm-3 control-label">Company</label>
+                                <div class="col-sm-6">
+                                    <input id="Company" name="Company" type="text" value="@Model.Company" class="form-control input-sm">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="smallinput" class="col-sm-3 control-label">Department</label>
+                                <div class="col-sm-6">
+                                    <input id="Department" name="Department" type="text" value="@Model.Department" class="form-control input-sm">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="smallinput" class="col-sm-3 control-label">Job Title</label>
+                                <div class="col-sm-6">
+                                    <input id="JobTitle" name="JobTitle" type="text" value="@Model.JobTitle" class="form-control input-sm">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="smallinput" class="col-sm-3 control-label">Phone</label>
+                                <div class="col-sm-6">
+                                    <input id="TelephoneNumber" name="TelephoneNumber" type="text" value="@Model.TelephoneNumber" class="form-control input-sm">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="smallinput" class="col-sm-3 control-label">Fax</label>
+                                <div class="col-sm-6">
+                                    <input id="Fax" name="Fax" type="text" value="@Model.Fax" class="form-control input-sm">
+                                </div>
+                            </div>
+                            @if (this.RenderContext.Context.IsSuperOrResellerAdmin() || this.RenderContext.Context.HasPermission("ePermissions"))
+                            {
+                                <div class="form-group">
+                                    <label for="smallinput" class="col-sm-3 control-label">Company Admin</label>
+                                    <div class="col-sm-6">
+                                        <select id="RoleID" name="RoleID" class="form-control">
+                                            <option value="0">Not a Company Admin</option>
+                                            @foreach (var r in CloudPanel.Modules.PermissionsModule.GetRoles(companyCode))
+                                            {
+                                                <option value="@r.RoleID" @( (Model.Role != null && Model.Role.RoleID == r.RoleID) ? "selected" : "")>@r.DisplayName</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree" class="collapsed">
+                        <div class="panel-heading"><h4>Personal</h4></div>
+                    </a>
+                    <div id="collapseThree" class="panel-collapse collapse" style="height: 0px;">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="smallinput" class="col-sm-3 control-label">Home Phone</label>
+                                <div class="col-sm-6">
+                                    <input id="HomePhone" name="HomePhone" type="text" value="@Model.HomePhone" class="form-control input-sm">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="smallinput" class="col-sm-3 control-label">Mobile Phone</label>
+                                <div class="col-sm-6">
+                                    <input id="MobilePhone" name="MobilePhone" type="text" value="@Model.MobilePhone" class="form-control input-sm">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="smallinput" class="col-sm-3 control-label">Street</label>
+                                <div class="col-sm-6">
+                                    <input id="Street" name="Street" type="text" value="@Model.Street" class="form-control input-sm">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="smallinput" class="col-sm-3 control-label">City</label>
+                                <div class="col-sm-6">
+                                    <input id="City" name="City" type="text" value="@Model.City" class="form-control input-sm">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="smallinput" class="col-sm-3 control-label">State</label>
+                                <div class="col-sm-6">
+                                    <input id="State" name="State" type="text" value="@Model.State" class="form-control input-sm">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="smallinput" class="col-sm-3 control-label">Zip Code</label>
+                                <div class="col-sm-6">
+                                    <input id="PostalCode" name="PostalCode" type="text" value="@Model.PostalCode" class="form-control input-sm">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="smallinput" class="col-sm-3 control-label">Country</label>
+                                <div class="col-sm-6">
+                                    @CloudPanel.CPHtmlHelpers.GetCountries(Model.Country)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour" class="">
+                        <div class="panel-heading"><h4>Social</h4></div>
+                    </a>
+                    <div id="collapseFour" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Skype</label>
+                                <div class="col-sm-6">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-skype"></i></span>
+                                        <input id="Skype" name="Skype" type="text" class="form-control" value="@Model.Skype" placeholder="Your Skype Name">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Facebook</label>
+                                <div class="col-sm-6">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-facebook"></i></span>
+                                        <input id="Facebook" name="Facebook" type="text" value="@Model.Facebook" class="form-control" data-parsley-type="url">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Twitter</label>
+                                <div class="col-sm-6">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-twitter"></i></span>
+                                        <input id="Twitter" name="Twitter" type="text" value="@Model.Twitter" class="form-control" data-parsley-type="url">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Dribbble</label>
+                                <div class="col-sm-6">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-dribbble"></i></span>
+                                        <input id="Dribbble" name="Dribbble" type="text" value="@Model.Dribbble" class="form-control" data-parsley-type="url">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Tumblr</label>
+                                <div class="col-sm-6">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-tumblr"></i></span>
+                                        <input id="Tumblr" name="Tumblr" type="text" value="@Model.Tumblr" class="form-control" data-parsley-type="url">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">LinkedIn</label>
+                                <div class="col-sm-6">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-linkedin"></i></span>
+                                        <input id="LinkedIn" name="LinkedIn" type="text" value="@Model.LinkedIn" class="form-control" data-parsley-type="url">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseFive" class="">
+                        <div class="panel-heading"><h4>Notes</h4></div>
+                    </a>
+                    <div id="collapseFive" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <textarea id="Notes" name="Notes" rows="2" cols="20"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+

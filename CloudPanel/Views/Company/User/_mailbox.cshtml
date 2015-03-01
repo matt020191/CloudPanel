@@ -1,0 +1,322 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@using CloudPanel
+@using CloudPanel.Base.Config
+
+@{
+    var companyCode = this.RenderContext.Context.Parameters.CompanyCode;
+    
+    var mailboxUsers = CloudPanel.Modules.UsersModule.GetMailboxUsers(Model.CompanyCode);
+    var resourceMailboxes = CloudPanel.Modules.ResourceModule.GetResources(companyCode);
+    var groups = CloudPanel.Modules.GroupsModule.GetGroups(companyCode);
+    var contacts = CloudPanel.Modules.ContactsModule.GetContacts(companyCode);
+}
+
+<div class="tab-pane clearfix" id="mailbox">
+    <form id="mailboxForm" action="" method="post" autocomplete="off" class="form-horizontal" data-parsley-validate="true">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label class="col-sm-10 control-label">Mailbox Enabled:</label>
+                <div class="col-sm-2 control-label">
+                    <div id="IsMailboxEnabledToggle" class="toggle toggle-modern"></div>
+                    <div style="display: none">
+                        <input id="IsMailboxEnabled" name="IsMailboxEnabled" type="checkbox" value="false" />
+                    </div>
+                </div>
+            </div>
+
+            <div id="MailboxEnabledDiv" style="display: none">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Primary Email</label>
+                    <div class="col-sm-8">
+                        <div class="input-daterange input-group">
+                            <input id="EmailFirst" name="EmailFirst" type="text" class="form-control input-small">
+                            <span class="input-group-addon">@@</span>
+                            <select id="EmailDomain" name="EmailDomain" class="form-control input-small">
+                                @foreach (var domain in CloudPanel.Modules.DomainsModule.GetAcceptedDomains(companyCode))
+                                {
+                                    <option value="@domain.Domain">@domain.Domain</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="smallinput" class="col-sm-3 control-label">Plan</label>
+                    <div class="col-sm-6">
+                        <select id="MailboxPlan" name="MailboxPlan" class="form-control input-sm">
+                            @foreach (var plan in CloudPanel.Modules.PlansModules.MailboxPlanModule.GetMailboxPlans(companyCode))
+                            {
+                                <option value="@plan.MailboxPlanID"
+                                        data-min="@plan.MailboxSizeMB"
+                                        data-max="@(plan.MaxMailboxSizeMB > plan.MailboxSizeMB ? plan.MaxMailboxSizeMB : plan.MailboxSizeMB)"
+                                        data-description="@plan.MailboxPlanDesc"
+                                        @(Model.MailboxPlan == plan.MailboxPlanID ? "selected" : "")>
+                                    @plan.MailboxPlanName
+                                </option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group slidergroup">
+                    <label for="smallinput" class="col-sm-3 control-label"></label>
+                    <div class="col-sm-6">
+                        <p>
+                            <label for="MailboxSize">Set Size in MB:</label>
+                            <input type="text" id="MailboxSize" name="MailboxSize" readonly style="border:0; color:#f6931f; font-weight:bold;">
+                        </p>
+                        <div id="MailboxPlanSlider"></div>
+                        <input id="SizeInMB" name="SizeInMB" type="hidden" />
+                    </div>
+                </div>
+
+                @if (this.RenderContext.Context.IsSuperAdmin() && (Model.MailboxPlan == null || Model.MailboxPlan == 0))
+                {
+                    <hr />
+                    <h4>Mailbox Database</h4>
+                    <p><small>Choose the database to put the mailbox on when enabling a new mailbox</small></p>
+                    <div class="form-group">
+                        <label for="smallinput" class="col-sm-3 control-label">Database</label>
+                        <div class="col-sm-6">
+                            <select id="MailboxDatabase" name="MailboxDatabase" class="form-control">
+                                <option value="">Let Exchange Decide</option>
+                                @if (Settings.ExchangeDatabases != null)
+                                {
+                                    foreach (string database in Settings.ExchangeDatabases)
+                                    {
+                                        <option value="@database">@database</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                }
+
+                <hr />
+                <h4>Modify Email Aliases</h4>
+                <p><small>Add additional email addresses to this mailbox by typing in the email and pressing enter after each email.</small></p><br />
+
+                <div class="form-group">
+                    <label for="smallinput" class="col-sm-3 control-label">Email Aliases</label>
+                    <div class="col-sm-6">
+                        <input id="EmailAliases" name="EmailAliases" type="text" class="form-control input-sm">
+                    </div>
+                </div>
+
+                <hr />
+                <h4>Modify Mailbox Permissions</h4>
+                <p><small>Give the ability for other people to access this mailbox.</small></p><br />
+
+                <div class="form-group">
+                    <label for="smallinput" class="col-sm-3 control-label">Full Access</label>
+                    <div class="col-sm-6">
+                        <select id="EmailFullAccess" name="EmailFullAccess" class="populate" style="width: 100%" multiple>
+                            @foreach (var user in mailboxUsers)
+                            {
+                                if (!string.IsNullOrEmpty(user.sAMAccountName))
+                                    <option value="@user.sAMAccountName">@user.DisplayName</option>
+                            }
+                        </select>
+                        <br />
+                        <input id="AutoMapping" name="AutoMapping" type="checkbox" value="true" checked /> Auto Mapping Enabled
+                        <input id="EmailFullAccessOriginal" name="EmailFullAccessOriginal" type="hidden" value="" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="smallinput" class="col-sm-3 control-label">Send-As Access</label>
+                    <div class="col-sm-6">
+                        <select id="EmailSendAs" name="EmailSendAs" class="populate" style="width: 100%" multiple>
+                            @foreach (var user in mailboxUsers)
+                            {
+                                if (!string.IsNullOrEmpty(user.sAMAccountName))
+                                    <option value="@user.sAMAccountName">@user.DisplayName</option>
+                            }
+                        </select>
+                        <input id="EmailSendAsOriginal" name="EmailSendAsOriginal" type="hidden" value="" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="smallinput" class="col-sm-3 control-label">Send-On-Behalf Access</label>
+                    <div class="col-sm-6">
+                        <select id="EmailSendOnBehalf" name="EmailSendOnBehalf" class="populate" style="width: 100%" multiple>
+                            @foreach (var user in mailboxUsers)
+                            {
+                                if (!string.IsNullOrEmpty(user.sAMAccountName))
+                                    <option value="@user.CanoncialName">@user.DisplayName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <hr />
+                <h4>Forward Email</h4>
+                <p><small>Choose to forward your email to another person or not</small></p><br />
+                <div class="form-group">
+                    <label for="smallinput" class="col-sm-3 control-label">Forward To</label>
+                    <div class="col-sm-6">
+                        <select id="ForwardTo" name="ForwardTo" class="populate" style="width: 100%">
+                            <option value="0">Forwarding Disabled</option>
+                            <optgroup label="Users">
+                                @if (mailboxUsers != null)
+                                {
+                                    foreach (var user in mailboxUsers)
+                                    {
+                                        <option value="@user.CanoncialName">@user.DisplayName</option>
+                                    }
+                                }
+                            </optgroup>
+                            <optgroup label="Contacts">
+                                @if (contacts != null)
+                                {
+                                    foreach (var contact in contacts)
+                                    {
+                                        <option value="@contact.CanoncialName">@contact.DisplayName</option>
+                                    }
+                                }
+                            </optgroup>
+                            <optgroup label="Groups">
+                                @if (groups != null)
+                                {
+                                    foreach (var group in groups)
+                                    {
+                                        <option value="@group.CanonicalName">@group.DisplayName</option>
+                                    }
+                                }
+                            </optgroup>
+                            <optgroup label="Resources">
+                                @if (resourceMailboxes != null)
+                                {
+                                    foreach (var resource in resourceMailboxes)
+                                    {
+                                        <option value="@resource.CanonicalName">@resource.DisplayName</option>
+                                    }
+                                }
+                            </optgroup>
+                        </select>
+                        <br />
+                        <input id="DeliverToMailboxAndForward" name="DeliverToMailboxAndForward" value="false" type="checkbox" /> Deliver to Mailbox and Forward
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+
+    // Toggle for the mailbox enabled or not
+    function MailboxToggle() {
+        var isEnabled = @(Model.MailboxPlan > 0 ? "true" : "false");
+        $('#IsMailboxEnabledToggle').toggles({
+            checkbox: $("#IsMailboxEnabled"),
+            on: isEnabled
+        });
+
+        if (isEnabled) {
+            $("#MailboxEnabledDiv").show();
+            $("#IsMailboxEnabled").val("true");
+        }
+
+        $('#IsMailboxEnabledToggle').on('toggle', function (e, active) {
+            if (active) {
+                $("#MailboxEnabledDiv").show();
+                $("#IsMailboxEnabled").val("true");
+            } else {
+                $("#MailboxEnabledDiv").hide();
+                swal({
+                    title: "Are you sure?",
+                    text: "Disabling a mailbox will delete all emails and data from the mailbox.",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes, disable it!",
+                    cancelButtonText: "No!",
+                    closeOnConfirm: true,
+                    closeOnCancel: true
+                }, function(isConfirm){
+                    var myToggle = $('#IsMailboxEnabledToggle').data('toggles');
+                    if (isConfirm) {
+                        myToggle.toggle(false);
+                        $("#IsMailboxEnabled").val("false");
+                    }
+                    else {
+                        myToggle.toggle(true);
+                        $("#IsMailboxEnabled").val("true");
+                    }
+                });
+            }
+        });
+    }
+
+    // Query data from Exchange for the mailbox
+    function GetMailbox() {
+        var isEnabledOriginal = @Model.MailboxPlan;
+        if (mailboxUpdated == false && isEnabledOriginal > 0) {
+            $.blockUI();
+            $("#WaitMessage #message").text("Retrieving mailbox information");
+
+            $.ajax({
+                type: "GET",
+                url: "@Html.RenderContext.Context.Request.Url/mailbox",
+            })
+              .done(function(data) {
+                  console.log(data);
+
+                  $("#EmailFirst").val(data.mailbox.emailFirst);
+                  $("#EmailDomain").val(data.mailbox.emailDomain);
+                  $("#EmailAliases").tokenfield('setTokens', data.mailbox.emailAliases);
+
+                  $("#EmailFullAccess").select2("val", data.mailbox.emailFullAccess);
+                  $.each(data.mailbox.emailFullAccess, function (i, val) {
+                      if ($("#EmailFullAccess option[value='" + val + "']").length > 0) {
+                          $("#EmailFullAccessOriginal").val($("#EmailFullAccessOriginal").val() + val + ",");
+                      }
+                  });
+
+                  $("#EmailSendAs").select2("val", data.mailbox.emailSendAs);
+                  $.each(data.mailbox.emailSendAs, function (i, val) {
+                      if ($("#EmailSendAs option[value='" + val + "']").length > 0) {
+                          $("#EmailSendAsOriginal").val($("#EmailSendAsOriginal").val() + val + ",");
+                      }
+                  });
+
+                  $("#EmailSendOnBehalf").select2("val", data.mailbox.emailSendOnBehalf);
+                  $("#ForwardTo").select2("val", data.mailbox.forwardTo);
+                  $("#DeliverToMailboxAndForward").val(data.mailbox.deliverToMailboxAndForward);
+                  $("#DeliverToMailboxAndForward").prop("checked", data.mailbox.deliverToMailboxAndForward);
+
+                  // Litigation HoldLitigationHoldEnabled
+                  $("#LitigationHoldEnabled").val(data.mailbox.litigationHoldEnabled);
+                  $("#RetentionComment").val(data.mailbox.retentionComment);
+                  $("#RetentionUrl").val(data.mailbox.retentionUrl);
+
+                  mailboxUpdated = true;
+              })
+              .fail(function(data) {
+                  ShowError(data);
+              })
+              .always(function() {
+                  $.unblockUI();
+              });
+        }
+        else {
+            mailboxUpdated = true;
+            mailboxAlreadyRetrieved = true;
+        }
+    }
+
+    function SubmitMailbox() {
+        console.log("Submitting mailbox");
+        var deferred = $.Deferred();
+        if (mailboxUpdated) {
+            $("#WaitMessage #message").text("Updating mailbox settings");
+            var mailboxForm = $("#mailboxForm").serialize();
+            return $.ajax({
+                type: "PUT",
+                url: "@Html.RenderContext.Context.Request.Url/mailbox",
+                data: mailboxForm
+            });
+        }
+        else
+            return deferred.resolve();
+    }
+</script>

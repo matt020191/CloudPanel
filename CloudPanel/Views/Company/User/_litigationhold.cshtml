@@ -1,0 +1,60 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+
+<div class="tab-pane clearfix" id="litigationhold">
+    <form id="litigationholdForm" action="" method="post" autocomplete="off" class="form-horizontal" data-parsley-validate="true">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label class="col-sm-11 control-label">Litigation Hold Enabled:</label>
+                <div class="col-sm-1 control-label">
+                    <input id="LitigationHoldEnabled" name="LitigationHoldEnabled" type="checkbox" value="false" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="smallinput" class="col-sm-3 control-label">Hold until</label>
+                <div class="col-sm-6">
+                    <input id="LitigationHoldDuration" name="LitigationHoldDuration" type="text" value="" class="form-control input-sm">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="smallinput" class="col-sm-3 control-label">Url</label>
+                <div class="col-sm-6">
+                    <input id="RetentionUrl" name="RetentionUrl" type="text" value="" class="form-control input-sm">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="smallinput" class="col-sm-3 control-label">Message</label>
+                <div class="col-sm-6">
+                    <textarea id="RetentionComment" name="RetentionComment" rows="2" cols="20" class="form-control"></textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+
+    // Query data from Exchange and set litigation hold
+    function GetLitigationHold() {
+        if (mailboxUpdated == false)
+            GetMailbox();
+
+        litigationHoldUpdated = true;
+    }
+
+    function SubmitLitigation() {
+        console.log("Submitting litigation hold");
+        var deferred = $.Deferred();
+        if (litigationHoldUpdated) {
+            $("#WaitMessage #message").text("Updating litigation hold settings");
+            var litigationholdForm = $("#litigationholdForm").serialize();
+            return $.ajax({
+                type: "PUT",
+                url: "@Html.RenderContext.Context.Request.Url/mailbox/litigationhold",
+                data: litigationholdForm
+            });
+        }
+        else
+            return deferred.resolve();
+    }
+
+</script>

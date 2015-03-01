@@ -1723,6 +1723,10 @@
     <Content Include="Views\Company\Exchange\publicfolders_modify.cshtml" />
     <Content Include="Views\Admin\import_companies.cshtml" />
     <Content Include="Views\Admin\import_users.cshtml" />
+    <Content Include="Views\Company\User\_mailbox.cshtml" />
+    <Content Include="Views\Company\User\_user.cshtml" />
+    <Content Include="Views\Company\User\_litigationhold.cshtml" />
+    <Content Include="Views\Company\User\_archiving.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -1,19 +1,19 @@
 ﻿using CloudPanel.Base.Config;
 using CloudPanel.Database.EntityFramework;
+using CloudPanel.Reports.Citrix;
 using CloudPanel.Reports.Exchange;
 using log4net;
 using Microsoft.Reporting.WebForms;
 using Nancy;
 using Nancy.Security;
-using System.Data.Entity;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Web;
-using CloudPanel.Reports.Citrix;
-using CloudPanel.Base.Models.ViewModels;
+using CloudPanel.Base.Extensions;
+using CloudPanel.Code;
 
 namespace CloudPanel.Modules.Reports
 {
@@ -23,15 +23,15 @@ namespace CloudPanel.Modules.Reports
 
         public ReportsModule() : base("/reports")
         {
-            //this.RequiresClaims(new[] { "SuperAdmin" });
-
             Get["/"] = _ =>
                 {
+                    this.RequiresAnyClaim(new[] { "SuperAdmin" });
                     return View["Reports/reports.cshtml"];
                 };
 
             Get["/exchange/summary"] = _ =>
                 {
+                    this.RequiresAnyClaim(new[] { "SuperAdmin" });
                     #region Exchange global summary report
 
                     CloudPanelContext db = null;
@@ -150,6 +150,8 @@ namespace CloudPanel.Modules.Reports
 
             Get["/exchange/detailed"] = _ =>
                 {
+                    string companyCode = Request.Query.CompanyCode.HasValue ? Request.Query.CompanyCode.Value : "";
+                    this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, companyCode, "vDomains"));
                     #region Exchange detailed report
 
                     CloudPanelContext db = null;
@@ -163,10 +165,6 @@ namespace CloudPanel.Modules.Reports
                         db = new CloudPanelContext(Settings.ConnectionString);
                         db.Database.Connection.Open();
 
-                        string companyCode = string.Empty;
-                        if (Request.Query.CompanyCode.HasValue)
-                            companyCode = Request.Query.CompanyCode.Value;
-
                         var users = (from d in db.Users
                                      join c in db.Companies on d.CompanyCode equals c.CompanyCode into c1
                                      from company in c1.DefaultIfEmpty()
@@ -178,12 +176,16 @@ namespace CloudPanel.Modules.Reports
                                      from mailboxsize in d3.OrderByDescending(x => x.Retrieved).DefaultIfEmpty().Take(1)
                                      join s2 in db.StatMailboxArchiveSize on d.UserGuid equals s2.UserGuid into d4
                                      from archivesize in d4.OrderByDescending(x => x.Retrieved).DefaultIfEmpty().Take(1)
+                                     join m2 in db.StatMessageTrackingCount on d.ID equals m2.UserID into d6
+                                     from messagelog in d6.DefaultIfEmpty().OrderByDescending(x => x.Start).Take(1)
                                      where d.MailboxPlan > 0
                                      select new ExchangeDetailedData()
                                      {
                                          CompanyCode = d.CompanyCode,
                                          CompanyName = company.CompanyName,
+                                         UserID = d.ID,
                                          UserGuid = d.UserGuid,
+                                         IsEnabled = d.IsEnabled == true ? true : false,
                                          UserPrincipalName = d.UserPrincipalName,
                                          UserDisplayName = d.DisplayName,
                                          MailboxPlan = d.MailboxPlan == null ? 0 : (int)d.MailboxPlan,
@@ -197,7 +199,13 @@ namespace CloudPanel.Modules.Reports
                                          ArchivePlanName = archiveplan == null ? string.Empty : archiveplan.DisplayName,
                                          ArchivePlanCost = archiveplan == null ? 0 : archiveplan.Cost,
                                          ArchivePlanPrice = archiveplan == null ? 0 : archiveplan.Price,
-                                         ArchiveSizeInBytes = archivesize == null ? 0 : archivesize.TotalItemSizeInBytes
+                                         ArchiveSizeInBytes = archivesize == null ? 0 : archivesize.TotalItemSizeInBytes,
+                                         MessageLogSent = messagelog == null ? 0 : messagelog.TotalSent,
+                                         MessageLogReceived = messagelog == null ? 0 : messagelog.TotalReceived,
+                                         MessageLogSentBytes = messagelog == null ? 0 : messagelog.TotalBytesSent,
+                                         MessageLogReceivedBytes = messagelog == null ? 0 : messagelog.TotalBytesReceived,
+                                         MessageLogStart = messagelog == null ? DateTime.MinValue : messagelog.Start,
+                                         MessageLogEnd = messagelog == null ? DateTime.MinValue : messagelog.End
                                      }).ToList();
 
                         logger.DebugFormat("Found a total of {0} users for the Exchange detailed report.. checking if we are limiting results", users.Count);
@@ -211,11 +219,14 @@ namespace CloudPanel.Modules.Reports
                         var priceoverride = db.PriceOverride.ToList();
                         users.ForEach(x =>
                         {
+                            //
+                            // Check if the price is different or not
+                            //
                             if (priceoverride != null)
                             {
                                 var customMailboxPrice = priceoverride.Where(p => p.CompanyCode == x.CompanyCode &&
-                                                                                      p.PlanID == x.MailboxPlan &&
-                                                                                      p.Product == "Exchange").FirstOrDefault();
+                                                                                  p.PlanID == x.MailboxPlan &&
+                                                                                  p.Product == "Exchange").FirstOrDefault();
                                 x.MailboxPlanPriceCustom = customMailboxPrice == null ? null : (decimal?)customMailboxPrice.Price;
 
                                 if (x.ArchivePlan > 0)
@@ -228,15 +239,25 @@ namespace CloudPanel.Modules.Reports
                             }
                         });
 
-                        //stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CloudPanel.Reports.Exchange.RDLC.ExchangeSummaryReport.rdlc");
+                        logger.DebugFormat("Getting message log totals");
+                        var userIds = users.Select(x => x.UserID).ToList();
+                        var messageLogs = (from d in db.StatMessageTrackingCount
+                                          where userIds.Contains(d.UserID)
+                                          where d.End >= (DateTime)DbFunctions.AddDays(DateTime.Now, -7)
+                                          group d by d.End into g
+                                          select new MessageLogDataGlobal()
+                                          {
+                                              Retrieved = (DateTime)DbFunctions.TruncateTime(g.Key),
+                                              TotalSent = g.Sum(x => x.TotalSent),
+                                              TotalReceived = g.Sum(x => x.TotalReceived),
+                                              TotalBytesSent = g.Sum(x => x.TotalBytesSent),
+                                              TotalBytesReceived = g.Sum(x => x.TotalBytesReceived)
+                                          }).ToList();
 
                         reportViewer = new ReportViewer();
                         reportViewer.LocalReport.ReportEmbeddedResource = "CloudPanel.Reports.Exchange.ExchangeDetails.rdlc";
-                        reportViewer.LocalReport.DataSources.Add(new ReportDataSource()
-                        {
-                            Name = "Users",
-                            Value = users
-                        });
+                        reportViewer.LocalReport.DataSources.Add(new ReportDataSource() { Name = "Users", Value = users });
+                        reportViewer.LocalReport.DataSources.Add(new ReportDataSource() { Name = "GlobalMessageLogs", Value = messageLogs });
 
                         reportViewer.LocalReport.Refresh();
                         byte[] reportData = reportViewer.LocalReport.Render("pdf");
@@ -267,114 +288,115 @@ namespace CloudPanel.Modules.Reports
                 };
 
             Get["/citrix/summary"] = _ =>
-            {
-                #region Citrix summary report
-
-                CloudPanelContext db = null;
-                Assembly assembly = null;
-                Stream stream = null;
-
-                ReportViewer reportViewer = null;
-                try
                 {
-                    logger.DebugFormat("Generating Citrix summary report..");
-                    db = new CloudPanelContext(Settings.ConnectionString);
-                    db.Database.Connection.Open();
+                    this.RequiresAnyClaim(new[] { "SuperAdmin" });
+                    #region Citrix summary report
 
-                    string companyCode = string.Empty;
-                    if (Request.Query.CompanyCode.HasValue)
-                        companyCode = Request.Query.CompanyCode.Value;
+                    CloudPanelContext db = null;
+                    Assembly assembly = null;
+                    Stream stream = null;
+
+                    ReportViewer reportViewer = null;
+                    try
+                    {
+                        logger.DebugFormat("Generating Citrix summary report..");
+                        db = new CloudPanelContext(Settings.ConnectionString);
+                        db.Database.Connection.Open();
+
+                        string companyCode = string.Empty;
+                        if (Request.Query.CompanyCode.HasValue)
+                            companyCode = Request.Query.CompanyCode.Value;
 
 
-                    var companies = db.Companies.ToList();
-                    var desktopGroups = new List<CitrixDesktopGroupData>();
-                    var applications = new List<CitrixAppsData>();
+                        var companies = db.Companies.ToList();
+                        var desktopGroups = new List<CitrixDesktopGroupData>();
+                        var applications = new List<CitrixAppsData>();
 
-                    var citrixDesktopGroups = (from d in db.CitrixDesktopGroup orderby d.Name select d).ToList();
-                    citrixDesktopGroups.ForEach(x =>
-                        {
-                            var data = (from d in db.Users
-                                                     .Include(c => c.CitrixDesktopGroups)
-                                        where d.CitrixDesktopGroups.Any(a => a.Name == x.Name)
-                                        select new CitrixDesktopGroupData()
-                                        {
-                                            CompanyCode = d.CompanyCode,
-                                            CompanyName = "",
-                                            DesktopGroupName = x.Name,
-                                            UserGuid = d.UserGuid,
-                                            UserDisplayName = d.DisplayName,
-                                            UserPrincipalName = d.UserPrincipalName
-                                        }).ToList();
-
-                            if (data.Count > 0) 
+                        var citrixDesktopGroups = (from d in db.CitrixDesktopGroup orderby d.Name select d).ToList();
+                        citrixDesktopGroups.ForEach(x =>
                             {
-                                data.ForEach(d => {
-                                    d.CompanyName = companies.Where(c => c.CompanyCode == d.CompanyCode).Single().CompanyName;
-                                });
-                                desktopGroups.AddRange(data);
-                            }
-                        });
+                                var data = (from d in db.Users
+                                                         .Include(c => c.CitrixDesktopGroups)
+                                            where d.CitrixDesktopGroups.Any(a => a.Name == x.Name)
+                                            select new CitrixDesktopGroupData()
+                                            {
+                                                CompanyCode = d.CompanyCode,
+                                                CompanyName = "",
+                                                DesktopGroupName = x.Name,
+                                                UserGuid = d.UserGuid,
+                                                UserDisplayName = d.DisplayName,
+                                                UserPrincipalName = d.UserPrincipalName
+                                            }).ToList();
 
-                    var citrixApplications = (from d in db.CitrixApplication.Include(x => x.DesktopGroups) orderby d.Name select d).ToList();
-                    citrixApplications.ForEach(x =>
-                        {
-                            var data = (from d in db.Users
-                                                    .Include(c => c.CitrixApplications)
-                                        where d.CitrixApplications.Any(a => a.Name == x.Name)
-                                        select new CitrixAppsData()
-                                        {
-                                            CompanyCode = d.CompanyCode,
-                                            CompanyName = "",
-                                            ApplicationName = x.ApplicationName,
-                                            UserDisplayName = d.DisplayName,
-                                            UserGuid = d.UserGuid,
-                                            UserPrincipalName = d.UserPrincipalName
-                                        }).ToList();
-
-                            if (data.Count > 0)
-                            {
-                                data.ForEach(d =>
+                                if (data.Count > 0) 
                                 {
-                                    d.CompanyName = companies.Where(c => c.CompanyCode == d.CompanyCode).Single().CompanyName;
-                                });
-                                applications.AddRange(data);
-                            }
-                        });
+                                    data.ForEach(d => {
+                                        d.CompanyName = companies.Where(c => c.CompanyCode == d.CompanyCode).Single().CompanyName;
+                                    });
+                                    desktopGroups.AddRange(data);
+                                }
+                            });
 
-                    logger.DebugFormat("Found a total of {0} desktop groups for the Citrix summary report", desktopGroups.Count);
-                    logger.DebugFormat("Found a total of {0} applications for the Citrix summary report", applications.Count);
+                        var citrixApplications = (from d in db.CitrixApplication.Include(x => x.DesktopGroups) orderby d.Name select d).ToList();
+                        citrixApplications.ForEach(x =>
+                            {
+                                var data = (from d in db.Users
+                                                        .Include(c => c.CitrixApplications)
+                                            where d.CitrixApplications.Any(a => a.Name == x.Name)
+                                            select new CitrixAppsData()
+                                            {
+                                                CompanyCode = d.CompanyCode,
+                                                CompanyName = "",
+                                                ApplicationName = x.ApplicationName,
+                                                UserDisplayName = d.DisplayName,
+                                                UserGuid = d.UserGuid,
+                                                UserPrincipalName = d.UserPrincipalName
+                                            }).ToList();
 
-                    reportViewer = new ReportViewer();
-                    reportViewer.LocalReport.ReportEmbeddedResource = "CloudPanel.Reports.Citrix.CitrixSummary.rdlc";
-                    reportViewer.LocalReport.DataSources.Add(new ReportDataSource() { Name = "DesktopGroups", Value = desktopGroups });
-                    reportViewer.LocalReport.DataSources.Add(new ReportDataSource() { Name = "Applications", Value = applications });
+                                if (data.Count > 0)
+                                {
+                                    data.ForEach(d =>
+                                    {
+                                        d.CompanyName = companies.Where(c => c.CompanyCode == d.CompanyCode).Single().CompanyName;
+                                    });
+                                    applications.AddRange(data);
+                                }
+                            });
 
-                    reportViewer.LocalReport.Refresh();
-                    byte[] reportData = reportViewer.LocalReport.Render("pdf");
-                    return Response.FromByteArray(reportData, "application/pdf");
-                }
-                catch (Exception ex)
-                {
-                    return Negotiate.WithModel(new { error = ex.ToString() })
-                                    .WithStatusCode(HttpStatusCode.InternalServerError)
-                                    .WithView("Error/500.cshtml");
-                }
-                finally
-                {
-                    if (reportViewer != null)
-                        reportViewer.Dispose();
+                        logger.DebugFormat("Found a total of {0} desktop groups for the Citrix summary report", desktopGroups.Count);
+                        logger.DebugFormat("Found a total of {0} applications for the Citrix summary report", applications.Count);
 
-                    if (stream != null)
-                        stream.Dispose();
+                        reportViewer = new ReportViewer();
+                        reportViewer.LocalReport.ReportEmbeddedResource = "CloudPanel.Reports.Citrix.CitrixSummary.rdlc";
+                        reportViewer.LocalReport.DataSources.Add(new ReportDataSource() { Name = "DesktopGroups", Value = desktopGroups });
+                        reportViewer.LocalReport.DataSources.Add(new ReportDataSource() { Name = "Applications", Value = applications });
 
-                    if (assembly != null)
-                        assembly = null;
+                        reportViewer.LocalReport.Refresh();
+                        byte[] reportData = reportViewer.LocalReport.Render("pdf");
+                        return Response.FromByteArray(reportData, "application/pdf");
+                    }
+                    catch (Exception ex)
+                    {
+                        return Negotiate.WithModel(new { error = ex.ToString() })
+                                        .WithStatusCode(HttpStatusCode.InternalServerError)
+                                        .WithView("Error/500.cshtml");
+                    }
+                    finally
+                    {
+                        if (reportViewer != null)
+                            reportViewer.Dispose();
 
-                    if (db != null)
-                        db.Dispose();
-                }
-                #endregion
-            };
+                        if (stream != null)
+                            stream.Dispose();
+
+                        if (assembly != null)
+                            assembly = null;
+
+                        if (db != null)
+                            db.Dispose();
+                    }
+                    #endregion
+                };
         }
     }
 }

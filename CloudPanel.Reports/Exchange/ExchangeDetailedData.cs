@@ -9,20 +9,27 @@ namespace CloudPanel.Reports.Exchange
     public class ExchangeDetails
     {
         private List<ExchangeDetailedData> e_detaileddata;
+        private List<MessageLogDataGlobal> e_messagelogdataglobal;
 
         public ExchangeDetails()
         {
 
         }
 
-        public ExchangeDetails(List<ExchangeDetailedData> data)
+        public ExchangeDetails(List<ExchangeDetailedData> detaileddata, List<MessageLogDataGlobal> messagelogdataglobal)
         {
-            e_detaileddata = data;
+            e_detaileddata = detaileddata;
+            e_messagelogdataglobal = messagelogdataglobal;
         }
 
         public List<ExchangeDetailedData> GetDetails()
         {
             return e_detaileddata;
+        }
+
+        public List<MessageLogDataGlobal> GetMessageLogDataGlobal()
+        {
+            return e_messagelogdataglobal;
         }
     }
 
@@ -35,7 +42,11 @@ namespace CloudPanel.Reports.Exchange
         //
         // User Data
         //
+        public int UserID { get; set; }
+
         public Guid UserGuid { get; set; }
+
+        public bool IsEnabled { get; set; }
 
         public string UserPrincipalName { get; set; }
 
@@ -60,7 +71,7 @@ namespace CloudPanel.Reports.Exchange
 
         public decimal MailboxPlanAdditionalPrice { get; set; }
 
-        public long MailboxSizeInBytes { get; set; }
+        public double MailboxSizeInBytes { get; set; }
 
         //
         // Archiving Data
@@ -78,13 +89,43 @@ namespace CloudPanel.Reports.Exchange
         public decimal? ArchivePlanPriceCustom { get; set; }
 
         //
+        // Messages Sent / Received
+        //
+        public int MessageLogSent { get; set; }
+
+        public int MessageLogReceived { get; set; }
+
+        public long MessageLogSentBytes { get; set; }
+
+        public double MessageLogSentInMB { get { return ByteSize.ByteSize.FromBytes(MessageLogSentBytes).MegaBytes; } }
+
+        public long MessageLogReceivedBytes { get; set; }
+
+        public double MessageLogReceivedInMB { get { return ByteSize.ByteSize.FromBytes(MessageLogReceivedBytes).MegaBytes; } }
+
+        public DateTime MessageLogStart { get; set; }
+
+        public DateTime MessageLogEnd { get; set; }
+
+        //
         // Getters only
         //
-        public int MailboxAllocated
+
+        public double MailboxAllocatedInBytes
         {
             get
             {
-                return MailboxPlanSizeInMB + MailboxAdditionalMB;
+                int total = MailboxPlanSizeInMB + MailboxAdditionalMB;
+                return ByteSize.ByteSize.FromMegaBytes(total).Bytes;
+            }
+        }
+
+        public double MailboxLeftOverInBytes
+        {
+            get
+            {
+                double leftOver = MailboxAllocatedInBytes - MailboxSizeInBytes;
+                return leftOver;
             }
         }
 
@@ -92,7 +133,16 @@ namespace CloudPanel.Reports.Exchange
         {
             get
             {
-                return ByteSize.ByteSize.FromMegaBytes(MailboxAllocated).ToString("#.##");
+                return ByteSize.ByteSize.FromBytes(MailboxAllocatedInBytes).ToString("#.##");
+            }
+        }
+
+        public string MailboxAllocatedLeftReadable
+        {
+            get
+            {
+                double leftOver = MailboxAllocatedInBytes - MailboxSizeInBytes;
+                return ByteSize.ByteSize.FromBytes(leftOver).ToString("#.##");
             }
         }
 
@@ -103,5 +153,38 @@ namespace CloudPanel.Reports.Exchange
                 return ByteSize.ByteSize.FromBytes(MailboxSizeInBytes).ToString("#.##");
             }
         }
+
+        public string MessageLogSentReadable
+        {
+            get
+            {
+                return ByteSize.ByteSize.FromBytes(MessageLogSentBytes).ToString("#.##");
+            }
+        }
+
+        public string MessageLogReceivedReadable
+        {
+            get
+            {
+                return ByteSize.ByteSize.FromBytes(MessageLogReceivedBytes).ToString("#.##");
+            }
+        }
+    }
+
+    public class MessageLogDataGlobal
+    {
+        public DateTime Retrieved { get; set; }
+
+        public int TotalSent {get; set; }
+
+        public int TotalReceived {get; set; }
+
+        public long TotalBytesSent {get; set; }
+
+        public double TotalBytesSentInGB { get { return ByteSize.ByteSize.FromBytes(TotalBytesSent).GigaBytes; } }
+
+        public long TotalBytesReceived { get; set; }
+
+        public double TotalBytesReceivedInGB { get { return ByteSize.ByteSize.FromBytes(TotalBytesReceived).GigaBytes; } }
     }
 }
