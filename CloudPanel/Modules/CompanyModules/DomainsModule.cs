@@ -24,8 +24,6 @@ namespace CloudPanel.Modules
 
         public DomainsModule() : base("/company/{CompanyCode}/domains")
         {
-            this.RequiresAuthentication();
-
             Get["/"] = _ =>
             {
                 this.RequiresValidatedClaims(c => ValidateClaims.AllowCompanyAdmin(Context.CurrentUser, _.CompanyCode, "vDomains"));
@@ -328,31 +326,30 @@ namespace CloudPanel.Modules
                                   where d.DomainID == domainId
                                   select d).First();
 
-
                     //
                     // Update domain in Exchange only if this company is enabled for Exchange
                     //
                     if (CPStaticHelpers.IsExchangeEnabled(companyCode))
                     {
                         logger.DebugFormat("Checking if domain type was changed");
-                        int originalDomainType = domain.DomainType == null ? 0 : (int)domain.DomainType;
-                        int newDomainType = Request.Form.DomainType.HasValue ? Request.Form.DomainType : 0;
-                        domain.DomainType = newDomainType;
+                        int original = domain.DomainType == null ? DomainType.Default : (int)domain.DomainType;
+                        int newType = Request.Form.DomainType;
+                        domain.DomainType = newType;
 
-                        logger.DebugFormat("Original domain type was {0} and now is {1}", originalDomainType, newDomainType);
-                        if (originalDomainType != newDomainType)
+                        logger.DebugFormat("Original domain type was {0} and now is {1}", original, newType);
+                        if (original != newType)
                         {
                             logger.DebugFormat("Domain type was changed");
                             exchangePowershell = ExchPowershell.GetClass();
 
-                            if (originalDomainType == 0)
+                            if (original == DomainType.Default)
                             {
                                 // Enabling accepted domain
                                 logger.DebugFormat("Enabling domain {0} for Exchange", domain.Domain);
-                                exchangePowershell.New_AcceptedDomain(new Domains() { Domain = domain.Domain, DomainType = newDomainType });
+                                exchangePowershell.New_AcceptedDomain(new Domains() { Domain = domain.Domain, DomainType = newType });
                                 domain.IsAcceptedDomain = true;
                             }
-                            else if (newDomainType == 0)
+                            else if (newType == DomainType.Default)
                             {
                                 // Disabling accepted domain
                                 logger.DebugFormat("Removing domain {0} from Exchange", domain.Domain);
@@ -362,8 +359,8 @@ namespace CloudPanel.Modules
                             else
                             {
                                 // Update domain type
-                                logger.DebugFormat("Setting domain {0} type to {1} in Exchange", domain.Domain, newDomainType);
-                                exchangePowershell.Update_AcceptedDomain(new Domains() { Domain = domain.Domain, DomainType = newDomainType });
+                                logger.DebugFormat("Setting domain {0} type to {1} in Exchange", domain.Domain, newType);
+                                exchangePowershell.Update_AcceptedDomain(new Domains() { Domain = domain.Domain, DomainType = newType });
                                 domain.IsAcceptedDomain = true;
                             }
                         }

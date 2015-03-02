@@ -1,9 +1,11 @@
 ﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
 @using CloudPanel
+@using CloudPanel.Base.Enums
 
 @{
     Layout = "__master.cshtml";
 }
+
 @section HEAD{
     <link href="~/Content/plugins/datatables-1.10.2/media/css/jquery.dataTables.bootstrap.css" rel="stylesheet" />
     <link href="~/Content/plugins/form-parsley-new/parsley.css" rel="stylesheet" />
@@ -39,7 +41,14 @@
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Domain Type</label>
                                 <div class="col-sm-6">
-                                    @CloudPanel.CPHtmlHelpers.GetDomainTypes(Model.domain.DomainType, "")
+                                    <select id="DomainType" name="DomainType" class="form-control">
+                                        <option value="0">Regular Domain</option>
+                                        <optgroup id="exchange-domains" label="Email">
+                                            <option value="@DomainType.Authoritative" @(Model.domain.DomainType == DomainType.Authoritative ? "selected" : "")>Authoritative</option>
+                                            <option value="@DomainType.InternalRelay" @(Model.domain.DomainType == DomainType.InternalRelay ? "selected" : "")>Internal Relay</option>
+                                            <option value="@DomainType.ExternalRelay" @(Model.domain.DomainType == DomainType.ExternalRelay ? "selected" : "")>External Relay</option>
+                                        </optgroup>
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-group">

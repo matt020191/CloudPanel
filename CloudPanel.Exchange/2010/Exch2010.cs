@@ -394,10 +394,10 @@ namespace CloudPanel.Exchange
 
             switch (newDomain.DomainType)
             {
-                case 2:
+                case DomainType.InternalRelay:
                     cmd.AddParameter("DomainType", "InternalRelay");
                     break;
-                case 3:
+                case DomainType.ExternalRelay:
                     cmd.AddParameter("DomainType", "ExternalRelay");
                     break;
                 default:
@@ -422,10 +422,10 @@ namespace CloudPanel.Exchange
 
             switch (updateDomain.DomainType)
             {
-                case 2:
+                case DomainType.InternalRelay:
                     cmd.AddParameter("DomainType", "InternalRelay");
                     break;
-                case 3:
+                case DomainType.ExternalRelay:
                     cmd.AddParameter("DomainType", "ExternalRelay");
                     break;
                 default:
